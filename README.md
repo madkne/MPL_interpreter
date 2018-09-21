@@ -8,10 +8,12 @@ TODO
 
 --------
 
-* ----------Init-----------
+### ----------Init-----------
+
   - define mpl arguments [OK]
   - defnie mpl help [OK]
   - init basic interpreter variables [OK]
+  
 * ---------Parse-----------
  + reading source file as utf8 [OK]
  + remove comments and convert utf8 to ascii [OK]
