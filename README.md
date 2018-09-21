@@ -10,23 +10,25 @@ TODO
 
 ### ----------Init-----------
 
-  - define mpl arguments [OK]
-  - defnie mpl help [OK]
-  - init basic interpreter variables [OK]
-  
-* ---------Parse-----------
- + reading source file as utf8 [OK]
- + remove comments and convert utf8 to ascii [OK]
- + extract tokens [OK]
- + parsing tokens [OK]
- + parsing import instruction [OK]
- + parsing function headers [OK]
- + parsing normal instructions [OK]
- + parsing structures [OK]
- + parsing and converting switch instruction [:(]
+* define mpl arguments [OK]
+* defnie mpl help [OK]
+* init basic interpreter variables [OK]
 
-* ----------Mean-----------
- + start runtime [..]
+### ---------Parse-----------
+
+* reading source file as utf8 [OK]
+* remove comments and convert utf8 to ascii [OK]
+* extract tokens [OK]
+* parsing tokens [OK]
+* parsing import instruction [OK]
+* parsing function headers [OK]
+* parsing normal instructions [OK]
+* parsing structures [OK]
+* parsing and converting switch instruction [:(]
+
+### ----------Mean-----------
+
+* start runtime [..]
 
 MPL Language Features:
 
