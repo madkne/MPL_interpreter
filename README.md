@@ -1,5 +1,5 @@
 Mini Portable Language - MPL (BETA-0.1)
-===========================================
+============================================
 
 This is a small,fast and simple interpreter also best solution to common problems of programmers.
 [![license](https://img.shields.io/github/license/Netflix/pollyjs.svg)](http://www.apache.org/licenses/LICENSE-2.0)
@@ -9,10 +9,9 @@ TODO
 --------
 
 * ----------Init-----------
- + define mpl arguments [OK]
- + defnie mpl help [OK]
- + init basic interpreter variables [OK]
-
+  - define mpl arguments [OK]
+  - defnie mpl help [OK]
+  - init basic interpreter variables [OK]
 * ---------Parse-----------
  + reading source file as utf8 [OK]
  + remove comments and convert utf8 to ascii [OK]
