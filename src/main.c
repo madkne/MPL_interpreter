@@ -92,8 +92,9 @@ void init_interpreter() {
 	//********************
 	init_database();
 	//********************
+	init_memory();
 	//********************
-	//init_built_in_funcs();
+	init_built_in_funcs();
 	//********************
 	//init_built_in_defines();
 	//get_basic_system_info()

@@ -8,7 +8,7 @@
 
 //**************************************************define compiler constants
 #define  APP_NAME                       "Mini Portable Language"
-#define  VERSION                        "0.0.40"               //1.10.100
+#define  VERSION                        "0.0.46"               //1.10.100
 #define  VERSION_NAME                   "BETA"
 #define  SLOGAN                         "The solution to common problems of programmers" //راه حل کارهای متداول برنامه
 // نویسان
@@ -94,7 +94,7 @@
 #define   INT_SUB_TYPE_ID               3
 #define   FLOAT_SUB_TYPE_ID             4
 #define   HUGE_SUB_TYPE_ID              5
-//------------------------------------------
+//------------------------------------------used in parser-determine type of statements and block codes
 #define   FUNC_BLOCK_ID                 1
 #define   LOOP_STRU_ID                  2
 #define   IF_STRU_ID                    3
@@ -102,10 +102,13 @@
 #define   ELSE_STRU_ID                  5
 #define   MANAGE_STRU_ID                6
 #define   SWITCH_STRU_ID                7
-//------------------------------------------
+//------------------------------------------used in data_defined,runtime-determine type data types that is main or struct
 #define   MAIN_DATA_TYPE                1
 #define   STRUCT_DATA_TYPE              2
-
+//------------------------------------------used in built_in-determine type of built-in functions
+#define   MPL_BUILT_IN_TYPE             1
+#define   DATA_BUILT_IN_TYPE            2
+#define   OS_BUILT_IN_TYPE              3
 //**************************************************typedef
 typedef char int8;
 typedef unsigned char uint8;

@@ -5,14 +5,18 @@ This is a small,fast and simple interpreter also best solution to common problem
 [![license](https://img.shields.io/github/license/Netflix/pollyjs.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 
 TODO
-
 --------
 
 ### ----------Init-----------
 
+* init exeptions [OK]
 * define mpl arguments [OK]
 * defnie mpl help [OK]
 * init basic interpreter variables [OK]
+* init data defined [OK]
+* init virtual memory(vm) [OK]
+* init built-in functions [..]
+* init built-in defines [..]
 
 ### ---------Parse-----------
 
@@ -29,9 +33,10 @@ TODO
 ### ----------Mean-----------
 
 * start runtime [..]
+* init global vars
+* start APP_CONTROLLER
 
-MPL Language Features:
-
+MPL Language Features
 --------
 
 * support radix numbers
@@ -49,6 +54,13 @@ MPL Language Features:
 * support short allocations for vars
 * support browse arrays in loop
 * support switch condition
+
+MPL Hello World Program
+--------
+
+    func main(){
+        print("Hello World!\n)
+    }
 
 Events
 --------

@@ -123,6 +123,12 @@ void init_database() {
 	entry_table.inor_start = 0;
 	entry_table.inor_count = 0;
 	
+	entry_table.bifs_start = 0;
+	
+	entry_table.var_memory_start = 0;
+	entry_table.pointer_memory_start = 0;
+	entry_table.var_mem_id = 0;
+	entry_table.pointer_mem_id = 0;
 	//    entry_table.asou_start=0;
 	//    entry_table.coli_start=0;
 	//    entry_table.vata_start=0;
@@ -139,8 +145,7 @@ void init_database() {
 	append_datas(tmp3);
 	datas tmp4 = {0, 0, 0, "vars", MAIN_DATA_TYPE, 0, 0};
 	append_datas(tmp4);
-	//str;str;num;num;str;num
-	
+	//struct::exception(num id,str msg,str group,num type,str src,num line)
 	datas tmp5 = {0, 0, 0, "exception", STRUCT_DATA_TYPE, 0, 0};
 	append_datas(tmp5);
 	
@@ -419,18 +424,20 @@ void append_blst(blst s) {
 }
 
 //*************************************************************
-long_int search_lbl_func(String lbl) {
+blst search_lbl_func(String lbl, str_list params, uint32 par_len) {
+	blst null = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 	blst *tmp1;
 	tmp1 = entry_table.blst_func_start;
 	//------------------
 	for (;;) {
-		if (str_equal(tmp1->lbl, lbl)) {
-			return tmp1->id;
+		if (par_len == tmp1->params_len && str_equal(tmp1->lbl, lbl) &&
+				str_list_equal(tmp1->params, tmp1->params_len, params, par_len)) {
+			return (*tmp1);
 		}
 		tmp1 = tmp1->next;
 		if (tmp1 == 0) break;
 	}
-	return 0;
+	return null;
 }
 
 //*************************************************************
@@ -560,3 +567,38 @@ void empty_stoi(stoi s[], uint32 size) {
 		s[i].stru_pars = 0;
 	}
 }
+
+//*************************************************************
+//****************built_in_funcs functions*********************
+//*************************************************************
+void append_bifs(bifs s) {
+	bifs *q;
+	q = (bifs *) malloc(sizeof(bifs));
+	if (q == 0) return;
+	q->id = s.id;
+	q->type = s.type;
+	q->params_len = s.params_len;
+	q->returns_len = s.returns_len;
+	str_init(&q->func_name, s.func_name);
+	str_init(&q->params, s.params);
+	str_init(&q->returns, s.returns);
+	q->next = 0;
+	if (entry_table.bifs_start == 0) {
+		entry_table.bifs_start = entry_table.bifs_end = q;
+	} else {
+		entry_table.bifs_end->next = q;
+		entry_table.bifs_end = q;
+	}
+}
+
+//*************************************************************
+void add_to_bifs(long_int id, uint8 type, String func_name, String params, String returns) {
+	uint8 par_len = 0, ret_len = 0;
+	par_len = char_search_count(params, ';');
+	ret_len = char_search_count(returns, ';');
+	bifs tmp = {id, type, func_name, params, par_len, returns, ret_len};
+	append_bifs(tmp);
+}
+
+
+

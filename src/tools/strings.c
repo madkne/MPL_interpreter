@@ -186,6 +186,17 @@ Boolean char_search(uint8 list[], uint8 c) {
 }
 
 //******************************************
+uint32 char_search_count(String s, uint8 c) {
+	if (s == 0 || c == 0)return 0;
+	uint32 count = 0, len = 0;
+	while (s[len] != 0) {
+		if (s[len] == c)count++;
+		len++;
+	}
+	return count;
+}
+
+//******************************************
 String str_from_long_int(long_int num) {
 	if (num == 0) return "0";
 	String ret = 0;

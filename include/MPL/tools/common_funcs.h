@@ -19,6 +19,7 @@ uint32 source_paths_search(str_utf8 path);
 utst return_utf8_string_value(String s);
 
 void str_list_append(str_list *s, String s1, uint32 len);
+Boolean str_list_equal(str_list s1, uint32 len1, str_list s2, uint32 len2);
 void utf8_str_list_append(utf8_str_list *s, str_utf8 s1, uint32 len);
 
 FILE * utf8_file_open(String filename, String mode);

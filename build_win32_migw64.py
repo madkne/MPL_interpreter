@@ -50,13 +50,15 @@ sources=[
 ["src/main.c","src/main.c -o obj/main.o"],
 ["src/data_defined.c","src/data_defined.c -o obj/data_defined.o"],
 ["src/exceptions.c","src/exceptions.c -o obj/exceptions.o"],
+["src/built_in.c","src/built_in.c -o obj/built_in.o"],
 ["src/tools/common_funcs.c","src/tools/common_funcs.c -o obj/common_funcs.o"],
 ["src/tools/strings.c","src/tools/strings.c -o obj/strings.o"],
 ["src/tools/utf8.c","src/tools/utf8.c -o obj/utf8.o"],
 ["src/core/vars_mgr.c","src/core/vars_mgr.c -o obj/vars_mgr.o"],
 ["src/core/parser.c","src/core/parser.c -o obj/parser.o"],
 ["src/core/importer.c","src/core/importer.c -o obj/importer.o"],
-["src/core/starter.c","src/core/starter.c -o obj/starter.o"]
+["src/core/starter.c","src/core/starter.c -o obj/starter.o"],
+["src/core/virtual_memory.c","src/core/virtual_memory.c -o obj/virtual_memory.o"]
 ];
 for i in range(0,len(sources),1):
 	ind=sources[i];

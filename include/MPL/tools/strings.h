@@ -29,6 +29,7 @@ uint32 char_split(String s,uint8 sp,str_list *ret,Boolean is_remove_empty);
 String char_append(String s,uint8 c);
 Boolean str_ch_equal(String s1, uint8 s2);
 Boolean char_search(uint8 list[],uint8 c);
+uint32 char_search_count(String s, uint8 c);
 String char_to_str(uint8 c);
 
 
