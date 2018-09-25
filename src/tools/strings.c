@@ -15,6 +15,14 @@ Boolean str_equal(String s1, String s2) {
 }
 
 //******************************************
+String convert_to_string(String s) {
+	String ret = '\"';
+	ret = str_append(ret, s);
+	ret = char_append(ret, '\"');
+	return ret;
+}
+
+//******************************************
 uint32 str_length(String s) {
 	if (s == NULL)return 0;
 	uint32 len = 0;
@@ -237,6 +245,28 @@ int32 str_to_int32(String s) {
 }
 
 //******************************************
+long_int str_to_long_int(String s) {
+	uint32 len = str_length(s);
+	if (len == 0)return 0;
+	long_int ret = 0;
+	uint32 ten = 1;
+	uint32 start = 0;
+	if (s[0] == '-') {
+		start = 1;
+	}
+	s = str_reverse(s);
+	for (uint32 i = 0; i < len; i++) {
+		if (s[i] >= '0' && s[i] <= '9') {
+			int8 c = s[i] - '0';
+			ret += ten * c;
+			//printf("LL:%c=>%i=>%i\n",s[i],c,ret);
+			ten *= 10;
+		}
+	}
+	return ret;
+}
+
+//******************************************
 Boolean str_is_int32(String s) {
 	uint32 len = str_length(s);
 	for (uint32 i = 0; i < len; ++i) {
@@ -267,7 +297,7 @@ String str_trim_space(String s) {
 	Boolean is_first = false, is_last = false;
 	//trim from first
 	for (uint32 i = 0; i < len; i++) {
-		if (is_first || !char_search(white_spaces, s[i])) {
+		if (is_first || !char_search(WHITE_SPACES, s[i])) {
 			is_first = true;
 			tmp1 = char_append(tmp1, s[i]);
 		}
@@ -280,7 +310,7 @@ String str_trim_space(String s) {
 	tmp2 = str_reverse(tmp2);
 	//trim from last
 	for (uint32 i = 0; i < len; i++) {
-		if (is_last || !char_search(white_spaces, tmp2[i])) {
+		if (is_last || !char_search(WHITE_SPACES, tmp2[i])) {
 			is_last = true;
 			ret = char_append(ret, tmp2[i]);
 		}
@@ -298,19 +328,7 @@ String char_to_str(uint8 c) {
 }
 
 //******************************************
-void str_list_init(str_list *s, str_list val, uint32 len) {
-	if (len == 0) {
-		(*s) = 0;
-		return;
-	}
-	(*s) = (str_list) malloc(len * sizeof(str_list));
-	for (uint32 i = 0; i < len; i++) {
-		//str_init(&(*s)[i],val[i]);
-		uint32 le = str_length(val[i]);
-		(*s)[i] = (String) malloc(le * sizeof(String));
-		for (uint32 ii = 0; ii < le; ii++) (*s)[i][ii] = val[i][ii];
-	}
-}
+
 
 //******************************************
 uint32 str_list_size(str_list s) {

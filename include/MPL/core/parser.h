@@ -12,6 +12,8 @@ Boolean analyze_source_code();
 
 void manage_import_keywords(uint32 *i);
 
+void manage_structs(uint32 *i);
+
 void manage_normal_instructions(uint32 *i);
 
 void manage_functions(uint32 *i);

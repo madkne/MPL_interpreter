@@ -13,13 +13,13 @@ uint8 block_id = 0; //index of is_in_stru
 long_int cur_func_id = 0;
 long_int cur_stru_id = 0;
 Boolean is_inline_stru = false;
-stoi is_in_stru[max_into_in_structures];
+stoi is_in_stru[MAX_INTO_IN_STRUCTURES];
 
 //**********************************
 Boolean analyze_source_code() {
 	//-------------------reset all
 	clear_soco(2);
-	empty_stoi(is_in_stru, max_into_in_structures);
+	empty_stoi(is_in_stru, MAX_INTO_IN_STRUCTURES);
 	parse_pars = 0;
 	block_id = 0;
 	cur_stru_id = 0;
@@ -30,7 +30,7 @@ Boolean analyze_source_code() {
 	get_all_tokens();
 	// print_struct(PRINT_TOKENS_SOURCE_ST);
 	//-------------------init vars
-	uint8 state = 0; //1:func , 2:stru
+	uint8 state = 0; //1:func , 2:stru , 3:struct
 	uint32 ret = source_paths_search(entry_table.cur_source_path);
 	entry_table.cur_ascii_source_path = utf8_to_bytes_string(entry_table.cur_source_path);
 	//printf("CALL:%s\n",cur_ascii_source_path);
@@ -89,6 +89,13 @@ Boolean analyze_source_code() {
 			manage_import_keywords(&i);
 			continue;
 		}
+		//-------------structs
+		if (state == 0 && str_equal(Acode, "struct") && i + 3 < entry_table.soco_tokens_count) {
+			//state = 3;
+			i++;
+			manage_structs(&i);
+			continue;
+		}
 		//-------------function headers
 		if (state == 0 && str_equal(Acode, "func") && i + 3 < entry_table.soco_tokens_count) {
 			//if is_in_func
@@ -96,7 +103,7 @@ Boolean analyze_source_code() {
 				String name = 0;
 				str_init(&name, get_soco(2, i + 1).code);
 				print_error(Aline, "define_func_in", entry_table.cur_ascii_source_path, name, "",
-				            "analyze_source_code");
+						"analyze_source_code");
 				break;
 			}
 			state = 1;
@@ -142,10 +149,10 @@ Boolean analyze_source_code() {
 	}
 	//-------------check for syntax error
 	//msg("&%%%", parse_pars)
-	if(parse_pars > 0) {
+	if (parse_pars > 0) {
 		print_error(Aline, "not_end_acod", entry_table.cur_ascii_source_path, "", "", "analyze_source_code");
 		return false;
-	} else if(parse_pars < 0) {
+	} else if (parse_pars < 0) {
 		print_error(Aline, "not_start_acod", entry_table.cur_ascii_source_path, "", "", "analyze_source_code");
 		return false;
 	}
@@ -170,33 +177,33 @@ void manage_import_keywords(uint32 *i) {
 		if (str_equal(Acode, ";")) {
 			if (path == 0) {
 				print_error(Aline, "import_syntax_error", entry_table.cur_ascii_source_path, "", "",
-				            "manage_import_keywords");
+						"manage_import_keywords:173");
 				return;
 			} else {
 				//analyze type of import
 				utst ret = return_utf8_string_value(path);
 				if (ret.id == 0) {
 					print_error(Aline, "import_syntax_error", entry_table.cur_ascii_source_path, path, "",
-					            "manage_import_keywords");
+							"manage_import_keywords:180");
 					return;
 				}
 				uint8 import_type = 0;
 				
 				String tmp1 = utf8_to_str(ret.utf8_string);
 				tmp1 = str_trim_space(tmp1);
-				if (str_indexof(tmp1, "file::", 0) == 0) {
+				if (str_indexof(tmp1, "file:", 0) == 0) {
 					import_type = IMPORT_FILE;
-					ret.utf8_string = utf8_str_simple_replace(ret.utf8_string, "file::", 0, 1);
-				} else if (str_indexof(tmp1, "embed::", 0) == 0) {
+					ret.utf8_string = utf8_str_simple_replace(ret.utf8_string, "file:", 0, 1);
+				} else if (str_indexof(tmp1, "embed:", 0) == 0) {
 					import_type = IMPORT_EMBEDDED;
-					ret.utf8_string = utf8_str_simple_replace(ret.utf8_string, "embed::", 0, 1);
+					ret.utf8_string = utf8_str_simple_replace(ret.utf8_string, "embed:", 0, 1);
 				} else {
 					print_error(Aline, "import_not_support_protocol", entry_table.cur_ascii_source_path, tmp1, "",
-					            "manage_import_keywords");
+							"manage_import_keywords");
 					return;
 				}
 				//replace project_root by $$ sign
-				ret.utf8_string = utf8_str_simple_replace(ret.utf8_string, "$$", project_root, 1);
+				ret.utf8_string = utf8_str_simple_replace(ret.utf8_string, "$", project_root, 1);
 				imin tmp2 = {entry_table.import_id++, import_type, true, ret.utf8_string, ret.max_bytes_per_char, 0,
 				             Aline, Apath};
 				append_imin(tmp2);
@@ -214,13 +221,96 @@ void manage_import_keywords(uint32 *i) {
 }
 
 //**********************************
+void manage_structs(uint32 *i) {
+	//-----------------init vars
+	Boolean is_par = false, is_bra = false;
+	String buf = 0, name = 0, Acode = 0, params = 0;
+	str_list parameters = 0;
+	uint32 params_len = 0;
+	//-----------------analyze blocks header
+	for (; *i < entry_table.soco_tokens_count; (*i)++) {
+		soco token_item = get_soco(2, *i);
+		uint32 next = (*i) + 1;
+		str_init(&Acode, token_item.code);
+		if (str_equal(Acode, ";"))continue;
+		//printf("SSSS:%s,%s\n", Acode,buf);
+		Aline = token_item.line;
+		//----is_bra,is_par
+		if (str_equal(Acode, "{")) {
+			if (name == 0) {
+				print_error(Aline, "not_exist_struct_name", entry_table.cur_ascii_source_path, 0, 0, "manage_structs");
+				break;
+			}
+			parse_pars++;
+			is_par = true;
+			continue;
+		} else if (str_equal(Acode, "}")) {
+			parse_pars--;
+			is_par = false;
+		} else if (str_equal(Acode, "[")) is_bra = true;
+		else if (str_equal(Acode, "]")) is_bra = false;
+		//----get name
+		if (name == 0) {
+			str_init(&name, Acode);
+			continue;
+		}
+		//----get parameters
+		if (name != 0 && !is_bra && ((is_par && str_equal(Acode, ",")) || (!is_par && str_equal(Acode, "}")))) {
+			params = str_append(params, buf);
+			if (is_par)params = char_append(params, ',');
+		}
+		//----append to buf
+		if (is_par && !is_bra && str_equal(Acode, ",")) {
+			buf = 0;
+		} else {
+			buf = str_append(buf, Acode);
+			if (next < entry_table.soco_tokens_count && !str_equal(Acode, ",") &&
+					!str_equal(get_soco(2, next).code, ",")) {
+				buf = char_append(buf, ' ');
+			}
+		}
+		//----finish
+		if (str_equal(Acode, "}")) {
+			break;
+		}
+	}
+	printf("WW####:%s,%s\n", name, params);
+	//-----------------analyzing func params
+	def_var_s main_params[MAX_PARAMS_STRUCT];
+	uint8 vars_counter = define_vars_analyzing(params, main_params);
+	if (vars_counter == 0) {
+		parameters = 0;
+		params_len = 0;
+		//TODO:error
+	} else {
+		for (uint32 i = 0; i < vars_counter; i++) {
+			//-------check for syntax errors
+			if (!str_is_empty(main_params[i].value_var)) {
+				//TODO:error
+			}
+			String val = str_multi_append(main_params[i].main_type, ";", main_params[i].name_var, ";",
+					main_params[i].index_var, 0);
+			
+			str_list_append(&parameters, val, params_len++);
+			//printf("FFFFFFFF:%s=>%i\n",val,vars_counter);
+		}
+	}
+	//TODO:error for same functions
+	//printf("FUNC %s(%s)\n", name, params);
+	//-----------------append to blst_func
+	datas tmp1 = {0, cur_func_id, cur_stru_id, name, STRUCT_DATA_TYPE, parameters, params_len};
+	append_datas(tmp1);
+}
+
+//**********************************
 void manage_normal_instructions(uint32 *i) {
 	//-----------------init vars
 	String code = 0;
-	long_int order = 0, fid = 0, sid = 0;
+	long_int fid = 0, sid = 0;
+	uint32 order = 0;
 	//-----------------analyze instruction
 	for (; *i < entry_table.soco_tokens_count; (*i)++) {
-		uint32 ind=*i;
+		uint32 ind = *i;
 		soco token_item = get_soco(2, ind);
 		String Acode = token_item.code;
 		Aline = token_item.line;
@@ -234,12 +324,11 @@ void manage_normal_instructions(uint32 *i) {
 		}
 	}
 	//-----------------
-	fid = cur_func_id;
-	sid = cur_stru_id;
-	order = get_order(fid, sid);
-	set_order(fid, sid, ++order);
+	order = get_order(cur_func_id, cur_stru_id);
+	set_order(cur_func_id, cur_stru_id, ++order);
 	//-----------------append to instru
-	instru tmp1 = {0, fid, sid, order, code, UNKNOWN_LBL_INST, Aline, Apath, 0};
+	//printf("XXSSSS:fid:%i,sid:%i=>%s\n",cur_func_id,cur_stru_id,code);
+	instru tmp1 = {0, cur_func_id, cur_stru_id, order, code, UNKNOWN_LBL_INST, Aline, Apath, 0};
 	append_instru(tmp1);
 	//printf("PPPP:%li,%s(%li,%li,%li)\n",order,code,pid,fid,sid);
 }
@@ -285,7 +374,7 @@ void manage_functions(uint32 *i) {
 		}
 	}
 	//-----------------analyzing func params
-	def_var_s main_params[max_var_alloc_instruction];
+	def_var_s main_params[MAX_VAR_ALLOC_INSTRUCTIONS];
 	uint8 vars_counter = define_vars_analyzing(params, main_params);
 	if (vars_counter == 0) {
 		parameters = 0;
@@ -295,10 +384,10 @@ void manage_functions(uint32 *i) {
 			//-------check for syntax errors
 			if (!str_is_empty(main_params[i].value_var)) {
 				print_error(Aline, "param_def_val", entry_table.cur_ascii_source_path, main_params[i].name_var, name,
-				            "manage_functions");
+						"manage_functions");
 			}
 			String val = str_multi_append(main_params[i].main_type, ";", main_params[i].name_var, ";",
-			                              main_params[i].index_var, 0);
+					main_params[i].index_var, 0);
 			
 			str_list_append(&parameters, val, params_len++);
 			//printf("FFFFFFFF:%s=>%i\n",val,vars_counter);
@@ -376,7 +465,7 @@ void manage_structures(uint32 *i, String lbl) {
 		long_int sid_t = cur_stru_id;
 		//printf("BLOCK:%i\n", block_id);
 		block_id++;
-		if (block_id >= max_into_in_structures) {
+		if (block_id >= MAX_INTO_IN_STRUCTURES) {
 			//TODO:error
 			//block_id = 1;
 			return;
@@ -396,7 +485,7 @@ void manage_structures(uint32 *i, String lbl) {
 		//-----------------append to instru
 		long_int order = get_order(cur_func_id, sid_t);
 		set_order(cur_func_id, sid_t, ++order);
-		String inst = str_multi_append(structures_label, str_from_long_int(cur_stru_id), 0, 0, 0, 0);
+		String inst = str_multi_append(STRUCTURES_LABEL, str_from_long_int(cur_stru_id), 0, 0, 0, 0);
 		
 		instru tmp2 = {0, cur_func_id, sid_t, order, inst, STRUCTURE_LBL_INST, Aline, Apath, 0};
 		append_instru(tmp2);

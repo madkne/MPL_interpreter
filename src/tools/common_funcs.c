@@ -11,6 +11,7 @@ String read_input() {
 	}
 	return ret;
 }
+//******************************************
 
 //******************************************
 String get_absolute_path(String path) {
@@ -21,9 +22,9 @@ String get_absolute_path(String path) {
 	//printf("\n%s=>%s\n",path,abs_path);
 	return abs_path;
 	#elif WINDOWS_PLATFORM == 1
-	char tmp[BUFSIZE];
+	char tmp[BufferSize];
 	String abs_path = 0;
-	GetFullPathName(path, BUFSIZE, tmp, 0);
+	GetFullPathName(path, BufferSize, tmp, 0);
 	str_init(&abs_path, tmp);
 	if (INVALID_FILE_ATTRIBUTES == GetFileAttributes(abs_path) && GetLastError() == ERROR_FILE_NOT_FOUND) return 0;
 	//printf("\nSSS::%s=>%s\n",path,abs_path);
@@ -92,12 +93,34 @@ long_int get_max_unsigned_size(uint8 bytes) {
 }
 
 //******************************************
-uint32 long_int_append(long_int **s, long_int n) {
-	uint32 len = long_int_size(*s);
-	(*s) = (long_int *) malloc((len + 1) * sizeof(long_int *));
-	if (*s == 0)return 0;
+void delete_first_longint_list(longint_list *s, uint32 len) {
+	//TODO:
+}
+
+//******************************************
+void longint_append(longint_list *s, uint32 len, long_int n) {
+	longint_list tmp = 0;
+	longint_list_init(&tmp, *s, len);
+	free(*s);
+	(*s) = (longint_list) malloc((len + 1) * sizeof(longint_list));
+	if (*s == 0)return;
+	for (uint32 i = 0; i < len; i++) {
+		(*s)[i] = tmp[i];
+	}
 	(*s)[len] = n;
-	return len + 1;
+}
+
+//*************************************************************
+void longint_list_init(longint_list *s, longint_list val, uint32 len) {
+	if (len == 0) {
+		(*s) = 0;
+		return;
+	}
+	(*s) = (longint_list) malloc(len * sizeof(longint_list));
+	for (uint32 i = 0; i < len; i++) {
+		//str_init(&(*s)[i],val[i]);
+		uint32 le = val[i];
+	}
 }
 
 //******************************************
@@ -120,7 +143,7 @@ String get_current_datetime(uint8 type) {
 	if (type == 1) {
 		ret = malloc(6 * sizeof(int) + 5);
 		sprintf(ret, "%i-%i-%i %i:%i:%i", tim.tm_year + 1900, tim.tm_mon + 1, tim.tm_mday, tim.tm_hour, tim.tm_min,
-		        tim.tm_sec);
+				tim.tm_sec);
 	}
 	
 	//strftime(s, sizeof(s), "%c", tm);
@@ -150,7 +173,7 @@ void print_struct(uint8 which) {
 		printf("=====Print import_inst_struct :\n");
 		for (;;) {
 			printf("Active:%i,id:%li,type:%i,line:%i,source:[%i]\n", tmp1->is_active, tmp1->id, tmp1->type, tmp1->line,
-			       tmp1->source_id);
+					tmp1->source_id);
 			utf8_str_print("path:", tmp1->path, true);
 			utf8_str_print("source:", source_paths[tmp1->source_id], true);
 			printf("\n");
@@ -163,7 +186,7 @@ void print_struct(uint8 which) {
 		printf("=====Print exceptions_list_struct :\n");
 		for (;;) {
 			printf("id:%i,type:%i,group:%s,lbl:%s,text:%s\n", tmp1->id, tmp1->type, exceptions_group[tmp1->group],
-			       tmp1->lbl, tmp1->text);
+					tmp1->lbl, tmp1->text);
 			tmp1 = tmp1->next;
 			if (tmp1 == 0) break;
 		}
@@ -215,7 +238,18 @@ void print_struct(uint8 which) {
 		printf("=====Print instructions_struct :\n");
 		for (;;) {
 			printf("(id:%li,fid:%li,sid:%li,order:%li,type:%i),code:%s\n", tmp1->id, tmp1->func_id, tmp1->stru_id,
-			       tmp1->order, tmp1->type, tmp1->code);
+					tmp1->order, tmp1->type, tmp1->code);
+			tmp1 = tmp1->next;
+			if (tmp1 == 0) break;
+		}
+		printf("=====End printed\n");
+	} else if (which == 0 || which == PRINT_STRUCT_ST) {
+		datas *tmp1 = entry_table.datas_start;
+		if (tmp1 == 0) return;
+		printf("=====Print struct_struct :\n");
+		for (;;) {
+			printf("(id:%li,fid:%li,sid:%li,len:%i),name:%s,params:%s\n", tmp1->id, tmp1->fid, tmp1->sid,
+					tmp1->params_len, tmp1->name, print_str_list(tmp1->params, tmp1->params_len));
 			tmp1 = tmp1->next;
 			if (tmp1 == 0) break;
 		}
@@ -226,7 +260,7 @@ void print_struct(uint8 which) {
 		printf("=====Print block_structure_struct :\n");
 		for (;;) {
 			printf("id:%li,lbl[%i]:%s,(fid:%li,sid:%li),argvs:%s\n", tmp1->id, tmp1->type, tmp1->lbl, tmp1->func_id,
-			       tmp1->stru_id, print_str_list(tmp1->params, tmp1->params_len));
+					tmp1->stru_id, print_str_list(tmp1->params, tmp1->params_len));
 			tmp1 = tmp1->next;
 			if (tmp1 == 0) break;
 		}
@@ -293,9 +327,25 @@ void str_list_append(str_list *s, String s1, uint32 len) {
 }
 
 //*************************************************************
+void str_list_init(str_list *s, str_list val, uint32 len) {
+	if (len == 0) {
+		(*s) = 0;
+		return;
+	}
+	(*s) = (str_list) malloc(len * sizeof(str_list));
+	for (uint32 i = 0; i < len; i++) {
+		//str_init(&(*s)[i],val[i]);
+		uint32 le = str_length(val[i]);
+		(*s)[i] = (String) malloc((le + 1) * sizeof(String));
+		for (uint32 ii = 0; ii < le; ii++) (*s)[i][ii] = val[i][ii];
+		(*s)[i][le] = 0;
+	}
+}
+
+//*************************************************************
 Boolean str_list_equal(str_list s1, uint32 len1, str_list s2, uint32 len2) {
 	if (len1 != len2) return false;
-	if(len1==0)return true;
+	if (len1 == 0)return true;
 	for (uint32 i = 0; i < len1; ++i) {
 		if (!str_equal(s1[i], s2[i]))return false;
 	}

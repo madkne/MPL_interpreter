@@ -8,7 +8,7 @@
 
 //**************************************************define compiler constants
 #define  APP_NAME                       "Mini Portable Language"
-#define  VERSION                        "0.0.46"               //1.10.100
+#define  VERSION                        "0.0.74"               //1.10.100
 #define  VERSION_NAME                   "BETA"
 #define  SLOGAN                         "The solution to common problems of programmers" //راه حل کارهای متداول برنامه
 // نویسان
@@ -19,24 +19,37 @@
 #define  OFFICIAL_WEBSITE               "http://mpl-lang.ir"
 #define  CORE_CODE_LINES                0
 #define  LANGUAGE_CREATOR               "Mohammad Amin Delavar Khalafi"
-#define  CONFIDENCE_LEVEL               5
+#define  CONFIDENCE_LEVEL               0
 //**************************************************define
 #if x64_OS == 1
 #define OS_ARCH                         "x64"
 #elif x86_OS == 1
 #define OS_ARCH                         "x86"
 #endif
+#if LINUX_PLATFORM == 1
+#define  OS_SEPARATOR                   '/'
+#define  OS_TYPE                        "linux"
+#elif WINDOWS_PLATFORM == 1
+#define  OS_SEPARATOR                   '\\'
+#define  OS_TYPE                        "windows"
+#endif
+//------------------------------------------
 #define   MAX_INT_LEN                   7
 #define   MAX_FLOAT_LEN                 12
-#define   true                          1
-#define   false                         0
-#define   max_array_dimensions          5
-#define   max_var_alloc_instruction     20
-#define   max_into_in_structures        20
+#define   MAX_ARRAY_DIMENSIONS          5
+#define   MAX_VAR_ALLOC_INSTRUCTIONS    15
+#define   MAX_PARAMS_STRUCT             30
+#define   MAX_INTO_IN_STRUCTURES        20
 #define   MAX_OPENED_FILES              20
 #define   END_OF_FILE                  -10
-#define   BUFSIZE                       4096
 #define   SYSTEM_STRING_DEFINE          "SYS__STR_"
+#define   RETURN_TMP_NAME               "@ret_"
+#define   STRUCTURES_LABEL              "@@@STRU_"
+#define   SWITCH_LABEL                  "@@@SWITCH_"
+#define   SEGMENTS_SPLIT                "\"?\"=!=\"?\"" // "?"=="?"
+#define   SORT_SPLIT                    "!@!"
+#define   PARAM_ARRAY_NAME              "__ArrayParam_"
+#define   WHITE_SPACES                  " \t\n\v\f\r"
 
 //------------------------------------------
 #define   ERROR_ID                     -2
@@ -51,11 +64,13 @@
 #define   FUNC_CALL_LBL_INST            4
 #define   ALLOC_SHORT_LBL_INST          5
 #define   RETURN_LBL_INST               6
-#define   PACK_INIT_LBL_INST            7
-#define   CONST_CALL_LBL_INST           8
+#define   DEF_STRUCT_LBL_INST           7
+#define   ALLOC_MAGIC_MACROS_LBL_INST   8
 #define   NEXT_BREAK_LBL_INST           9
-#define   LOGIC_CALC_LBL_INST           10
-#define   REVIEW_ARRAY_LBL_INST         11
+#define   MODULE_FUNC_CALL_LBL_INST     10
+
+#define   LOGIC_CALC_LBL_INST           20
+#define   REVIEW_ARRAY_LBL_INST         21
 //------------------------------------------
 #define   ImportError                   0
 #define   MahlibError                   1
@@ -85,6 +100,7 @@
 #define PRINT_MAIN_SOURCE_ST            4
 #define PRINT_TOKENS_SOURCE_ST          5
 #define PRINT_FUNC_ST                   6
+#define PRINT_STRUCT_ST                 7
 #define PRINT_INSTRU_ST                 8
 #define PRINT_STRU_ST                   9
 #define PRINT_VIRTUAL_MEMORY_ST         10
@@ -109,6 +125,12 @@
 #define   MPL_BUILT_IN_TYPE             1
 #define   DATA_BUILT_IN_TYPE            2
 #define   OS_BUILT_IN_TYPE              3
+//------------------------------------------used in built_in-determine type of magic macros
+#define   DEFINE_MAGIC_MACRO_TYPE       1
+#define   CONFIG_MAGIC_MACRO_TYPE       2
+//------------------------------------------used in built_in-determine type of magic
+#define   FAILED_EXECUTE_INSTRUCTION    1
+#define   SUCCESS_EXECUTE_INSTRUCTION   2
 //**************************************************typedef
 typedef char int8;
 typedef unsigned char uint8;
@@ -141,6 +163,9 @@ typedef unsigned char **str_list;
 typedef uint32 **utf8_str_list;
 typedef uint32 *str_utf8;
 typedef uint64 long_int;
+typedef long_int *longint_list;
 typedef unsigned char Boolean;
+#define   true                          1
+#define   false                         0
 
 #endif //MPL_CONSTANTS_H

@@ -6,16 +6,6 @@
 #define MPL_DATA_DEFINED_H
 
 //******************************data values
-String structures_label;
-String switch_label;
-String segments_split;
-String short_split;
-String return_tmp_name;
-String param_array_name;
-uint8 sep_platform;
-String os_type;
-String white_spaces;
-//******************************
 uint8 is_programmer_debug;
 String project_root;
 String main_source_name;
@@ -25,8 +15,8 @@ uint8 int_len;
 uint8 float_len;
 int8 errors_mode;
 int8 warnings_mode;
-String TAB_SIZE;
-uint8 TAB_SIZE_INT;
+String tab_size;
+uint8 tab_size_int;
 uint8 max_estimate_divide_huge;
 uint8 max_float_estimate_huge_X0;
 uint8 max_steps_estimate_huge;
@@ -39,25 +29,20 @@ String os_version;
 uint64 os_total_memory;
 uint64 os_total_disk;
 long_int max_size_id;
-String assembly_block_end;
-//****************************settings
-Boolean is_check_inherits;
-String is_add_to_mahlib;
-String is_set_logfile;
+String logfile_path;
 //******************************
 String exceptions_group[14];
 String exceptions_type[4];
 String keywords[18];
 String keywords_out[13];
-String magic_macros[2];
+String magic_macros[3];
 String block_instructions[5];
 uint8 single_operators[9];
 String comparative_operators[6];
 String alloc_operators[11];
 String boolean_operators[3];
-String basic_types[5];
+String basic_types[3];
 uint8 golden_bytes[5];
-String manage_init_parameters[4];
 uint8 splitters[10];
 uint8 words_splitter[12];
 String sub_types[5];
@@ -108,7 +93,7 @@ typedef struct instructions_struct {
 	long_int id;
 	long_int func_id;
 	long_int stru_id;
-	long_int order;
+	uint32 order;
 	String code;
 	uint8 type;
 	
@@ -153,11 +138,25 @@ typedef struct def_var_struct {
 	long_int sid;
 	
 } def_var_s;
+
+//**********************vals_array_struct
+typedef struct vals_array_struct {
+	String value;
+	String index;
+	uint8 type_val;
+	long_int data_id;
+	struct vals_array_struct *next;
+} vaar;
+typedef struct vals_array_entries{
+	vaar *start;
+	vaar *end;
+	uint32 count;
+}vaar_en;
 //****************************instructions_order struct
 typedef struct instructions_order_struct {
 	long_int fid;
 	long_int sid;
-	long_int order;
+	uint32 order;
 	
 	struct instructions_order_struct *next;
 } inor;
@@ -169,7 +168,7 @@ typedef struct stru_to_in_struct {
 	Boolean is_inline;
 } stoi;
 //****************************built_in_funcs struct
-typedef struct built_in_funcs_struct{
+typedef struct built_in_funcs_struct {
 	uint32 id;
 	uint8 type;
 	String func_name;
@@ -180,7 +179,15 @@ typedef struct built_in_funcs_struct{
 	
 	struct built_in_funcs_struct *next;
 } bifs;
-
+//****************************magic_macros struct
+typedef struct magic_macros_struct {
+	uint32 id;
+	uint8 type;
+	uint8 sub_type;
+	String key;
+	String value;
+	struct magic_macros_struct *next;
+} mama;
 //****************************virtual memory
 //runtime
 typedef struct var_memory_struct {
@@ -293,31 +300,33 @@ struct entry_table_struct {
 	Mpoint *pointer_memory_start;
 	Mpoint *pointer_memory_end;
 	long_int var_mem_id;
+	long_int var_mem_len;
 	long_int pointer_mem_id;
+	long_int pointer_mem_len;
+	
+	long_int cur_fid, cur_fin, cur_sid, cur_order, last_fin, last_sid, prev_fin_index;
+	long_int prev_fins_array[100];
+	uint32 condition_level, in_loop, break_count, next_count;
+	String manage_func_name, Rsrc;
+	long_int manage_func_id, return_fin;
+	uint32 Rorder, Rline;
+	Boolean is_stop_APP_CONTROLLER, is_next_inst_running;
+	
 	
 	bifs *bifs_start;
 	bifs *bifs_end;
-	//    asou *asou_start;
-	//    asou *asou_end;
-	//
-	//    coli *coli_start;
-	//    coli *coli_end;
-	//
-	//    uint32 params1_len;
-	//    uint32 params2_len;
-	//
+	
+	mama *mama_start;
+	mama *mama_end;
+	uint32 mama_id;
+	
 	uint8 max_bytes_per_char;
 	uint32 line_number;
 	uint32 source_id;
 	
 	long_int current_sid;
 	long_int current_fid;
-	//
-	//    vata *vata_start;
-	//    vata *vata_end;
-	//
-	//    vias *vias_start;
-	//    vias *vias_end;
+	
 	
 };
 struct entry_table_struct entry_table;
@@ -341,11 +350,6 @@ void clear_soco(uint8 type);
 
 soco get_soco(uint8 type, uint32 ind);
 
-//-------------------------exli funcs
-void append_exli(exli s);
-
-exli search_lbl_exli(String lbl);
-
 //-------------------------utst funcs
 void append_utst(utst s);
 
@@ -359,20 +363,33 @@ blst search_lbl_func(String lbl, str_list params, uint32 par_len);
 //-------------------------datas funcs
 void append_datas(datas s);
 
+datas search_datas(String name, long_int fid, long_int sid, Boolean is_all);
+
 //-------------------------instru funcs
 void append_instru(instru s);
+
+instru get_instru_by_id(long_int id);
 
 //-------------------------inor funcs
 void append_inor(inor s);
 
-long_int get_order(long_int fid, long_int sid);
+uint32 get_order(long_int fid, long_int sid);
 
-void set_order(long_int fid, long_int sid, long_int order);
+void set_order(long_int fid, long_int sid, uint32 order);
 
 //-------------------------stoi funcs
 void empty_stoi(stoi s[], uint32 size);
+
 //-------------------------bifs funcs
 void append_bifs(bifs s);
-void add_to_bifs(long_int id,uint8 type,String func_name,String params,String returns);
 
+void add_to_bifs(long_int id, uint8 type, String func_name, String params, String returns);
+
+//-------------------------mama funcs
+void append_mama(mama s);
+
+void add_to_mama(uint8 type, uint8 sub_type, String key, String value);
+
+//-------------------------vaar funcs
+void append_vaar(vaar s, vaar_en *s1);
 #endif //MPL_DATA_DEFINED_H

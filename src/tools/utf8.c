@@ -139,7 +139,7 @@ str_utf8 utf8_str_trim_space(str_utf8 s) {
     Boolean is_first = false, is_last = false;
     //trim from first
     for (uint32 i = 0; i < len; i++) {
-        if (is_first || !IS_ONE_BYTE(s[i]) || !char_search(white_spaces, (uint8) s[i])) {
+        if (is_first || !IS_ONE_BYTE(s[i]) || !char_search(WHITE_SPACES, (uint8) s[i])) {
             is_first = true;
             tmp1 = utf8_char_append(tmp1, s[i]);
         }
@@ -152,7 +152,7 @@ str_utf8 utf8_str_trim_space(str_utf8 s) {
     tmp2 = utf8_str_reverse(tmp2);
     //trim from last
     for (uint32 i = 0; i < len; i++) {
-        if (is_last || !IS_ONE_BYTE(tmp2[i]) || !char_search(white_spaces, (uint8) tmp2[i])) {
+        if (is_last || !IS_ONE_BYTE(tmp2[i]) || !char_search(WHITE_SPACES, (uint8) tmp2[i])) {
             is_last = true;
             ret = utf8_char_append(ret, tmp2[i]);
         }

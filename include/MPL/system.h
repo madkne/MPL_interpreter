@@ -33,6 +33,7 @@
 #include "core/runtime.h"
 
 #include "core/vars_mgr.h"
+#include "core/run_mgr.h"
 #include "core/virtual_memory.h"
 //---------------------------------tools functions
 #include "tools/common_funcs.h"

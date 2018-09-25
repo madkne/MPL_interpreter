@@ -7,7 +7,7 @@ import glob
 os.system("cls");
 os.system("color 1f");
 #----------------------define vars
-cflags="-I .\\include -std=c99 -c ";
+cflags="-I .\\include -std=c99  -c ";
 build_folder="win32-release";
 compiler="gcc ";
 is_error=0;
@@ -58,6 +58,7 @@ sources=[
 ["src/core/parser.c","src/core/parser.c -o obj/parser.o"],
 ["src/core/importer.c","src/core/importer.c -o obj/importer.o"],
 ["src/core/starter.c","src/core/starter.c -o obj/starter.o"],
+["src/core/run_mgr.c","src/core/run_mgr.c -o obj/run_mgr.o"],
 ["src/core/virtual_memory.c","src/core/virtual_memory.c -o obj/virtual_memory.o"]
 ];
 for i in range(0,len(sources),1):

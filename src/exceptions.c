@@ -4,6 +4,9 @@
 #include<MPL/system.h>
 
 void init_exceptions_list_data() {
+	entry_table.exceptions_count = 0;
+	entry_table.exli_start = 0;
+	//-----------------------------------------
 	define_new_exception(0, FATAL_ID, 0, 0, 0);
 	//\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/
 	define_new_exception(1, FATAL_ID, "bad_exit", CommandError, "returned 1 exit status");
@@ -12,7 +15,7 @@ void init_exceptions_list_data() {
 	//\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\
 	//ImportError
 	define_new_exception(1, ERROR_ID, "bad_place_using_utf8", ImportError,
-			"using UTF-8 in bad place or bad character ");
+			"using UTF-8 in bad place or bad character in `!1@1!`");
 	define_new_exception(2, ERROR_ID, "not_open_file", ImportError, "can't open file '!1@1!'");
 	define_new_exception(3, ERROR_ID, "file_not_support_utf8", ImportError, "'!1@1!' file not support UTF-8");
 	define_new_exception(4, ERROR_ID, "import_syntax_error", ImportError,
@@ -68,8 +71,10 @@ void init_exceptions_list_data() {
 			"'!1@1!' with '!2@2!' parameters, not exist as a function");
 	define_new_exception(2, ERROR_ID, "wrong_type_var", NotExistError,
 			"'!1@1!' is not a valid type for variable declaration");
-	define_new_exception(3, ERROR_ID, "not_found_main", NotExistError, "Not found 'main()' function in your source files");
+	define_new_exception(3, ERROR_ID, "not_found_main", NotExistError,
+			"Not found 'main()' function in your source files");
 	define_new_exception(4, ERROR_ID, "not_exist_var", NotExistError, "'!1@1!' is not exist as a variable");
+	define_new_exception(5, ERROR_ID, "not_exist_struct_name", NotExistError, "Not exist name for struct");
 	//\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\
 	//RuntimeError
 	define_new_exception(6, ERROR_ID, "unknown_instruction", RuntimeError, "'!1@1!' is not a valid instruction");
@@ -77,12 +82,208 @@ void init_exceptions_list_data() {
 	//NotAccessError
 }
 
+
+int8 exception_handler(String lbl_err, String func_occur, String rep1, String rep2) {
+	//---------------------init vars
+	int8 ret_num = WARNING_ID;
+	long_int excep_id = 0;
+	//---------------------search in exceptions_list
+	for (long_int i = 0; i < entry_table.exceptions_count; i++) {
+		exli st = get_exli(i);
+		if (lbl_err == st.lbl) {
+			//fmt.Println("SSSSS:", st)
+			ret_num = st.type;
+			excep_id = i;
+			break;
+		}
+	}
+	exli st = get_exli(excep_id);
+	//---------------------print error
+	//msg("&HHHH", ret_num)
+	
+	//msg("&&&&", lbl_err, manage_func_id, excep_id)
+	if (entry_table.manage_func_id == 0 && excep_id > 0) {
+		ret_num = print_error(entry_table.Rline, st.lbl, entry_table.Rsrc, rep1, rep2, func_occur);
+	}
+	//---------------------in manage structure
+	if (entry_table.manage_func_id > 0 && excep_id > 0) {
+		//----------------------modes
+		switch (ret_num) {
+			case ERROR_ID:
+				ret_num = errors_mode;
+				break;
+			case WARNING_ID:
+				ret_num = warnings_mode;
+				break;
+		}
+		if (ret_num == CANCEL_ID) {
+			return ret_num;
+		}
+		Boolean ret0 = set_exception_function(excep_id, rep1, rep2);
+		if (!ret0) {
+			print_error(entry_table.Rline, st.lbl, entry_table.Rsrc, rep1, rep2, func_occur);
+		}
+		if (ret_num == ERROR_ID) {
+			//cur_sid = last_sid
+			//cur_order = last_order
+			entry_table.manage_func_id = 0;
+			entry_table.manage_func_name = 0;
+			entry_table.is_stop_APP_CONTROLLER = true;
+		} else if (ret_num == FATAL_ID) {
+			exit(1);
+		}
+	}
+	//---------------------return
+	return ret_num;
+}
+
+//**************************************************************
+Boolean set_exception_function(long_int excep_id, String rep1, String rep2) {
+	//---------------------init vars
+	int8 which = -1;
+	//---------------------init parameters and determine which var
+	//TODO:
+	/*funct := functions[manage_func_id]
+	//show_structures(4)
+	for
+	i := 0;
+	i < len(manage_init_parameters);
+	i++
+	{
+		params := manage_init_parameters[i]
+		//fmt.Println(params, funct.parameters, manage_func_id)
+		var
+		is_this = true
+		if
+			len(funct.parameters) != len(params)
+		{
+			is_this = false
+			continue
+		}
+		for
+		b := 0;
+		b < len(params);
+		b++
+		{
+			tmp1 := strings.Split(funct.parameters[b], ";")[0]
+			if params[b] != tmp1
+			{
+				is_this = false
+				break
+			}
+		}
+		if is_this
+		{
+			which = i
+			break
+		}
+	}
+	//fmt.Println("$$$$:", which)
+	//---------------------function call
+	if which == -1
+	{
+		return false
+	}
+	exc := exceptions_list[excep_id]
+	//----------------------modes
+	switch {
+		case exc.type_exp == ERROR_ID:
+			exc.type_exp = errors_mode
+		case exc.type_exp == WARNING_ID:
+			exc.type_exp = warnings_mode
+	}
+	//----------------------replace items
+	exc.text = strings.Replace(exc.text, "!1@1!", rep1, -1)
+	exc.text = strings.Replace(exc.text, "!2@2!", rep2, -1)
+	id := strconv.
+			
+			FormatInt(int64(exc
+			
+			.id), 10)
+	type_ex := strconv.
+			
+			FormatInt(int64(exc
+			
+			.type_exp), 10)
+	line_er := strconv.
+			
+			FormatInt(int64(Rline),
+			
+			10)
+	var
+	params[]
+	string
+	switch {
+		case which == 0:
+			params = append(params, "\"" + exc.text + "\"", "\"" + exc.group + "\"")
+		case which == 1:
+			params = append(params, "\"" + exc.text + "\"", "\"" + exc.group + "\"", type_ex)
+		case which == 2:
+			params = append(params, "\"" + exc.text + "\"", "\"" + exc.group + "\"", type_ex, id)
+		case which == 3:
+			params = append(params, "\"" + exc.text + "\"", "\"" + exc.group + "\"", type_ex, id, "\"" + Rsrc + "\"",
+					line_er)
+	}
+	join_params := strings.Join(params, segments_split)
+	init_calling_function([4]
+	string
+	{
+		strings.Split(manage_instantce, ";")[1], manage_func_name, join_params, ""
+	})
+	*/
+	//---------------------return
+	return true;
+}
+
+//**************************************************************
+exli search_lbl_exli(String lbl) {
+	exli null = {0, 0, 0, 0, 0};
+	exli *tmp1 = entry_table.exli_start;
+	for (;;) {
+		if (str_equal(tmp1->lbl, lbl)) {
+			return (*tmp1);
+		}
+		tmp1 = tmp1->next;
+		if (tmp1 == 0) break;
+	}
+	return null;
+}
+
+//**************************************************************
+exli get_exli(long_int i) {
+	exli null = {0, 0, 0, 0, 0};
+	long_int counter = 0;
+	exli *tmp1 = entry_table.exli_start;
+	for (;;) {
+		if (i == counter) {
+			return (*tmp1);
+		}
+		tmp1 = tmp1->next;
+		counter++;
+		if (tmp1 == 0) break;
+	}
+	return null;
+}
+
 //**************************************************************
 void define_new_exception(uint32 id, int8 type, String lbl, uint8 group, String text) {
 	//id;type;group;label;text
+	exli *q;
+	q = (exli *) malloc(sizeof(exli));
+	if (q == 0) return;
+	q->id = id;
+	q->type = type;
+	q->group = group;
+	str_init(&q->lbl, lbl);
+	str_init(&q->text, text);
+	q->next = 0;
 	entry_table.exceptions_count++;
-	exli tmp = {id, type, group, lbl, text};
-	append_exli(tmp);
+	if (entry_table.exli_start == 0)
+		entry_table.exli_start = entry_table.exli_end = q;
+	else {
+		entry_table.exli_end->next = q;
+		entry_table.exli_end = q;
+	}
 }
 
 //**************************************************************
@@ -133,7 +334,7 @@ int8 print_error(long_int line_err, String name_err, String file_err, String rep
 		printf("%s\n", exception_msg);
 	}
 	
-	if (is_set_logfile[0] != 0) {
+	if (logfile_path != 0) {
 		//append_to_file(project_root+separator+is_set_logfile+".log", exception_msg+new_line_char+"---------------------------"+new_line_char)
 		//msg("&YYYYY", project_root+separator+is_set_logfile+".log")
 	}

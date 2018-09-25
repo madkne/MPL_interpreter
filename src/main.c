@@ -77,6 +77,7 @@ Boolean start_interpreter(String source) {
 	print_struct(PRINT_FUNC_ST);
 	print_struct(PRINT_STRU_ST);
 	print_struct(PRINT_INSTRU_ST);
+	print_struct(PRINT_STRUCT_ST);
 	//-----------------------meaning&running instructions
 	interpreter_level = "runtime";
 	Boolean ret3 = start_runtime();
@@ -96,7 +97,10 @@ void init_interpreter() {
 	//********************
 	init_built_in_funcs();
 	//********************
-	//init_built_in_defines();
+	init_built_in_defines();
+	//********************
+	init_default_configs();
+	//********************
 	//get_basic_system_info()
 }
 
