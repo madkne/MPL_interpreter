@@ -43,6 +43,28 @@ void append_Mvar(Mvar s) {
 }
 
 //****************************************************
+void delete_Mvar(long_int i) {
+	long_int counter = 0;
+	Mvar *first = 0;
+	Mvar *last = entry_table.var_memory_start;
+	for (;;) {
+		if (counter == i) {
+			Mvar *next = last->next;
+			free(last);
+			if (i == 0) entry_table.var_memory_start = next; //if was first node
+			else first->next = next;
+			if (next == 0)entry_table.var_memory_end = first; //if was last node
+			break;
+		}
+		first = last;
+		last = last->next;
+		if (last == 0) break;
+		counter++;
+	}
+	entry_table.var_mem_len--;
+}
+
+//****************************************************
 void append_Mpoint(Mpoint s) {
 	Mpoint *q;
 	q = (Mpoint *) malloc(sizeof(Mpoint));
@@ -58,6 +80,28 @@ void append_Mpoint(Mpoint s) {
 		entry_table.pointer_memory_end->next = q;
 		entry_table.pointer_memory_end = q;
 	}
+}
+
+//****************************************************
+void delete_Mpoint(long_int i) {
+	long_int counter = 0;
+	Mpoint *first = 0;
+	Mpoint *last = entry_table.pointer_memory_start;
+	for (;;) {
+		if (counter == i) {
+			Mpoint *next = last->next;
+			free(last);
+			if (i == 0) entry_table.pointer_memory_start = next; //if was first node
+			else first->next = next;
+			if (next == 0)entry_table.pointer_memory_end = first; //if was last node
+			break;
+		}
+		first = last;
+		last = last->next;
+		if (last == 0) break;
+		counter++;
+	}
+	entry_table.pointer_mem_len--;
 }
 
 //****************************************************
@@ -259,8 +303,7 @@ set_memory_var(long_int fin, long_int sid, String name, String value_var, String
 	str_init(&name, tmp_name);
 	//printf("CCCCCCCC:%s,%i,%s\n",name,return_var_id(name, 0),value_var);
 	//show_memory(1);
-	if (return_var_id(name, 0) > 0)
-	{
+	if (return_var_id(name, 0) > 0) {
 		exception_handler("redeclared_var", "set_memory_var", name, "");
 		return 0;
 	}
@@ -283,8 +326,8 @@ set_memory_var(long_int fin, long_int sid, String name, String value_var, String
 			printf("###########failed2\n");
 			return 0;
 		}
-		indexes_len=1;
-		max_indexes[0]=1;
+		indexes_len = 1;
+		max_indexes[0] = 1;
 		//-----
 		vaar s = {1, sub_type, main_value, "0", 0};
 		append_vaar(s, &vals_array);
@@ -371,6 +414,10 @@ long_int add_to_pointer_memory(String data, uint8 type_data) {
 }
 
 //****************************************************
+/**
+ * display Mvar,Mpoint or both in console by details
+ * @param wh
+ */
 void show_memory(uint8 wh) {
 	if (wh == 40) {
 		wh = 0;
@@ -379,11 +426,11 @@ void show_memory(uint8 wh) {
 	}
 	//*************show var_memory
 	printf("+++++++++++++++++++++++++\n");
-	if (wh == 0 || wh == 1) {
+	if (wh == 0 || wh == 1 || wh == 3) {
 		printf("-------var_memory-------\n");
 		for (long_int i = 0; i < entry_table.var_mem_len; i++) {
 			Mvar st = get_Mvar(i);
-			if (st.name == 0) {
+			if (wh != 3 && st.name == 0) {
 				continue;
 			}
 			printf("VAR(id:%i,fin:%i,sid:%i,pointer:%i,type:%i)\n\t%s,{extra:%s}\n=====================\n", st.id,
@@ -403,64 +450,56 @@ void show_memory(uint8 wh) {
 
 //****************************************************
 /**
-delete_full_memory_var
-get a var_id as var_memory index
-*/
-Boolean delete_full_memory_var(long_int var_id, Boolean is_del_var) {
+ * get index of a Mvar node and delete it (if you permission it) and all its pointers
+ * @param var_ind
+ * @param is_del_var
+ * @return Boolean
+ */
+Boolean delete_full_memory_var(long_int var_ind, Boolean is_del_var) {
 	//******************init vars
-	/*	var
-		del_ids[]
-		long_int
-		//******************analyzing
-		del_ids = append(del_ids, var_memory[var_id].pointer_id)
-		//msg("&DEL:", var_memory[var_id].name, var_memory[var_id].id)
-		for
-		{
-			if len(del_ids) == 0
-			{
-				break
-			}
-			//-----------------
-			real_id := find_index_pointer_memory(del_ids[0])
-			st := pointer_memory[real_id]
-			if st.type_data == 'p'
-			{
-				tmp1 := strings.Split(st.data, ";")
-				for
-				i := 0;
-				i < len(tmp1);
-				i++
-				{
-					tmp2, _ := strconv.ParseInt(tmp1[i], 10, 64)
-					del_ids = append(del_ids, long_int(tmp2))
-				}
-			}
-			//-----------------
-			delete_pointer_memory(del_ids[0])
-			del_ids = del_ids[1:]
-			
+	longint_list del_ids = 0;
+	uint32 del_ids_len = 0;
+	//******************analyzing
+	longint_list_append(&del_ids, del_ids_len++, get_Mvar(var_ind).pointer_id);
+	//msg("&DEL:", var_memory[var_id].name, var_memory[var_id].id)
+	for (;;) {
+		if (del_ids_len == 0) {
+			break;
 		}
-		if (is_del_var) {
-			delete_var_memory(var_memory[var_id].id)
-		}*/
+		//-----------------
+		long_int real_id = find_index_pointer_memory(del_ids[0]);
+		Mpoint st = get_Mpoint(real_id);
+		if (st.type_data == 'p') {
+			str_list tmp1 = 0;
+			uint32 tmp1_len = char_split(st.data, ';', &tmp1, true);
+			for (uint32 i = 0; i < tmp1_len; i++) {
+				longint_list_append(&del_ids, del_ids_len++, str_to_long_int(tmp1[i]));
+			}
+		}
+		//-----------------
+		delete_pointer_memory(del_ids[0]);
+		longint_list_delete_first(&del_ids, del_ids_len--);
+		
+	}
+	if (is_del_var) {
+		delete_Mvar(var_ind);
+	}
 	//******************return
 	return true;
 }
 
-//****************************************************
 //**************************************************************
-//[OK]
+/**
+ * delete a Mpoint node by its id
+ * @param id
+ * @return Boolean
+ */
 Boolean delete_pointer_memory(long_int id) {
-	/*var tmp[]
-	pointer_memory_struct
-	for i := 0; i <
-	len(pointer_memory);
-	i++ {
-	if pointer_memory[i].id != id {
-	tmp = append(tmp, pointer_memory[i])
+	for (long_int i = 0; i < entry_table.pointer_mem_len; i++) {
+		if (get_Mpoint(i).id == id) {
+			delete_Mpoint(i);
+		}
 	}
-	}
-	pointer_memory = tmp*/
 	return true;
 }
 
@@ -480,18 +519,17 @@ long_int find_index_pointer_memory(long_int id) {
 }
 
 //**************************************************************
-//[OK]
+/**
+ * delete a Mvar node by its id
+ * @param id
+ * @return Boolean
+ */
 Boolean delete_var_memory(long_int id) {
-	/*var tmp[]
-	var_memory_struct
-	for i := 0; i <
-	len(var_memory);
-	i++ {
-	if var_memory[i].id != id {
-	tmp = append(tmp, var_memory[i])
+	for (long_int i = 0; i < entry_table.var_mem_len; i++) {
+		if (get_Mvar(i).id == id) {
+			delete_Mvar(i);
+		}
 	}
-	}
-	var_memory = tmp*/
 	return true;
 }
 
@@ -525,7 +563,12 @@ long_int return_var_ind_pointer_id(long_int pointer_id) {
 	return 0;
 }
 //****************************************************
+//func get_data_memory_index(pointer_id long_int, index_var string) (long_int, string)
 //****************************************************
+//func edit_index_room_var(new_value, index_var string, real_id long_int, new_type byte) bool
 //****************************************************
+//func copy_memory_var(var_index long_int, new_name string, pid, fin long_int) long_int
 //****************************************************
+//func return_var_dimensions(var_ind long_int) []string
 //****************************************************
+//func review_create_array_from(po_id long_int) (string,byte,bool)

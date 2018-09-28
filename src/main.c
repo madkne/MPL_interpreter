@@ -89,8 +89,8 @@ Boolean start_interpreter(String source) {
 	if (!ret3) {
 		return false;
 	}
+
 	print_struct(PRINT_UTF8_ST);
-	show_memory(0);
 	//-----------------------free memory
 	interpreter_level = "free";
 }

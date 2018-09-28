@@ -178,18 +178,12 @@ String define_vars(String inst) {
 		//msg("&INIT_VAR:", st.name_var,st.value_var)
 		if (ret1 == 0)
 		{
-			//delete all prev declared vars. because an error occur for one.
-			for(uint8 i=0; i < vars_list_counter;i++)
-			{
-				//TODO:
-				//delete_full_memory_var(find_index_var_memory(vars_list[i]), true);
-			}
 			return "bad";
 		}
 		vars_list[vars_list_counter++] = ret1;
 		
 	}
-	show_memory(0);
+	//show_memory(0);
 	//msg("Define:", inst, cur_cid, cur_fid, cur_sid)
 	return 0;
 }

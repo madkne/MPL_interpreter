@@ -896,7 +896,7 @@ void calculate_string_expression(String exp, String *value, uint8 *sub_type) {
 			expression = str_multi_append(s1, result, s2, 0, 0, 0);
 			//printf("$RRRR:%s,%s=>%s\n",s1,s2,expression);
 			str_init(&exp, expression);
-			printf("##DDDDDD:%s,%s,%s,%s\n",result,exp,str1,str2);
+			//printf("##DDDDDD:%s,%s,%s,%s\n",result,exp,str1,str2);
 			//*************end calculate
 			op = 0, str1 = 0, str2 = 0, buf = 0;
 			is_str1 = false;
@@ -908,7 +908,7 @@ void calculate_string_expression(String exp, String *value, uint8 *sub_type) {
 		if (!is_string && buf != 0 && !is_str1 && str2 == 0 && op == 0 && exp[i] == '=') {
 			Boolean is_str_style = false;
 			Boolean is_valid_val = false;
-			printf("&HHH:%s\n",buf);
+			//printf("&HHH:%s\n",buf);
 			if (buf_len > 1 && buf[0] == '\"' && buf[buf_len - 1] == '\"') {
 				is_str_style = true;
 				is_valid_val = true;
@@ -937,7 +937,7 @@ void calculate_string_expression(String exp, String *value, uint8 *sub_type) {
 				}
 			}
 			if (!is_valid_val) {
-				exception_handler("invalid_exp_val", "calculate_string_expression:867", buf, "str");
+				exception_handler("invalid_exp_val", __func__, buf, "str");
 				str_init(&(*value), 0);
 				(*sub_type) = '0';
 				return;

@@ -8,9 +8,9 @@
 void init_memory();
 
 void append_Mvar(Mvar s);
-
+void delete_Mvar(long_int i);
 void append_Mpoint(Mpoint s);
-
+void delete_Mpoint(long_int i);
 Mvar get_Mvar(long_int i);
 
 Mpoint get_Mpoint(long_int i);
@@ -28,8 +28,14 @@ add_to_var_memory(long_int pointer_id, long_int fin, long_int sid, long_int type
 long_int add_to_pointer_memory(String data, uint8 type_data);
 
 void show_memory(uint8 wh);
+
+Boolean delete_full_memory_var(long_int var_ind, Boolean is_del_var);
+
 Boolean delete_pointer_memory(long_int id);
+
 long_int find_index_pointer_memory(long_int id);
+
+Boolean delete_var_memory(long_int id);
 
 long_int find_index_var_memory(long_int id);
 

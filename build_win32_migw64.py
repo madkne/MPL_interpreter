@@ -26,9 +26,15 @@ if os.path.exists(logfile):
 print("\t~~~~~MPL Build Tool (BY Python3) V 2.1~~~~~");
 print("=== Start Building win32 release of MPL Compiler using Mingw64....");
 #----------------------init dirs
-#-----create bin file
-if not os.path.exists(build_folder+"\\bin"):
-    os.makedirs(build_folder+"\\bin");
+#-----create docs file
+if not os.path.exists(build_folder+"\\docs"):
+    os.makedirs(build_folder+"\\docs");
+#-----create modules file
+if not os.path.exists(build_folder+"\\modules"):
+    os.makedirs(build_folder+"\\modules");
+#-----create libs file
+if not os.path.exists(build_folder+"\\packs"):
+    os.makedirs(build_folder+"\\packs");
 #-----create samples file
 if not os.path.exists(build_folder+"\\samples"):
     os.makedirs(build_folder+"\\samples");
@@ -90,7 +96,7 @@ if is_error==1:
 else:
     obj_files=glob.glob("obj/*.o");
     all_files=' '.join(obj_files);
-    is_error=os.system("gcc -g "+all_files+" -o "+build_folder+"\\bin\\mpl.exe");
+    is_error=os.system("gcc -g "+all_files+" -o "+build_folder+"\\mpl.exe");
     
 #----------------------finish
 if is_error==1:
@@ -107,7 +113,7 @@ else:
 	#----------------------run mpl.exe
 	print("=== Running mpl.exe ...");
 	print("_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_");
-	os.system(build_folder+"\\bin\\mpl.exe main.mpl");
+	os.system(build_folder+"\\mpl.exe main.mpl");
 	#os.system("dir");
 	#os.system("pause");
 
