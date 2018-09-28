@@ -16,7 +16,10 @@
 #include <linux/limits.h>
 #include <stdint.h>
 #elif WINDOWS_PLATFORM == 1
-
+#include <ctype.h>
+#include <stdint.h>
+#include <float.h>
+#include <limits.h>
 #include <windows.h>
 
 #endif

@@ -44,7 +44,7 @@ Boolean import_all_files(String source) {
 		entry_table.cur_source_path = ret.path;
 		//utf8_str_print("XXXXX",ret.path,false);
 		//print_struct(PRINT_MAIN_SOURCE_ST);
-		// print_struct(PRINT_UTF8_ST);
+		//print_struct(PRINT_UTF8_ST);
 		//----------
 		if (ret1) analyze_source_code();
 		delete_imin(ret.id, false); //inactive import record and not delete it
@@ -106,9 +106,6 @@ Boolean open_mpl_file(imin s) {
 			continue;
 		}
 		uint32 line_size = utf8_str_length(code_line);
-		//for(uint32 k=0;k<line_size;k++){
-		
-		//}
 		//----------------basic analyzing every line
 		for (uint32 i = 0; i < line_size; i++) {
 			//----------------check is multi line str
@@ -118,6 +115,23 @@ Boolean open_mpl_file(imin s) {
 				glob_collect = collect;
 				break;
 			}
+			//----------------check is line comment
+			if (!is_str && i + 1 < line_size && code_line[i] == '/' && code_line[i + 1] == '/') {
+				break;
+			}
+			//----------------check is multi line comments
+			if (!is_str && i + 1 < line_size) {
+				if (code_line[i] == '/' && code_line[i + 1] == '*')is_multiple_comment = true;
+				else if (code_line[i] == '*' && code_line[i + 1] == '/') {
+					is_multiple_comment = false;
+					i += 1;
+					continue;
+				}
+			}
+			//----------------
+			if (is_multiple_comment) {
+				continue;
+			}
 			//----------------check is str
 			if (code_line[i] == '\"' && (i == 0 || code_line[i - 1] != '\\')) {
 				is_str = switch_bool(is_str);
@@ -125,30 +139,26 @@ Boolean open_mpl_file(imin s) {
 					collect = 0;
 					buffer = utf8_char_append(buffer, (uint32) '\"');
 				} else {
-					// printf("CCC:%s\n",collect);
-					utst tmp1 = {entry_table.utf8_strings_id, collect, entry_table.max_bytes_per_char};
-					append_utst(tmp1);
-					collect = 0;
-					str_utf8 ss;
-					str_to_utf8(&ss, str_from_long_int(entry_table.utf8_strings_id));
-					buffer = utf8_str_append(buffer, ss);
-					// printf("OOOO:%s\n",str_from_long_int(entry_table.utf8_strings_id));
-					entry_table.utf8_strings_id++;
+					 //utf8_str_print("gggg",collect,true);
+					uint8 max_bytes= utf8_str_max_bytes(collect,true);
+					//printf("XXXX:%i\n",max_bytes);
+					if (max_bytes > 1) {
+						utst tmp1 = {++entry_table.utf8_strings_id, collect,max_bytes};
+						append_utst(tmp1);
+						collect = 0;
+						str_utf8 ss;
+						str_to_utf8(&ss,
+								str_multi_append(UTF8_ID_LABEL, str_from_long_int(entry_table.utf8_strings_id), 0, 0, 0,
+										0));
+						buffer = utf8_str_append(buffer, ss);
+						// printf("OOOO:%s\n",str_from_long_int(entry_table.utf8_strings_id));
+					}else{
+						buffer = utf8_str_append(buffer, collect);
+						collect = 0;
+					}
 				}
 			}
-			//----------------check is line comment
-			if (!is_str && i + 1 < line_size && code_line[i] == '/' && code_line[i + 1] == '/') {
-				break;
-			}
-			//----------------check is multi line comments
-			if (!is_str && i + 1 < line_size && ((code_line[i] == '/' && code_line[i + 1] == '*') ||
-					(code_line[i] == '*' && code_line[i + 1] == '/'))) {
-				is_multiple_comment = switch_bool(is_multiple_comment);
-				if (!is_multiple_comment) {
-					i += 1;
-					continue;
-				}
-			}
+			//printf("WW@@@:%c\n",code_line[i]);
 			//----------------add char to buffer
 			if (is_str && (collect != 0 || code_line[i] != '\"')) {
 				collect = utf8_char_append(collect, code_line[i]);
@@ -156,7 +166,7 @@ Boolean open_mpl_file(imin s) {
 			}
 			if (!is_str && i > 0 && code_line[i - 1] == ' ' && code_line[i] == ' ') {
 				continue;
-			} else if (!is_str && !is_multiple_comment) {
+			} else if (!is_str) {
 				buffer = utf8_char_append(buffer, code_line[i]);
 			}
 		}

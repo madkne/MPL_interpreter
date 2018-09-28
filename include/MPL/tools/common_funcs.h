@@ -7,11 +7,11 @@ String get_absolute_path(String path);
 Boolean switch_bool(Boolean b);
 void msg(String format,...);
 
-long_int get_max_unsigned_size(uint8 bytes);
-void delete_first_longint_list(longint_list *s,uint32 len);
-void longint_append(longint_list *s,uint32 len, long_int n);
+void longint_list_delete_first(longint_list *s,uint32 len);
+void longint_list_append(longint_list *s,uint32 len, long_int n);
 void longint_list_init(longint_list *s, longint_list val, uint32 len);
-uint32 long_int_size(long_int *s);
+
+double int32_power(double base,int32 power);
 
 String get_current_datetime(uint8 type);
 

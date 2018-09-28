@@ -5,9 +5,7 @@
 
 Boolean start_runtime() {
 	//*************init variables
-	//msg("XXXXXXXXXXXXXXXXXXXX")
-	//start Program from cid=0,fid=1,sid=0,order=1
-	entry_table.func_index++;
+	entry_table.func_index++; //add one for main() function
 	//add_to_prev_fins_array(0)
 	entry_table.cur_fid = 0, entry_table.cur_fin = entry_table.func_index, entry_table.cur_sid = 0, entry_table.cur_order = 1;
 	//*************find main function
@@ -20,7 +18,7 @@ Boolean start_runtime() {
 	//printf("LLLL:%i,%s\n",main_func.id,main_func.lbl);
 	//*************init global vars
 	//init_global_vars();
-	//*************start program
+	//*************start program from fid=2,fin=2,sid=0,order=1
 	APP_CONTROLLER();
 	//*************return
 	//msg("\t----------------------\n", run_order)
@@ -52,7 +50,8 @@ Boolean APP_CONTROLLER() {
 	if (st == 0) return false;
 	for (;;) {
 		//printf("XSSSS:%i<>%i,%i<>%i,%i<>%i\n", st->func_id, cur_fid , st->stru_id, cur_sid , st->order, cur_order);
-		if (st->func_id == entry_table.cur_fid && st->stru_id == entry_table.cur_sid && st->order == entry_table.cur_order) {
+		if (st->func_id == entry_table.cur_fid && st->stru_id == entry_table.cur_sid &&
+				st->order == entry_table.cur_order) {
 			//printf("IIIII:%s\n", st->code);
 			entry_table.Rorder = st->order;
 			//************show instruction line by line
@@ -100,18 +99,19 @@ int8 INSTRUCTION_EXECUTOR(long_int index) {
 		//msg("&Rcode", Rcode)
 		uint8 state = labeled_instruction(Rcode);
 		if (is_programmer_debug >= 0) {
-			printf("@###############INST(State:%i,fin:%i,line:%i):\n%s\n@###############\n", state, entry_table.cur_fin, entry_table.Rline,
-					Rcode);
+			printf("@###############INST(State:%i,fin:%i,line:%i):\n%s\n@###############\n", state, entry_table.cur_fin,
+					entry_table.Rline, Rcode);
 		}
 		//********************
 		switch (state) {
 			case UNKNOWN_LBL_INST: {
 				is_done = false;
-				//exception_handler("unknown_instruction", "INSTRUCTION_EXECUTOR", Rcode, "")
+				exception_handler("unknown_instruction", "INSTRUCTION_EXECUTOR", Rcode, "");
 				break;
 			}
 			case DEF_VARS_LBL_INST:
 				Rcode = define_vars(Rcode);
+				if (str_equal(Rcode, "bad")) is_done = false;
 				break;
 			case FUNC_CALL_LBL_INST:
 				is_done = false;

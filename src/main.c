@@ -74,16 +74,23 @@ Boolean start_interpreter(String source) {
 	if (!ret0) {
 		return false;
 	}
-	print_struct(PRINT_FUNC_ST);
-	print_struct(PRINT_STRU_ST);
-	print_struct(PRINT_INSTRU_ST);
-	print_struct(PRINT_STRUCT_ST);
+	//print_struct(PRINT_FUNC_ST);
+	print_struct(PRINT_MAIN_SOURCE_ST);
+	//print_struct(PRINT_STRU_ST);
+	//print_struct(PRINT_INSTRU_ST);
+	//print_struct(PRINT_STRUCT_ST);
+	//String h=0;
+	//str_init(&h,"AMindelavar");
+	//str_to_lower_case(&h);
+	//printf("WWWWW:%s,%s\n","hh", calculate_two_numbers("45","1000",'^','f'));
 	//-----------------------meaning&running instructions
 	interpreter_level = "runtime";
 	Boolean ret3 = start_runtime();
 	if (!ret3) {
 		return false;
 	}
+	print_struct(PRINT_UTF8_ST);
+	show_memory(0);
 	//-----------------------free memory
 	interpreter_level = "free";
 }

@@ -6,36 +6,44 @@
 #define MPL_CONSTANTS_H
 
 
-//**************************************************define compiler constants
+//**************************************************define interpreter constants
 #define  APP_NAME                       "Mini Portable Language"
-#define  VERSION                        "0.0.74"               //1.10.100
+#define  VERSION                        "0.1.0"               //1.10.100
 #define  VERSION_NAME                   "BETA"
 #define  SLOGAN                         "The solution to common problems of programmers" //راه حل کارهای متداول برنامه
 // نویسان
+#define  C_COMPILER_STD                 "C99"
 #define  BUILD_DATE                     __DATE__
 #define  BUILD_TIME                     __TIME__
 #define  FIRST_BUILD                    "2018.9.19"
 #define  LICENCE                        "Apache 2.0"
 #define  OFFICIAL_WEBSITE               "http://mpl-lang.ir"
 #define  CORE_CODE_LINES                0
+#define  BUILT_IN_CODE_LINES            0
 #define  LANGUAGE_CREATOR               "Mohammad Amin Delavar Khalafi"
 #define  CONFIDENCE_LEVEL               0
+
 //**************************************************define
 #if x64_OS == 1
 #define OS_ARCH                         "x64"
 #elif x86_OS == 1
 #define OS_ARCH                         "x86"
 #endif
+//------------------------------------------
 #if LINUX_PLATFORM == 1
-#define  OS_SEPARATOR                   '/'
-#define  OS_TYPE                        "linux"
+#define   OS_SEPARATOR                  '/'
+#define   OS_TYPE                       "linux"
+#define   MAX_INT_NUMBER                10000000
+#define   MAX_FLOAT_NUMBER              1000000000
 #elif WINDOWS_PLATFORM == 1
-#define  OS_SEPARATOR                   '\\'
-#define  OS_TYPE                        "windows"
+#define   OS_SEPARATOR                  '\\'
+#define   OS_TYPE                       "windows"
+#define   MAX_INT_NUMBER                INT_MAX
+#define   MAX_FLOAT_NUMBER              DBL_MAX
 #endif
 //------------------------------------------
-#define   MAX_INT_LEN                   7
-#define   MAX_FLOAT_LEN                 12
+#define   INT_USED_BYTES                sizeof(MAX_INT_NUMBER)
+#define   FLOAT_USED_BYTES              sizeof(MAX_FLOAT_NUMBER)
 #define   MAX_ARRAY_DIMENSIONS          5
 #define   MAX_VAR_ALLOC_INSTRUCTIONS    15
 #define   MAX_PARAMS_STRUCT             30
@@ -46,6 +54,8 @@
 #define   RETURN_TMP_NAME               "@ret_"
 #define   STRUCTURES_LABEL              "@@@STRU_"
 #define   SWITCH_LABEL                  "@@@SWITCH_"
+#define   UTF8_ID_LABEL                 "-!U8!_"
+#define   UTF8_ID_LBL_LEN               6
 #define   SEGMENTS_SPLIT                "\"?\"=!=\"?\"" // "?"=="?"
 #define   SORT_SPLIT                    "!@!"
 #define   PARAM_ARRAY_NAME              "__ArrayParam_"
@@ -142,17 +152,17 @@ typedef unsigned int uint32;
 typedef __int64_t           int64;
 typedef __uint64_t          uint64;
 #elif LINUX_PLATFORM == 1 && x86_OS == 1
-typedef unsigned long int   uint64;
-typedef signed long int     int64;
+typedef __int64_t           uint64;
+typedef __uint64_t          int64;
 #elif WINDOWS_PLATFORM == 1 && x64_OS == 1
 typedef unsigned long int   uint64;
 typedef signed long int     int64;
 #elif WINDOWS_PLATFORM == 1 && x86_OS == 1
-typedef unsigned long int uint64;
-typedef signed long int int64;
+typedef uint64_t uint64;
+typedef int64_t int64;
 #else
-typedef unsigned long int uint64;
-typedef signed long int int64;
+typedef unsigned long long int uint64;
+typedef signed long long int int64;
 #endif
 
 typedef long int num_int;

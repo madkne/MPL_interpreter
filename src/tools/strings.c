@@ -1,7 +1,4 @@
 #include <MPL/system.h>
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
 
 //******************************************
 Boolean str_equal(String s1, String s2) {
@@ -16,7 +13,8 @@ Boolean str_equal(String s1, String s2) {
 
 //******************************************
 String convert_to_string(String s) {
-	String ret = '\"';
+	String ret = 0;
+	ret = char_append(ret, '\"');
 	ret = str_append(ret, s);
 	ret = char_append(ret, '\"');
 	return ret;
@@ -107,21 +105,16 @@ uint32 char_split(String s, uint8 sp, str_list *ret, Boolean is_remove_empty) {
 	return ind;
 }
 
-//******************************************
-void str_swap(String *s1, String *s2) {
-	String tmp = *s1;
-	*s1 = *s2;
-	*s2 = tmp;
-}
 
 //******************************************
 void str_init(String *s, String val) {
-	uint32 len = str_length(val);
-	//printf("VVVVV:%s,%i\n",val,len);
-	if (len == 0) {
+	if (val == 0) {
 		*s = 0;
 		return;
 	}
+	//if(s!=0)free(*s);
+	uint32 len = str_length(val);
+	//printf("VVVVV:%s,%i\n",val,len);
 	*s = (String) malloc(sizeof(uint8) * (len + 1));
 	for (uint32 i = 0; i < len; i++) {
 		(*s)[i] = val[i];
@@ -191,6 +184,16 @@ Boolean char_search(uint8 list[], uint8 c) {
 			return true;
 	}
 	return false;
+}
+
+//******************************************
+int32 char_search_index(uint8 list[], uint8 c) {
+	uint32 len = str_length(list);
+	for (uint32 i = 0; i < len; i++) {
+		if (c == list[i])
+			return i;
+	}
+	return -1;
 }
 
 //******************************************
@@ -277,6 +280,34 @@ Boolean str_is_int32(String s) {
 }
 
 //******************************************
+Boolean str_is_num(String str) {
+	uint32 len = str_length(str);
+	if (len == 1 && (str[0] < '0' || str[0] > '9')) {
+		return false;
+	}
+	Boolean is_hex = false;
+	if (len > 2 && str[0] == '0' && str[1] == 'x') {
+		is_hex = true;
+	}
+	//msg("&&EE", str, is_hex)
+	for (uint32 i = 0; i < len; i++) {
+		if ((str[i] >= '0' && str[i] <= '9') || str[i] == '.' || (i == 0 && (str[i] == '+' || str[i] == '-') ||
+				(i == 1 && (str[i] == 'x' || str[i] == 'b' || str[i] == 'o')))) {
+			continue;
+		} else if (i == len - 1 && len > 1 && (str[i] == 'i' || str[i] == 'f' || str[i] == 'd' || str[i] == 'h') &&
+				(str[i - 1] >= '0' && str[i - 1] <= '9')) {
+			continue;
+		} else if (is_hex &&
+				(str[i] == 'a' || str[i] == 'b' || str[i] == 'c' || str[i] == 'd' || str[i] == 'e' || str[i] == 'f')) {
+			continue;
+		} else {
+			return false;
+		}
+	}
+	return true;
+}
+
+//******************************************
 String str_reverse(String s) {
 	uint32 len = str_length(s);
 	if (len == 0)return 0;
@@ -354,9 +385,17 @@ Boolean str_is_empty(String s) {
 }
 
 //******************************************
+void str_swap(String *s1, String *s2) {
+	String s3 = 0;
+	str_init(&s3, (*s1));
+	str_init(&(*s1), (*s2));
+	str_init(&(*s2), s3);
+}
+
+//******************************************
 String str_substring(String s, uint32 start, uint32 end) {
-	if (end == 0)end = str_length(s);
-	if (start >= end) return 0;
+	if (end == 0 && start > 0)end = str_length(s);
+	if (start >= end || start == end) return 0;
 	String ret = 0;
 	for (uint32 i = start; i < end; i++) {
 		ret = char_append(ret, s[i]);
@@ -390,6 +429,114 @@ int32 str_indexof(String s, String s1, uint32 start) {
 }
 
 //******************************************
+String str_to_upper_case(String text) {
+	String s = 0;
+	for (; *text; text++) {
+		if (('a' <= *text) && (*text <= 'z'))
+			s = char_append(s, 'A' + (*text - 'a'));
+		else s = char_append(s, *text);
+	}
+	return s;
+}
+
+//******************************************
+String str_to_lower_case(String text) {
+	String s = 0;
+	for (; *text; text++) {
+		if (('A' <= *text) && (*text <= 'Z'))
+			s = char_append(s, 'a' + (*text - 'A'));
+		else s = char_append(s, *text);
+	}
+	return s;
+}
+
+//******************************************
+String str_from_int32(int32 x) {
+	if (x == 0)return "0";
+	Boolean is_neg = false;
+	String ret = 0;
+	if (x < 0) {
+		x *= -1;
+		is_neg = true;
+	}
+	
+	while (x) {
+		ret = char_append(ret, (x % 10) + '0');
+		x = x / 10;
+	}
+	if (is_neg) ret = char_append(ret, '-');
+	ret = str_reverse(ret);
+	return ret;
+}
+
+//******************************************
+String str_from_int64(int64 x) {
+	if (x == 0)return "0";
+	Boolean is_neg = false;
+	String ret = 0;
+	if (x < 0) {
+		x *= -1;
+		is_neg = true;
+	}
+	
+	while (x) {
+		ret = char_append(ret, (x % 10) + '0');
+		x = x / 10;
+	}
+	if (is_neg) ret = char_append(ret, '-');
+	ret = str_reverse(ret);
+	return ret;
+}
+
+//******************************************
+double str_to_double(String s) {
+	double val, power;
+	int i, sign;
+	for (i = 0; isspace(s[i]); i++); /* skip white space */
+	
+	sign = (s[i] == '-') ? -1 : 1;
+	if (s[i] == '+' || s[i] == '-')
+		i++;
+	for (val = 0.0; isdigit(s[i]); i++) {
+		val = 10.0 * val + (s[i] - '0');
+	}
+	if (s[i] == '.')
+		i++;
+	for (power = 1.0; isdigit(s[i]); i++) {
+		val = 10.0 * val + (s[i] - '0');
+		power *= 10;
+	}
+	return sign * val / power;
+}
+
+//******************************************
+String str_from_double(double n, uint8 afterpoint) {
+	String ret = 0;
+	// Extract integer part
+	int64 ipart = (int64) n;
+	// convert integer part to string
+	str_init(&ret, str_from_int64(ipart));
+	//printf("CCCC:%f=>%lld,%s\n",n,ipart,ret);
+	if (n < 0) {
+		ipart *= -1;
+		n *= -1;
+	}
+	// Extract floating part
+	double fpart = n - (double) ipart;
+	// check for display option after point
+	if (afterpoint > 0 && fpart != 0) {
+		ret = char_append(ret, '.');// add dot
+		double power = int32_power(10, afterpoint); //calc power of 10
+		double one_unit = (double) 1 / power; //calc one unit like 0.01 or 0.0001
+		//printf("SSSSS:%f,%i\n",fpart,ipart);
+		fpart = (fpart * int32_power(10, afterpoint)) + one_unit;
+		//printf("OOOOO:%f,%i\n",fpart,power);
+		ret = str_append(ret, str_from_int32((int) fpart));
+	}
+	return ret;
+}
+
+//******************************************
 String str_multi_append(String s, String s1, String s2, String s3, String s4, String s5) {
 	String ret = 0;
 	str_init(&ret, s);
@@ -409,4 +556,20 @@ void str_to_utf8(str_utf8 *ret, String val) {
 		(*ret)[i] = val[i];
 	}
 	(*ret)[len] = 0;
+}
+
+//******************************************
+String str_from_const_char(const char s[]) {
+	String ret = 0;
+	if(s==NULL)return 0;
+	uint32 len=0;
+	while (s[len++] != 0);
+	if (len == 0)return 0;
+	//printf("VVVVV:%s,%i\n",val,len);
+	ret = (String) malloc(sizeof(uint8) * (len + 1));
+	for (uint32 i = 0; i < len; i++) {
+		ret[i] = s[i];
+	}
+	ret[len] = 0;
+	return ret;
 }

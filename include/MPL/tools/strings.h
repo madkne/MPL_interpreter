@@ -2,14 +2,15 @@
 #define __STRINGS_H    1
 
 #define StrArraySize(x) (sizeof(x)/sizeof(String))
+
 //*************************************
 Boolean str_equal(String s1, String s2);
+
 String convert_to_string(String s);
+
 uint32 str_length(String s);
 
 String str_append(String s1, String s2);
-
-void str_swap(String *s1, String *s2);
 
 void str_init(String *s, String val);
 
@@ -23,6 +24,8 @@ long_int str_to_long_int(String s);
 
 Boolean str_is_int32(String s);
 
+Boolean str_is_num(String str);
+
 String str_from_long_int(long_int num);
 
 String str_reverse(String s);
@@ -35,13 +38,29 @@ void str_empty(String *s);
 
 Boolean str_is_empty(String s);
 
+void str_swap(String *s1, String *s2);
+
 String str_substring(String s, uint32 start, uint32 end);
 
 int32 str_indexof(String s, String s1, uint32 start);
 
+String str_to_upper_case(String text);
+
+String str_to_lower_case(String text);
+
+String str_from_int32(int32 x);
+
+String str_from_int64(int64 x);
+
+double str_to_double(String s);
+
+String str_from_double(double n, uint8 afterpoint);
+
 String str_multi_append(String s, String s1, String s2, String s3, String s4, String s5);
 
 void str_to_utf8(str_utf8 *ret, String val);
+
+String str_from_const_char(const char s[]);
 
 String char_join(str_list s, uint8 sp, uint32 size, Boolean is_remove_empty);
 
@@ -52,6 +71,8 @@ String char_append(String s, uint8 c);
 Boolean str_ch_equal(String s1, uint8 s2);
 
 Boolean char_search(uint8 list[], uint8 c);
+
+int32 char_search_index(uint8 list[], uint8 c);
 
 uint32 char_search_count(String s, uint8 c);
 

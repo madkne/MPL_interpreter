@@ -71,7 +71,7 @@ uint8 labeled_instruction(String code) {
 		if (!is_string && !is_equal && code[i] == ' ' && word != 0 &&
 				!str_search(keywords_out, word, StrArraySize(keywords_out))) {
 			//printf("Data type:%s,%i\n", word,search_datas(word, 0, 0, true).id);
-			if (search_datas(word, 0, 0, true).id == 0 && !is_ret) {
+			if (search_datas(word, 0, true).id == 0 && !is_ret) {
 				//exception_handler("wrong_type_var", "labeled_instruction:89", word, "")
 				//TODO:
 				return UNKNOWN_LBL_INST;
@@ -169,10 +169,11 @@ String define_vars(String inst) {
 	long_int vars_list[MAX_VAR_ALLOC_INSTRUCTIONS];
 	uint8 vars_list_counter=0;
 	//msg("---------------Add to memory:")
-	for(uint8 i = 0; i <= vars_counter; i++) {
+	for(uint8 i = 0; i < vars_counter; i++) {
 		if (vars_store[i].value_var == 0) {
 			str_init(&vars_store[i].value_var, "null");
 		}
+		vars_store[i].name_var=str_multi_append(vars_store[i].name_var,"[",vars_store[i].index_var,"]",0,0);
 		long_int ret1 = set_memory_var(entry_table.cur_fin, entry_table.cur_sid, vars_store[i].name_var, vars_store[i].value_var, vars_store[i].main_type, true);
 		//msg("&INIT_VAR:", st.name_var,st.value_var)
 		if (ret1 == 0)
@@ -183,12 +184,12 @@ String define_vars(String inst) {
 				//TODO:
 				//delete_full_memory_var(find_index_var_memory(vars_list[i]), true);
 			}
-			return 0;
+			return "bad";
 		}
 		vars_list[vars_list_counter++] = ret1;
 		
 	}
-	//show_memory(40)
+	show_memory(0);
 	//msg("Define:", inst, cur_cid, cur_fid, cur_sid)
 	return 0;
 }

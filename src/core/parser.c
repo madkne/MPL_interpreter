@@ -274,8 +274,12 @@ void manage_structs(uint32 *i) {
 			break;
 		}
 	}
-	printf("WW####:%s,%s\n", name, params);
+	//printf("WW####:%s,%s\n", name, params);
 	//-----------------analyzing func params
+	if (cur_stru_id > 0) {
+		print_error(Aline, "not_defined_struct", entry_table.cur_ascii_source_path, name, 0, "manage_structs");
+		return;
+	}
 	def_var_s main_params[MAX_PARAMS_STRUCT];
 	uint8 vars_counter = define_vars_analyzing(params, main_params);
 	if (vars_counter == 0) {
@@ -298,7 +302,7 @@ void manage_structs(uint32 *i) {
 	//TODO:error for same functions
 	//printf("FUNC %s(%s)\n", name, params);
 	//-----------------append to blst_func
-	datas tmp1 = {0, cur_func_id, cur_stru_id, name, STRUCT_DATA_TYPE, parameters, params_len};
+	datas tmp1 = {0, cur_func_id, name, STRUCT_DATA_TYPE, parameters, params_len};
 	append_datas(tmp1);
 }
 
@@ -306,7 +310,6 @@ void manage_structs(uint32 *i) {
 void manage_normal_instructions(uint32 *i) {
 	//-----------------init vars
 	String code = 0;
-	long_int fid = 0, sid = 0;
 	uint32 order = 0;
 	//-----------------analyze instruction
 	for (; *i < entry_table.soco_tokens_count; (*i)++) {
@@ -327,8 +330,8 @@ void manage_normal_instructions(uint32 *i) {
 	order = get_order(cur_func_id, cur_stru_id);
 	set_order(cur_func_id, cur_stru_id, ++order);
 	//-----------------append to instru
-	//printf("XXSSSS:fid:%i,sid:%i=>%s\n",cur_func_id,cur_stru_id,code);
 	instru tmp1 = {0, cur_func_id, cur_stru_id, order, code, UNKNOWN_LBL_INST, Aline, Apath, 0};
+	//printf("XXSSSS:fid:%i,sid:%i,line:%i=>%s\n",cur_func_id,cur_stru_id,tmp1.line,code);
 	append_instru(tmp1);
 	//printf("PPPP:%li,%s(%li,%li,%li)\n",order,code,pid,fid,sid);
 }

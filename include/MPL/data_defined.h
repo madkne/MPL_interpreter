@@ -11,8 +11,8 @@ String project_root;
 String main_source_name;
 String interpreter_level;
 String interpreter_path;
-uint8 int_len;
-uint8 float_len;
+uint8 MAX_INT_LEN;
+uint8 MAX_FLOAT_LEN;
 int8 errors_mode;
 int8 warnings_mode;
 String tab_size;
@@ -119,7 +119,6 @@ typedef struct block_structures_struct {
 typedef struct data_types_struct {
 	long_int id;
 	long_int fid;
-	long_int sid;
 	String name;
 	uint8 type; //1:main,2:struct
 	str_list params;
@@ -141,17 +140,17 @@ typedef struct def_var_struct {
 
 //**********************vals_array_struct
 typedef struct vals_array_struct {
+	long_int data_id;
+	uint8 sub_type;
 	String value;
 	String index;
-	uint8 type_val;
-	long_int data_id;
 	struct vals_array_struct *next;
 } vaar;
-typedef struct vals_array_entries{
+typedef struct vals_array_entries {
 	vaar *start;
 	vaar *end;
 	uint32 count;
-}vaar_en;
+} vaar_en;
 //****************************instructions_order struct
 typedef struct instructions_order_struct {
 	long_int fid;
@@ -203,7 +202,7 @@ typedef struct var_memory_struct {
 typedef struct pointer_memory_struct {
 	long_int id;
 	String data;
-	uint8 type_data; //'0':null , 'i':int(long int) , 'f':float , 'h':huge(long double) , 's':string , 'b':boolean , 'p':Pointer To Pointer , 'v':Pointer To Var
+	uint8 type_data; //'0':null , 'i':int , 'f':float , 'h':huge , 's':string , 'u':utf8 , 'b':boolean , 'p':Pointer To Mpoint , 'v':Pointer To Mvar
 	struct pointer_memory_struct *next;
 } Mpoint;
 
@@ -363,7 +362,7 @@ blst search_lbl_func(String lbl, str_list params, uint32 par_len);
 //-------------------------datas funcs
 void append_datas(datas s);
 
-datas search_datas(String name, long_int fid, long_int sid, Boolean is_all);
+datas search_datas(String name, long_int fid, Boolean is_all);
 
 //-------------------------instru funcs
 void append_instru(instru s);
@@ -392,4 +391,7 @@ void add_to_mama(uint8 type, uint8 sub_type, String key, String value);
 
 //-------------------------vaar funcs
 void append_vaar(vaar s, vaar_en *s1);
+
+void print_vaar(vaar_en s);
+
 #endif //MPL_DATA_DEFINED_H

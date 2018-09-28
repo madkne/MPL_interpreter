@@ -30,6 +30,8 @@ void init_exceptions_list_data() {
 	define_new_exception(3, ERROR_ID, "out_of_range_index", InterruptedError,
 			"'!1@1!' out of range for '!2@2!' variable");
 	define_new_exception(4, ERROR_ID, "out_of_range_break_next", InterruptedError, "'!1@1!' is not between 1 .. !2@2!");
+	define_new_exception(5, ERROR_ID, "out_of_range_integer", InterruptedError, "result of '!1@1!' expression is out of range of integer");
+	define_new_exception(6, ERROR_ID, "out_of_range_float", InterruptedError, "result of '!1@1!' expression is out of range of float");
 	
 	define_new_exception(5, ERROR_ID, "review_array_out_of_range", InterruptedError,
 			"review array can not assign '!1@1!' to more than '!2@2!' variables");
@@ -45,9 +47,8 @@ void init_exceptions_list_data() {
 	define_new_exception(5, ERROR_ID, "reiterative_attr", SyntaxError, "'!1@1!' reiterative before as a attribute");
 	define_new_exception(6, FATAL_ID, "not_end_acod", SyntaxError, "expected '}' at end of input");
 	define_new_exception(7, FATAL_ID, "not_start_acod", SyntaxError, "expected '{' at start of input");
-	define_new_exception(8, ERROR_ID, "not_used_attr", SyntaxError, "'!1@1!' attribute is not used for !2@2!");
+	define_new_exception(8, ERROR_ID, "not_defined_struct", SyntaxError, "'!1@1!' struct can not defined in a structure");
 	define_new_exception(9, FATAL_ID, "define_func_in", SyntaxError, "'!1@1!' is defined into another function");
-	
 	define_new_exception(10, ERROR_ID, "redeclared_var", SyntaxError,
 			"'!1@1!' redeclared as a variable before in this function or package");
 	define_new_exception(11, ERROR_ID, "redeclared_func", SyntaxError,
@@ -83,14 +84,16 @@ void init_exceptions_list_data() {
 }
 
 
-int8 exception_handler(String lbl_err, String func_occur, String rep1, String rep2) {
+int8 exception_handler(String lbl_err,const char func_occur[], String rep1, String rep2) {
+	//printf("FFFFFFFFFF:%s\n",lbl_err);
 	//---------------------init vars
 	int8 ret_num = WARNING_ID;
 	long_int excep_id = 0;
+	String func_occur_err=str_from_const_char(func_occur);
 	//---------------------search in exceptions_list
 	for (long_int i = 0; i < entry_table.exceptions_count; i++) {
 		exli st = get_exli(i);
-		if (lbl_err == st.lbl) {
+		if (str_equal(lbl_err , st.lbl)) {
 			//fmt.Println("SSSSS:", st)
 			ret_num = st.type;
 			excep_id = i;
@@ -101,9 +104,9 @@ int8 exception_handler(String lbl_err, String func_occur, String rep1, String re
 	//---------------------print error
 	//msg("&HHHH", ret_num)
 	
-	//msg("&&&&", lbl_err, manage_func_id, excep_id)
+	//printf("&&&&:%s,%i,%i,%i\n", lbl_err, entry_table.manage_func_id, excep_id,entry_table.Rline);
 	if (entry_table.manage_func_id == 0 && excep_id > 0) {
-		ret_num = print_error(entry_table.Rline, st.lbl, entry_table.Rsrc, rep1, rep2, func_occur);
+		ret_num = print_error(entry_table.Rline, st.lbl, entry_table.Rsrc, rep1, rep2, func_occur_err);
 	}
 	//---------------------in manage structure
 	if (entry_table.manage_func_id > 0 && excep_id > 0) {
@@ -121,7 +124,7 @@ int8 exception_handler(String lbl_err, String func_occur, String rep1, String re
 		}
 		Boolean ret0 = set_exception_function(excep_id, rep1, rep2);
 		if (!ret0) {
-			print_error(entry_table.Rline, st.lbl, entry_table.Rsrc, rep1, rep2, func_occur);
+			print_error(entry_table.Rline, st.lbl, entry_table.Rsrc, rep1, rep2, func_occur_err);
 		}
 		if (ret_num == ERROR_ID) {
 			//cur_sid = last_sid

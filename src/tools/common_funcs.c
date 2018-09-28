@@ -83,22 +83,27 @@ void msg(String format, ...) {
 	}
 }
 
+
 //******************************************
-long_int get_max_unsigned_size(uint8 bytes) {
-	long_int ret = 1;
-	for (uint8 i = 0; i < bytes; i++) {
-		ret *= 250;
+void longint_list_delete_first(longint_list *s, uint32 len) {
+	if (len == 0) {
+		(*s) = 0;
+		return;
 	}
-	return ret;
+	longint_list tmp = 0;
+	longint_list_init(&tmp, (*s), len);
+	free((*s));
+	(*s) = (longint_list) malloc((len - 1) * sizeof(longint_list));
+	uint32 ind = 0;
+	for (uint32 i = 1; i < len; i++) {
+		//str_init(&(*s)[i],val[i]);
+		(*s)[ind++] = tmp[i];
+	}
+	free(tmp);
 }
 
 //******************************************
-void delete_first_longint_list(longint_list *s, uint32 len) {
-	//TODO:
-}
-
-//******************************************
-void longint_append(longint_list *s, uint32 len, long_int n) {
+void longint_list_append(longint_list *s, uint32 len, long_int n) {
 	longint_list tmp = 0;
 	longint_list_init(&tmp, *s, len);
 	free(*s);
@@ -119,18 +124,25 @@ void longint_list_init(longint_list *s, longint_list val, uint32 len) {
 	(*s) = (longint_list) malloc(len * sizeof(longint_list));
 	for (uint32 i = 0; i < len; i++) {
 		//str_init(&(*s)[i],val[i]);
-		uint32 le = val[i];
+		(*s)[i] = val[i];
 	}
 }
 
 //******************************************
-uint32 long_int_size(long_int *s) {
-	if (s == 0)return 0;
-	uint32 len = 0;
-	for (;;) {
-		if (s[len++] == 0) break;
+double int32_power(double base, int32 power) {
+	double ret = 1;
+	Boolean is_neg = false;
+	if (power < 0) {
+		is_neg = true;
+		power *= -1;
 	}
-	return len - 1;
+	for (uint32 b = 0; b < power; b++) {
+		ret *= base;
+	}
+	if (is_neg) {
+		ret =(double) 1 / ret;
+	}
+	return ret;
 }
 
 //******************************************
@@ -207,7 +219,7 @@ void print_struct(uint8 which) {
 		if (tmp1 == 0) return;
 		printf("=====Print source_code_struct :\n");
 		for (;;) {
-			printf("id:%i,code:%s\n", tmp1->line, tmp1->code);
+			printf("line:%i,code:%s\n", tmp1->line, tmp1->code);
 			tmp1 = tmp1->next;
 			if (tmp1 == 0) break;
 		}
@@ -237,8 +249,8 @@ void print_struct(uint8 which) {
 		if (tmp1 == 0) return;
 		printf("=====Print instructions_struct :\n");
 		for (;;) {
-			printf("(id:%li,fid:%li,sid:%li,order:%li,type:%i),code:%s\n", tmp1->id, tmp1->func_id, tmp1->stru_id,
-					tmp1->order, tmp1->type, tmp1->code);
+			printf("(id:%li,fid:%li,sid:%li,order:%li,type:%i,line:%i),code:%s\n", tmp1->id, tmp1->func_id,
+					tmp1->stru_id, tmp1->order, tmp1->type, tmp1->line, tmp1->code);
 			tmp1 = tmp1->next;
 			if (tmp1 == 0) break;
 		}
@@ -248,7 +260,7 @@ void print_struct(uint8 which) {
 		if (tmp1 == 0) return;
 		printf("=====Print struct_struct :\n");
 		for (;;) {
-			printf("(id:%li,fid:%li,sid:%li,len:%i),name:%s,params:%s\n", tmp1->id, tmp1->fid, tmp1->sid,
+			printf("(id:%li,fid:%li,len:%i),name:%s,params:%s\n", tmp1->id, tmp1->fid,
 					tmp1->params_len, tmp1->name, print_str_list(tmp1->params, tmp1->params_len));
 			tmp1 = tmp1->next;
 			if (tmp1 == 0) break;
@@ -332,6 +344,7 @@ void str_list_init(str_list *s, str_list val, uint32 len) {
 		(*s) = 0;
 		return;
 	}
+	free(*s);
 	(*s) = (str_list) malloc(len * sizeof(str_list));
 	for (uint32 i = 0; i < len; i++) {
 		//str_init(&(*s)[i],val[i]);

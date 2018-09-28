@@ -19,6 +19,16 @@ Mpoint return_var_memory_value(String var_name);
 
 long_int get_data_memory_index(long_int pointer_id, String index_var);
 
+long_int
+set_memory_var(long_int fin, long_int sid, String name, String value_var, String type_var, Boolean is_create_var);
+
+long_int
+add_to_var_memory(long_int pointer_id, long_int fin, long_int sid, long_int type_var, String name, String extra);
+
+long_int add_to_pointer_memory(String data, uint8 type_data);
+
+void show_memory(uint8 wh);
+Boolean delete_pointer_memory(long_int id);
 long_int find_index_pointer_memory(long_int id);
 
 long_int find_index_var_memory(long_int id);

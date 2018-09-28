@@ -31,16 +31,21 @@ TODO
 * start INSTRUCTION_EXECUTOR [OK]
 * labeled instructions [OK]
 * implement define vars [..]
-* set new var in memory [..]
+* set new var in memory [OK]
+* delete var in memory 
 * manage exceptions [OK]
 * create other memory functions [..]
-* calculate math expressions
-* calculate radix numbers
-* calculate string expressions
+* determine type of data [OK]
+* calculate math expressions [OK]
+* calculate radix numbers [OK]
+* calculate integer,float numbers [OK]
+* calculate string expressions [OK]
+* calculate utf8 string expressions [OK]
 * calculate boolean expressions
 * set new __define
 * use magic macros in define vars
 * edit __config
+* calculate huge numbers
 * implement function call
 * init func parameters
 * call built-in functions
@@ -55,7 +60,6 @@ TODO
 * recursive functions
 * set arrays in functions parameter
 * alloc array vars
-* implement struct
 * set structs in functions parameter
 * start garbage collector
 * define loop
@@ -67,7 +71,6 @@ TODO
 * complete built-in constants
 * complete data built-in functions
 * building MPL website
-* calculate huge numbers
 * add switch keyword instead of if,elif,else
 * parsing and converting switch instruction
 * support for embedded files
@@ -96,12 +99,12 @@ TODO
 * support for multi threading
 * support minimal gui for gtk
 
-## BE CONTINUE ...
+## To be continued ...
 
 MPL Language Features
 --------
 
-* support radix numbers
+* support radix numbers [..]
 * support utf-8 strings [OK]
 * support override functions
 * has built-in functions
@@ -125,12 +128,12 @@ MPL Hello World Program
     }
 
 MPL Sample Program
-
 --------
 
     import "file:$/data/sam.mpl"  //=>import an external file
     __config["AppName"]="MyProgram" //=>edit __config values
     __session["AppName"]="MyProgram" //=>edit __session values. it is store in a database
+    //------------
     func main(){ //=>define main function,start point of any program
         print("Hello World!\n");
         print("سلام بر دنیا!\n"); //=>print an utf8 string

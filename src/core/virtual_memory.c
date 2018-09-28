@@ -214,7 +214,7 @@ set_memory_var(long_int fin, long_int sid, String name, String value_var, String
 				return 0;
 			}
 			//show_memory(40)
-			value_var = return_value_var_complete(find_index_var_memory(ret0))
+			value_var = return_value_var_complete(find_index_var_memory(ret0));
 			//msg("&NNN+++",value_var,find_index_var_memory(return_var_id(value_var, "0")))
 		}
 		//----------if is a data variable
@@ -234,300 +234,173 @@ set_memory_var(long_int fin, long_int sid, String name, String value_var, String
 	//*******************************************define variables
 	value_var = str_trim_space(value_var);
 	vaar_en vals_array = {0, 0, 0};
-	var
-	max_indexes, set_indexes[max_array_dimensions + 1]
-	int var
-	class_type long_int = 0
-	var is_multi_array_fix = false
+	//int32 set_indexes[MAX_ARRAY_DIMENSIONS + 1];
+	int32 max_indexes[MAX_ARRAY_DIMENSIONS];//get user indexes
+	Boolean is_multi_array = false;
+	uint8 indexes_len = 0;//count of user indexes dimensions
 	//*******************************************analyzing name of variable
-	if strings.Contains(name, "[")
-	{
-		tmp_name, tmp_ind:=return_name_index_var(name, true);
-		//msg("&NNN",tmp_name,tmp_ind)
-		if tmp_ind != ""
-		{
-			is_multi_array_fix = true
-			indexes:=strings.Split(tmp_ind, ",")
-			//******************add indexes to max_indexes
-			for
-			i:=1;
-			i < len(max_indexes);
-			i++
-			{
-				if len(indexes) <= i - 1
-				{
-					break
-				}
-				tmp, _:=strconv.ParseUint(indexes[i - 1], 10, 64)
-				max_indexes[i] =
-				int(tmp)
-			}
-			name = tmp_name
+	String tmp_name = 0, tmp_ind = 0;
+	return_name_index_var(name, true, &tmp_name, &tmp_ind);
+	//printf("CCCCCCC:%s=>%s,%s\n",name,tmp_name, tmp_ind);
+	//is_multi array
+	if (tmp_ind != 0 && !str_equal(tmp_ind, "0")) {
+		is_multi_array = true;
+		str_list indexes;
+		indexes_len = (uint8) char_split(tmp_ind, ',', &indexes, true);
+		if (indexes_len > MAX_ARRAY_DIMENSIONS) {
+			//TODO:error
+			return 0;
 		}
-		
+		//******************add indexes to max_indexes
+		for (uint32 i = 0; i < indexes_len; i++) {
+			max_indexes[i] = str_to_int32(indexes[i]);
+		}
+	}
+	str_init(&name, tmp_name);
+	//printf("CCCCCCCC:%s,%i,%s\n",name,return_var_id(name, 0),value_var);
+	//show_memory(1);
+	if (return_var_id(name, 0) > 0)
+	{
+		exception_handler("redeclared_var", "set_memory_var", name, "");
+		return 0;
 	}
 	//*******************************************analyzing values of variable
-	if !is_multi_array_fix && len(value_var) > 1 && value_var[0] == '{'
-	{
-		var
-		is_done = true
-		vals_array, max_indexes, is_done = return_value_dimensions(value_var, type_var)
-		//msg("&YY", vals_array)
-		if !is_done
-		{
-			return 0
+	//is multi array
+	if (is_multi_array) {
+		vals_array = return_value_dimensions(value_var, type_var, max_indexes, indexes_len);
+		if (vals_array.start == 0) {
+			printf("###########failed1\n");
+			return 0;
 		}
-	} else if !is_multi_array_fix
-	{
-		if return_var_id(name, "") > 0
-		{
-			exception_handler("redeclared_var", "set_memory_var", name, "")
-			return 0
-		}
-		//msg("&BBB",name,value_var)
-		tmp_val, _, tmp_type := fitting_value(value_var, type_var, "byte")
-		max_indexes[1] = 1
-		//msg("&XVAL:", name, value_var, tmp_val, type_var, string(tmp_type))
-		vals_array = append(vals_array, vals_array_struct
-		{ tmp_val, "0", tmp_type, 0 })
-		if tmp_type == '0'
-		{
-			return 0
-		}
-		//msg(max_indexes)
-		
-		//msg("&QQQQ", vals_array)
 	}
-	//msg("&header", 'i', 'd', vals_array)
+		//is single data
+	else {
+		//printf("DDDDDDDDD:%s,%s\n", value_var,type_var);
+		String main_value = 0;
+		uint8 sub_type = '0';
+		calculate_value_of_var(value_var, type_var, &main_value, &sub_type);
+		if (sub_type == '0') {
+			printf("###########failed2\n");
+			return 0;
+		}
+		indexes_len=1;
+		max_indexes[0]=1;
+		//-----
+		vaar s = {1, sub_type, main_value, "0", 0};
+		append_vaar(s, &vals_array);
+		//TODO:
+	}
+	//print_vaar(vals_array);
 	//*******************************************determine type of var
-	class_type = search_in_classes(type_var)
-	//msg(vals_array, class_type, set_indexes)
+	datas data_type = search_datas(type_var, entry_table.cur_fid, false);
+	//printf("#$EEEE:%s,%i,%s\n",type_var,data_type.id,data_type.name);
 	//*******************************************add to memory
-	if len(name) > 0 && name[0] == '@'
-	{
-		//fmt.Printf("=================SET_VAR:\n%s %s%v(cid:%v,fin:%v,sid:%v,fin:%v)\n%v\n=================\n", type_var, name, prop, pid, fin, sid, cur_fin, value_var)
-	}
-	
-	//******************add to pointer_memory as data
-	//-------------get count of dimension of array
-	var
-	count_dem, tmp2 = 0, 1
-	for
-	{
-		if max_indexes[tmp2] == 0
-		{
-			break
-		}
-		count_dem++
-		tmp2++
-	}
-	//-------------allocate all array rooms
-	var
-	is_break = false
-	//msg("FFF:", count_dem)
-	set_indexes[count_dem - 1] = -1
-	for
-	{
-		//-------------determine index
-		var
-		ind_str = ""
-		set_indexes[count_dem - 1]++
-		for
-		v := count_dem - 1;
-		v >= 0;
-		v--
-		{
-			if set_indexes[v] == max_indexes[v + 1] && v > 0
-			{
-				set_indexes[v - 1]++
-				set_indexes[v] = 0
-			} else if v == 0 && set_indexes[v] == max_indexes[v + 1]
-			{
-				is_break = true
-				break
-			}
-		}
-		if is_break
-		{
-			break
-		}
-		//-------------create ind_str
-		for
-		b := 0;
-		b < count_dem;
-		b++
-		{
-			ind_str += strconv.FormatInt(int64(set_indexes[b]), 10)
-			if b < count_dem - 1
-			{
-				ind_str += ","
-			}
-		}
-		//-------------allocate
-		var
-		is_exist, val_ind = false, 0
-		
-		data, _, flag := fitting_value("", type_var, "default")
-		for
-		b := 0;
-		b < len(vals_array);
-		b++
-		{
-			if vals_array[b].index == ind_str
-			{
-				is_exist = true
-				val_ind = b
-				data = vals_array[b].value
-				flag = vals_array[b].type_val
-			}
-		}
-		
-		data, _, _ = fitting_value(data, string(flag), "str_mem")
-		//msg("&YY", data, string(flag), type_var, name)
-		data_id := add_to_pointer_memory(data, flag)
-		if is_exist
-		{
-			vals_array[val_ind].data_id = data_id
-		} else {
-			vals_array = append(vals_array, vals_array_struct
-			{ data, ind_str, flag, data_id })
-		}
-		//msg("&HHHH", vals_array)
-		//-------------sorting
-		for
-		{
-			var
-			is_change = false
-			for
-			b := 0;
-			b < len(vals_array);
-			b++
-			{
-				if b + 1 < len(vals_array) && vals_array[b + 1].data_id < vals_array[b].data_id
-				{
-					is_change = true
-					tmp1 := vals_array[b + 1].data_id
-					tmp2 := vals_array[b + 1].index
-					tmp3 := vals_array[b + 1].type_val
-					tmp4 := vals_array[b + 1].value
-					vals_array[b + 1].data_id = vals_array[b].data_id
-					vals_array[b + 1].index = vals_array[b].index
-					vals_array[b + 1].type_val = vals_array[b].type_val
-					vals_array[b + 1].value = vals_array[b].value
-					vals_array[b].data_id = tmp1
-					vals_array[b].index = tmp2
-					vals_array[b].type_val = tmp3
-					vals_array[b].value = tmp4
-				}
-			}
-			if !is_change
-			{
-				break
-			}
-		}
-		//msg("-YYYY:", ind_str)
-		
-	}
-	//msg("&&",vals_array[0].value, class_type)
-	//*******************************************search for errors&warnings
-	
+	//if len(name) > 0 && name[0] == '@'
+	//{
+	//printf("=================SET_VAR:\n%s %s(fin:%i,sid:%i,fid:%i)\n%s\n=================\n", type_var, name, fin, sid,entry_table.cur_fid, value_var);
+	//}
 	//******************add to pointer_memory
-	//-------------create pointers
-	first_pointer := add_to_pointer_memory("", 'p')
-	var
-	last_pointers[]
-	long_int
-	last_pointers = append(last_pointers, first_pointer)
-	for
-	i := 1;
-	i <= count_dem - 1;
-	i++
-	{
-		var
-		tmp_pointers[]
-		long_int
-		for
-		b := 0;
-		b < max_indexes[i] * len(last_pointers);
-		b++
-		{
-			tmp_p := add_to_pointer_memory("", 'p')
-			tmp_pointers = append(tmp_pointers, tmp_p)
-		}
-		count_per := len(tmp_pointers) / len(last_pointers)
-		var
-		start_ar = 0
-		for
-		b := 0;
-		b < len(last_pointers);
-		b++
-		{
-			ind := find_index_pointer_memory(last_pointers[b])
-			for
-			c := start_ar;
-			c < start_ar + count_per;
-			c++
-			{
-				pointer_memory[ind].data += strconv.FormatInt(int64(tmp_pointers[c]), 10)
-				if c + 1 < start_ar + count_per
-				{
-					pointer_memory[ind].data += ";"
-				}
-			}
-			start_ar = start_ar + count_per
-		}
-		last_pointers = last_pointers[0:0]
-		last_pointers = tmp_pointers
+	longint_list pointers_id = 0;
+	uint32 pointers_id_len = 0;
+	long_int main_pointer_id = 0;
+	//-------------create data pointers (last nodes)
+	vaar *st = vals_array.start;
+	for (;;) {
+		long_int po = add_to_pointer_memory(st->value, st->sub_type);
+		longint_list_append(&pointers_id, pointers_id_len++, po);
+		st = st->next;
+		if (st == 0) break;
 	}
-	//-------------allocate last pointers with vals_array
-	count_per := len(vals_array) / len(last_pointers)
-	var
-	start_ar = 0
-	for
-	i := 0;
-	i < len(last_pointers);
-	i++
-	{
-		//msg("IIII:", i, last_pointers[i])
-		ind := find_index_pointer_memory(last_pointers[i])
-		for
-		c := start_ar;
-		c < start_ar + count_per;
-		c++
-		{
-			pointer_memory[ind].data += strconv.FormatInt(int64(vals_array[c].data_id), 10)
-			if c + 1 < start_ar + count_per
-			{
-				pointer_memory[ind].data += ";"
+	//-------------create other pointers (parent nodes)
+	for (int32 j = indexes_len - 1; j >= 0; --j) {
+		//calculate how many pointers_id set in each next pointers
+		uint32 room_members = max_indexes[j];
+		uint32 rooms_count = pointers_id_len / room_members;
+		longint_list tmp_pointers_id = 0;
+		uint32 tmp_pointers_id_len = 0;
+		//=======
+		for (uint32 i = 0; i < rooms_count; ++i) {
+			String pointers_list = 0;
+			for (uint32 k = 0; k < room_members; ++k) {
+				pointers_list = str_append(pointers_list, str_from_long_int(pointers_id[0]));
+				longint_list_delete_first(&pointers_id, pointers_id_len--);
+				if (k + 1 < room_members)pointers_list = char_append(pointers_list, ';');
 			}
+			long_int po = add_to_pointer_memory(pointers_list, 'p');
+			longint_list_append(&tmp_pointers_id, tmp_pointers_id_len++, po);
 		}
-		start_ar = start_ar + count_per
+		//=======
+		if (rooms_count == 1) {
+			main_pointer_id = tmp_pointers_id[0];
+			break;
+		}
+		longint_list_init(&pointers_id, tmp_pointers_id, tmp_pointers_id_len);
+		pointers_id_len = tmp_pointers_id_len;
 	}
+	
 	//******************add to var_memory
-	if is_create_var
-	{
-		if pack_type == 0
-		{
-			pid = 0
-		}
-		if len(prop) > 2 && prop[2]
-		{
-			var
-			extra = strconv.FormatInt(int64(cur_pid), 10) + ";" + strconv.FormatInt(int64(cur_pid_instance), 10) + ";" +
-					strconv.FormatInt(int64(cur_fid), 10)
-			name += segments_split + extra
-		}
-		final_var_id := add_to_var_memory(first_pointer, pid, fin, sid, class_type, pack_type, name, prop)
-		return final_var_id
-	}else{
-		return first_pointer
+	if (is_create_var) {
+		return add_to_var_memory(main_pointer_id, fin, sid, data_type.id, name, 0);
+	} else {
+		return main_pointer_id;
 	}
 	//*******************************************
 	//msg("&&&", value_var, first_pointer, pid, fin, sid, class_type, pack_type, name, prop)
-	//show_memory(40)
 	
-	
+	return 0;
 }
+
+//****************************************************
+long_int
+add_to_var_memory(long_int pointer_id, long_int fin, long_int sid, long_int type_var, String name, String extra) {
+	entry_table.var_mem_id++;
+	Mvar var = {entry_table.var_mem_id, pointer_id, sid, fin, type_var, 0, 0};
+	str_init(&var.name, name);
+	if (extra != 0)str_init(&var.extra, extra);
+	append_Mvar(var);
+	return entry_table.var_mem_id;
+}
+
+//*****************************************************
+long_int add_to_pointer_memory(String data, uint8 type_data) {
+	entry_table.pointer_mem_id++;
+	Mpoint point = {entry_table.pointer_mem_id, 0, type_data};
+	str_init(&point.data, data);
+	append_Mpoint(point);
+	return entry_table.pointer_mem_id;
+}
+
+//****************************************************
+void show_memory(uint8 wh) {
+	if (wh == 40) {
+		wh = 0;
+	} else if (is_programmer_debug < 2) {
+		return;
+	}
+	//*************show var_memory
+	printf("+++++++++++++++++++++++++\n");
+	if (wh == 0 || wh == 1) {
+		printf("-------var_memory-------\n");
+		for (long_int i = 0; i < entry_table.var_mem_len; i++) {
+			Mvar st = get_Mvar(i);
+			if (st.name == 0) {
+				continue;
+			}
+			printf("VAR(id:%i,fin:%i,sid:%i,pointer:%i,type:%i)\n\t%s,{extra:%s}\n=====================\n", st.id,
+					st.func_index, st.stru_index, st.pointer_id, st.type_var, st.name, st.extra);
+		}
+	}
+	//*************show pointer_memory
+	if (wh == 0 || wh == 2) {
+		printf("-------pointer_memory-------\n");
+		for (long_int i = 0; i < entry_table.pointer_mem_len; i++) {
+			Mpoint st = get_Mpoint(i);
+			printf("POINTER(id:%i,Type:%c)%s\n", st.id, st.type_data, st.data);
+		}
+	}
+	printf("+++++++++++++++++++++++++\n");
+}
+
 //****************************************************
 /**
 delete_full_memory_var

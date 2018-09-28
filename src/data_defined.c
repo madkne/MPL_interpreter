@@ -8,8 +8,8 @@ String interpreter_level = 0;
 String project_root = 0;
 String main_source_name = 0;
 String interpreter_path = 0;
-uint8 int_len = 10;
-uint8 float_len = 16;
+uint8 MAX_INT_LEN = 0;
+uint8 MAX_FLOAT_LEN = 0;
 int8 errors_mode = ERROR_ID;
 int8 warnings_mode = WARNING_ID;
 uint8 is_programmer_debug = 2;
@@ -71,6 +71,11 @@ uint32 argvs_len = 0;
 //*********************public functions************************
 //*************************************************************
 void init_database() {
+	//---------------init max_int ,max_float
+	MAX_INT_LEN = INT_USED_BYTES * 2;
+	MAX_FLOAT_LEN = (FLOAT_USED_BYTES * 2) - 2;
+	
+	//---------------
 	interpreter_path = 0;
 	//---------------init entry_table
 	entry_table.import_start = 0;
@@ -120,13 +125,13 @@ void init_database() {
 	str_to_utf8(&stdin_src, "stdin");
 	utf8_str_list_append(&source_paths, stdin_src, entry_table.source_counter++);
 	//---------------init data_types
-	datas tmp1 = {0, 0, 0, "str", MAIN_DATA_TYPE, 0, 0};
+	datas tmp1 = {0, 0, "str", MAIN_DATA_TYPE, 0, 0};
 	append_datas(tmp1);
-	datas tmp2 = {0, 0, 0, "num", MAIN_DATA_TYPE, 0, 0};
+	datas tmp2 = {0, 0, "num", MAIN_DATA_TYPE, 0, 0};
 	append_datas(tmp2);
-	datas tmp3 = {0, 0, 0, "bool", MAIN_DATA_TYPE, 0, 0};
+	datas tmp3 = {0,  0, "bool", MAIN_DATA_TYPE, 0, 0};
 	append_datas(tmp3);
-	datas tmp4 = {0, 0, 0, "struct", MAIN_DATA_TYPE, 0, 0};
+	datas tmp4 = {0,  0, "struct", MAIN_DATA_TYPE, 0, 0};
 	append_datas(tmp4);
 	//struct::exception(num id,str msg,str group,num type,str src,num line)
 	str_list exception_params = 0;
@@ -137,7 +142,7 @@ void init_database() {
 	str_list_append(&exception_params, "num;type;", exception_params_len++);
 	str_list_append(&exception_params, "str;src;", exception_params_len++);
 	str_list_append(&exception_params, "num;line;", exception_params_len++);
-	datas tmp5 = {0, 0, 0, "exception", STRUCT_DATA_TYPE, exception_params, exception_params_len};
+	datas tmp5 = {0, 0, "exception", STRUCT_DATA_TYPE, exception_params, exception_params_len};
 	append_datas(tmp5);
 	
 }
@@ -402,7 +407,6 @@ void append_datas(datas s) {
 	
 	q->type = s.type;
 	q->fid = s.fid;
-	q->sid = s.sid;
 	str_init(&q->name, s.name);
 	q->params_len = s.params_len;
 	//printf("##SSSSS:%s,%i\n",s.name,s.params_len);
@@ -419,14 +423,13 @@ void append_datas(datas s) {
 }
 
 //*************************************************************
-datas search_datas(String name, long_int fid, long_int sid, Boolean is_all) {
-	datas null = {0, 0, 0, 0, 0, 0, 0};
+datas search_datas(String name, long_int fid, Boolean is_all) {
+	datas null = {0, 0, 0, 0, 0, 0};
 	datas *st = entry_table.datas_start;
 	if (st == 0) return null;
 	for (;;) {
-		if ((is_all || (st->fid == fid && st->sid == sid)) && str_equal(st->name, name)) {
-			return (*st);
-		}
+		if (is_all && str_equal(st->name, name)) return (*st);
+		else if ((st->fid == 0 || st->fid == fid) && str_equal(st->name, name)) return (*st);
 		st = st->next;
 		if (st == 0) break;
 	}
@@ -445,7 +448,7 @@ void append_instru(instru s) {
 	q->func_id = s.func_id;
 	q->stru_id = s.stru_id;
 	q->order = s.order;
-	q->line = q->line;
+	q->line = s.line;
 	q->type = s.type;
 	q->source_id = s.source_id;
 	str_init(&q->code, s.code);
@@ -621,8 +624,9 @@ void append_vaar(vaar s, vaar_en *s1) {
 	vaar *q;
 	q = (vaar *) malloc(sizeof(vaar));
 	if (q == 0) return;
+	//printf("FFFFF:%s,%s\n",s.value,s.index);
 	q->data_id = s.data_id;
-	q->type_val = s.type_val;
+	q->sub_type = s.sub_type;
 	str_init(&q->value, s.value);
 	str_init(&q->index, s.index);
 	q->next = 0;
@@ -632,6 +636,20 @@ void append_vaar(vaar s, vaar_en *s1) {
 		(*s1).end->next = q;
 		(*s1).end = q;
 	}
+}
+
+//*************************************************************
+void print_vaar(vaar_en s) {
+	vaar *tmp1 = s.start;
+	printf("=====Print Vars_Array_struct :\n");
+	if (tmp1 != 0) {
+		for (;;) {
+			printf("id:%i,%type:%c,index:%s,value:%s\n", tmp1->data_id, tmp1->sub_type, tmp1->index, tmp1->value);
+			tmp1 = tmp1->next;
+			if (tmp1 == 0) break;
+		}
+	}
+	printf("=====End printed\n");
 }
 
 
