@@ -8,7 +8,7 @@ os.system("cls");
 os.system("color 1f");
 #----------------------define vars
 #enable warnings :  -Wall -Wextra
-cflags="-I .\\include -std=c99  -fmax-errors=2 -c ";
+cflags="-I .\\include -std=c99 -g  -fmax-errors=2 -c ";
 build_folder="win32-release";
 compiler="gcc ";
 is_error=0;

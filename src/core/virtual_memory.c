@@ -238,12 +238,7 @@ set_memory_var(long_int fin, long_int sid, String name, String value_var, String
 	4- str u="RT"*2 ---OK---
 	5- num j=j1 //num j1=56d => j=56d
 	*/
-	//msg("&@@@:", name, return_var_id(name+"%", "0"), cur_fin, value_var)
-	//*******************************************if name is already exist
-	/*if(return_var_id(name + "%", "0") > 0)
-	{
-		return return_var_id(name + "%", "0")
-	}*/
+	//printf("&@@@:%s,%i,%s\n", name, return_var_id(name, "0"), value_var);
 	//*******************************************if value is a variable
 	if (is_valid_name(value_var, true)) {
 		String al_name = 0, al_index = 0;
@@ -254,7 +249,7 @@ set_memory_var(long_int fin, long_int sid, String name, String value_var, String
 			//msg("&NNNN", value_var, return_var_id(value_var, "0"), cur_fin)
 			long_int ret0 = return_var_id(value_var, "0");
 			if (ret0 == 0) {
-				exception_handler("not_exist_var", "set_memory_var:120", value_var, "");
+				exception_handler("not_exist_var", __func__, value_var, "");
 				return 0;
 			}
 			//show_memory(40)
@@ -280,8 +275,13 @@ set_memory_var(long_int fin, long_int sid, String name, String value_var, String
 	vaar_en vals_array = {0, 0, 0};
 	//int32 set_indexes[MAX_ARRAY_DIMENSIONS + 1];
 	int32 max_indexes[MAX_ARRAY_DIMENSIONS];//get user indexes
-	Boolean is_multi_array = false;
+	Boolean is_multi_array = false, is_struct = false;
 	uint8 indexes_len = 0;//count of user indexes dimensions
+	//*******************************************if type is a struct
+	if (search_datas(type_var, entry_table.cur_fid, false).id != 0 &&
+			!str_search(basic_types, type_var, StrArraySize(basic_types))) {
+		is_struct = true;
+	}
 	//*******************************************analyzing name of variable
 	String tmp_name = 0, tmp_ind = 0;
 	return_name_index_var(name, true, &tmp_name, &tmp_ind);
@@ -304,7 +304,7 @@ set_memory_var(long_int fin, long_int sid, String name, String value_var, String
 	//printf("CCCCCCCC:%s,%i,%s\n",name,return_var_id(name, 0),value_var);
 	//show_memory(1);
 	if (return_var_id(name, 0) > 0) {
-		exception_handler("redeclared_var", "set_memory_var", name, "");
+		exception_handler("redeclared_var", __func__, name, "");
 		return 0;
 	}
 	//*******************************************analyzing values of variable
@@ -318,6 +318,11 @@ set_memory_var(long_int fin, long_int sid, String name, String value_var, String
 	}
 		//is single data
 	else {
+		uint32 val_len = str_length(value_var);
+		if (val_len > 2 && value_var[0] == '{' && value_var[val_len - 1] == '}') {
+			exception_handler("not_defined_array", __func__, name, "");
+			return 0;
+		}
 		//printf("DDDDDDDDD:%s,%s\n", value_var,type_var);
 		String main_value = 0;
 		uint8 sub_type = '0';
@@ -345,16 +350,83 @@ set_memory_var(long_int fin, long_int sid, String name, String value_var, String
 	//******************add to pointer_memory
 	longint_list pointers_id = 0;
 	uint32 pointers_id_len = 0;
-	long_int main_pointer_id = 0;
 	//-------------create data pointers (last nodes)
 	vaar *st = vals_array.start;
 	for (;;) {
-		long_int po = add_to_pointer_memory(st->value, st->sub_type);
-		longint_list_append(&pointers_id, pointers_id_len++, po);
+		if (is_struct) {
+			longint_list tmp_po_id = 0, struct_po_id = 0;
+			uint32 tmp_po_id_len = 0, struct_po_id_len = 0;
+			long_int stde_id = str_to_long_int(st->value);
+			stde s = get_stde(stde_id);
+			vaar *tmp1 = s.st.start;
+			uint32 co = 0;
+			int32 tmp_max_indexes[MAX_ARRAY_DIMENSIONS];
+			uint8 tmp_indexes_len = 0;
+			if (tmp1 != 0) {
+				for (;;) {
+					//when switch to next item:create last node and create parent pointers
+					if (tmp1 == 0 || tmp1->data_id == co + 1) {
+						co++;
+						long_int po_id = set_parent_nodes_Mpoint(tmp_max_indexes, tmp_indexes_len, tmp_po_id,
+								tmp_po_id_len);
+						//printf("@WWW:%i,%i,%i\n", po_id, tmp_max_indexes[0], tmp_indexes_len);
+						longint_list_append(&struct_po_id, struct_po_id_len++, po_id);
+						tmp_po_id = 0;
+						tmp_po_id_len = 0;
+						tmp_indexes_len = 0;
+						if (tmp1 == 0) break;
+					}
+					//first time for any items:get max_indexes
+					if (tmp_indexes_len == 0) {
+						str_list ret1 = 0;
+						tmp_indexes_len = (uint8) char_split(tmp1->index, ';', &ret1, true);
+						for (uint8 b = 0; b < tmp_indexes_len; b++) {
+							tmp_max_indexes[b] = str_to_int32(ret1[b]);
+						}
+					}
+					//when select an item:create last node for item and save its id
+					if (tmp1->data_id == co) {
+						long_int po = add_to_pointer_memory(tmp1->value, tmp1->sub_type);
+						longint_list_append(&tmp_po_id, tmp_po_id_len++, po);
+					}
+					//go to next item
+					tmp1 = tmp1->next;
+				}
+				//create struct node as a single room
+				String struct_val = 0;
+				for (uint32 i = 0; i < struct_po_id_len; ++i) {
+					//printf("RRRE:%i\n", struct_po_id[i]);
+					struct_val = str_append(struct_val, str_from_long_int(struct_po_id[i]));
+					if (i + 1 < struct_po_id_len)struct_val = char_append(struct_val, ';');
+				}
+				long_int po = add_to_pointer_memory(struct_val, 'l');
+				longint_list_append(&pointers_id, pointers_id_len++, po);
+			}
+		} else {
+			long_int po = add_to_pointer_memory(st->value, st->sub_type);
+			longint_list_append(&pointers_id, pointers_id_len++, po);
+		}
 		st = st->next;
 		if (st == 0) break;
 	}
 	//-------------create other pointers (parent nodes)
+	long_int main_pointer_id = set_parent_nodes_Mpoint(max_indexes, indexes_len, pointers_id, pointers_id_len);
+	//******************add to var_memory
+	if (is_create_var) {
+		return add_to_var_memory(main_pointer_id, fin, sid, data_type.id, name, 0);
+	} else {
+		return main_pointer_id;
+	}
+	//*******************************************
+	//msg("&&&", value_var, first_pointer, pid, fin, sid, class_type, pack_type, name, prop)
+	
+	return 0;
+}
+
+//****************************************************
+long_int
+set_parent_nodes_Mpoint(int32 max_indexes[], uint8 indexes_len, longint_list pointers_id, uint32 pointers_id_len) {
+	long_int main_pointer_id = 0;
 	for (int32 j = indexes_len - 1; j >= 0; --j) {
 		//calculate how many pointers_id set in each next pointers
 		uint32 room_members = max_indexes[j];
@@ -380,17 +452,7 @@ set_memory_var(long_int fin, long_int sid, String name, String value_var, String
 		longint_list_init(&pointers_id, tmp_pointers_id, tmp_pointers_id_len);
 		pointers_id_len = tmp_pointers_id_len;
 	}
-	
-	//******************add to var_memory
-	if (is_create_var) {
-		return add_to_var_memory(main_pointer_id, fin, sid, data_type.id, name, 0);
-	} else {
-		return main_pointer_id;
-	}
-	//*******************************************
-	//msg("&&&", value_var, first_pointer, pid, fin, sid, class_type, pack_type, name, prop)
-	
-	return 0;
+	return main_pointer_id;
 }
 
 //****************************************************

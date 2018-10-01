@@ -187,6 +187,13 @@ typedef struct magic_macros_struct {
 	String value;
 	struct magic_macros_struct *next;
 } mama;
+//****************************struct_descriptor struct
+typedef struct struct_descriptor_struct {
+	long_int id;
+	String type;
+	vaar_en st;
+	struct struct_descriptor_struct *next;
+} stde;
 //****************************virtual memory
 //runtime
 typedef struct var_memory_struct {
@@ -202,7 +209,7 @@ typedef struct var_memory_struct {
 typedef struct pointer_memory_struct {
 	long_int id;
 	String data;
-	uint8 type_data; //'0':null , 'i':int , 'f':float , 'h':huge , 's':string , 'u':utf8 , 'b':boolean , 'p':Pointer To Mpoint , 'v':Pointer To Mvar
+	uint8 type_data; //'0':null , 'i':int , 'f':float , 'h':huge , 's':string , 'u':utf8 , 'b':boolean , 'p':Pointer To Mpoint , 'v':Pointer To Mvar , 'l': struct list
 	struct pointer_memory_struct *next;
 } Mpoint;
 
@@ -294,6 +301,18 @@ struct entry_table_struct {
 	inor *inor_end;
 	long_int inor_count;
 	
+	bifs *bifs_start;
+	bifs *bifs_end;
+	
+	mama *mama_start;
+	mama *mama_end;
+	uint32 mama_id;
+	
+	stde *stde_start;
+	stde *stde_end;
+	long_int stde_id;
+	
+	
 	Mvar *var_memory_start;
 	Mvar *var_memory_end;
 	Mpoint *pointer_memory_start;
@@ -310,22 +329,6 @@ struct entry_table_struct {
 	long_int manage_func_id, return_fin;
 	uint32 Rorder, Rline;
 	Boolean is_stop_APP_CONTROLLER, is_next_inst_running;
-	
-	
-	bifs *bifs_start;
-	bifs *bifs_end;
-	
-	mama *mama_start;
-	mama *mama_end;
-	uint32 mama_id;
-	
-	uint8 max_bytes_per_char;
-	uint32 line_number;
-	uint32 source_id;
-	
-	long_int current_sid;
-	long_int current_fid;
-	
 	
 };
 struct entry_table_struct entry_table;
@@ -393,5 +396,10 @@ void add_to_mama(uint8 type, uint8 sub_type, String key, String value);
 void append_vaar(vaar s, vaar_en *s1);
 
 void print_vaar(vaar_en s);
+
+//-------------------------stde funcs
+void append_stde(stde s);
+
+stde get_stde(long_int id);
 
 #endif //MPL_DATA_DEFINED_H

@@ -147,12 +147,13 @@ uint8 define_vars_analyzing(String inst, def_var_s vars_store[]) {
 	//bool x1=true&&!((45-1)>=45) //x1=true
 	*/
 	//printf("DDDDDDDDDDD:%s\n",inst);
+	if (str_equal(interpreter_level, "parse"))str_init(&entry_table.Rsrc, entry_table.cur_ascii_source_path);
 	//*******************************************is null
 	inst = str_trim_space(inst);
 	if (str_is_empty(inst)) return 0;
 	String word = 0, last_type = 0, data_type = 0;
-	Boolean is_string = false, is_equal = false;
-	int16 vars_counter = -1, vals_counter = -1, pars = 0, bra = 0;
+	Boolean is_string = false, is_equal = false, is_struct = false;
+	int16 vars_counter = -1, vals_counter = -1, pars = 0, bras = 0, acos = 0;
 	//*******************************************determine variables with their values
 	uint32 len = str_length(inst);
 	for (uint32 i = 0; i < len; i++) {
@@ -160,43 +161,50 @@ uint8 define_vars_analyzing(String inst, def_var_s vars_store[]) {
 		if (inst[i] == '\"' && (i == 0 || inst[i - 1] != '\\')) {
 			is_string = switch_bool(is_string);
 		}
+		//------------------check is struct
+		if (pars == 0 && inst[i] == '(' && str_equal(word, "struct")) {
+			is_struct = true;
+		} else if (pars == 1 && inst[i] == ')') {
+			is_struct = false;
+		}
 		//------------------continue if ' '
 		if (!is_string && i + 1 < len && inst[i] == ' ' && (inst[i + 1] == '(' || inst[i + 1] == '[')) {
 			continue;
 		}
-		//------------------count bra
+		//------------------count bras,pars,acos
 		if (!is_string) {
-			switch (inst[i]) {
-				case '[':
-					bra++;
-					break;
-				case ']':
-					bra--;
-					break;
-			}
+			if (inst[i] == '(')pars++;
+			else if (inst[i] == ')')pars--;
+			else if (inst[i] == '{')acos++;
+			else if (inst[i] == '}')acos--;
+			else if (inst[i] == '[')bras++;
+			else if (inst[i] == ']')bras--;
+			else if (inst[i] == '=')is_equal = true;
 		}
 		//------------------determine data type
 		if (!is_string && !is_equal && word != 0 && inst[i] == ' ' &&
 				(is_valid_name(word, false) || str_equal(word, "vars") || str_equal(word, "num") ||
-						str_equal(word, "str") || str_equal(word, "bool"))) {
+						str_equal(word, "str") || str_equal(word, "bool")) &&
+				(str_equal(interpreter_level, "parse") || search_datas(word, 0, true).id != 0)) {
+			//printf("EEEEDDDDDDD:%s\n",word);
 			str_init(&data_type, word);
 			word = 0;
+			continue;
 		}
 		//------------------store a variable
-		if (!is_string && !is_equal && pars == 0 && (inst[i] == ',' || inst[i] == '=' || i + 1 == len) &&
-				data_type != 0 && bra == 0) {
+		//printf("QQ!!:%s\n",word);
+		if (!is_string && pars == 0 && acos == 0 && bras == 0 &&
+				((!is_equal && (inst[i] == ',' || i + 1 == len)) || inst[i] == '=') && data_type != 0) {
 			if (i + 1 == len) {
 				word = char_append(word, inst[i]);
 			}
+			//printf("DDDD@#DDDDDDD:%s;%s;%s\n",inst,data_type, word);
 			word = str_trim_space(word);
 			if (!is_valid_name(word, true)) {
-				print_error(entry_table.line_number, "invalid_name_var", entry_table.cur_ascii_source_path, word, "",
-						"define_vars_analyzing");
+				exception_handler("invalid_name_var", __func__, word, "");
 				return 0;
 			}
-			
 			if (word != 0) {
-				
 				//add new record to ret
 				vars_counter++;
 				return_name_index_var(word, false, &vars_store[vars_counter].name_var,
@@ -205,77 +213,39 @@ uint8 define_vars_analyzing(String inst, def_var_s vars_store[]) {
 				//printf("IIIII:%s[%i]=>%s\n",word,vars_counter,data_type);
 				vars_store[vars_counter].sub_type = 0;
 				vars_store[vars_counter].value_var = 0;
-				vars_store[vars_counter].sid = entry_table.current_sid;
-				vars_store[vars_counter].fid = entry_table.current_fid;
+				vars_store[vars_counter].sid = entry_table.cur_sid;
+				vars_store[vars_counter].fid = entry_table.cur_fid;
 				//printf("&SDSS:%s,%s,%s=>\n", word, data_type,ret.name_var);
 				str_init(&last_type, data_type);
 			}
+			word = 0;
+			continue;
 		}
 		//------------------allocate values to variables
 		//msg("VVVV:", word, "|MMM:", pars)
 		if (is_equal && !is_string && (word != 0 || i + 1 == len) &&
-				((inst[i] == ',' && pars == 0) || (i + 1 == len && pars < 2)) && bra == 0) {
+				((inst[i] == ',' && acos == 0) || (i + 1 == len && acos < 2)) && pars == 0 && bras == 0) {
 			if (i + 1 == len) {
 				word = char_append(word, inst[i]);
 			}
+			if (inst[i] == '}') acos--;
+			else if (acos > 0)continue;
 			/*if vals_counter > vars_counter {
 				//msg("&SSS", vals_counter, vars_counter)
 				exception_handler("wrong_def_var", "define_vars_analyzing", word, "")
 			} else */
-			if (inst[i] == '}') pars--;
+			
 			vals_counter++;
 			//printf("UUU:%s,%s,%i\n", word,vars_store[vals_counter].main_type,vals_counter);
 			word = str_trim_space(word);
 			String main_type = vars_store[vals_counter].main_type;
-			if (word[0] == '{' && !str_equal(main_type, "bool") && !str_equal(main_type, "str")) {
-				String buf = 0;
-				uint8 sub = INT_SUB_TYPE_ID;
-				for (uint32 j = 0; j < str_length(word); j++) {
-					if (buf != 0 && (word[j] == '{' || word[j] == '}' || word[j] == ',')) {
-						uint8 tmp = determine_sub_type_var(&buf, main_type);
-						if (tmp == HUGE_SUB_TYPE_ID) {
-							sub = tmp;
-							break;
-						} else if (tmp > sub)sub = tmp;
-						buf = 0;
-						continue;
-					}
-					buf = char_append(buf, word[j]);
-				}
-				vars_store[vals_counter].sub_type = sub;
-			} else {
-				vars_store[vals_counter].sub_type = determine_sub_type_var(&word, vars_store[vals_counter].main_type);
-			}
+			vars_store[vals_counter].sub_type = '0';
 			str_init(&vars_store[vals_counter].value_var, word);
 			word = 0;
-			
 		}
 		
 		//------------------append to word
-		Boolean empty_word = false;
-		if (!is_string && !is_equal && (inst[i] == ' ' || inst[i] == '=' || inst[i] == ',')) {
-			empty_word = true;
-		} else if (!is_string && is_equal && pars == 0 && inst[i] == ',') {
-			empty_word = true;
-		}
-		if (empty_word && bra == 0) {
-			word = 0;
-			//------------------is_equal
-			if (inst[i] == '=') is_equal = true;
-		} else {
-			word = char_append(word, inst[i]);
-		}
-		//------------------count pars
-		if (!is_string && is_equal) {
-			switch (inst[i]) {
-				case '{':
-					pars++;
-					break;
-				case '}':
-					pars--;
-					break;
-			}
-		}
+		word = char_append(word, inst[i]);
 	}
 	//**************alloc one value to many variables
 	//TODO:
@@ -472,6 +442,202 @@ uint32 return_total_array_rooms(String index) {
 }
 //*********************************************************
 /**
+ * get a struct value and its type and create a collection of nodes for struct and return it
+ * @param value
+ * @param type_var
+ * @return vaar_en
+ */
+String calculate_struct_expression(String value, String type_var, uint8 *sub_type) {
+	/**
+	 * struct(b,y[0,1],"gh",null)
+	 * struct(struct(5.6,{true,false}),true||false,bn,{{6,8},{8.8,0x56}})
+	 * struct() => null all entries
+	 */
+	(*sub_type) = 'l';
+	stde struct_node = {++entry_table.stde_id, type_var, {0, 0, 0}};
+	//printf("####:%s,%s\n",value,type_var);
+	uint32 val_len = str_length(value);
+	String buf = 0;
+	Boolean is_string = false, is_struct = false;
+	str_list st_values = 0;
+	uint32 st_values_len = 0;
+	int32 pars = 0, acos = 0, bras = 0;
+	//-------------------- get struct items
+	datas s = search_datas(type_var, 0, true);
+	str_list st_params = s.params;
+	uint32 st_params_len = s.params_len;
+	//-------------------- split struct params
+	//printf("!!#:%s,%s\n", value, type_var);
+	for (uint32 i = 0; i < val_len; i++) {
+		//========is string
+		if (value[i] == '\"' && (i == 0 || value[i - 1] != '\\')) {
+			is_string = switch_bool(is_string);
+		}
+		//========count pars,bras,acos
+		if (!is_string) {
+			if (value[i] == '(')pars++;
+			else if (value[i] == ')')pars--;
+			else if (value[i] == '[')bras++;
+			else if (value[i] == ']')bras--;
+			else if (value[i] == '{')acos++;
+			else if (value[i] == '}')acos--;
+		}
+		//========is struct
+		if (!is_string && value[i] == '(' && pars == 1 && bras == 0 && acos == 0 &&
+				str_equal(str_trim_space(buf), "struct")) {
+			is_struct = true;
+			buf = 0;
+			continue;
+		}
+		//========get a value
+		if (!is_string && is_struct && bras == 0 && acos == 0 &&
+				((pars == 1 && value[i] == ',') || (value[i] == ')' && pars == 0))) {
+			//printf("$$#$#:%s\n", buf);
+			str_list_append(&st_values, str_trim_space(buf), st_values_len++);
+			buf = 0;
+			if (value[i] == ')')is_struct = false;
+			continue;
+		}
+		//========append to buf
+		buf = char_append(buf, value[i]);
+	}
+	//--------------------check errors by struct params
+	//TODO:
+	//--------------------create vals_array
+	for (uint32 j = 0; j < st_values_len; ++j) {
+		uint32 val_len = str_length(st_values[j]);
+		str_list attrs = 0;
+		uint32 attrs_len = char_split(st_params[j], ';', &attrs, false);
+		//printf("ZZZZ:%s\n",st_values[j]);
+		//-----is a var
+		if (is_valid_name(st_values[j], true) && return_var_id(st_values[j], "0") > 0) {
+			st_values[j] = return_value_var_complete(find_index_var_memory(return_var_id(st_values[j], "0")));
+			val_len = str_length(st_values[j]);
+			//printf("$$$$8:%s\n",st_values[j]);
+		}
+		//-----is an array
+		if (val_len > 2 && st_values[j][0] == '{' && st_values[j][val_len - 1] == '}') {
+			int32 max_indexes[MAX_ARRAY_DIMENSIONS];//get user indexes
+			uint8 indexes_len = return_size_value_dimensions(st_values[j], max_indexes);
+			/*TODO:chck error by difference
+			 str_list indexes = 0;
+			uint32 indexes_len = char_split(attrs[2], ',', &indexes, true);
+			*/
+			vaar_en s = return_value_dimensions(st_values[j], attrs[0], max_indexes, indexes_len);
+			print_vaar(s);
+			vaar *tmp1 = s.start;
+			if (tmp1 != 0) {
+				for (;;) {
+					tmp1->data_id = (long_int) j;
+					tmp1->index = 0;
+					for (uint8 i = 0; i < indexes_len; ++i) {
+						tmp1->index = str_append(tmp1->index, str_from_int32(max_indexes[i]));
+						if (i + 1 < indexes_len) tmp1->index = char_append(tmp1->index, ';');
+					}
+					append_vaar((*tmp1), &struct_node.st);
+					tmp1 = tmp1->next;
+					if (tmp1 == 0) break;
+				}
+			}
+			//printf("!OOOOO:%s,%s\n", st_values[j], print_str_list(attrs, attrs_len));
+		}
+			//is a value
+		else {
+			String main_value = 0;
+			uint8 sub_type = '0';
+			calculate_value_of_var(st_values[j], attrs[0], &main_value, &sub_type);
+			//-----
+			//printf("OOOOO:%s,%s,%c,%s\n", st_values[j], main_value, sub_type,print_str_list(attrs, attrs_len));
+			vaar s = {j, sub_type, main_value, "1", 0};
+			append_vaar(s, &struct_node.st);
+		}
+	}
+	//--------------------
+	append_stde(struct_node);
+	printf("@STRUCT:%s=>[%i]%s\n", value, st_values_len, print_str_list(st_values, st_values_len));
+	print_vaar(struct_node.st);
+	return str_from_long_int(struct_node.id);
+}
+
+//*********************************************************
+/**
+ * get a value of var like a value or an array of values and determine its indexes and count of its dimensions
+ * @param val
+ * @param indexes
+ * @return uint8
+ */
+uint8 return_size_value_dimensions(String val, int32 indexes[]) {
+	str_list entries = 0;
+	uint32 entries_len = 0;
+	str_list_append(&entries, val, entries_len++);
+	uint8 count = 0;
+	uint32 last_max = 1;
+	for (;;) {
+		str_list tmp_entries = 0;
+		uint32 tmp_entries_len = 0;
+		for (uint32 b = 0; b < entries_len; b++) {
+			uint32 ent_len = str_length(entries[b]);
+			//------
+			if (entries[b][0] == '{' && entries[b][ent_len - 1] == '}') {
+				str_init(&entries[b], str_substring(entries[b], 1, ent_len - 1));
+			}/* else {
+				//TODO:error
+				//printf("ERROR:%s\n",entries[b]);
+				return 0;
+			}*/
+			//------
+			int32 pars = 0, bras = 0, acos = 0;
+			String buf = 0;
+			Boolean is_string = false, is_struct = false;
+			//------
+			for (uint32 c = 0; c < ent_len; c++) {
+				//========check is string
+				if (entries[b][c] == '\"' && (c == 0 || entries[b][c - 1] != '\\')) {
+					is_string = switch_bool(is_string);
+				}
+				//========count pars,bras,acos
+				if (!is_string) {
+					if (entries[b][c] == '(')pars++;
+					else if (entries[b][c] == ')')pars--;
+					else if (entries[b][c] == '[')bras++;
+					else if (entries[b][c] == ']')bras--;
+					else if (entries[b][c] == '{')acos++;
+					else if (entries[b][c] == '}')acos--;
+				}
+				//========is struct
+				if (!is_string && entries[b][c] == '(' && pars == 1 && bras == 0 && acos == 0 &&
+						str_equal(str_trim_space(buf), "struct")) {
+					is_struct = true;
+					buf = 0;
+					continue;
+				} else if (!is_string && is_struct && entries[b][c] == ')' && pars == 0 && bras == 0 && acos == 0) {
+					is_struct = false;
+				}
+				//========split segments
+				if (!is_string && !is_struct && pars == 0 && bras == 0 && acos == 0 &&
+						(entries[b][c] == ',' || c + 1 == ent_len)) {
+					if (c + 1 == ent_len)buf = char_append(buf, entries[b][c]);
+					str_list_append(&tmp_entries, str_trim_space(buf), tmp_entries_len++);
+					buf = 0;
+					continue;
+				}
+				//========append to buf
+				buf = char_append(buf, entries[b][c]);
+			}
+		}
+		//------
+		if (tmp_entries_len / last_max == 1 && count > 0)break;
+		str_list_init(&entries, tmp_entries, tmp_entries_len);
+		entries_len = tmp_entries_len;
+		//printf("QQQQQQQ:%i,%s\n", count, print_str_list(tmp_entries, tmp_entries_len));
+		indexes[count++] = tmp_entries_len / last_max;
+		last_max = tmp_entries_len;
+		if (count == MAX_ARRAY_DIMENSIONS)break;
+	}
+	return count;
+}
+//*********************************************************
+/**
  * get an array value of var and analyze its items and return list of its items for set im memory
  * @param value
  * @param type_var
@@ -544,7 +710,7 @@ vaar_en return_value_dimensions(String value, String type_var, int32 indexes[], 
 			//------
 			for (uint32 c = 0; c < ent_len; c++) {
 				//========check is string
-				if (entries[b][c] == '\"' && (i == 0 || entries[b][c - 1] != '\\')) {
+				if (entries[b][c] == '\"' && (c == 0 || entries[b][c - 1] != '\\')) {
 					is_string = switch_bool(is_string);
 				}
 				//========count pars,bras,acos
@@ -652,32 +818,26 @@ String determine_value_type(String val) {
  */
 void calculate_value_of_var(String value, String type, String *ret_value, uint8 *ret_subtype) {
 	//printf("&YYYY:%s,%s\n", value, type);
-	if (str_equal(type, "null")) {
-		(*ret_subtype) = 'n';
-		str_init(&(*ret_value), "null");
-	} else if (str_equal(type, "num")) {
+	uint8 sub_type = '0';
+	if (str_equal(type, "num")) {
 		calculate_math_expression(value, '_', &(*ret_value), &(*ret_subtype));
 	} else if (str_equal(type, "str")) {
 		calculate_string_expression(value, &(*ret_value), &(*ret_subtype));
+	} else if (str_equal(type, "bool")) {
+		(*ret_value) = calculate_boolean_expression(value, &sub_type);
+		(*ret_subtype) = sub_type;
+	} else if (search_datas(type, entry_table.cur_fid, false).id != 0) {
+		(*ret_value) = calculate_struct_expression(value, type, &sub_type);
+		(*ret_subtype) = sub_type;
+	} else {
+		(*ret_subtype) = 'n';
+		str_init(&(*ret_value), "null");
 	}
 	//TODO:
 	/*
-	case type_var == "bool":
-		value_var = calculate_boolean_expression(value_var)
 	sub_type = 'b'
 	case search_in_classes(type_var) > 0:
 		//msg("XXXX:", type_var, value_var)
-		if value_var == "" || value_var == "null"
-	{
-		value_var = "null"
-	} else if is_digit_string(value_var)
-	{
-		var
-		num_type
-		byte = 'i'
-		value_var, num_type = calculate_math_expression(value_var, '_')
-		sub_type = num_type
-	}
 	*/
 	
 	//tmp_type, tmp_val := calculate_value_of_var(type_val, value, false)
@@ -689,6 +849,588 @@ void calculate_value_of_var(String value, String type, String *ret_value, uint8 
 			tmp_val = resize_to_float(tmp_val)
 		}
 	}*/
+}
+
+//*********************************************************
+String calculate_boolean_expression(String exp, uint8 *sub_type) {
+	/**
+	1- (true&&false)||true ---OK---
+	2- !(f==34) ---OK---
+	3- !(true||false) ---OK---
+	4- !true&&true ---OK---
+	5- true~~false ---OK---
+	6- (buf!=""&&exp=="tr")~~!(exp=="DF") ---OK---
+	7- (true~~((45-1)<=45))||false ---OK---
+	*/
+	//msg("&BOOL11:", exp)
+	//***********************define variables
+	String EXP = 0;
+	str_init(&EXP, exp);
+	String final_exp = 0;
+	str_init(&final_exp, "false");
+	int32 pars = 0, bra = 0, starting = -1, ending = -1;
+	String op = 0, bool1 = 0, bool2 = 0, buf = 0, word_f = "";
+	Boolean is_string = false, is_break = false, is_func = false, is_change = false;
+	(*sub_type) = 'b';
+	//***********************start analyzing
+	if (str_equal(exp, "true") || str_equal(exp, "false")) {
+		return exp;
+	}
+	if (str_trim_space(exp) == 0 || str_equal(exp, "null")) {
+		return "false";
+	}
+	exp = remove_unused_parenthesis(exp);
+	exp = str_multi_append("(", exp, ")", 0, 0, 0);
+	//***********************Level 1 : analyzing and convert expressions to true,false
+	for (;;) {
+		is_change = false;
+		for (uint32 i = 0; i < str_length(exp); i++) {
+			uint32 exp_len = str_length(exp);
+			is_break = false;
+			//---------------check is string
+			if (exp[i] == '\"' && (i == 0 || exp[i - 1] != '\\')) {
+				is_string = switch_bool(is_string);
+			}
+			//---------------count bra,pras
+			if (!is_string) {
+				switch (exp[i]) {
+					case ' ':
+						continue;
+						break;
+					case '(': {
+						pars++;
+						word_f = str_trim_space(word_f);
+						if (is_valid_name(word_f, false)) is_func = true;
+						break;
+					}
+					case ')':
+						pars--;
+						break;
+					case '[':
+						bra++;
+						break;
+					case ']':
+						bra--;
+						break;
+				}
+			}
+			//---------------get &&,||,~~
+			String tmp1 = 0;
+			if (!is_string && i + 1 < exp_len) {
+				tmp1 = char_append(tmp1, exp[i]);
+				tmp1 = char_append(tmp1, exp[i + 1]);
+				//fmt.Println("ZZZZ:", tmp1, search_in_slice(boolean_operators, tmp1))
+				
+			}
+			//---------------get an expression
+			if (!is_string && ((exp[i] == ')' && pars == 0) ||
+					(tmp1 != 0 && str_search(boolean_operators, tmp1, StrArraySize(boolean_operators))) ||
+					i + 1 == exp_len) && bra == 0) {
+				if (str_length(buf) > 2 && buf[0] == '!' && buf[1] == '(') {
+					starting += 1;
+					buf = str_substring(buf, 1, 0);
+				}
+				if (is_func && exp[i] == ')' && pars == 0) {
+					buf = char_append(buf, exp[i]);
+					is_func = false;
+				}
+				if (buf != 0 && (i + 1 == exp_len || (buf[0] == '(' && exp[i] == ')'))) {
+					buf = char_append(buf, exp[i]);
+				}
+				
+				if (buf != 0 && (str_search(boolean_operators, tmp1, StrArraySize(boolean_operators)) ||
+						(buf[0] != '(' && exp[i] == ')' && pars == 0))) {
+					//msg("&$$$:", tmp1, buf)
+					ending = i;
+				} else {
+					ending = i + 1;
+				}
+				buf = str_trim_space(buf);
+				//msg("&&&&&&&:", buf, trim_sep_string(buf), starting, ending)
+				//search for true_false
+				if (!str_equal(str_trim_optimized_boolean(buf), "true") &&
+						!str_equal(str_trim_optimized_boolean(buf), "false") && buf != 0) {
+					int32 invalid_pars = 0;
+					buf = remove_incorrect_pars(buf, &invalid_pars);
+					starting += invalid_pars;
+					if (starting < 0) {
+						starting = 0;
+					}
+					String ret0 = return_true_false(buf);
+					//fmt.Printf("POP:***%s***%s=>%s\n", exp, buf, ret0)
+					//*************replace the result
+					if (starting > 0 && (exp[starting] == '&' || exp[starting] == '|' || exp[starting] == '~')) {
+						starting++;
+					}
+					exp = replace_in_expression(exp, ret0, starting, ending, true, true);
+					//*************end
+					i = -1;
+					//msg("&FFF:", s1, s2, exp)
+					pars = 0;
+					is_change = true;
+				}
+				//search for true,false
+				if (str_search(boolean_operators, tmp1, StrArraySize(boolean_operators)) && i > -1) {
+					i += 1;
+				}
+				if (i > -1 && buf != 0) {
+					//msg("&@@@:", tmp1, buf)
+					if (str_equal(buf, "!true"))
+						str_init(&buf, "false");
+					else if (str_equal(buf, "!false"))
+						str_init(&buf, "true");
+					
+					is_change = true;
+					if (starting == 0 && ending > exp_len - 2) {
+						is_change = false;
+					}
+					exp = replace_in_expression(exp, buf, starting, ending, true, true);
+				}
+				buf = 0;
+				is_break = true;
+				starting = -1, ending = -1;
+				break;
+			}
+			//---------------append to buf
+			if (!is_break) {
+				buf = char_append(buf, exp[i]);
+				
+				if (starting == -1) {
+					starting = i;
+				}
+			}
+			//---------------append to word_f
+			if (!is_break && !is_string && char_search_index(words_splitter, exp[i]) && exp[i] != ' ') {
+				word_f = 0;
+			} else {
+				word_f = char_append(word_f, exp[i]);
+			}
+			//fg++
+			/*if (fg == 10) {
+				break;
+			}*/
+			
+		}
+		if (!is_change) {
+			break;
+		}
+	}
+	//msg("&BOOLEAN:", exp)
+	//***********************Level 2 : analyzing and calculate true/false expression
+	if (str_equal(exp, "true") || str_equal(exp, "false")) {
+		return exp;
+	}
+	//printf("#EEEE:%s,%s\n", EXP, exp);
+	//---------------init vars
+	buf = 0;
+	starting = -1, ending = -1;
+	is_string = false;
+	exp = char_append(exp, '=');
+	pars = 0, bra = 0;
+	//---------------start analyzing
+	for (uint32 i = 0; i < str_length(exp); i++) {
+		uint32 buf_len = str_length(buf);
+		//---------------check is string
+		if (exp[i] == '\"' && (i == 0 || exp[i - 1] != '\\')) {
+			is_string = switch_bool(is_string);
+		}
+		if (!is_string) {
+			if (exp[i] == ' ')continue;
+			else if (exp[i] == '(' && bra == 0) {
+				pars++;
+				op = 0, bool1 = 0, bool2 = 0, buf = 0;
+				starting = -1;
+				//msg("PPPPPPPPPP")
+				continue;
+			} else if (exp[i] == ')')pars--;
+			else if (exp[i] == '[')bra++;
+			else if (exp[i] == ']')bra--;
+		}
+		
+		//msg("DDD:", buf, i, string(exp[i]))
+		//---------------allocate bool1
+		if (!is_string && buf != 0 &&
+				(str_has_suffix(buf, "&&") || str_has_suffix(buf, "||") || str_has_suffix(buf, "~~") ||
+						(exp[i] == ')' && pars == 0)) && bool1 == 0 && op == 0 && bra == 0) {
+			String tmp = 0;
+			//printf("#EW:%s,%s\n",buf,tmp);
+			if (str_has_suffix(buf, "&&") || str_has_suffix(buf, "||") || str_has_suffix(buf, "~~")) {
+				op = str_substring(buf, buf_len - 2, 0);
+				tmp = str_substring(buf, 0, buf_len - 2);
+				ending = i - 3;
+			} else {
+				ending = i;
+				str_init(&tmp, buf);
+			}
+			
+			if (str_equal(tmp, "!true"))
+				str_init(&tmp, "false");
+			else if (str_equal(tmp, "!false"))
+				str_init(&tmp, "true");
+			
+			if (str_equal(tmp, "true") || str_equal(tmp, "false")) {
+				str_init(&bool1, tmp);
+			}
+			//*************
+			//fmt.Printf("QQQQ:%s[%s];%s\n", bool1, op, buf, tmp)
+			//msg(ending)
+			buf = 0;
+			ending = -1;
+			//continue
+		}
+		//---------------end of calculation
+		if (!is_string && buf != 0 && (str_equal(buf, "true") || str_equal(buf, "false") || is_valid_name(buf, true)) &&
+				bool1 == 0 && bool2 == 0 && op == 0 && (exp[i] == '=' && i + 1 == str_length(exp))) {
+			if (is_valid_name(buf, true))
+				buf = return_var_memory_value(buf).data;
+			str_init(&final_exp, buf);
+			break;
+		}
+		//---------------allocate bool2
+		if (!is_string && buf != 0 &&
+				(str_has_suffix(buf, "&&") || str_has_suffix(buf, "||") || str_has_suffix(buf, "~~") ||
+						(exp[i] == '=' && i + 1 == str_length(exp)) || (exp[i] == ')' && pars == 0)) && bool2 == 0 &&
+				((exp[i] == '=' && bool1 == 0 && op == 0) || (bool1 != 0 && op != 0)) && bra == 0) {
+			String tmp = 0;
+			if (str_has_suffix(buf, "&&") || str_has_suffix(buf, "||") || str_has_suffix(buf, "~~")) {
+				//op = buf[len(buf)-2:]
+				tmp = str_substring(buf, 0, buf_len - 2);
+				ending = i - 3;
+			} else {
+				str_init(&tmp, buf);
+				ending = i;
+			}
+			if (str_equal(tmp, "!true"))
+				str_init(&tmp, "false");
+			else if (str_equal(tmp, "!false"))
+				str_init(&tmp, "true");
+			
+			if (str_equal(tmp, "true") || str_equal(tmp, "false")) {
+				str_init(&bool2, tmp);
+			}
+			//fmt.Printf("EEEE:%s[%s]%s{%s}\n\t%s;%s\n", bool1, op, bool2, tmp, buf, exp)
+			//**************analyze bool1&bool2
+			
+			//*************calculate bool1&bool2
+			String result = 0;
+			str_init(&result, "false");
+			if (str_equal(op, "&&") && str_equal(bool1, "true") && str_equal(bool2, "true")) str_init(&result, "true");
+			else if (str_equal(op, "||") && (str_equal(bool1, "true") || str_equal(bool2, "true")))
+				str_init(&result, "true");
+			else if (str_equal(op, "~~") && ((str_equal(bool1, "true") && str_equal(bool2, "false")) ||
+					(str_equal(bool1, "false") && str_equal(bool2, "true"))))
+				str_init(&result, "true");
+			else if (op == 0 && bool1 == 0 && (str_equal(bool2, "true") || str_equal(bool2, "false")))
+				str_init(&result, bool2);
+			//*************replace the result
+			String s1 = 0, s2 = 0, expression = 0;
+			s1 = str_trim_space(str_substring(exp, 0, starting));
+			s2 = str_trim_space(str_substring(exp, ending, 0));
+			uint32 s1_len = str_length(s1);
+			if (s1_len > 0 && s1[s1_len - 1] == '(' && s2[0] == ')') {
+				s1 = str_substring(s1, 0, s1_len - 1);
+				s2 = str_substring(s2, 1, 0);
+			}
+			expression = str_multi_append(s1, result, s2, 0, 0, 0);
+			str_init(&exp, expression);
+			//*************end calculate
+			//msg("DDDD:", starting, ending)
+			//fmt.Printf("CALC2~%s:%s:%s=%s\n\t%s\n", bool1, op, bool2, result, exp)
+			op = 0, bool1 = 0, bool2 = 0, buf = 0;
+			starting = -1, pars = 0;
+			i = -1;
+			continue;
+		}
+		
+		//---------------append to buf
+		buf = char_append(buf, exp[i]);
+		if (starting == -1) {
+			starting = i;
+		}
+		/*if (!is_string && exp[i] == '!' && (i + 1 >= str_length(exp) || exp[i + 1] != '='))
+		{
+		}*/
+		
+	}
+	//printf("#EEEE12:%s,%s,%s\n", EXP, exp, final_exp);
+	//***********************return final_exp
+	//fmt.Printf("RESULT:%s=>%s\n", exp, final_exp)
+	return final_exp;
+}
+
+String return_true_false(String exp) {
+	/**
+	1- c_name=="AliReza" 		---OK---
+	2- init() 					---OK---
+	3- init()>=4+6 				---OK---
+	4- !IsDir(path) 			---OK---
+	5- __define["c"]==45
+	----------types of values:
+	1- variables(normal vars,global vars)
+	2- functions call
+	3- magic macros
+	4- values (str,num,bool values)
+	*/
+	
+	//***********************define variables
+	String final_exp = 0, buf = 0, op = 0, operand1 = 0, operand2 = 0;
+	str_init(&final_exp, "false");
+	uint8 type1 = '0', type2 = '0';
+	Boolean is_string = false, is_not = false;
+	int32 pars = 0, bra = 0, stop_buf = 0;
+	//***********************start analyzing
+	exp = remove_unused_parenthesis(exp);
+	//msg("&TRUE_FALSE:", exp)
+	if (str_length(exp) > 1 && exp[0] == '!') {
+		exp = str_substring(exp, 1, 0);
+		is_not = true;
+	}
+	
+	for (uint32 i = 0; i < str_length(exp); i++) {
+		uint32 exp_len = str_length(exp);
+		//---------------check is string
+		if (exp[i] == '\"' && (i == 0 || exp[i - 1] != '\\')) {
+			is_string = switch_bool(is_string);
+		}
+		if (!is_string) {
+			if (exp[i] == ' ')continue;
+			else if (exp[i] == '(' && bra == 0)pars++;
+			else if (exp[i] == ')' && bra == 0)pars--;
+			else if (exp[i] == '[' && bra == 0)bra++;
+			else if (exp[i] == ']' && bra == 0)bra--;
+		}
+		//---------------find comparative operator
+		String tmp1 = 0;
+		if (!is_string && i + 1 < exp_len && (exp[i] == '=' || exp[i] == '>' || exp[i] == '<' || exp[i] == '!')) {
+			tmp1 = char_append(tmp1, exp[i]);
+			tmp1 = char_append(tmp1, exp[i + 1]);
+		}
+		if (tmp1 != 0) {
+			if (str_search(comparative_operators, tmp1, StrArraySize(comparative_operators))) {
+				str_init(&op, tmp1);
+				stop_buf = 2;
+			} else if (tmp1[0] == '<' || tmp1[0] == '>') {
+				op = char_to_str(tmp1[0]);
+				stop_buf = 1;
+			}
+		}
+		//---------------calculate operand1,operand2
+		if (!is_string && ((op != 0 && operand1 == 0 && buf != 0) || i + 1 == exp_len)) {
+			if (i + 1 == exp_len) {
+				buf = char_append(buf, exp[i]);
+			}
+			//msg("WWW:", buf)
+			if (operand1 == 0)str_init(&operand1, buf);
+			else if (operand2 == 0)str_init(&operand2, buf);
+			buf = 0;
+		}
+		//---------------append to buf
+		if (stop_buf == 0) {
+			buf = char_append(buf, exp[i]);
+		} else {
+			stop_buf--;
+		}
+		
+	}
+	//msg("&Operands:", operand1, op, operand2)
+	//***********************start calculating
+	//------------------------------------------analyzing operand1,operand2
+	for (uint8 i = 0; i < 2; i++) {
+		String oprd = 0, final_res = 0;
+		uint8 tyy = '0';
+		//---------------
+		if (i == 0) {
+			str_init(&oprd, operand1);
+		} else {
+			str_init(&oprd, operand2);
+		}
+		//---------------
+		while (str_trim_space(oprd) != 0) {
+			//---------------start analyzing operand
+			//............function call
+			if (labeled_instruction(oprd) == FUNC_CALL_LBL_INST) {
+				str_init(&oprd, function_call(oprd, 2));
+				//msg("&FFF1:", oprd, value)
+				if (is_valid_name(oprd, true)) {
+					Mpoint po = return_var_memory_value(oprd);
+					str_init(&final_res, po.data);
+					tyy = po.type_data;
+					oprd = 0;
+				}
+				//msg("&FFGG1:", operand1)
+				
+			}
+				//............variable
+			else if (is_valid_name(oprd, true)) {
+				Mpoint po = return_var_memory_value(oprd);
+				//msg("&VVV1:", operand1, value,string(ty))
+				if (po.type_data == '0') {
+					exception_handler("not_exist_var", __func__, oprd, 0);
+					return "false";
+				}
+				str_init(&final_res, po.data);
+				tyy = po.type_data;
+				oprd = 0;
+				//............value
+			} else {
+				uint8 typ = '0';
+				String value = determine_unknown_value(oprd, &typ);
+				final_res = str_reomve_quotations(value, char_to_str(typ));
+				//msg("&QQQ1:", operand1, value)
+				tyy = typ;
+				oprd = 0;
+			}
+		}
+		//---------------
+		if (i == 0) {
+			str_init(&operand1, final_res);
+			type1 = tyy;
+		} else {
+			str_init(&operand2, final_res);
+			type2 = tyy;
+		}
+	}
+	//msg("&&", operand1, operand2)
+	//---------------calculate operand1,operand2 with op
+	if (op == 0 && operand2 == 0 && (str_equal(operand1, "true") || str_equal(operand1, "false"))) {
+		str_init(&operand1, final_exp);
+	} else {
+		String nums_state = 0;
+		if (str_equal(op, ">=") || str_equal(op, "<=") || str_equal(op, ">") || str_equal(op, "<")) {
+			//-----------remove '+'
+			if (str_length(operand1) > 1 && operand1[0] == '+') {
+				operand1 = str_substring(operand1, 1, 0);
+			}
+			if (str_length(operand2) > 1 && operand2[0] == '+') {
+				operand2 = str_substring(operand2, 1, 0);
+			}
+			//-----------remove 000
+			operand1 = str_trim_number(operand1);
+			operand2 = str_trim_number(operand2);
+			//msg("&Types", operand1, operand2, string(type1), string(type2))
+			//------is integer
+			if (type1 == 'i' && type2 == 'i') {
+				int32 calc1 = str_to_int32(operand1);
+				int32 calc2 = str_to_int32(operand2);
+				if (calc1 < calc2)str_init(&nums_state, "<");
+				else if (calc1 > calc2)str_init(&nums_state, ">");
+				
+				if (calc1 == calc2) {
+					str_init(&nums_state, "=");
+				}
+			}
+				//------is float
+			else if ((type1 == 'f' && type2 == 'i') || (type1 == 'i' && type2 == 'f')) {
+				double calc1 = str_to_double(operand1);
+				double calc2 = str_to_double(operand2);
+				if (calc1 < calc2)str_init(&nums_state, "<");
+				else if (calc1 > calc2)str_init(&nums_state, ">");
+				
+				if (calc1 == calc2) {
+					str_init(&nums_state, "=");
+				}
+			}
+				//------is huge
+			else if (type1 == 'h' || type2 == 'h') {
+				//TODO:huge numbers
+				//-----------if is negative
+				/*if
+					len(operand1) > 1 && operand1[0] == '-' && len(operand2) > 0 && operand2[0] != '-'
+				{
+					nums_state = "<"
+				} else if
+					len(operand1) > 0 && operand1[0] != '-' && len(operand2) > 1 && operand2[0] == '-'
+				{
+					nums_state = ">"
+				}
+				//-----------
+				if nums_state == ""
+				{
+					operand1 = trim_last_float(operand1)
+					operand2 = trim_last_float(operand2)
+					int_1, float_1 :=
+					detachment_float_string(operand1)
+					int_2, float_2 :=
+					detachment_float_string(operand2)
+					var
+					is_neg = false
+					if
+						len(int_1) > 1 && int_1[0] == '-' && len(int_2) > 1 && int_2[0] == '-'
+					{
+						is_neg = true
+						int_1 = int_1[1:]
+						int_2 = int_2[1:]
+					}
+					if float_1 == "" && float_2 == ""
+					{
+						nums_state = comparison_huge_numbers(int_1, int_2, 'i')
+					} else {
+						nums_state = comparison_huge_numbers(int_1, int_2, 'i')
+						ret2 :=
+						comparison_huge_numbers(float_1, float_2, 'f')
+						//msg("&iii", int_1, int_2, nums_state, float_1, float_2, ret2)
+						if nums_state == "="
+						{
+							nums_state = ret2
+						}
+					}
+					if is_neg && nums_state == ">"
+					{
+						nums_state = "<"
+					} else if is_neg && nums_state == "<"
+					{
+						nums_state = ">"
+					}
+					if nums_state == "="
+					{
+						nums_state = ",="
+					}
+					//msg("&GGG", nums_state, op, operand1, operand2, int_1, float_1, int_2, float_2)
+				}
+				//-----------if is equal
+				if operand1 == operand2 && nums_state != ",="
+				{
+					nums_state += ",="
+				}
+				*/
+			}
+			//msg("&MCALC:", nums_state, op, operand1, operand2)
+		}
+		//printf("%%%%FFFF:%s,%s[%s]=>{%s}\n", operand1, operand2, op, nums_state);
+		//------boolean,string,number
+		if (str_equal(op, "==") && str_equal(operand1, operand2))
+			str_init(&final_exp, "true");
+		else if (str_equal(op, "!=") && !str_equal(operand1, operand2))
+			str_init(&final_exp, "true");
+			//------number
+		else if (str_equal(op, ">=") && (str_equal(nums_state, "=") || str_equal(nums_state, ">")))
+			str_init(&final_exp, "true");
+		else if (str_equal(op, "<=") && (str_equal(nums_state, "=") || str_equal(nums_state, "<")))
+			str_init(&final_exp, "true");
+		else if (str_equal(op, ">") && str_equal(nums_state, ">"))
+			str_init(&final_exp, "true");
+		else if (str_equal(op, "<") && str_equal(nums_state, "<"))
+			str_init(&final_exp, "true");
+		
+	}
+	//***********************return final_exp
+	//msg("&TRUE_FALSE_FINAL", operand1, operand2, op, final_exp)
+	if (is_not && str_equal(final_exp, "true")) {
+		str_init(&final_exp, "false");
+	} else if (is_not && str_equal(final_exp, "false")) {
+		str_init(&final_exp, "true");
+	}
+	return final_exp;
+}
+
+//*********************************************************
+String determine_unknown_value(String value, uint8 *sub_type) {
+	String type_val = determine_value_type(value);
+	String ret_val = 0;
+	uint8 ret_type = 0;
+	calculate_value_of_var(value, type_val, &ret_val, &ret_type);
+	(*sub_type) = ret_type;
+	return ret_val;
 }
 
 //*********************************************************
@@ -864,7 +1606,7 @@ void calculate_string_expression(String exp, String *value, uint8 *sub_type) {
 			}
 			//msg("&G2", str1, str2, buf)
 			if (!is_valid_val) {
-				exception_handler("invalid_exp_val",__func__, buf, "str");
+				exception_handler("invalid_exp_val", __func__, buf, "str");
 				str_init(&(*value), 0);
 				(*sub_type) = '0';
 				return;

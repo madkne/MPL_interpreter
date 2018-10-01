@@ -75,14 +75,16 @@ Boolean start_interpreter(String source) {
 		return false;
 	}
 	//print_struct(PRINT_FUNC_ST);
-	print_struct(PRINT_MAIN_SOURCE_ST);
+	//print_struct(PRINT_MAIN_SOURCE_ST);
 	//print_struct(PRINT_STRU_ST);
 	//print_struct(PRINT_INSTRU_ST);
 	//print_struct(PRINT_STRUCT_ST);
 	//String h=0;
 	//str_init(&h,"AMindelavar");
 	//str_to_lower_case(&h);
-	//printf("WWWWW:%s,%s\n","hh", calculate_two_numbers("45","1000",'^','f'));
+	/*int32 indexes[5];
+	uint8 ii=return_size_value_dimensions("{struct({true,false},6),struct(true,-56*9),struct({true},0x45)}",indexes);*/
+	//printf("WWWWW:%i,%i,%i,%i\n",ii,indexes[0],indexes[1],indexes[2]);
 	//-----------------------meaning&running instructions
 	interpreter_level = "runtime";
 	Boolean ret3 = start_runtime();
@@ -91,6 +93,8 @@ Boolean start_interpreter(String source) {
 	}
 
 	print_struct(PRINT_UTF8_ST);
+	show_memory(0);
+	//printf("@ZZXXX:%i\n",str_has_suffix("j4364567457","457"));
 	//-----------------------free memory
 	interpreter_level = "free";
 }

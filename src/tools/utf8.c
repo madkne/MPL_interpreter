@@ -67,7 +67,6 @@ int32 utf8_read_line(FILE *fp, str_utf8 *chars, uint32 *size) {
 		(*chars) = utf8_char_append((*chars), code_point);
 		//printf("CCCC:%i=>\\u%X(%i,%i,%i,%i) : %i\n",count,code_point,buf[0],buf[1],buf[2],buf[3],(*chars)[(*size)-1]);
 	}
-	entry_table.max_bytes_per_char = max_bytes;
 	return ret;
 }
 

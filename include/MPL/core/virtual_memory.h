@@ -8,9 +8,13 @@
 void init_memory();
 
 void append_Mvar(Mvar s);
+
 void delete_Mvar(long_int i);
+
 void append_Mpoint(Mpoint s);
+
 void delete_Mpoint(long_int i);
+
 Mvar get_Mvar(long_int i);
 
 Mpoint get_Mpoint(long_int i);
@@ -21,6 +25,8 @@ long_int get_data_memory_index(long_int pointer_id, String index_var);
 
 long_int
 set_memory_var(long_int fin, long_int sid, String name, String value_var, String type_var, Boolean is_create_var);
+
+long_int set_parent_nodes_Mpoint(int32 max_indexes[], uint8 indexes_len, longint_list pointers_id,uint32 pointers_id_len);
 
 long_int
 add_to_var_memory(long_int pointer_id, long_int fin, long_int sid, long_int type_var, String name, String extra);

@@ -161,23 +161,25 @@ uint8 labeled_instruction(String code) {
 String define_vars(String inst) {
 	def_var_s vars_store[MAX_VAR_ALLOC_INSTRUCTIONS];
 	uint8 vars_counter = define_vars_analyzing(inst, vars_store);
+	//printf("!@!!@!@:%s,%i\n",inst,vars_counter);
 	//msg("&vars", vars_store)
 	//*******************************************add to memory
 	if (vars_counter == 0) {
 		return 0;
 	}
 	long_int vars_list[MAX_VAR_ALLOC_INSTRUCTIONS];
-	uint8 vars_list_counter=0;
+	uint8 vars_list_counter = 0;
 	//msg("---------------Add to memory:")
-	for(uint8 i = 0; i < vars_counter; i++) {
+	for (uint8 i = 0; i < vars_counter; i++) {
 		if (vars_store[i].value_var == 0) {
 			str_init(&vars_store[i].value_var, "null");
 		}
-		vars_store[i].name_var=str_multi_append(vars_store[i].name_var,"[",vars_store[i].index_var,"]",0,0);
-		long_int ret1 = set_memory_var(entry_table.cur_fin, entry_table.cur_sid, vars_store[i].name_var, vars_store[i].value_var, vars_store[i].main_type, true);
+		//printf("%DEF_VAR:%s,%s,%s\n",vars_store[i].main_type,vars_store[i].name_var,vars_store[i].value_var);
+		vars_store[i].name_var = str_multi_append(vars_store[i].name_var, "[", vars_store[i].index_var, "]", 0, 0);
+		long_int ret1 = set_memory_var(entry_table.cur_fin, entry_table.cur_sid, vars_store[i].name_var,
+				vars_store[i].value_var, vars_store[i].main_type, true);
 		//msg("&INIT_VAR:", st.name_var,st.value_var)
-		if (ret1 == 0)
-		{
+		if (ret1 == 0) {
 			return "bad";
 		}
 		vars_list[vars_list_counter++] = ret1;
@@ -188,3 +190,7 @@ String define_vars(String inst) {
 	return 0;
 }
 
+//****************************************************
+String function_call(String exp, int8 status) {
+	return 0;
+}

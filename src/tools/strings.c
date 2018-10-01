@@ -21,6 +21,16 @@ String convert_to_string(String s) {
 }
 
 //******************************************
+String str_reomve_quotations(String s, String type) {
+	uint32 s_len = str_length(s);
+	if ((str_equal(type, "s") || str_equal(type, "str")) && s_len >= 2 && s[0] == '\"' && s[s_len - 1] == '\"') {
+		return str_substring(s, 1, s_len - 1);
+	}
+	return s;
+}
+
+
+//******************************************
 uint32 str_length(String s) {
 	if (s == NULL)return 0;
 	uint32 len = 0;
@@ -410,8 +420,9 @@ int32 str_indexof(String s, String s1, uint32 start) {
 	if (start >= len || len1 > len)return -1;
 	for (uint32 i = start; i < len; i++) {
 		Boolean is_exist = true;
-		if (i + len1 < len) {
+		if (i + len1 <= len) {
 			uint32 ind = 0;
+			//printf("WWWW:%i,%i,%i\n", i, i + len1, len);
 			for (uint32 j = i; j < i + len1; j++) {
 				if (s[j] != s1[ind++]) {
 					is_exist = false;
@@ -561,8 +572,8 @@ void str_to_utf8(str_utf8 *ret, String val) {
 //******************************************
 String str_from_const_char(const char s[]) {
 	String ret = 0;
-	if(s==NULL)return 0;
-	uint32 len=0;
+	if (s == NULL)return 0;
+	uint32 len = 0;
 	while (s[len++] != 0);
 	if (len == 0)return 0;
 	//printf("VVVVV:%s,%i\n",val,len);
@@ -573,3 +584,55 @@ String str_from_const_char(const char s[]) {
 	ret[len] = 0;
 	return ret;
 }
+
+//******************************************
+String str_trim_optimized_boolean(String str) {
+	String final = 0;
+	Boolean is_string = false;
+	for (uint32 i = 0; i < str_length(str); i++) {
+		if (str[i] == '\"' && (i == 0 || str[i - 1] != '\\')) {
+			is_string = switch_bool(is_string);
+		}
+		if (!is_string && str[i] != ')' && str[i] != '(' && str[i] != '!') {
+			final = char_append(final, str[i]);
+		}
+	}
+	return final;
+}
+
+//******************************************
+String str_trim_number(String str) {
+	String final = 0;
+	Boolean is_num = false;
+	uint32 str_len = str_length(str);
+	for (uint32 i = 0; i < str_len; i++) {
+		if ((!is_num && str[i] != '0') || is_num) {
+			final = char_append(final, str[i]);
+		}
+		if (!is_num && ((str[i] >= '1' && str[i] <= '9') || (i + 1 < str_len && str[i] == '0' && str[i + 1] == '.'))) {
+			is_num = true;
+		}
+	}
+	return final;
+}
+
+//******************************************
+Boolean str_has_suffix(String s, String find) {
+	int32 ind = str_indexof(s, find, 0);
+	if (ind == -1)return false;
+	//printf("@#@SSSS:%s,%s[%i,%i,%i]\n",s,find,ind,ind + str_length(find) + 1,str_length(s));
+	if (ind + str_length(find) == str_length(s)) return true;
+	return false;
+}
+//******************************************
+//******************************************
+//******************************************
+//******************************************
+//******************************************
+//******************************************
+//******************************************
+//******************************************
+//******************************************
+//******************************************
+//******************************************
+

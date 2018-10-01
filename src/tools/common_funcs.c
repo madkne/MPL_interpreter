@@ -140,7 +140,7 @@ double int32_power(double base, int32 power) {
 		ret *= base;
 	}
 	if (is_neg) {
-		ret =(double) 1 / ret;
+		ret = (double) 1 / ret;
 	}
 	return ret;
 }
@@ -260,8 +260,8 @@ void print_struct(uint8 which) {
 		if (tmp1 == 0) return;
 		printf("=====Print struct_struct :\n");
 		for (;;) {
-			printf("(id:%li,fid:%li,len:%i),name:%s,params:%s\n", tmp1->id, tmp1->fid,
-					tmp1->params_len, tmp1->name, print_str_list(tmp1->params, tmp1->params_len));
+			printf("(id:%li,fid:%li,len:%i),name:%s,params:%s\n", tmp1->id, tmp1->fid, tmp1->params_len, tmp1->name,
+					print_str_list(tmp1->params, tmp1->params_len));
 			tmp1 = tmp1->next;
 			if (tmp1 == 0) break;
 		}
@@ -381,6 +381,40 @@ void utf8_str_list_append(utf8_str_list *s, str_utf8 s1, uint32 len) {
 }
 
 //*************************************************************
+String remove_incorrect_pars(String str, int32 *invalid_pars) {
+	String final = 0;
+	str_init(&final, str);
+	Boolean is_string = false;
+	int32 pars = 0;
+	for (uint32 i = 0; i < str_length(str); i++) {
+		if (str[i] == '\"' && (i == 0 || str[i - 1] != '\\')) {
+			is_string = switch_bool(is_string);
+		}
+		if (!is_string) {
+			switch (str[i]) {
+				case '(':
+					pars++;
+					break;
+				case ')':
+					pars--;
+					break;
+			}
+		}
+	}
+	//*********************
+	uint32 final_len = str_length(final);
+	if (pars > 0 && pars < final_len) {
+		final = str_substring(final, pars, 0);
+	} else if (pars < 0 && (-pars) < final_len) {
+		final = str_substring(final, 0, final_len - (-pars));
+	}
+	//msg("&***", pars)
+	(*invalid_pars) = pars;
+	return final;
+	
+}
+
+//*************************************************************
 FILE *utf8_file_open(String filename, String mode) {
 	#if LINUX_PLATFORM == 1
 	//TODO:utf8 fopen for linux
@@ -392,4 +426,24 @@ FILE *utf8_file_open(String filename, String mode) {
 	return _wfopen(wfile, wmode);
 	#endif
 	return NULL;
+}
+
+//*************************************************************
+String replace_in_expression(String exp, String rep, int32 start, int32 end, Boolean remove_pars, Boolean is_trim) {
+	//msg("&@@@", exp, rep, start, end)
+	String s1 = 0, s2 = 0, expression = 0;
+	if (is_trim) {
+		s1 = str_trim_space(str_substring(exp, 0, start));
+		s2 = str_trim_space(str_substring(exp, end, 0));
+	} else {
+		s1 = str_substring(exp, 0, start);
+		s2 = str_substring(exp, end, 0);
+	}
+	uint32 s1_len = str_length(s1);
+	if (remove_pars && s1_len > 0 && s1[s1_len - 1] == '(' && s2[0] == ')') {
+		s1 = str_substring(s1, 0, s1_len - 1);
+		s2 = str_substring(s2, 1, 0);
+	}
+	expression = str_multi_append(s1, rep, s2, 0, 0, 0);
+	return expression;
 }

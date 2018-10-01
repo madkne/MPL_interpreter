@@ -66,6 +66,8 @@ void init_exceptions_list_data() {
 			"count of variables is not equal with count of initialization values");
 	define_new_exception(5, ERROR_ID, "not_valid_val_param", ValueError,
 			"'!1@1!' is not a valid value as a function parameter");
+	define_new_exception(6, ERROR_ID, "not_defined_array", ValueError,
+			"'!1@1!' defined by one value and its assigned value is an array");
 	//\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\
 	//NotExistError
 	define_new_exception(1, ERROR_ID, "not_exist_func", NotExistError,

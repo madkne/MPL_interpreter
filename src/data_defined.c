@@ -111,6 +111,8 @@ void init_database() {
 	entry_table.mama_start = 0;
 	entry_table.mama_id = 0;
 	
+	entry_table.stde_start = 0;
+	entry_table.stde_id = 0;
 	
 	entry_table.last_fin = 0, entry_table.last_sid = 0, entry_table.prev_fin_index = 0;
 	entry_table.condition_level = 0, entry_table.in_loop = 0, entry_table.break_count = 0, entry_table.next_count = 0;
@@ -120,7 +122,6 @@ void init_database() {
 	entry_table.is_stop_APP_CONTROLLER = false, entry_table.is_next_inst_running = false;
 	
 	
-	entry_table.line_number = 0;
 	str_utf8 stdin_src;
 	str_to_utf8(&stdin_src, "stdin");
 	utf8_str_list_append(&source_paths, stdin_src, entry_table.source_counter++);
@@ -129,9 +130,9 @@ void init_database() {
 	append_datas(tmp1);
 	datas tmp2 = {0, 0, "num", MAIN_DATA_TYPE, 0, 0};
 	append_datas(tmp2);
-	datas tmp3 = {0,  0, "bool", MAIN_DATA_TYPE, 0, 0};
+	datas tmp3 = {0, 0, "bool", MAIN_DATA_TYPE, 0, 0};
 	append_datas(tmp3);
-	datas tmp4 = {0,  0, "struct", MAIN_DATA_TYPE, 0, 0};
+	datas tmp4 = {0, 0, "struct", MAIN_DATA_TYPE, 0, 0};
 	append_datas(tmp4);
 	//struct::exception(num id,str msg,str group,num type,str src,num line)
 	str_list exception_params = 0;
@@ -651,6 +652,40 @@ void print_vaar(vaar_en s) {
 	}
 	printf("=====End printed\n");
 }
+
+//*************************************************************
+//***************struct_descriptor functions*******************
+//*************************************************************
+void append_stde(stde s) {
+	stde *q;
+	q = (stde *) malloc(sizeof(stde));
+	if (q == 0) return;
+	q->id = s.id;
+	str_init(&q->type, s.type);
+	q->st = s.st;
+	q->next = 0;
+	if (entry_table.stde_start == 0) {
+		entry_table.stde_start = entry_table.stde_end = q;
+	} else {
+		entry_table.stde_end->next = q;
+		entry_table.stde_end = q;
+	}
+}
+//*************************************************************
+stde get_stde(long_int id){
+	stde null={0,0,0};
+	stde *tmp1 = entry_table.stde_start;
+	if (tmp1 == 0) return null;
+	for (;;) {
+		if (tmp1->id==id) {
+			return (*tmp1);
+		}
+		tmp1 = tmp1->next;
+		if (tmp1 == 0) break;
+	}
+	return null;
+}
+
 
 
 

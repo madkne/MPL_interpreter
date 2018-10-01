@@ -8,6 +8,8 @@ Boolean str_equal(String s1, String s2);
 
 String convert_to_string(String s);
 
+String str_reomve_quotations(String s, String type);
+
 uint32 str_length(String s);
 
 String str_append(String s1, String s2);
@@ -62,6 +64,13 @@ void str_to_utf8(str_utf8 *ret, String val);
 
 String str_from_const_char(const char s[]);
 
+String str_trim_optimized_boolean(String str);
+
+String str_trim_number(String str);
+
+Boolean str_has_suffix(String s, String find);
+
+//***********************************************************************************
 String char_join(str_list s, uint8 sp, uint32 size, Boolean is_remove_empty);
 
 uint32 char_split(String s, uint8 sp, str_list *ret, Boolean is_remove_empty);

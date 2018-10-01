@@ -34,16 +34,16 @@ TODO
 * set new var in memory [OK]
 * delete var in memory [OK]
 * manage exceptions [OK]
-* create other memory functions [..]
+* create other memory functions [OK]
 * determine type of data [OK]
 * calculate math expressions [OK]
 * calculate radix numbers [OK]
 * calculate integer,float numbers [OK]
 * calculate string expressions [OK]
 * calculate utf8 string expressions [OK]
-* calculate boolean expressions [..]
-* define struct expressions [..]
-* define complex struct expressions
+* calculate boolean expressions [OK]
+* define struct expressions [OK]
+* define complex struct expressions [..]
 * set new __define
 * use magic macros in define vars
 * edit __config
@@ -89,7 +89,7 @@ TODO
 * complete sample codes
 * optimizing RAM,CPU usage
 
-## :<<publish BETA version of MPL (for windows)>>: 
+### :<<publish BETA version of MPL (for windows)>>: 
 
 * support package files
 * publish BETA version for linux
@@ -101,7 +101,7 @@ TODO
 * support minimal gui for windows
 * add regex module
 
-## :<<publish MPL1 version of MPL (for windows,linux)>>: 
+### :<<publish MPL1 version of MPL (for windows,linux)>>: 
 
 * support for multi threading
 * support minimal gui for gtk
@@ -115,7 +115,7 @@ MPL Language Features
 
 * support utf-8 strings [OK]
 * support radix numbers [OK]
-* has XOR operand [..]
+* has XOR operand [OK]
 * support data structures [..]
 * support magic macros [..]
 * support huge numbers
@@ -140,7 +140,7 @@ MPL Hello World Program
 Get Starterd
 --------
 
-* [Windows] : Build Mpl.exe
+### [Windows] : Build Mpl.exe
 
 First clone the repository and then install python3 for ruuning build tool and mingw64 for compiling mpl. Then run 'build_win32_migw64.py' or double click on 'build_run_win32.bat'. Finally created a folder by name 'win32-release'.
 Now  you can run  a file by name 'main.mpl' through command 'mpl.exe main.mpl' and you can see the result!
