@@ -12,8 +12,8 @@ uint8 interpreter_mode = 0;
 //************************************************
 int main(int argc, char **argv) {
 	//-------------------------time of start program
-	clock_t t;
-	t = clock();
+	AppStartedClock = clock();
+	AppStartedTime = get_current_datetime(2);
 	//-------------------------init exceptions list
 	init_exceptions_list_data();
 	//--------------------------get Argvs,analyze it
@@ -52,8 +52,8 @@ int main(int argc, char **argv) {
 	//printf("Hello World:%s,%li\n",argv[1],str_length(""));
 	//-------------------------time of end program
 	if (is_programmer_debug >= 1 && interpreter_mode == 4) {
-		t = clock() - t;
-		double time_taken = ((double) t) / CLOCKS_PER_SEC; // in seconds
+		AppStartedClock = clock() - AppStartedClock;
+		double time_taken = ((double) AppStartedClock) / CLOCKS_PER_SEC; // in seconds
 		if (time_taken == 0) {
 			time_taken += 0.000001;
 			//printf("BAD\n");
@@ -84,15 +84,17 @@ Boolean start_interpreter(String source) {
 	//str_to_lower_case(&h);
 	/*int32 indexes[5];
 	uint8 ii=return_size_value_dimensions("{struct({true,false},6),struct(true,-56*9),struct({true},0x45)}",indexes);*/
-	//printf("WWWWW:%i,%i,%i,%i\n",ii,indexes[0],indexes[1],indexes[2]);
+	
+	//printf("WWWWW:%s:%s;%s\n", longint_list_print(hj, hj_len), longint_list_print(hj1, hj1_len), longint_list_print(hj2, hj2_len));
 	//-----------------------meaning&running instructions
 	interpreter_level = "runtime";
 	Boolean ret3 = start_runtime();
 	if (!ret3) {
 		return false;
 	}
-
-	print_struct(PRINT_UTF8_ST);
+	
+	print_struct(PRINT_STRUCT_DES_ST);
+	//print_struct(PRINT_MAGIC_MACROS_ST);
 	show_memory(0);
 	//printf("@ZZXXX:%i\n",str_has_suffix("j4364567457","457"));
 	//-----------------------free memory
@@ -129,7 +131,7 @@ Boolean mpl_help(String command) {
 	if (str_equal(command, "help")) {
 		printf("\t In The Name Of ALLAH\n\t----------------------\n");
 		printf("%s[%s-%s] build:[%s %s-%s] arch:[%s] under:[%s]\n", APP_NAME, VERSION_NAME, VERSION, OS_BUILD,
-		       BUILD_DATE, BUILD_TIME, OS_ARCH, LICENCE);
+				BUILD_DATE, BUILD_TIME, OS_ARCH, LICENCE);
 		printf("usage: mpl [option] --OR-- mpl [path] [arg]...\n");
 		printf("Options:\n");
 		printf("-v	:Display interpreter version information\n");

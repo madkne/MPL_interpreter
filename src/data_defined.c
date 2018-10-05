@@ -642,6 +642,10 @@ void append_vaar(vaar s, vaar_en *s1) {
 //*************************************************************
 void print_vaar(vaar_en s) {
 	vaar *tmp1 = s.start;
+	if(tmp1==0) {
+		printf("--NULL-- Vars_Array_struct\n");
+		return;
+	}
 	printf("=====Print Vars_Array_struct :\n");
 	if (tmp1 != 0) {
 		for (;;) {

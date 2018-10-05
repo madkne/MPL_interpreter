@@ -5,37 +5,34 @@
 #ifndef MPL_CONSTANTS_H
 #define MPL_CONSTANTS_H
 
-
 //**************************************************define interpreter constants
 #define  APP_NAME                       "Mini Portable Language"
-#define  VERSION                        "0.1.20"               //1.10.100
+#define  VERSION                        "0.1.28"               //1.10.100
 #define  VERSION_NAME                   "BETA"
 #define  SLOGAN                         "The solution to common problems of programmers" //راه حل کارهای متداول برنامه
 // نویسان
-#define  C_COMPILER_STD                 "C99"
-#define  BUILD_DATE                     __DATE__
-#define  BUILD_TIME                     __TIME__
 #define  FIRST_BUILD                    "2018.9.19"
 #define  LICENCE                        "Apache 2.0"
 #define  OFFICIAL_WEBSITE               "http://mpl-lang.ir"
-#define  CORE_CODE_LINES                0
-#define  BUILT_IN_CODE_LINES            0
+#define  C_CORE_CODE_LINES              7034
+#define  H_CORE_CODE_LINES              863
 #define  LANGUAGE_CREATOR               "Mohammad Amin Delavar Khalafi"
-#define  CONFIDENCE_LEVEL               0
-
+#define  CONFIDENCE_LEVEL               2
+#define  WINDOWS_COMPATIBLE             true
+#define  LINUX_COMPATIBLE               false
 //**************************************************define
-#if x64_OS == 1
+#if x64_OS == true
 #define OS_ARCH                         "x64"
-#elif x86_OS == 1
+#elif x86_OS == true
 #define OS_ARCH                         "x86"
 #endif
 //------------------------------------------
-#if LINUX_PLATFORM == 1
+#if LINUX_PLATFORM == true
 #define   OS_SEPARATOR                  '/'
 #define   OS_TYPE                       "linux"
 #define   MAX_INT_NUMBER                10000000
 #define   MAX_FLOAT_NUMBER              1000000000
-#elif WINDOWS_PLATFORM == 1
+#elif WINDOWS_PLATFORM == true
 #define   OS_SEPARATOR                  '\\'
 #define   OS_TYPE                       "windows"
 #define   MAX_INT_NUMBER                INT_MAX
@@ -113,7 +110,8 @@
 #define PRINT_STRUCT_ST                 7
 #define PRINT_INSTRU_ST                 8
 #define PRINT_STRU_ST                   9
-#define PRINT_VIRTUAL_MEMORY_ST         10
+#define PRINT_MAGIC_MACROS_ST           10
+#define PRINT_STRUCT_DES_ST             11
 //------------------------------------------
 #define   BOOL_SUB_TYPE_ID              1
 #define   STR_SUB_TYPE_ID               2
@@ -148,16 +146,16 @@ typedef short int16;
 typedef unsigned short uint16;
 typedef int int32;
 typedef unsigned int uint32;
-#if LINUX_PLATFORM == 1 && x64_OS == 1
+#if LINUX_PLATFORM == true && x64_OS == true
 typedef __int64_t           int64;
 typedef __uint64_t          uint64;
-#elif LINUX_PLATFORM == 1 && x86_OS == 1
+#elif LINUX_PLATFORM == true && x86_OS == true
 typedef __int64_t           uint64;
 typedef __uint64_t          int64;
-#elif WINDOWS_PLATFORM == 1 && x64_OS == 1
+#elif WINDOWS_PLATFORM == true && x64_OS == true
 typedef unsigned long int   uint64;
 typedef signed long int     int64;
-#elif WINDOWS_PLATFORM == 1 && x86_OS == 1
+#elif WINDOWS_PLATFORM == true && x86_OS == true
 typedef uint64_t uint64;
 typedef int64_t int64;
 #else
@@ -175,7 +173,5 @@ typedef uint32 *str_utf8;
 typedef uint64 long_int;
 typedef long_int *longint_list;
 typedef unsigned char Boolean;
-#define   true                          1
-#define   false                         0
 
 #endif //MPL_CONSTANTS_H

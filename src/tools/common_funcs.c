@@ -11,7 +11,26 @@ String read_input() {
 	}
 	return ret;
 }
+
 //******************************************
+String get_host_name() {
+	#if WINDOWS_PLATFORM == true
+	return getenv("COMPUTERNAME");
+	#elif LINUX_PLATFORM == true
+	return getenv("HOSTNAME");
+	#endif
+	return "<unknown>";
+}
+
+//******************************************
+long_int get_pid() {
+	#if WINDOWS_PLATFORM == true
+	return (long_int) GetCurrentProcessId();
+	#elif LINUX_PLATFORM == true
+	//TODO
+	#endif
+	return 0;
+}
 
 //******************************************
 String get_absolute_path(String path) {
@@ -116,6 +135,21 @@ void longint_list_append(longint_list *s, uint32 len, long_int n) {
 }
 
 //*************************************************************
+uint32 longint_list_join(longint_list *s, longint_list a1, uint32 a1_len, longint_list a2, uint32 a2_len) {
+	//if(s!=0)free(*s);
+	uint32 ind = 0;
+	(*s) = (longint_list) malloc((a1_len + a2_len) * sizeof(longint_list));
+	if (*s == 0)return 0;
+	for (uint32 i = 0; i < a1_len; i++) {
+		(*s)[ind++] = a1[i];
+	}
+	for (uint32 i = 0; i < a2_len; i++) {
+		(*s)[ind++] = a2[i];
+	}
+	return ind;
+}
+
+//*************************************************************
 void longint_list_init(longint_list *s, longint_list val, uint32 len) {
 	if (len == 0) {
 		(*s) = 0;
@@ -126,6 +160,20 @@ void longint_list_init(longint_list *s, longint_list val, uint32 len) {
 		//str_init(&(*s)[i],val[i]);
 		(*s)[i] = val[i];
 	}
+}
+
+//*************************************************************
+String longint_list_print(longint_list s, uint32 len) {
+	if (len == 0) return "[NULL]";
+	String ret = 0;
+	ret = char_append(ret, '{');
+	for (uint32 i = 0; i < len; i++) {
+		//printf("%s,%i\n",s[i],str_length(s[i]));
+		ret = str_append(ret, str_from_long_int(s[i]));
+		if (i + 1 < len) ret = char_append(ret, ',');
+	}
+	ret = char_append(ret, '}');
+	return ret;
 }
 
 //******************************************
@@ -156,6 +204,8 @@ String get_current_datetime(uint8 type) {
 		ret = malloc(6 * sizeof(int) + 5);
 		sprintf(ret, "%i-%i-%i %i:%i:%i", tim.tm_year + 1900, tim.tm_mon + 1, tim.tm_mday, tim.tm_hour, tim.tm_min,
 				tim.tm_sec);
+	}else if(type==2){
+		return str_from_long_int((long_int)t);
 	}
 	
 	//strftime(s, sizeof(s), "%c", tm);
@@ -277,16 +327,27 @@ void print_struct(uint8 which) {
 			if (tmp1 == 0) break;
 		}
 		printf("=====End printed\n");
-	} else if (which == 0 || which == PRINT_VIRTUAL_MEMORY_ST) {
-		//        vias *tmp1=entry_table.vias_start;
-		//        if(tmp1==0) return;
-		//        printf("=====Print virtual_assemble_struct :\n");
-		//        for(;;){
-		//            printf("inst(%i):%s %s , %s ;%i\n",tmp1->segment,tmp1->inst,tmp1->op1,tmp1->op2,tmp1->description);
-		//            tmp1=tmp1->next;
-		//            if(tmp1==0) break;
-		//        }
-		//        printf("=====End printed\n");
+	} else if (which == 0 || which == PRINT_STRUCT_DES_ST) {
+		stde *tmp1 = entry_table.stde_start;
+		if (tmp1 == 0) return;
+		printf("=====Print struct descriptor :\n");
+		for (;;) {
+			printf("%i(%s):\n", tmp1->id, tmp1->type);
+			print_vaar(tmp1->st);
+			tmp1 = tmp1->next;
+			if (tmp1 == 0) break;
+		}
+		printf("=====End printed\n");
+	} else if (which == 0 || which == PRINT_MAGIC_MACROS_ST) {
+		mama *tmp1 = entry_table.mama_start;
+		if (tmp1 == 0) return;
+		printf("=====Print magic macros :\n");
+		for (;;) {
+			printf("[id:%i,type:%i]%c;%s:%s\n", tmp1->id, tmp1->type, tmp1->sub_type, tmp1->key, tmp1->value);
+			tmp1 = tmp1->next;
+			if (tmp1 == 0) break;
+		}
+		printf("=====End printed\n");
 	}
 }
 
@@ -353,6 +414,39 @@ void str_list_init(str_list *s, str_list val, uint32 len) {
 		for (uint32 ii = 0; ii < le; ii++) (*s)[i][ii] = val[i][ii];
 		(*s)[i][le] = 0;
 	}
+}
+
+//*************************************************************
+void str_list_delete_first(str_list *s, uint32 len) {
+	if (len == 0) {
+		(*s) = 0;
+		return;
+	}
+	str_list tmp = 0;
+	str_list_init(&tmp, (*s), len);
+	free((*s));
+	(*s) = (str_list) malloc((len - 1) * sizeof(str_list));
+	uint32 ind = 0;
+	for (uint32 i = 1; i < len; i++) {
+		//str_init(&(*s)[i],val[i]);
+		str_init(&(*s)[ind++], tmp[i]);
+	}
+	free(tmp);
+}
+
+//*************************************************************
+uint32 str_list_join(str_list *s, str_list a1, uint32 a1_len, str_list a2, uint32 a2_len) {
+	//if(s!=0)free(*s);
+	uint32 ind = 0;
+	(*s) = (str_list) malloc((a1_len + a2_len) * sizeof(str_list));
+	if (*s == 0)return 0;
+	for (uint32 i = 0; i < a1_len; i++) {
+		str_init(&(*s)[ind++], a1[i]);
+	}
+	for (uint32 i = 0; i < a2_len; i++) {
+		str_init(&(*s)[ind++], a2[i]);
+	}
+	return ind;
 }
 
 //*************************************************************

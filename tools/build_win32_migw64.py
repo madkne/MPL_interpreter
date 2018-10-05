@@ -8,8 +8,10 @@ os.system("cls");
 os.system("color 1f");
 #----------------------define vars
 #enable warnings :  -Wall -Wextra
-cflags="-I .\\include -std=c99 -g  -fmax-errors=2 -c ";
-build_folder="win32-release";
+cflags="-I ..\\include -std=c99 -g  -fmax-errors=2 -c ";
+build_folder="..\\win32-release";
+obj_folder="..\\obj";
+scr_folder="..\\src";
 compiler="gcc ";
 is_error=0;
 logfile="build_win32_mingw64_list.txt";
@@ -39,13 +41,13 @@ if not os.path.exists(build_folder+"\\packs"):
 if not os.path.exists(build_folder+"\\samples"):
     os.makedirs(build_folder+"\\samples");
 #-----delete all obj/.*o
-#if os.path.exists("obj"):
- #   objs=os.listdir("obj");
+#if os.path.exists(obj_folder):
+ #   objs=os.listdir(obj_folder);
   #  for ob in objs:
    #     os.remove("obj\\"+ob);
 #-----create obj file
-if not os.path.exists("obj"):
-    os.makedirs("obj");
+if not os.path.exists(obj_folder):
+    os.makedirs(obj_folder);
 
 #-----delete mahdi.exe
 if os.path.exists(build_folder+"\\bin\\mpl.exe"):
@@ -54,19 +56,19 @@ if os.path.exists(build_folder+"\\bin\\mpl.exe"):
 #----------------------compile mpl sources
 print("=== Start compiling source files [mpl.exe]...");
 sources=[
-["src/main.c","src/main.c -o obj/main.o"],
-["src/data_defined.c","src/data_defined.c -o obj/data_defined.o"],
-["src/exceptions.c","src/exceptions.c -o obj/exceptions.o"],
-["src/built_in.c","src/built_in.c -o obj/built_in.o"],
-["src/tools/common_funcs.c","src/tools/common_funcs.c -o obj/common_funcs.o"],
-["src/tools/strings.c","src/tools/strings.c -o obj/strings.o"],
-["src/tools/utf8.c","src/tools/utf8.c -o obj/utf8.o"],
-["src/core/vars_mgr.c","src/core/vars_mgr.c -o obj/vars_mgr.o"],
-["src/core/parser.c","src/core/parser.c -o obj/parser.o"],
-["src/core/importer.c","src/core/importer.c -o obj/importer.o"],
-["src/core/starter.c","src/core/starter.c -o obj/starter.o"],
-["src/core/run_mgr.c","src/core/run_mgr.c -o obj/run_mgr.o"],
-["src/core/virtual_memory.c","src/core/virtual_memory.c -o obj/virtual_memory.o"]
+[scr_folder+"/main.c","../src/main.c -o "+obj_folder+"/main.o"],
+[scr_folder+"/data_defined.c",scr_folder+"/data_defined.c -o "+obj_folder+"/data_defined.o"],
+[scr_folder+"/exceptions.c",scr_folder+"/exceptions.c -o "+obj_folder+"/exceptions.o"],
+[scr_folder+"/built_in.c",scr_folder+"/built_in.c -o "+obj_folder+"/built_in.o"],
+[scr_folder+"/tools/common_funcs.c",scr_folder+"/tools/common_funcs.c -o "+obj_folder+"/common_funcs.o"],
+[scr_folder+"/tools/strings.c",scr_folder+"/tools/strings.c -o "+obj_folder+"/strings.o"],
+[scr_folder+"/tools/utf8.c",scr_folder+"/tools/utf8.c -o "+obj_folder+"/utf8.o"],
+[scr_folder+"/core/vars_mgr.c",scr_folder+"/core/vars_mgr.c -o "+obj_folder+"/vars_mgr.o"],
+[scr_folder+"/core/parser.c",scr_folder+"/core/parser.c -o "+obj_folder+"/parser.o"],
+[scr_folder+"/core/importer.c",scr_folder+"/core/importer.c -o "+obj_folder+"/importer.o"],
+[scr_folder+"/core/starter.c",scr_folder+"/core/starter.c -o "+obj_folder+"/starter.o"],
+[scr_folder+"/core/run_mgr.c",scr_folder+"/core/run_mgr.c -o "+obj_folder+"/run_mgr.o"],
+[scr_folder+"/core/virtual_memory.c",scr_folder+"/core/virtual_memory.c -o "+obj_folder+"/virtual_memory.o"]
 ];
 for i in range(0,len(sources),1):
 	ind=sources[i];
@@ -94,7 +96,7 @@ if is_error==1:
     #----------------------pause
     os.system("pause");
 else:
-    obj_files=glob.glob("obj/*.o");
+    obj_files=glob.glob(obj_folder+"/*.o");
     all_files=' '.join(obj_files);
     is_error=os.system("gcc -g "+all_files+" -o "+build_folder+"\\mpl.exe");
     
@@ -113,7 +115,7 @@ else:
 	#----------------------run mpl.exe
 	print("=== Running mpl.exe ...");
 	print("_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_");
-	os.system(build_folder+"\\mpl.exe main.mpl");
+	os.system(build_folder+"\\mpl.exe ..\\main.mpl");
 	#os.system("dir");
 	#os.system("pause");
 

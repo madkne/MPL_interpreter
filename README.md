@@ -1,50 +1,53 @@
 Mini Portable Language - MPL (BETA-0.1)
 ============================================
 
-This is a small,fast and simple interpreter also best solution to common problems of programmers.
+_This is a small,fast and simple interpreter also best solution to common problems of programmers._
 [![license](https://img.shields.io/github/license/Netflix/pollyjs.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 
 TODO
 --------
 
-* init exeptions [OK]
-* define mpl arguments [OK]
-* defnie mpl help [OK]
-* init basic interpreter variables [OK]
-* init data defined [OK]
-* init virtual memory(vm) [OK]
-* init built-in functions [OK]
-* init built-in defines [OK]
-* create memory structure [OK]
-* reading source file as utf8 [OK]
-* remove comments and convert utf8 to ascii [OK]
-* extract tokens [OK]
-* parsing tokens [OK]
-* parsing imports [OK]
-* parsing functions [OK]
-* parsing structs [OK]
-* parsing instructions [OK]
-* parsing structures [OK]
-* start runtime [OK]
-* init global vars [OK]
-* start APP_CONTROLLER [OK]
-* start INSTRUCTION_EXECUTOR [OK]
-* labeled instructions [OK]
-* implement define vars [OK]
-* set new var in memory [OK]
-* delete var in memory [OK]
-* manage exceptions [OK]
-* create other memory functions [OK]
-* determine type of data [OK]
-* calculate math expressions [OK]
-* calculate radix numbers [OK]
-* calculate integer,float numbers [OK]
-* calculate string expressions [OK]
-* calculate utf8 string expressions [OK]
-* calculate boolean expressions [OK]
-* define struct expressions [OK]
-* define complex struct expressions [..]
-* set new __define
+* init exeptions **[OK]**
+* define mpl arguments **[OK]**
+* defnie mpl help **[OK]**
+* init basic interpreter variables **[OK]**
+* init data defined **[OK]**
+* init virtual memory(vm) **[OK]**
+* init built-in functions **[OK]**
+* init built-in defines **[OK]**
+* create memory structure **[OK]**
+* reading source file as utf8 **[OK]**
+* remove comments and convert utf8 to ascii **[OK]**
+* extract tokens **[OK]**
+* parsing tokens **[OK]**
+* parsing imports **[OK]**
+* parsing functions **[OK]**
+* parsing structs **[OK]**
+* parsing instructions **[OK]**
+* parsing structures **[OK]**
+* start runtime **[OK]**
+* init global vars **[OK]**
+* start APP_CONTROLLER **[OK]**
+* start INSTRUCTION_EXECUTOR **[OK]**
+* labeled instructions **[OK]**
+* implement define vars **[OK]**
+* set new var in memory **[OK]**
+* delete var in memory **[OK]**
+* manage exceptions **[OK]**
+* create other memory functions **[OK]**
+* determine type of data **[OK]**
+* calculate math expressions **[OK]**
+* calculate radix numbers **[OK]**
+* calculate integer,float numbers **[OK]**
+* calculate string expressions **[OK]**
+* calculate utf8 string expressions **[OK]**
+* calculate boolean expressions **[OK]**
+* define struct expressions **[OK]**
+* define complex struct expressions **[OK]**
+* set built-in __define variables **[OK]**
+* set built-in __config variables **[OK]**
+* set new __define [..]
+* define global vars
 * use magic macros in define vars
 * edit __config
 * calculate huge numbers
@@ -89,7 +92,7 @@ TODO
 * complete sample codes
 * optimizing RAM,CPU usage
 
-### :<<publish BETA version of MPL (for windows)>>: 
+### <<publish BETA version of MPL (for windows)>>
 
 * support package files
 * publish BETA version for linux
@@ -101,7 +104,7 @@ TODO
 * support minimal gui for windows
 * add regex module
 
-### :<<publish MPL1 version of MPL (for windows,linux)>>: 
+### <<publish MPL1 version of MPL (for windows,linux)>>
 
 * support for multi threading
 * support minimal gui for gtk
@@ -113,22 +116,22 @@ TODO
 MPL Language Features
 --------
 
-* support utf-8 strings [OK]
-* support radix numbers [OK]
-* has XOR operand [OK]
-* support data structures [..]
-* support magic macros [..]
-* support huge numbers
-* support override functions
-* has built-in functions
-* manage exceptions
-* has bit operands
-* support unlimited function parameters
-* support multi return values
-* support call by refrence vars
-* support short allocations for vars
-* support browse arrays in loop
-* support switch condition
+> support utf-8 strings **[OK]** <br>
+> support radix numbers **[OK]** <br>
+> has XOR operand **[OK]** <br>
+> support data structures [..] <br>
+> support magic macros [..] <br>
+> support huge numbers <br>
+> support override functions <br>
+> has built-in functions <br>
+> manage exceptions <br>
+> has bit operands <br>
+> support unlimited function parameters <br>
+> support multi return values <br>
+> support call by refrence vars <br>
+> support short allocations for vars <br>
+> support browse arrays in loop <br>
+> support switch condition <br>
 
 MPL Hello World Program
 --------
@@ -142,9 +145,9 @@ Get Starterd
 
 ### [Windows] : Build Mpl.exe
 
-First clone the repository and then install python3 for ruuning build tool and mingw64 for compiling mpl. Then run 'build_win32_migw64.py' or double click on 'build_run_win32.bat'. Finally created a folder by name 'win32-release'.
-Now  you can run  a file by name 'main.mpl' through command 'mpl.exe main.mpl' and you can see the result!
-[Mpl is portable!] you can move 'mpl.exe' to any where. it's a static executable file and not need to any files.(It's not need any modules or packages or docs or anything... Their are just for easier programming by mpl )
+> First clone the repository and then install python3 for ruuning build tool and mingw64 for compiling mpl. Then run 'build_win32_migw64.py' or double click on 'build_run_win32.bat'. Finally created a folder by name 'win32-release'. <br>
+> Now  you can run  a file by name 'main.mpl' through command 'mpl.exe main.mpl' and you can see the result! <br>
+> [Mpl is portable!] you can move 'mpl.exe' to any where. it's a static executable file and not need to any files.(It's not need any modules or packages or docs or anything... Their are just for easier programming by mpl ) <br>
 
 
 MPL Sample Program
@@ -202,7 +205,7 @@ MPL Sample Program
 Programmers & Designers
 --------
 
-* Mohammad Amin Delavar Khalafi [main programmer,designer],[Iran],[amindelavar@hotmail.com]
+1. Mohammad Amin Delavar Khalafi [main programmer,designer],[Iran],[amindelavar@hotmail.com]
 
 Events
 --------
@@ -217,7 +220,7 @@ Events
 MPL is best choice FOR
 --------
 
-* build tools of personal projects or big projects
-* start to learning the programming world
-* create small and common tools for programmers
-* personal programming for spend time
+1. build tools of personal projects or big projects
+2. start to learning the programming world
+3. create small and common tools for programmers
+4. personal programming for spend timeend time

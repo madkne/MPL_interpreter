@@ -355,72 +355,80 @@ long_int return_var_id(String var_name, String var_index) {
 String return_value_var_complete(long_int var_index) {
 	//******************init vars
 	if (var_index == 0) {
-		
 		return 0;
 	}
-	long_int po_id = get_Mvar(var_index).pointer_id;
+	Mvar mvar = get_Mvar(var_index);
+	long_int po_id = mvar.pointer_id;
 	String final_value = 0;
-	longint_list store_po;
+	str_list store_po;
 	uint32 items_count = 0, store_po_len = 0;
+	//printf("!!!!!#################:%i,%i,%s\n",var_index,po_id,mvar.name);
 	//show_memory(0)
-	
+	//printf("-----------------------VAR_COMPLETEL:%s %i:\n", mvar.name, mvar.type_var);
 	//******************analyzing
 	for (;;) {
+		//printf("Store_Po:%s\n", print_str_list(store_po, store_po_len));
 		if (store_po_len > 0) {
-			po_id = store_po[0];
-			longint_list_delete_first(&store_po, store_po_len--);
+			//end of array or struct
+			if (str_equal(store_po[0], "p") || str_equal(store_po[0], "l")) {
+				if (str_equal(store_po[0], "p"))final_value = char_append(final_value, '}');
+				else final_value = char_append(final_value, ')');
+				str_list_delete_first(&store_po, store_po_len--);
+				if (store_po_len > 0 && !str_equal(store_po[0], "p") && !str_equal(store_po[0], "l")) {
+					final_value = char_append(final_value, ',');
+					//items_count++;
+				} else if (store_po_len == 0)break;
+				continue;
+			} else {
+				po_id = str_to_long_int(store_po[0]);
+				str_list_delete_first(&store_po, store_po_len--);
+			}
 		}
 		if (po_id == 0 && store_po_len == 0) break;
-		if (po_id == 0) {
-			final_value = char_append(final_value, '}');
-			if (store_po_len > 0 && store_po[0] != 0) {
-				final_value = char_append(final_value, ',');
-				items_count++;
-			}
-			continue;
-		}
 		long_int po_ind = find_index_pointer_memory(po_id);
 		if (po_ind == 0) break;
 		//msg("RTE:", pointer_memory[po_ind])
 		Mpoint mpoint = get_Mpoint(po_ind);
-		if (mpoint.type_data == 'p') {
+		//if type is a pointer or a struct
+		if (mpoint.type_data == 'p' || mpoint.type_data == 'l') {
 			str_list st;
+			uint8 end_node = '0';
 			uint32 count = char_split(mpoint.data, ';', &st, true);
-			final_value = char_append(final_value, '{');
-			longint_list tmp_store = 0;
+			if (mpoint.type_data == 'p' && count > 1) {
+				final_value = char_append(final_value, '{');
+				end_node = 'p';
+			} else if ((mpoint.type_data == 'l')) {
+				final_value = str_append(final_value, "struct(");
+				end_node = 'l';
+			}
+			str_list tmp_store = 0;
 			uint32 tmp_store_len = 0;
 			for (uint32 b = 0; b < count; b++) {
-				longint_list_append(&tmp_store, tmp_store_len++, str_to_long_int(st[b]));
+				str_list_append(&tmp_store, st[b], tmp_store_len++);
 			}
-			longint_list_append(&tmp_store, tmp_store_len++, 0);
-			longint_list tmp1;
-			uint32 tmp1_len = store_po_len;
-			longint_list_init(&tmp1, store_po, store_po_len);
-			longint_list_init(&store_po, tmp_store, tmp_store_len);
-			store_po_len = tmp_store_len;
-			for (uint32 n = 0; n < tmp1_len; n++) {
-				longint_list_append(&store_po, store_po_len, tmp1[n]);
+			if (end_node != '0') {
+				str_list_append(&tmp_store, char_to_str(end_node), tmp_store_len++);
 			}
-			//msg("####QQQ:\n", store_po)
-			
-		} else if (mpoint.type_data != 'p') {
+			store_po_len = str_list_join(&store_po, tmp_store, tmp_store_len, store_po, store_po_len);
+		}
+			//if type is a data
+		else {
 			if (mpoint.type_data == 's') {
 				str_init(&mpoint.data, convert_to_string(mpoint.data));
 			} else if (mpoint.type_data == 'i' || mpoint.type_data == 'f' || mpoint.type_data == 'h') {
 				mpoint.data = char_append(mpoint.data, mpoint.type_data);
 			}
 			final_value = str_append(final_value, mpoint.data);
-			if (store_po_len > 0 && store_po[0] != 0) {
+			if (store_po_len > 0 && !str_equal(store_po[0], "p") && !str_equal(store_po[0], "l")) {
 				final_value = char_append(final_value, ',');
-				items_count++;
+				//items_count++;
 			}
 			//msg("&CCXXXX:", var_memory[var_index].name, data, string(typ))
 		}
 	}
-	final_value = char_append(final_value, '}');
-	if (items_count == 0 && str_length(final_value) > 1) {
+	/*if (items_count == 0 && str_length(final_value) > 1) {
 		final_value = str_substring(final_value, 1, str_length(final_value) - 1);
-	}
+	}*/
 	//msg("&*****$$$$COPY:", final_value, var_memory[var_index].pointer_id, var_memory[var_index].name, var_index)
 	return final_value;
 }
@@ -511,9 +519,10 @@ String calculate_struct_expression(String value, String type_var, uint8 *sub_typ
 		//printf("ZZZZ:%s\n",st_values[j]);
 		//-----is a var
 		if (is_valid_name(st_values[j], true) && return_var_id(st_values[j], "0") > 0) {
-			st_values[j] = return_value_var_complete(find_index_var_memory(return_var_id(st_values[j], "0")));
+			String ret0 = return_value_var_complete(find_index_var_memory(return_var_id(st_values[j], "0")));
+			//printf("$$$$8:%s=>%s\n", st_values[j], ret0);
+			str_init(&st_values[j], ret0);
 			val_len = str_length(st_values[j]);
-			//printf("$$$$8:%s\n",st_values[j]);
 		}
 		//-----is an array
 		if (val_len > 2 && st_values[j][0] == '{' && st_values[j][val_len - 1] == '}') {
@@ -524,7 +533,7 @@ String calculate_struct_expression(String value, String type_var, uint8 *sub_typ
 			uint32 indexes_len = char_split(attrs[2], ',', &indexes, true);
 			*/
 			vaar_en s = return_value_dimensions(st_values[j], attrs[0], max_indexes, indexes_len);
-			print_vaar(s);
+			//print_vaar(s);
 			vaar *tmp1 = s.start;
 			if (tmp1 != 0) {
 				for (;;) {
@@ -547,7 +556,7 @@ String calculate_struct_expression(String value, String type_var, uint8 *sub_typ
 			uint8 sub_type = '0';
 			calculate_value_of_var(st_values[j], attrs[0], &main_value, &sub_type);
 			//-----
-			//printf("OOOOO:%s,%s,%c,%s\n", st_values[j], main_value, sub_type,print_str_list(attrs, attrs_len));
+			//printf("OOOOO:%s,%s,%c,%s\n", st_values[j], main_value, sub_type, print_str_list(attrs, attrs_len));
 			vaar s = {j, sub_type, main_value, "1", 0};
 			append_vaar(s, &struct_node.st);
 		}
@@ -555,7 +564,7 @@ String calculate_struct_expression(String value, String type_var, uint8 *sub_typ
 	//--------------------
 	append_stde(struct_node);
 	printf("@STRUCT:%s=>[%i]%s\n", value, st_values_len, print_str_list(st_values, st_values_len));
-	print_vaar(struct_node.st);
+	//print_vaar(struct_node.st);
 	return str_from_long_int(struct_node.id);
 }
 
@@ -650,9 +659,10 @@ vaar_en return_value_dimensions(String value, String type_var, int32 indexes[], 
 	samples:
 	- {{0b001010,78,0x56},{-456.88678,9999,0.99}}
 	- {{3,-8,9.78},{(243^34)/4+56.5,8f,null},{0x45,0o34,0b01011},{-3454,45h,12.4i}}
+	 - {struct(5,"hjj"),struct(57878,"amin")}
 	*/
 	//--------------------init vars
-	Boolean is_string = false;
+	Boolean is_string = false, is_struct = false;
 	vaar_en vals_array = {0, 0, 0};
 	vaar_en null = {0, 0, 0};
 	uint8 pars = 0/*count of parenthesis*/, bras = 0/*count of brackets*/, acos = 0/*count of acolads*/, count_d = 0/*count of dimensions */;
@@ -707,6 +717,7 @@ vaar_en return_value_dimensions(String value, String type_var, int32 indexes[], 
 			//------
 			pars = 0, bras = 0, acos = 0;
 			String buf = 0;
+			is_struct = false;
 			//------
 			for (uint32 c = 0; c < ent_len; c++) {
 				//========check is string
@@ -722,14 +733,24 @@ vaar_en return_value_dimensions(String value, String type_var, int32 indexes[], 
 					else if (entries[b][c] == '{')acos++;
 					else if (entries[b][c] == '}')acos--;
 				}
+				//========is struct
+				if (!is_string && entries[b][c] == '(' && pars == 1 && bras == 0 && acos == 0 &&
+						str_equal(str_trim_space(buf), "struct")) {
+					is_struct = true;
+				} else if (!is_string && is_struct && entries[b][c] == ')' && pars == 0 && bras == 0 && acos == 0) {
+					is_struct = false;
+				}
 				//========split segments
-				if (!is_string && pars == 0 && bras == 0 && acos == 0 && (entries[b][c] == ',' || c + 1 == ent_len)) {
+				if (!is_string && !is_struct && pars == 0 && bras == 0 && acos == 0 &&
+						(entries[b][c] == ',' || c + 1 == ent_len)) {
 					str_list_append(&tmp_entries, buf, tmp_entries_len++);
+					printf("E$RR:%s\n", buf);
 					//----last step:register in vals_array
 					if (i + 1 == indexes_len) {
 						String sec_type = determine_value_type(buf);
-						if (!str_equal(sec_type, type_var) && !str_equal(sec_type, "null")) {
-							exception_handler("val_def_var", "set_memory_var", buf, type_var);
+						if (!str_equal(sec_type, type_var) && !str_equal(sec_type, "null") &&
+								!str_equal(sec_type, "struct")) {
+							exception_handler("val_def_var", __func__, buf, type_var);
 							return null;
 						}
 						//-----
@@ -768,6 +789,7 @@ String determine_value_type(String val) {
 	String final_type = 0, word = 0;
 	str_init(&final_type, "num");
 	//****************analyzing
+	if (str_indexof(str_trim_space(val), "struct", 0) == 0)return "struct";
 	if (str_equal(val, "null")) {
 		return "null";
 	}

@@ -9,13 +9,17 @@ func main(){
 	//num n[4,3],str s,s={{3,-8,9.78},{(24^3)/4+56.5,8f,null},{0x45,0o34+4,0b01011},{-3454,45h,12.4i}},"سلام"+" !"
 	num j=56
 	//bool bb[2]={(j>=56)&&false,false||true}
+	__define["Hello"]=j
 	struct gg{
 		bool b[?],
 		num n
 	}
+	struct gg1{
+		gg g,str u
+	}
 	bool bb[2]={true,false}
-	gg ss=struct(bb,67)
-	
+	//gg ss=struct(bb,67)
+	//gg1 ss1[2]={struct(ss,"rt"),struct(struct(true,123424),"Amin")}
 	//str s="Hello to %j% !!!"+" ..."
 	/*print("Hello World!\n")
 	j1++

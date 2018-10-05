@@ -7,6 +7,7 @@
 //---------------------------------settings information
 #include "settings.h"
 //---------------------------------standard C functions
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <malloc.h>

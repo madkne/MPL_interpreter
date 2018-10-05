@@ -109,10 +109,15 @@ int8 INSTRUCTION_EXECUTOR(long_int index) {
 				exception_handler("unknown_instruction", "INSTRUCTION_EXECUTOR", Rcode, "");
 				break;
 			}
-			case DEF_VARS_LBL_INST:
+			case DEF_VARS_LBL_INST: {
 				Rcode = define_vars(Rcode);
 				if (str_equal(Rcode, "bad")) is_done = false;
 				break;
+			}
+			case ALLOC_MAGIC_MACROS_LBL_INST: {
+				
+				break;
+			}
 			case FUNC_CALL_LBL_INST:
 				is_done = false;
 				//Rcode = function_call(Rcode, 0);

@@ -6,6 +6,8 @@
 #define MPL_DATA_DEFINED_H
 
 //******************************data values
+clock_t AppStartedClock;
+String AppStartedTime;
 uint8 is_programmer_debug;
 String project_root;
 String main_source_name;

@@ -4,6 +4,10 @@
 
 String read_input();
 
+String get_host_name();
+
+long_int get_pid();
+
 String get_absolute_path(String path);
 
 Boolean switch_bool(Boolean b);
@@ -14,7 +18,11 @@ void longint_list_delete_first(longint_list *s, uint32 len);
 
 void longint_list_append(longint_list *s, uint32 len, long_int n);
 
+uint32 longint_list_join(longint_list *s, longint_list a1, uint32 a1_len, longint_list a2, uint32 a2_len);
+
 void longint_list_init(longint_list *s, longint_list val, uint32 len);
+
+String longint_list_print(longint_list s, uint32 len);
 
 double int32_power(double base, int32 power);
 
@@ -31,6 +39,10 @@ utst return_utf8_string_value(String s);
 void str_list_append(str_list *s, String s1, uint32 len);
 
 void str_list_init(str_list *s, str_list val, uint32 len);
+
+void str_list_delete_first(str_list *s, uint32 len);
+
+uint32 str_list_join(str_list *s, str_list a1, uint32 a1_len, str_list a2, uint32 a2_len);
 
 Boolean str_list_equal(str_list s1, uint32 len1, str_list s2, uint32 len2);
 

@@ -8,7 +8,7 @@ void init_memory() {
 	entry_table.var_memory_start = 0;
 	entry_table.pointer_memory_start = 0;
 	entry_table.var_mem_id = 0;
-	entry_table.pointer_mem_id = 0;
+	entry_table.pointer_mem_id = 1;
 	entry_table.var_mem_len = 0;
 	entry_table.pointer_mem_len = 0;
 	//----------------------------
@@ -16,7 +16,7 @@ void init_memory() {
 	append_Mvar(tmp1);
 	Mpoint tmp2 = {0, 0, '0'};
 	append_Mpoint(tmp2);
-	Mpoint tmp3 = {0, 0, 'v'};
+	Mpoint tmp3 = {1, 0, 'v'};
 	append_Mpoint(tmp3);
 }
 
@@ -331,6 +331,7 @@ set_memory_var(long_int fin, long_int sid, String name, String value_var, String
 			printf("###########failed2\n");
 			return 0;
 		}
+		printf("----SSSSW:%s[%s]=>%s[%c]\n", value_var, type_var, main_value, sub_type);
 		indexes_len = 1;
 		max_indexes[0] = 1;
 		//-----
@@ -343,66 +344,22 @@ set_memory_var(long_int fin, long_int sid, String name, String value_var, String
 	datas data_type = search_datas(type_var, entry_table.cur_fid, false);
 	//printf("#$EEEE:%s,%i,%s\n",type_var,data_type.id,data_type.name);
 	//*******************************************add to memory
-	//if len(name) > 0 && name[0] == '@'
-	//{
-	//printf("=================SET_VAR:\n%s %s(fin:%i,sid:%i,fid:%i)\n%s\n=================\n", type_var, name, fin, sid,entry_table.cur_fid, value_var);
-	//}
 	//******************add to pointer_memory
 	longint_list pointers_id = 0;
 	uint32 pointers_id_len = 0;
 	//-------------create data pointers (last nodes)
 	vaar *st = vals_array.start;
 	for (;;) {
+		//is a struct node
 		if (is_struct) {
-			longint_list tmp_po_id = 0, struct_po_id = 0;
-			uint32 tmp_po_id_len = 0, struct_po_id_len = 0;
 			long_int stde_id = str_to_long_int(st->value);
 			stde s = get_stde(stde_id);
-			vaar *tmp1 = s.st.start;
-			uint32 co = 0;
-			int32 tmp_max_indexes[MAX_ARRAY_DIMENSIONS];
-			uint8 tmp_indexes_len = 0;
-			if (tmp1 != 0) {
-				for (;;) {
-					//when switch to next item:create last node and create parent pointers
-					if (tmp1 == 0 || tmp1->data_id == co + 1) {
-						co++;
-						long_int po_id = set_parent_nodes_Mpoint(tmp_max_indexes, tmp_indexes_len, tmp_po_id,
-								tmp_po_id_len);
-						//printf("@WWW:%i,%i,%i\n", po_id, tmp_max_indexes[0], tmp_indexes_len);
-						longint_list_append(&struct_po_id, struct_po_id_len++, po_id);
-						tmp_po_id = 0;
-						tmp_po_id_len = 0;
-						tmp_indexes_len = 0;
-						if (tmp1 == 0) break;
-					}
-					//first time for any items:get max_indexes
-					if (tmp_indexes_len == 0) {
-						str_list ret1 = 0;
-						tmp_indexes_len = (uint8) char_split(tmp1->index, ';', &ret1, true);
-						for (uint8 b = 0; b < tmp_indexes_len; b++) {
-							tmp_max_indexes[b] = str_to_int32(ret1[b]);
-						}
-					}
-					//when select an item:create last node for item and save its id
-					if (tmp1->data_id == co) {
-						long_int po = add_to_pointer_memory(tmp1->value, tmp1->sub_type);
-						longint_list_append(&tmp_po_id, tmp_po_id_len++, po);
-					}
-					//go to next item
-					tmp1 = tmp1->next;
-				}
-				//create struct node as a single room
-				String struct_val = 0;
-				for (uint32 i = 0; i < struct_po_id_len; ++i) {
-					//printf("RRRE:%i\n", struct_po_id[i]);
-					struct_val = str_append(struct_val, str_from_long_int(struct_po_id[i]));
-					if (i + 1 < struct_po_id_len)struct_val = char_append(struct_val, ';');
-				}
-				long_int po = add_to_pointer_memory(struct_val, 'l');
-				longint_list_append(&pointers_id, pointers_id_len++, po);
-			}
-		} else {
+			long_int po = set_struct_node_Mpoint(s.st);
+			if (po == 0) continue;
+			longint_list_append(&pointers_id, pointers_id_len++, po);
+		}
+			//is a normal node
+		else {
 			long_int po = add_to_pointer_memory(st->value, st->sub_type);
 			longint_list_append(&pointers_id, pointers_id_len++, po);
 		}
@@ -421,6 +378,66 @@ set_memory_var(long_int fin, long_int sid, String name, String value_var, String
 	//msg("&&&", value_var, first_pointer, pid, fin, sid, class_type, pack_type, name, prop)
 	
 	return 0;
+}
+
+//****************************************************
+/**
+ * get collection of vaar items and create its pointers and finally return id of last pointer that has struct node
+ * @param st
+ * @return long_int
+ */
+long_int set_struct_node_Mpoint(vaar_en st) {
+	longint_list tmp_po_id = 0, struct_po_id = 0;
+	uint32 tmp_po_id_len = 0, struct_po_id_len = 0;
+	vaar *tmp1 = st.start;
+	uint32 co = 0;
+	int32 tmp_max_indexes[MAX_ARRAY_DIMENSIONS];
+	uint8 tmp_indexes_len = 0;
+	if (tmp1 == 0)return 0;
+	for (;;) {
+		//when switch to next item:create last node and create parent pointers
+		if (tmp1 == 0 || tmp1->data_id == co + 1) {
+			co++;
+			long_int po_id = set_parent_nodes_Mpoint(tmp_max_indexes, tmp_indexes_len, tmp_po_id, tmp_po_id_len);
+			//printf("@WWW:%i,%i,%i\n", po_id, tmp_max_indexes[0], tmp_indexes_len);
+			longint_list_append(&struct_po_id, struct_po_id_len++, po_id);
+			tmp_po_id = 0;
+			tmp_po_id_len = 0;
+			tmp_indexes_len = 0;
+			if (tmp1 == 0) break;
+		}
+		//first time for any items:get max_indexes
+		if (tmp_indexes_len == 0) {
+			str_list ret1 = 0;
+			tmp_indexes_len = (uint8) char_split(tmp1->index, ';', &ret1, true);
+			for (uint8 b = 0; b < tmp_indexes_len; b++) {
+				tmp_max_indexes[b] = str_to_int32(ret1[b]);
+			}
+		}
+		//when select an item:create last node for item and save its id
+		if (tmp1->data_id == co) {
+			long_int po = 0;
+			if (tmp1->sub_type == 'l') {
+				long_int stde_id = str_to_long_int(tmp1->value);
+				stde s = get_stde(stde_id);
+				po = set_struct_node_Mpoint(s.st);
+			} else {
+				po = add_to_pointer_memory(tmp1->value, tmp1->sub_type);
+			}
+			longint_list_append(&tmp_po_id, tmp_po_id_len++, po);
+		}
+		//go to next item
+		tmp1 = tmp1->next;
+	}
+	//create struct node as a single room
+	String struct_val = 0;
+	for (uint32 i = 0; i < struct_po_id_len; ++i) {
+		//printf("RRRE:%i\n", struct_po_id[i]);
+		struct_val = str_append(struct_val, str_from_long_int(struct_po_id[i]));
+		if (i + 1 < struct_po_id_len)struct_val = char_append(struct_val, ';');
+	}
+	long_int po = add_to_pointer_memory(struct_val, 'l');
+	return po;
 }
 
 //****************************************************
