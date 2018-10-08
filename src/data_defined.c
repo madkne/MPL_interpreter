@@ -17,8 +17,9 @@ String tab_size = "\t\t\t\t\t\t"; //6
 uint8 tab_size_int = 6;
 
 uint8 max_estimate_divide_huge = 8;
-uint8 max_float_estimate_huge_X0 = 3;
-uint8 max_steps_estimate_huge = 4;
+uint8 max_float_estimate_huge_X0 = 4;
+uint8 max_steps_estimate_huge = 8;
+uint32 max_decimal_has_huge=10;
 String set_logfile_path = 0;
 String new_line_char = "\n";
 String os_tmp_dir = 0;
@@ -71,6 +72,17 @@ uint32 argvs_len = 0;
 //*********************public functions************************
 //*************************************************************
 void init_database() {
+	//---------------init project_root
+	str_list entries, filename;
+	uint32 size = char_split(stdin_source_path, OS_SEPARATOR, &entries, true);
+	char_split(entries[size - 1], '.', &filename, true);
+	String Fsrc = filename[0];
+	str_init(&main_source_name, Fsrc);
+	project_root = char_join(entries, OS_SEPARATOR, size - 1, true);
+	//printf("GGGGG:%s,%s\n",project_root,stdin_source_path);
+	if (LINUX_PLATFORM == 1) {
+		project_root = str_append("/", project_root);
+	}
 	//---------------init max_int ,max_float
 	MAX_INT_LEN = INT_USED_BYTES * 2;
 	MAX_FLOAT_LEN = (FLOAT_USED_BYTES * 2) - 2;
@@ -424,6 +436,19 @@ void append_datas(datas s) {
 }
 
 //*************************************************************
+datas get_datas(long_int id) {
+	datas null = {0, 0, 0, 0, 0, 0};
+	datas *st = entry_table.datas_start;
+	if (st == 0) return null;
+	for (;;) {
+		if (st->id == id) return (*st);
+		st = st->next;
+		if (st == 0) break;
+	}
+	return null;
+}
+
+//*************************************************************
 datas search_datas(String name, long_int fid, Boolean is_all) {
 	datas null = {0, 0, 0, 0, 0, 0};
 	datas *st = entry_table.datas_start;
@@ -619,6 +644,21 @@ void add_to_mama(uint8 type, uint8 sub_type, String key, String value) {
 }
 
 //*************************************************************
+mama get_mama(uint8 type, String key) {
+	mama null = {0, 0, 0, 0, 0, 0};
+	mama *tmp1 = entry_table.mama_start;
+	if (tmp1 == 0) return null;
+	for (;;) {
+		if (tmp1->type == type && str_equal(tmp1->key, key)) {
+			return (*tmp1);
+		}
+		tmp1 = tmp1->next;
+		if (tmp1 == 0) break;
+	}
+	return null;
+}
+
+//*************************************************************
 //********************vals_array functions*********************
 //*************************************************************
 void append_vaar(vaar s, vaar_en *s1) {
@@ -642,7 +682,7 @@ void append_vaar(vaar s, vaar_en *s1) {
 //*************************************************************
 void print_vaar(vaar_en s) {
 	vaar *tmp1 = s.start;
-	if(tmp1==0) {
+	if (tmp1 == 0) {
 		printf("--NULL-- Vars_Array_struct\n");
 		return;
 	}
@@ -675,13 +715,14 @@ void append_stde(stde s) {
 		entry_table.stde_end = q;
 	}
 }
+
 //*************************************************************
-stde get_stde(long_int id){
-	stde null={0,0,0};
+stde get_stde(long_int id) {
+	stde null = {0, 0, 0};
 	stde *tmp1 = entry_table.stde_start;
 	if (tmp1 == 0) return null;
 	for (;;) {
-		if (tmp1->id==id) {
+		if (tmp1->id == id) {
 			return (*tmp1);
 		}
 		tmp1 = tmp1->next;

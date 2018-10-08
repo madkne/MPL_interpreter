@@ -68,7 +68,13 @@ String str_trim_optimized_boolean(String str);
 
 String str_trim_number(String str);
 
+String str_trim_last_float(String str);
+
 Boolean str_has_suffix(String s, String find);
+
+String str_make_negative_number(String s);
+
+void str_detachment_float(String s, String *s1, String *s2);
 
 //***********************************************************************************
 String char_join(str_list s, uint8 sp, uint32 size, Boolean is_remove_empty);

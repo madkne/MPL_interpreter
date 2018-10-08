@@ -4,6 +4,8 @@
 #include <MPL/system.h>
 
 Boolean start_runtime() {
+	//*************init global vars
+	init_global_vars();
 	//*************init variables
 	entry_table.func_index++; //add one for main() function
 	//add_to_prev_fins_array(0)
@@ -16,13 +18,9 @@ Boolean start_runtime() {
 	}
 	entry_table.cur_fid = main_func.id;
 	//printf("LLLL:%i,%s\n",main_func.id,main_func.lbl);
-	//*************init global vars
-	//init_global_vars();
 	//*************start program from fid=2,fin=2,sid=0,order=1
 	APP_CONTROLLER();
 	//*************return
-	//msg("\t----------------------\n", run_order)
-	//show_memory(0)
 	return true;
 }
 
@@ -106,7 +104,7 @@ int8 INSTRUCTION_EXECUTOR(long_int index) {
 		switch (state) {
 			case UNKNOWN_LBL_INST: {
 				is_done = false;
-				exception_handler("unknown_instruction", "INSTRUCTION_EXECUTOR", Rcode, "");
+				exception_handler("unknown_instruction", __func__, Rcode, "");
 				break;
 			}
 			case DEF_VARS_LBL_INST: {
@@ -115,7 +113,8 @@ int8 INSTRUCTION_EXECUTOR(long_int index) {
 				break;
 			}
 			case ALLOC_MAGIC_MACROS_LBL_INST: {
-				
+				Rcode = alloc_magic_macros(Rcode);
+				if (str_equal(Rcode, "bad")) is_done = false;
 				break;
 			}
 			case FUNC_CALL_LBL_INST:
@@ -184,23 +183,48 @@ int8 INSTRUCTION_EXECUTOR(long_int index) {
 //******************************
 Boolean init_global_vars() {
 	long_int order = 1;
+	entry_table.cur_fin = 0;
+	entry_table.cur_sid = 0;
+	entry_table.cur_fid = 0;
 	instru *st = entry_table.instru_start;
 	if (st == 0) return false;
 	for (;;) {
 		if (st->func_id == 0 && st->order == order) {
-			printf("IIIII:%s\n", st->code);
-			uint8 count = 0;
-			//count = alloc_magic_macros(st->code);
-			
-			if (count == 0) {
-				def_var_s vars_store[MAX_VAR_ALLOC_INSTRUCTIONS];
-				count = define_vars_analyzing(st->code, vars_store);
-				printf("XXXXXX:\n");
-				for (int i = 0; i < count; ++i) {
-					printf("VVVV:%s,%s\n", vars_store[i].name_var, vars_store[i].value_var);
+			String Rcode = str_trim_space(st->code);
+			entry_table.Rline = st->line;
+			Boolean is_done = true;
+			uint8 state = labeled_instruction(Rcode);
+			if (is_programmer_debug >= 0) {
+				printf("@###############GLOBAL_INST(State:%i,fin:%i,line:%i):\n%s\n@###############\n", state,
+						entry_table.cur_fin, entry_table.Rline, Rcode);
+			}
+			//********************
+			switch (state) {
+				case DEF_VARS_LBL_INST: {
+					Rcode = define_vars(Rcode);
+					if (str_equal(Rcode, "bad")) is_done = false;
+					break;
+				}
+				case ALLOC_MAGIC_MACROS_LBL_INST: {
+					Rcode = alloc_magic_macros(Rcode);
+					if (str_equal(Rcode, "bad")) is_done = false;
+					break;
+				}
+				default: {
+					is_done = false;
+					exception_handler("incorrect_global_inst", __func__, Rcode, 0);
+					break;
 				}
 			}
-			
+			//********************is DONE!!
+			if (is_programmer_debug >= 2) {
+				if (is_done) {
+					printf("~~~~~~~~~~~~~~~~~~>DONE :)\n\n");
+				} else {
+					printf("~~~~~~~~~~~~~~~~~~>BREAK :(\n\n");
+				}
+				//show_prev_fins_array()
+			}
 		}
 		order++;
 		st = st->next;

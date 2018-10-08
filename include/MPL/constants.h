@@ -7,7 +7,7 @@
 
 //**************************************************define interpreter constants
 #define  APP_NAME                       "Mini Portable Language"
-#define  VERSION                        "0.1.28"               //1.10.100
+#define  VERSION                        "0.1.49"               //1.10.100
 #define  VERSION_NAME                   "BETA"
 #define  SLOGAN                         "The solution to common problems of programmers" //راه حل کارهای متداول برنامه
 // نویسان
@@ -136,6 +136,7 @@
 //------------------------------------------used in built_in-determine type of magic macros
 #define   DEFINE_MAGIC_MACRO_TYPE       1
 #define   CONFIG_MAGIC_MACRO_TYPE       2
+#define   SESSION_MAGIC_MACRO_TYPE      3
 //------------------------------------------used in built_in-determine type of magic
 #define   FAILED_EXECUTE_INSTRUCTION    1
 #define   SUCCESS_EXECUTE_INSTRUCTION   2

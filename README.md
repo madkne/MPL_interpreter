@@ -46,13 +46,16 @@ TODO
 * define complex struct expressions **[OK]**
 * set built-in __define variables **[OK]**
 * set built-in __config variables **[OK]**
-* set new __define [..]
-* define global vars
-* use magic macros in define vars
-* edit __config
-* calculate huge numbers
-* implement function call
-* init func parameters
+* using magic macros **[OK]**
+* set new __define **[OK]**
+* define global vars **[OK]**
+* edit __config **[OK]**
+* calculate sum huge numbers **[OK]**
+* calculate multiplication huge numbers **[OK]**
+* calculate division huge numbers **[OK]**
+* calculate power huge numbers **[OK]**
+* implement function call **[..]**
+* init func parameters **[..]**
 * call built-in functions
 * implement return
 * implement alloc_vars
@@ -73,6 +76,7 @@ TODO
 * start review_array_loop
 * implement next
 * implement break
+* set new __session
 * create offline documentation of mpl
 * complete import error_handling
 * complete mpl built-in functions
@@ -90,6 +94,7 @@ TODO
 * complete support utf8
 * complete offline docs
 * complete sample codes
+* optimizing huge numbers
 * optimizing RAM,CPU usage
 
 ### <<publish BETA version of MPL (for windows)>>

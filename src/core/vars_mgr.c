@@ -744,7 +744,7 @@ vaar_en return_value_dimensions(String value, String type_var, int32 indexes[], 
 				if (!is_string && !is_struct && pars == 0 && bras == 0 && acos == 0 &&
 						(entries[b][c] == ',' || c + 1 == ent_len)) {
 					str_list_append(&tmp_entries, buf, tmp_entries_len++);
-					printf("E$RR:%s\n", buf);
+					//printf("E$RR:%s\n", buf);
 					//----last step:register in vals_array
 					if (i + 1 == indexes_len) {
 						String sec_type = determine_value_type(buf);
@@ -788,6 +788,15 @@ String determine_value_type(String val) {
 	Boolean is_string = false;
 	String final_type = 0, word = 0;
 	str_init(&final_type, "num");
+	//****************if a var
+	if (is_valid_name(val, true)) {
+		String name = 0, index = 0;
+		return_name_index_var(val, true, &name, &index);
+		long_int ret_id = return_var_id(name, 0);
+		if (ret_id > 0) {
+			return get_datas(get_Mvar(find_index_var_memory(ret_id)).type_var).name;
+		}
+	}
 	//****************analyzing
 	if (str_indexof(str_trim_space(val), "struct", 0) == 0)return "struct";
 	if (str_equal(val, "null")) {
@@ -839,8 +848,18 @@ String determine_value_type(String val) {
  * @param ret_subtype
  */
 void calculate_value_of_var(String value, String type, String *ret_value, uint8 *ret_subtype) {
-	//printf("&YYYY:%s,%s\n", value, type);
 	uint8 sub_type = '0';
+	//----------------if is a variable
+	if (is_valid_name(value, true)) {
+		Mpoint m = return_var_memory_value(value);
+		if (m.id > 0) {
+			(*ret_value) = str_reomve_quotations(m.data, type);
+			(*ret_subtype) = m.type_data;
+			return;
+		}
+	}
+	//printf("&YYYY:%s,%s,%i\n", value, type,m.id);
+	//----------------
 	if (str_equal(type, "num")) {
 		calculate_math_expression(value, '_', &(*ret_value), &(*ret_subtype));
 	} else if (str_equal(type, "str")) {
@@ -1579,7 +1598,7 @@ void calculate_string_expression(String exp, String *value, uint8 *sub_type) {
 			}
 			//***************
 			if (!is_valid_val) {
-				exception_handler("invalid_exp_val", "calculate_string_expression:136", buf, "str");
+				exception_handler("invalid_exp_val", __func__, buf, "str");
 				str_init(&(*value), 0);
 				(*sub_type) = '0';
 				return;
@@ -1772,6 +1791,7 @@ void calculate_math_expression(String exp, uint8 target_type, String *retval, ui
 	}
 	//----------------if is ()
 	exp = remove_unused_parenthesis(exp);
+	
 	uint32 len_exp = str_length(exp);
 	
 	if (len_exp == 1 && (exp[0] < '0' || exp[0] > '9')) {
@@ -1783,7 +1803,7 @@ void calculate_math_expression(String exp, uint8 target_type, String *retval, ui
 	len_exp++;
 	//printf("&UUU:%s,%c,%i\n", exp, type_exp,len_exp);
 	//******************
-	for (uint32 i = 0; i < len_exp; i++) {
+	for (uint32 i = 0; i < str_length(exp); i++) {
 		if (exp[i] == ' ')continue;
 		else if (exp[i] == '(' && bra == 0) {
 			pars++;
@@ -1885,7 +1905,7 @@ void calculate_math_expression(String exp, uint8 target_type, String *retval, ui
 			} else if (type_exp == 'f' && str_length(result) > MAX_FLOAT_LEN) {
 				result = resize_to_float(result);
 			}
-			//msg("&VVV", num1, num2, op, string(type_exp), result)
+			//printf("&VVV:%s,%s,%c,%c=>%s\n", num1, num2, op, type_exp, result);
 			//*************replace the result
 			String s1 = 0, s2 = 0, expression = 0;
 			s1 = str_trim_space(str_substring(exp, 0, starting));
@@ -1901,7 +1921,7 @@ void calculate_math_expression(String exp, uint8 target_type, String *retval, ui
 			
 			//*************end calculate
 			//msg("DDDD:", starting)
-			//fmt.Printf("CALC:%s%s%s=%s\n\t%s\n", num1, op, num2, result, exp)
+			//printf("CALC:%s%c%s=%s\n\t%s\n", num1, op, num2, result, exp);
 			op = 0, num1 = 0, num2 = 0, buf = 0;
 			starting = -1, pars = 0;
 			i = -1;
@@ -1983,11 +2003,11 @@ String calculate_two_numbers(String num1, String num2, uint8 op, uint8 type_exp)
 	//msg("&$$$", num1, num2, op, string(type_exp))
 	//*********************************search for errors and warnings
 	if (op == '/' && str_equal(num2, "0")) {
-		exception_handler("zero_division", "calculate_two_numbers", str_multi_append(num1, "/", num2, 0, 0, 0), "");
+		exception_handler("zero_division", __func__, str_multi_append(num1, "/", num2, 0, 0, 0), "");
 		return "0";
 	} else if (op == '%' && (type_exp == 'f' || type_exp == 'h')) {
 		//com_type, _, _ := fitting_value(string(type_exp), "", "com_type")
-		//exception_handler("wrong_remainder", "calculate_two_numbers", com_type, "")
+		//exception_handler("wrong_remainder", __func__, com_type, "")
 		//TODO:error
 		return "0";
 	}
@@ -2001,7 +2021,7 @@ String calculate_two_numbers(String num1, String num2, uint8 op, uint8 type_exp)
 		int32 n2 = str_to_int32(num2);
 		
 		if (op == '/' && n2 == 0) {
-			exception_handler("zero_division", "calculate_two_numbers", str_multi_append(num1, "/", num2, 0, 0, 0), "");
+			exception_handler("zero_division", __func__, str_multi_append(num1, "/", num2, 0, 0, 0), "");
 			return "0";
 		}
 		//msg("&TTT:", num1, n1, num2, n2)
@@ -2054,8 +2074,7 @@ String calculate_two_numbers(String num1, String num2, uint8 op, uint8 type_exp)
 			case '^': {
 				double ret = int32_power(n1, (int32) n2);
 				if (ret > MAX_FLOAT_NUMBER) {
-					exception_handler("out_of_range_float", "calculate_two_numbers",
-							str_multi_append(num1, "^", num2, 0, 0, 0), "");
+					exception_handler("out_of_range_float", __func__, str_multi_append(num1, "^", num2, 0, 0, 0), "");
 					return "0";
 				}
 				//printf("DDDDDDD:%f\n",ret);
@@ -2064,50 +2083,515 @@ String calculate_two_numbers(String num1, String num2, uint8 op, uint8 type_exp)
 			}
 		}
 	}
-	//----------------huge
-	//TODO:
-	/*else if (type_exp == 'h') {
-		//msg("&HHH:", num1, num2, op)
-		switch {
-			case op == "+":
-				result = sum_huge_numbers(num1, num2)
-			case op == "-":
-				result = sum_huge_numbers(num1, "-" + num2)
-			case op == "*":
-				result = muliply_huge_numbers(num1, num2)
-			case op == "/":
-				result = divide_huge_numbers(num1, num2)
-			case op == "^":
-				num2, _ := detachment_float_string(num2)
-				n2, _ := strconv.ParseInt(num2, 10, 64)
-				var
-				is_neg = false
-				var
-				b
-				int64 = 0
-				var
-				res = "1"
-				if n2 < 0
-				{
-					is_neg = true
-					n2 = -n2
+		//----------------huge
+	else if (type_exp == 'h') {
+		//printf("&HHH:%s,%s,%c\n", num1, num2, op);
+		switch (op) {
+			case '+':
+				result = sum_huge_numbers(num1, num2, false);
+				break;
+			case '-':
+				result = sum_huge_numbers(num1, num2, true);
+				break;
+			case '*':
+				result = muliply_huge_numbers(num1, num2);
+				break;
+			case '/':
+				result = divide_huge_numbers(num1, num2);
+				break;
+			case '^': {
+				str_detachment_float(num2, &num2, 0);
+				int32 n2 = str_to_int32(num2);
+				//printf("$$RR:%s=>%i\n",num2,n2);
+				Boolean is_neg = false;
+				int32 b = 0;
+				String res = 0;
+				str_init(&res, "1");
+				if (n2 < 0) {
+					is_neg = true;
+					n2 = -n2;
 				}
-				
-				for
-				b = 0;
-				b < n2;
-				b++
-				{
-					res = muliply_huge_numbers(res, num1)
+				for (uint32 b = 0; b < n2; b++) {
+					res = muliply_huge_numbers(res, num1);
 				}
-				if is_neg
-				{
-					res = divide_huge_numbers("1", res)
+				if (is_neg) {
+					res = divide_huge_numbers("1", res);
 				}
-				result = res
+				str_init(&result, res);
+				break;
+			}
 		}
-}*/
+	}
 	
+	return result;
+}
+
+//**************************************************************
+/**
+ * get two huge numbers and balance its integer and float segments and return it by a number that show position of start float like: 3.46,67=>0346,6700
+ * @param num1
+ * @param num2
+ * @param type_nums
+ * @param ret_num1
+ * @param ret_num2
+ * @return int32
+ */
+int32 balance_huge_numbers(String num1, String num2, uint8 type_nums, String *ret_num1, String *ret_num2) {
+	//****************init vars
+	uint32 num1_1_len = 0, num1_2_len = 0, num2_1_len = 0, num2_2_len = 0;
+	String num1_1 = 0, num1_2 = 0, num2_1 = 0, num2_2 = 0;
+	uint8 op1 = '+', op2 = '+';
+	int32 point = -1;
+	uint32 num1_len = str_length(num1);
+	uint32 num2_len = str_length(num2);
+	//****************determine num1,num2 len & determine op1,op2
+	/*rnum1 := num1
+	rnum2 := num2*/
+	Boolean is_point = false;
+	uint32 ii = 0;
+	if (num1_len > 0 && num1[0] == '-') {
+		ii++;
+		op1 = '-';
+	}
+	for (; ii < num1_len; ii++) {
+		if (num1[ii] == '.') {
+			is_point = true;
+			continue;
+		}
+		if (!is_point) {
+			num1_1_len++;
+			num1_1 = char_append(num1_1, num1[ii]);
+		} else {
+			num1_2_len++;
+			num1_2 = char_append(num1_2, num1[ii]);
+		}
+	}
+	is_point = false;
+	ii = 0;
+	if (num2_len > 0 && num2[0] == '-') {
+		ii++;
+		op2 = '-';
+	}
+	for (; ii < num2_len; ii++) {
+		if (num2[ii] == '.') {
+			is_point = true;
+			continue;
+		}
+		if (!is_point) {
+			num2_1_len++;
+			num2_1 = char_append(num2_1, num2[ii]);
+		} else {
+			num2_2_len++;
+			num2_2 = char_append(num2_2, num2[ii]);
+		}
+	}
+	//printf("#EEEEEE:%s,%s=>[%s,%s];[%s,%s]\n",num1,num2,num1_1,num1_2,num2_1,num2_2);
+	//****************balance num1_1,num2_1
+	//msg("&UUU:", num1_1)
+	String tmp1 = 0, tmp2 = 0;
+	str_init(&tmp1, num1_1);
+	str_init(&tmp2, num2_1);
+	str_empty(&num1_1);
+	str_empty(&num2_1);
+	if (num1_1_len > num2_1_len) {
+		for (uint32 i = 0; i < num1_1_len - num2_1_len; i++) {
+			num2_1 = char_append(num2_1, '0');
+		}
+	} else {
+		for (uint32 i = 0; i < num2_1_len - num1_1_len; i++) {
+			num1_1 = char_append(num1_1, '0');
+		}
+	}
+	num1_1 = str_append(num1_1, tmp1);
+	num2_1 = str_append(num2_1, tmp2);
+	//****************balance num1_2,num2_2
+	if (num1_2_len > num2_2_len) {
+		for (uint32 i = 0; i < num1_2_len - num2_2_len; i++) {
+			num2_2 = char_append(num2_2, '0');
+		}
+	} else {
+		for (uint32 i = 0; i < num2_2_len - num1_2_len; i++) {
+			num1_2 = char_append(num1_2, '0');
+		}
+	}
+	//printf("#SSSSSS:%s,%s=>[%s,%s];[%s,%s]\n", num1, num2, num1_1, num1_2, num2_1, num2_2);
+	//****************join num1_1,num1_2 & num2_1,num2_2
+	num1 = str_multi_append(char_to_str(op1), num1_1, num1_2, 0, 0, 0);
+	num2 = str_multi_append(char_to_str(op2), num2_1, num2_2, 0, 0, 0);
+	//****************determine main point
+	if (type_nums == 's'/*if type is sum*/) {
+		point = str_length(num1_1);
+	} else if (type_nums == 'm')/*if type is multiple */ {
+		point = str_length(num1_2) + str_length(num2_2);
+	} else if (type_nums == 'd')/*if type is division */ {
+		point = str_length(num1_1) + str_length(num1_2);
+	}
+	//****************return
+	if (str_length(num1_2) == 0) {
+		point = -1;
+	}
+	//printf("#QQQQQQ:%s,%s,[%c,%c,%i]\n", num1, num2,op1,op2,point);
+	(*ret_num1) = num1;
+	(*ret_num2) = num2;
+	return point;
+}
+
+//**************************************************************
+/**
+ * get two huge numbers and determine that which one is max ,min and return it by a final operation
+ * @param num1
+ * @param num2
+ * @param type_nums
+ * @param mmax
+ * @param mmin
+ * @param final_type
+ * @return int32
+ */
+int32 determine_max_min_huge_numbers(String num1, String num2, uint8 type_nums, String *mmax, String *mmin,
+		uint8 *final_type) {
+	//****************init vars
+	uint8 final_op = '+', op1 = '+', op2 = '+', max = '0', min = '0';
+	String num3 = 0, num4 = 0;
+	String num1_1 = 0, num1_2 = 0, num2_1 = 0, num2_2 = 0;
+	Boolean is_point = false;
+	//****************balance num1,num2
+	
+	int32 point = balance_huge_numbers(num1, num2, type_nums, &num3, &num4);
+	//printf("#TTTTTT:%s,%s=>%s,%s,%i\n", num1, num2, num3, num4, point);
+	op1 = num3[0];
+	op2 = num4[0];
+	num3 = str_substring(num3, 1, 0);
+	num4 = str_substring(num4, 1, 0);
+	uint32 num3_len = str_length(num3);
+	uint32 num4_len = str_length(num4);
+	for (uint32 i = 0; i < num3_len; i++) {
+		if (!is_point) {
+			num1_1 = char_append(num1_1, num3[i]);
+			num2_1 = char_append(num2_1, num4[i]);
+		} else {
+			num1_2 = char_append(num1_2, num3[i]);
+			num2_2 = char_append(num2_2, num4[i]);
+		}
+		if (i + 1 == point)
+			is_point = true;
+	}
+	//printf("#YYYYY:%s,%s;%s,%s\n", num1_1, num1_2, num2_1, num2_2);
+	//msg("&$$$$:", num1_1, num1_2, num2_1, num2_2)
+	//****************determine max number
+	//----------------comparison of num1_1,num2_1
+	for (uint32 i = 0; i < str_length(num1_1); i++) {
+		int32 n1 = str_to_int32(char_to_str(num1_1[i]));
+		int32 n2 = str_to_int32(char_to_str(num2_1[i]));
+		if (n1 > n2) {
+			max = '1';
+			break;
+		} else if (n2 > n1) {
+			max = '2';
+			break;
+		}
+	}
+	//----------------comparison of num1_2,num2_2
+	if (max == '0')
+		for (uint32 i = 0; i < str_length(num1_2); i++) {
+			int32 n1 = str_to_int32(char_to_str(num1_2[i]));
+			int32 n2 = str_to_int32(char_to_str(num2_2[i]));
+			if (n1 > n2) {
+				max = '1';
+				break;
+			} else if (n2 > n1) {
+				max = '2';
+				break;
+			}
+		}
+	//----------------else if num1==num2
+	if (max == '0')max = '1';
+	//****************determine final_op
+	if ((op1 == '-' && op2 == '-') || (max == '1' && op1 == '-') || (max == '2' && op2 == '-')) {
+		final_op = '-';
+	}
+	//****************fix max,min
+	if (max == '1') {
+		(*mmax) = str_multi_append(num1_1, num1_2, 0, 0, 0, 0);
+		(*mmin) = str_multi_append(num2_1, num2_2, 0, 0, 0, 0);
+	} else {
+		(*mmin) = str_multi_append(num1_1, num1_2, 0, 0, 0, 0);
+		(*mmax) = str_multi_append(num2_1, num2_2, 0, 0, 0, 0);
+	}
+	(*final_type) = final_op;
+	//****************return
+	//msg("&UUUU:", num3, num4, "\n", max, min, string(final_op), point, string(op1), string(op2))
+	return point;
+}
+
+//*********************************************************
+//[OK]
+String sum_huge_numbers(String num1, String num2, Boolean is_neg) {
+	//****************init vars
+	String first = 0, second = 0, result = 0;
+	Boolean is_sum = true, is_carry = false;
+	uint8 op = '+';
+	int32 point_s = 0;
+	//****************start analyzing
+	//----------------check is_neg
+	if (is_neg) num2 = str_make_negative_number(num2);
+	//----------------determine first and second based max,min
+	point_s = determine_max_min_huge_numbers(num1, num2, 's', &first, &second, &op);
+	if ((str_length(num1) > 0 && num1[0] == '-') || (str_length(num2) > 0 && num2[0] == '-')) {
+		is_sum = false;
+	}
+	//----------------reverse first and second
+	//printf("#JJJJJJ:%s,%s=>%s,%s\n",num1,num2,first,second);
+	first = str_reverse(first);
+	second = str_reverse(second);
+	uint32 first_len = str_length(first);
+	//----------------if is subtraction
+	if (!is_sum)
+		for (uint32 i = 0; i < first_len; i++) {
+			int32 n1 = str_to_int32(char_to_str(first[i]));
+			int32 n2 = str_to_int32(char_to_str(second[i]));
+			int32 tmp1 = n1 - n2;
+			if (is_carry) {
+				tmp1 -= 1;
+				is_carry = false;
+			}
+			if (tmp1 < 0) {
+				tmp1 += 10;
+				is_carry = true;
+			}
+			result = str_append(result, str_from_int32(tmp1));
+		}
+		//----------------if is addition
+	else
+		for (uint32 i = 0; i < first_len; i++) {
+			int32 n1 = str_to_int32(char_to_str(first[i]));
+			int32 n2 = str_to_int32(char_to_str(second[i]));
+			int32 tmp1 = n1 + n2;
+			if (is_carry) {
+				tmp1 += 1;
+				is_carry = false;
+			}
+			if (tmp1 > 9) {
+				tmp1 -= 10;
+				is_carry = true;
+			}
+			result = str_append(result, str_from_int32(tmp1));
+		}
+	
+	//----------------reverse result and finish
+	result = str_reverse(result);
+	//printf("#QQQQQQ:%s,%s,%i,%i=>%s\n", num1, num2, is_sum, point_s, result);
+	if (point_s >= 0) {
+		String tmp1 = 0;
+		str_init(&tmp1, result);
+		str_empty(&result);
+		for (uint32 i = 0; i < str_length(tmp1); i++) {
+			result = char_append(result, tmp1[i]);
+			if (i + 1 == point_s) {
+				result = char_append(result, '.');
+			}
+		}
+	}
+	//printf("#EEEE:%s\n",result);
+	result = str_trim_number(result);
+	if (op == '-') {
+		result = str_make_negative_number(result);
+	} else if (is_sum && is_carry) {
+		result = str_multi_append("1", result, 0, 0, 0, 0);
+	}
+	//****************return
+	//if num1 == "2" {
+	//msg("&SUM", point_s, first, second, result)
+	//}
+	return result;
+}
+
+//*********************************************************
+String muliply_huge_numbers(String num1, String num2) {
+	//****************init vars
+	uint8 op1 = '0', op2 = '0', final_op = '0';
+	String result = 0, zeros = 0, res1 = 0, res2 = 0, num3 = 0, num4 = 0;
+	int32 carry = 0, res_ch = 1;
+	//****************balance num1,num2
+	int32 point_m = balance_huge_numbers(num1, num2, 'm', &num3, &num4);
+	op1 = num3[0];
+	op2 = num4[0];
+	num3 = str_substring(num3, 1, 0);
+	num4 = str_substring(num4, 1, 0);
+	//printf("#UUUUUU:%s,%s=>%s,%s,%i\n",num1,num2,num3,num4,point_m);
+	uint32 num3_len = str_length(num3);
+	uint32 num4_len = str_length(num4);
+	num3 = str_reverse(num3);
+	num4 = str_reverse(num4);
+	//****************
+	for (uint32 i = 0; i < num3_len; i++) {
+		carry = 0;
+		if (num3[i] != '0') {
+			int32 n1 = str_to_int32(char_to_str(num3[i]));
+			for (uint32 j = 0; j < num4_len; j++) {
+				int32 n2 = str_to_int32(char_to_str(num4[j]));
+				int32 tmp1 = n1 * n2;
+				int32 tmp2 = 0;
+				if (carry > 0) {
+					tmp1 += carry;
+					carry = 0;
+				}
+				int32 tmp3 = tmp1;
+				if (tmp1 > 9) {
+					tmp2 = (int32) tmp1 / 10;
+					tmp3 = tmp1 % 10;
+				}
+				carry = tmp2;
+				if (res_ch == 1) {
+					res1 = str_append(res1, str_from_int32(tmp3));
+				} else {
+					res2 = str_append(res2, str_from_int32(tmp3));
+				}
+				//msg("&HHH:", res1, res2, string(num4[j]), string(num3[i]))
+			}
+			if (carry > 0) {
+				if (res_ch == 1) {
+					res1 = str_append(res1, str_from_int32(carry));
+				} else {
+					res2 = str_append(res2, str_from_int32(carry));
+				}
+			}
+			
+			if (res_ch == 1) {
+				res1 = str_reverse(res1);
+				res1 = str_append(res1, zeros);
+			} else {
+				res2 = str_reverse(res2);
+				res2 = str_append(res2, zeros);
+			}
+			
+			//msg("&YYYY:", string(num3[i]), res1, res2, zeros)
+			res_ch++;
+			if (res_ch == 3) {
+				res1 = sum_huge_numbers(res1, res2, false);
+				res2 = 0;
+				res_ch = 2;
+			}
+		}
+		zeros = char_append(zeros, '0');
+	}
+	str_init(&result, res1);
+	//printf("#YYYYYY:%s,%s=>%s,%i\n", num1, num2, result, point_m);
+	//****************determine final_op
+	if (op1 == '-' || op2 == '-') {
+		final_op = '-';
+	}
+	//****************fix result and finish
+	if (point_m >= 0) {
+		String tmp1 = 0;
+		str_init(&tmp1, result);
+		str_empty(&result);
+		Boolean is_point = false;
+		int32 ind = 0;
+		for (int32 i = str_length(tmp1) - 1; i >= 0; i--) {
+			ind++;
+			result = char_append(result, tmp1[i]);
+			if (ind == point_m) {
+				result = char_append(result, '.');
+				is_point = true;
+			}
+		}
+		if (!is_point) {
+			//like 0.0416*1.0016 = 0.04166656
+			for (uint32 i = str_length(tmp1); i < point_m; i++) {
+				result = char_append(result, '0');
+				if (i + 1 == point_m) {
+					result = str_append(result, ".0");
+					is_point = true;
+					break;
+				}
+			}
+		}
+		//printf("#IIIIII:%s,%s=>%s\n",tmp1,result,str_reverse(result));
+		result = str_reverse(result);
+	}
+	result = str_trim_number(result);
+	if (point_m == str_length(result) - 1) {
+		result = str_multi_append("0", result, 0, 0, 0, 0);
+	}
+	result = str_trim_last_float(result);
+	if (final_op == '-') {
+		result = str_multi_append("-", result, 0, 0, 0, 0);
+	}
+	
+	//****************return
+	return result;
+}
+
+//*********************************************************
+String divide_huge_numbers(String num1, String num2) {
+	//Using Newton–Raphson division algorithm
+	//****************init vars
+	String result = 0, X0 = 0, Xi = 0, num3 = 0, num4 = 0;
+	Boolean is_point = false;
+	//****************trim num1,num2
+	num1 = str_trim_number(num1);
+	num2 = str_trim_number(num2);
+	uint32 num1_len = str_length(num1);
+	uint32 num2_len = str_length(num2);
+	for (uint32 i = 0; i < num2_len; i++) {
+		if (num2[i] == '.') {
+			is_point = true;
+			num2_len--;
+			break;
+		}
+	}
+	//======Level 1:Calculate an estimate X_0  for the reciprocal 1/num4.
+	//----------------estimate a good number from num2
+	uint32 est_nums = num2_len / 2;
+	if (est_nums > max_estimate_divide_huge) {
+		est_nums = max_estimate_divide_huge;
+	}
+	String est_num2 = str_substring(num2, 0, est_nums);
+	est_num2 = make_valid_double(est_num2);
+	if (str_length(est_num2) < 2 && str_length(est_num2) < num2_len) {
+		est_nums = num2_len;
+		est_num2 = make_valid_double(num2);
+	}
+	double X0_double = 1 / str_to_double(est_num2);
+	//----------------determine X0=1/est(num2)
+	X0 = str_from_double(X0_double, max_estimate_divide_huge);
+	uint32 x0_len = str_length(X0);
+	//----------------check if X0 is overflow from max_float_estimate_huge_X0
+	if (x0_len > max_float_estimate_huge_X0 + 2) {
+		String tmp1 = str_substring(X0, 0, max_float_estimate_huge_X0 + 2);
+		X0 = make_valid_double(tmp1);
+	}
+	String tmp4 = str_substring(X0, 2, 0);
+	str_init(&X0, "0.");
+	int32 pre_len = num2_len - est_nums;
+	if (pre_len > 0)
+		for (uint32 i = 0; i < pre_len; i++) {
+			X0 = char_append(X0, '0');
+		}
+	X0 = str_append(X0, tmp4);
+	//printf("#VVVVVV:%s,%s=>%s,%f,%s\n", num1, num2, X0, X0_double, est_num2);
+	//======Level 2 :Compute successively more accurate estimates X_1,X_1,..,X_s of the reciprocal. This is where one employs the Newton–Raphson method as such.
+	str_init(&Xi, X0);
+	for (uint32 i = 0; i < max_steps_estimate_huge; i++) {
+		//X_i+1 = X_i*(2-(num2*X_i))
+		String t_Xi = 0;
+		str_init(&t_Xi, Xi);
+		String tmp11 = muliply_huge_numbers(t_Xi, num2);
+		//printf("$RT1:%s*%s=%s\n", t_Xi, num2, tmp11);
+		String tmp12 = sum_huge_numbers("2", tmp11, true);
+		//printf("$RT2:2-%s=%s\n", tmp11, tmp12);
+		Xi = muliply_huge_numbers(t_Xi, tmp12);
+		//printf("$RT3:%s*%s=%s\n", t_Xi, tmp12, Xi);
+		Xi = limit_decimal_huge_numbers(Xi);
+		//printf("$RT4:%s\n",Xi);
+	}
+	//======Level 3 :Compute the quotient by multiplying the dividend by the reciprocal of the divisor: Q=N.X_i
+	result = muliply_huge_numbers(num1, Xi);
+	//----------------set to result and finish
+	result = str_trim_last_float(result);
+	//printf("#BBBBB:%s,%s=>%s,%i\n",num1,num2,result);
+	//****************return
+	//msg("&***:", result, X0, Xi, tmp3)
 	return result;
 }
 

@@ -1,7 +1,7 @@
 #include <MPL/system.h>
 
 //************************************************prototypes
-Boolean start_interpreter(String source);
+Boolean start_interpreter();
 
 Boolean mpl_help(String command);
 
@@ -40,7 +40,9 @@ int main(int argc, char **argv) {
 						str_list_append(&program_argvs, argv[ii], argvs_len++);
 					}
 				//printf("argv:%s",argv[4]);
-				Boolean ret = start_interpreter(argv[1]);
+				str_init(&stdin_source_path, argv[1]);
+				stdin_source_path = get_absolute_path(stdin_source_path);
+				Boolean ret = start_interpreter();
 				interpreter_mode = 4;
 				if (!ret) {
 					print_error(0, "bad_exit", "stdin", 0, 0, "main");
@@ -64,12 +66,12 @@ int main(int argc, char **argv) {
 }
 
 //************************************************
-Boolean start_interpreter(String source) {
+Boolean start_interpreter() {
 	//-----------------------init compiler
 	init_interpreter();
 	//-----------------------parsing source codes
 	interpreter_level = "parse";
-	Boolean ret0 = import_all_files(source);
+	Boolean ret0 = import_all_files();
 	//printf("VVVVVV:%i\n",ret0);
 	if (!ret0) {
 		return false;
@@ -82,10 +84,10 @@ Boolean start_interpreter(String source) {
 	//String h=0;
 	//str_init(&h,"AMindelavar");
 	//str_to_lower_case(&h);
-	/*int32 indexes[5];
-	uint8 ii=return_size_value_dimensions("{struct({true,false},6),struct(true,-56*9),struct({true},0x45)}",indexes);*/
-	
-	//printf("WWWWW:%s:%s;%s\n", longint_list_print(hj, hj_len), longint_list_print(hj1, hj1_len), longint_list_print(hj2, hj2_len));
+	//printf("WWWWW:%s,%f\n",divide_huge_numbers("56","200.4"),(float)56 / (float)200.4);
+	//printf("WWWWW:%s,%f\n",divide_huge_numbers("56","0.565"),(float)56 / (float)0.565);
+	//printf("QQQQQQQQ:%s\n", calculate_two_numbers("5.78", "10",'^','h'));
+	//printf("AAAAA:%s\n",str_from_double(0.0400,3) );
 	//-----------------------meaning&running instructions
 	interpreter_level = "runtime";
 	Boolean ret3 = start_runtime();
@@ -93,7 +95,7 @@ Boolean start_interpreter(String source) {
 		return false;
 	}
 	
-	print_struct(PRINT_STRUCT_DES_ST);
+	//print_struct(PRINT_STRUCT_DES_ST);
 	//print_struct(PRINT_MAGIC_MACROS_ST);
 	show_memory(0);
 	//printf("@ZZXXX:%i\n",str_has_suffix("j4364567457","457"));

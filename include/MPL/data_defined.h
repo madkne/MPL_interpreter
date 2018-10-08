@@ -10,6 +10,7 @@ clock_t AppStartedClock;
 String AppStartedTime;
 uint8 is_programmer_debug;
 String project_root;
+String stdin_source_path;
 String main_source_name;
 String interpreter_level;
 String interpreter_path;
@@ -22,6 +23,7 @@ uint8 tab_size_int;
 uint8 max_estimate_divide_huge;
 uint8 max_float_estimate_huge_X0;
 uint8 max_steps_estimate_huge;
+uint32 max_decimal_has_huge;
 String set_logfile_path;
 String new_line_char;
 String os_tmp_dir;
@@ -367,6 +369,8 @@ blst search_lbl_func(String lbl, str_list params, uint32 par_len);
 //-------------------------datas funcs
 void append_datas(datas s);
 
+datas get_datas(long_int id);
+
 datas search_datas(String name, long_int fid, Boolean is_all);
 
 //-------------------------instru funcs
@@ -393,6 +397,8 @@ void add_to_bifs(long_int id, uint8 type, String func_name, String params, Strin
 void append_mama(mama s);
 
 void add_to_mama(uint8 type, uint8 sub_type, String key, String value);
+
+mama get_mama(uint8 type, String key);
 
 //-------------------------vaar funcs
 void append_vaar(vaar s, vaar_en *s1);

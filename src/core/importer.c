@@ -4,30 +4,20 @@
 #include <MPL/system.h>
 
 //******************************************************
-Boolean import_all_files(String source) {
+Boolean import_all_files() {
 	//-----------------------analyzing source path
-	String t_src = source;
-	source = get_absolute_path(source);
+	String t_src = stdin_source_path;
 	//printf("fgg:%s,%i\n",source,source);
-	if (source == 0) {
+	if (stdin_source_path == 0) {
 		print_error(0, "not_exist_file", 0, t_src, 0, "import_all_files");
 		return false;
 	}
 	//printf(print_str_list(program_argvs,argvs_len));
-	str_list entries, filename;
-	uint32 size = char_split(source, OS_SEPARATOR, &entries, true);
-	char_split(entries[size - 1], '.', &filename, true);
-	String Fsrc = filename[0];
-	str_init(&main_source_name, Fsrc);
-	project_root = char_join(entries, OS_SEPARATOR, size - 1, true);
-	//printf("GGGGG:%s\n",project_root);
-	if (LINUX_PLATFORM == 1) {
-		project_root = str_append("/", project_root);
-	}
+	
 	//-----------------------append main source path to imin
 	str_to_utf8(&entry_table.cur_source_path, "stdin");
 	str_utf8 main_path = 0;
-	str_to_utf8(&main_path, source);
+	str_to_utf8(&main_path, stdin_source_path);
 	imin tmp1 = {entry_table.import_id++, IMPORT_FILE, true, main_path, 1, 0, 0, STDIN_SOURCE_PATH};
 	append_imin(tmp1);
 	

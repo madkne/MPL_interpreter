@@ -2,14 +2,18 @@
 //import "file:$/ุณ.mpl"
 
 //__config["AppName"]="MyProgram"
-//num j=0;
-//j++
+/*num jg=45;
+j++
+__config["AppName"]="dfhfg"*/
 
 func main(){
 	//num n[4,3],str s,s={{3,-8,9.78},{(24^3)/4+56.5,8f,null},{0x45,0o34+4,0b01011},{-3454,45h,12.4i}},"سلام"+" !"
-	num j=56
+	num j=56h/0.565
+	str jj="Hello"+"!"
+
 	//bool bb[2]={(j>=56)&&false,false||true}
-	__define["Hello"]=j
+	//__define["OSInfo"]=jj+" !..."
+	//str gh=__define["AppPath"]+__config["AppVersion"]
 	struct gg{
 		bool b[?],
 		num n

@@ -204,8 +204,8 @@ String get_current_datetime(uint8 type) {
 		ret = malloc(6 * sizeof(int) + 5);
 		sprintf(ret, "%i-%i-%i %i:%i:%i", tim.tm_year + 1900, tim.tm_mon + 1, tim.tm_mday, tim.tm_hour, tim.tm_min,
 				tim.tm_sec);
-	}else if(type==2){
-		return str_from_long_int((long_int)t);
+	} else if (type == 2) {
+		return str_from_long_int((long_int) t);
 	}
 	
 	//strftime(s, sizeof(s), "%c", tm);
@@ -540,4 +540,35 @@ String replace_in_expression(String exp, String rep, int32 start, int32 end, Boo
 	}
 	expression = str_multi_append(s1, rep, s2, 0, 0, 0);
 	return expression;
+}
+
+//*************************************************************
+String make_valid_double(String s) {
+	uint32 s_len = str_length(s);
+	if (s_len == 0 || (s_len == 1 && s[0] == '.'))return "0";
+	if (s_len > 1 && s[0] == '.')return str_multi_append("0", s, 0, 0, 0, 0);
+	if (s_len > 1 && s[s_len - 1] == '.')return str_substring(s, 0, s_len - 1);
+	return s;
+}
+
+//*************************************************************
+String limit_decimal_huge_numbers(String s) {
+	uint32 s_len = str_length(s);
+	uint32 ind = 0,limit=0;
+	Boolean is_point = false;
+	for (uint32 i = 0; i < s_len; i++) {
+		if (s[i] == '.') {
+			is_point = true;
+			continue;
+		}
+		if(is_point){
+			limit++;
+			if(limit==max_decimal_has_huge){
+				ind=i+1;
+				break;
+			}
+		}
+	}
+	if(ind==0)ind=s_len;
+	return str_substring(s,0,ind);
 }

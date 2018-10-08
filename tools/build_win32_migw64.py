@@ -8,10 +8,10 @@ os.system("cls");
 os.system("color 1f");
 #----------------------define vars
 #enable warnings :  -Wall -Wextra
-cflags="-I ..\\include -std=c99 -g  -fmax-errors=2 -c ";
-build_folder="..\\win32-release";
-obj_folder="..\\obj";
-scr_folder="..\\src";
+cflags="-I ../include -std=c99 -g  -fmax-errors=2 -c ";
+build_folder="../win32-release";
+obj_folder="../obj";
+scr_folder="../src";
 compiler="gcc ";
 is_error=0;
 logfile="build_win32_mingw64_list.txt";
@@ -98,7 +98,7 @@ if is_error==1:
 else:
     obj_files=glob.glob(obj_folder+"/*.o");
     all_files=' '.join(obj_files);
-    is_error=os.system("gcc -g "+all_files+" -o "+build_folder+"\\mpl.exe");
+    is_error=os.system("gcc -g "+all_files+" -o "+build_folder+"/mpl.exe");
     
 #----------------------finish
 if is_error==1:
@@ -115,7 +115,7 @@ else:
 	#----------------------run mpl.exe
 	print("=== Running mpl.exe ...");
 	print("_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_");
-	os.system(build_folder+"\\mpl.exe ..\\main.mpl");
+	os.system("..\\win32-release\\mpl.exe ..\\main.mpl");
 	#os.system("dir");
 	#os.system("pause");
 

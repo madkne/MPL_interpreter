@@ -6,6 +6,11 @@
 #define MPL_RUN_MGR_H
 
 uint8 labeled_instruction(String code);
+
 String define_vars(String inst);
+
 String function_call(String exp, int8 status);
+
+String alloc_magic_macros(String exp);
+
 #endif //MPL_RUN_MGR_H

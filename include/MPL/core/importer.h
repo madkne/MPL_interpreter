@@ -5,7 +5,7 @@
 #ifndef MPL_IMPORTER_H
 #define MPL_IMPORTER_H
 
-Boolean import_all_files(String source);
+Boolean import_all_files();
 
 Boolean open_mpl_file(imin s);
 

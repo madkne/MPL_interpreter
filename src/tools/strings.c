@@ -404,8 +404,10 @@ void str_swap(String *s1, String *s2) {
 
 //******************************************
 String str_substring(String s, uint32 start, uint32 end) {
-	if (end == 0 && start > 0)end = str_length(s);
+	uint32 s_len = str_length(s);
+	if (end == 0 && start > 0)end = s_len;
 	if (start >= end || start == end) return 0;
+	if (end > s_len)end = s_len;
 	String ret = 0;
 	for (uint32 i = start; i < end; i++) {
 		ret = char_append(ret, s[i]);
@@ -527,22 +529,29 @@ String str_from_double(double n, uint8 afterpoint) {
 	int64 ipart = (int64) n;
 	// convert integer part to string
 	str_init(&ret, str_from_int64(ipart));
-	//printf("CCCC:%f=>%lld,%s\n",n,ipart,ret);
 	if (n < 0) {
 		ipart *= -1;
 		n *= -1;
 	}
 	// Extract floating part
 	double fpart = n - (double) ipart;
+	//printf("CCCC:%f=>%lld,%s,%f\n",n,ipart,ret,fpart);
 	// check for display option after point
 	if (afterpoint > 0 && fpart != 0) {
 		ret = char_append(ret, '.');// add dot
 		double power = int32_power(10, afterpoint); //calc power of 10
 		double one_unit = (double) 1 / power; //calc one unit like 0.01 or 0.0001
-		//printf("SSSSS:%f,%i\n",fpart,ipart);
-		fpart = (fpart * int32_power(10, afterpoint)) + one_unit;
-		//printf("OOOOO:%f,%i\n",fpart,power);
-		ret = str_append(ret, str_from_int32((int) fpart));
+		fpart = (fpart * power) + one_unit;
+		String fpart_s = str_from_int32((int) fpart);
+		uint32 fpart_s_len = str_length(fpart_s);
+		//add pre zeros like 0.005
+		if (afterpoint > fpart_s_len) {
+			for (uint32 i = 0; i < afterpoint - fpart_s_len; ++i) {
+				ret = char_append(ret, '0');
+			}
+		}
+		//printf("OOOOO:%f=>%f,%f,%i\n",n,fpart,power,afterpoint);
+		ret = str_append(ret, fpart_s);
 	}
 	return ret;
 }
@@ -610,9 +619,41 @@ String str_trim_number(String str) {
 			final = char_append(final, str[i]);
 		}
 		if (!is_num && ((str[i] >= '1' && str[i] <= '9') || (i + 1 < str_len && str[i] == '0' && str[i + 1] == '.'))) {
+			if (str[i] == '0')final = char_append(final, str[i]);
 			is_num = true;
 		}
 	}
+	return final;
+}
+
+//******************************************
+String str_trim_last_float(String str) {
+	String final = 0;
+	Boolean is_point = false;
+	int32 point_ind = -1, zero_ind = -1;
+	uint32 str_len = str_length(str);
+	for (uint32 i = 0; i < str_len; i++) {
+		if (str[i] == '.') {
+			is_point = true;
+			point_ind = i;
+			break;
+		}
+	}
+	//-------------------------
+	if (!is_point) return str;
+	//-------------------------
+	for (int32 i = str_len - 1; i >= point_ind; i--) {
+		if (str[i] != '0') {
+			if (str[i] == '.') {
+				zero_ind = i - 1;
+			} else {
+				zero_ind = i;
+			}
+			break;
+		}
+	}
+	//-------------------------
+	final = str_substring(str, 0, zero_ind + 1);
 	return final;
 }
 
@@ -636,3 +677,30 @@ Boolean str_has_suffix(String s, String find) {
 //******************************************
 //******************************************
 
+//******************************************
+String str_make_negative_number(String s) {
+	uint32 s_len = str_length(s);
+	if (s_len > 1 && s[0] == '-')s[0] = '+';
+	else if (s_len > 1 && s[0] == '+')s[0] = '-';
+	else if (s_len > 0)s = str_multi_append("-", s, 0, 0, 0, 0);
+	return s;
+}
+
+//******************************************
+void str_detachment_float(String s, String *s1, String *s2) {
+	Boolean is_point = false;
+	String int_s = 0, float_s = 0;
+	for (uint32 i = 0; i < str_length(s); i++) {
+		if (s[i] == '.') {
+			is_point = true;
+			continue;
+		}
+		if (!is_point) {
+			int_s = char_append(int_s, s[i]);
+		} else {
+			float_s = char_append(float_s, s[i]);
+		}
+	}
+	if (s1 != 0)str_init(&(*s1), int_s);
+	if (s2 != 0)str_init(&(*s2), float_s);
+}

@@ -331,7 +331,7 @@ set_memory_var(long_int fin, long_int sid, String name, String value_var, String
 			printf("###########failed2\n");
 			return 0;
 		}
-		printf("----SSSSW:%s[%s]=>%s[%c]\n", value_var, type_var, main_value, sub_type);
+		//printf("----SSSSW:%s[%s]=>%s[%c]\n", value_var, type_var, main_value, sub_type);
 		indexes_len = 1;
 		max_indexes[0] = 1;
 		//-----
@@ -360,6 +360,7 @@ set_memory_var(long_int fin, long_int sid, String name, String value_var, String
 		}
 			//is a normal node
 		else {
+			if (st->sub_type == 's')st->value = str_reomve_quotations(st->value, "s");
 			long_int po = add_to_pointer_memory(st->value, st->sub_type);
 			longint_list_append(&pointers_id, pointers_id_len++, po);
 		}
@@ -422,6 +423,7 @@ long_int set_struct_node_Mpoint(vaar_en st) {
 				stde s = get_stde(stde_id);
 				po = set_struct_node_Mpoint(s.st);
 			} else {
+				if (tmp1->sub_type == 's')tmp1->value = str_reomve_quotations(tmp1->value, "s");
 				po = add_to_pointer_memory(tmp1->value, tmp1->sub_type);
 			}
 			longint_list_append(&tmp_po_id, tmp_po_id_len++, po);

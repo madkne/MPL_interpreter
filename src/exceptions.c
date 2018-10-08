@@ -9,6 +9,7 @@ void init_exceptions_list_data() {
 	//-----------------------------------------
 	define_new_exception(0, FATAL_ID, 0, 0, 0);
 	//\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/
+	//CommandError
 	define_new_exception(1, FATAL_ID, "bad_exit", CommandError, "returned 1 exit status");
 	define_new_exception(2, ERROR_ID, "unknown_opt", CommandError, "unknown option '!1@1!'");
 	define_new_exception(3, FATAL_ID, "not_exist_file", CommandError, "can't open file '!1@1!',No such file.");
@@ -68,6 +69,14 @@ void init_exceptions_list_data() {
 			"'!1@1!' is not a valid value as a function parameter");
 	define_new_exception(6, ERROR_ID, "not_defined_array", ValueError,
 			"'!1@1!' defined by one value and its assigned value is an array");
+	define_new_exception(7, ERROR_ID, "unknown_magic_macro", ValueError,
+			"'!1@1!' is an unknown magic macro");
+	define_new_exception(8, ERROR_ID, "not_defined_mm_key", ValueError,
+			"'!1@1!' not defined in '!2@2!' magic macro");
+	define_new_exception(9, ERROR_ID, "reinitialized_in__define_mm", ValueError,
+			"'!1@1!' was defined in '__define' magic macro. you can not Re-initialized it");
+	define_new_exception(10, ERROR_ID, "not_global__config_mm", ValueError,
+			"you can not edit '__config' magic macro items inside of a function");
 	//\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\
 	//NotExistError
 	define_new_exception(1, ERROR_ID, "not_exist_func", NotExistError,
@@ -78,11 +87,11 @@ void init_exceptions_list_data() {
 			"Not found 'main()' function in your source files");
 	define_new_exception(4, ERROR_ID, "not_exist_var", NotExistError, "'!1@1!' is not exist as a variable");
 	define_new_exception(5, ERROR_ID, "not_exist_struct_name", NotExistError, "Not exist name for struct");
+	define_new_exception(6, ERROR_ID, "not_exist__config_mm", NotExistError, "Not exist any items by name '!1@1!' in '__config' magic macro");
 	//\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\
 	//RuntimeError
-	define_new_exception(6, ERROR_ID, "unknown_instruction", RuntimeError, "'!1@1!' is not a valid instruction");
-	//\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\
-	//NotAccessError
+	define_new_exception(1, ERROR_ID, "unknown_instruction", RuntimeError, "'!1@1!' is not a valid instruction");
+	define_new_exception(2, ERROR_ID, "incorrect_global_inst", RuntimeError, "'!1@1!' is an invalid instruction in global");
 }
 
 

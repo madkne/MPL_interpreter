@@ -19,7 +19,7 @@ String return_value_var_complete(long_int var_index);
 
 uint32 return_total_array_rooms(String index);
 
-String calculate_struct_expression(String value, String type_var,uint8 *sub_type);
+String calculate_struct_expression(String value, String type_var, uint8 *sub_type);
 
 uint8 return_size_value_dimensions(String val, int32 indexes[]);
 
@@ -42,6 +42,17 @@ void calculate_string_expression(String exp, String *value, uint8 *sub_type);
 void calculate_math_expression(String exp, uint8 target_type, String *retval, uint8 *rettype);
 
 String calculate_two_numbers(String num1, String num2, uint8 op, uint8 type_exp);
+
+int32 balance_huge_numbers(String num1, String num2, uint8 type_nums, String *ret_num1, String *ret_num2);
+
+int32 determine_max_min_huge_numbers(String num1, String num2, uint8 type_nums, String *mmax, String *mmin,
+		uint8 *final_type);
+
+String sum_huge_numbers(String num1, String num2, Boolean is_neg);
+
+String muliply_huge_numbers(String num1, String num2);
+
+String divide_huge_numbers(String num1, String num2);
 
 String is_radix_need_convert(String buf, uint8 type_exp);
 
