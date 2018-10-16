@@ -650,6 +650,32 @@ long_int return_var_ind_pointer_id(long_int pointer_id) {
 //****************************************************
 //func copy_memory_var(var_index long_int, new_name string, pid, fin long_int) long_int
 //****************************************************
-//func return_var_dimensions(var_ind long_int) []string
+/**
+ * get a var index a return count of its dimensions like: f[1,2];=>1,2
+ * @param var_ind
+ * @param ret
+ * @return uint32
+ */
+uint32 return_var_dimensions(long_int var_ind, str_list *ret) {
+	//-------------init vars
+	uint32 ret_len = 0;
+	//-------------get pointer_id
+	long_int po_id = get_Mvar(var_ind).pointer_id;
+	//-------------start analyzing
+	for (;;) {
+		long_int ind = find_index_pointer_memory(po_id);
+		if (get_Mpoint(ind).type_data != 'p') {
+			break;
+		}
+		str_list pointers = 0;
+		uint32 po_len = char_split(get_Mpoint(ind).data, ';', &pointers, true);
+		//printf("QQQ:%s,%i\n", get_Mpoint(ind).data, po_len);
+		str_list_append(&(*ret), str_from_long_int((long_int) po_len), ret_len++);
+		if (po_len > 0) po_id = str_to_long_int(pointers[0]);
+		else break;
+	}
+	
+	return ret_len;
+}
 //****************************************************
 //func review_create_array_from(po_id long_int) (string,byte,bool)

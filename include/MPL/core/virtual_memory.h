@@ -50,4 +50,6 @@ long_int find_index_var_memory(long_int id);
 
 long_int return_var_ind_pointer_id(long_int pointer_id);
 
+uint32 return_var_dimensions(long_int var_ind, str_list *ret);
+
 #endif //MPL_VIRTUAL_MEMORY_H

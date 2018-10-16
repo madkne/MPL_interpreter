@@ -88,10 +88,12 @@ void init_exceptions_list_data() {
 	define_new_exception(4, ERROR_ID, "not_exist_var", NotExistError, "'!1@1!' is not exist as a variable");
 	define_new_exception(5, ERROR_ID, "not_exist_struct_name", NotExistError, "Not exist name for struct");
 	define_new_exception(6, ERROR_ID, "not_exist__config_mm", NotExistError, "Not exist any items by name '!1@1!' in '__config' magic macro");
+	define_new_exception(7, ERROR_ID, "not_exist_func_param", NotExistError, "Not exist '!1@1!' as a parameter for '!2@2!' function");
 	//\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\
 	//RuntimeError
 	define_new_exception(1, ERROR_ID, "unknown_instruction", RuntimeError, "'!1@1!' is not a valid instruction");
 	define_new_exception(2, ERROR_ID, "incorrect_global_inst", RuntimeError, "'!1@1!' is an invalid instruction in global");
+	define_new_exception(3, ERROR_ID, "missing_func_param", RuntimeError, "'!1@1!' is a parameter of '!2@2!' function and must be in calling this function");
 }
 
 

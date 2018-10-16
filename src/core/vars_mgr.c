@@ -88,16 +88,14 @@ Boolean is_valid_name(String name, Boolean is_array) {
 
 //*********************************************************
 void return_name_index_var(String s, Boolean is_empty_index, String *name, String *index) {
-	/**
-	error messages:
-	- array dems is larger than max_array_dimension
-	*/
+	//printf("&DDD:%s\n",s);
 	//**************************define variables
 	String word = 0;
 	uint8 bra = 0;
-	*name = 0, *index = 0;
+	str_empty(&(*name));
+	str_empty(&(*index));
 	if (!is_empty_index) {
-		*index = "0";
+		str_init(&(*index), "0");
 	}
 	
 	//**************************start analyzing
@@ -112,7 +110,7 @@ void return_name_index_var(String s, Boolean is_empty_index, String *name, Strin
 				if (i + 1 == len) {
 					word = char_append(word, s[i]);
 				}
-				str_init(&*(name), word);
+				str_init(&(*name), word);
 			} else if (name != 0 && s[i] == ']') {
 				str_init(&(*index), word);
 				break;
@@ -157,6 +155,7 @@ uint8 define_vars_analyzing(String inst, def_var_s vars_store[]) {
 	//*******************************************determine variables with their values
 	uint32 len = str_length(inst);
 	for (uint32 i = 0; i < len; i++) {
+		//printf("@X:%c\n",inst[i]);
 		//------------------check is string
 		if (inst[i] == '\"' && (i == 0 || inst[i - 1] != '\\')) {
 			is_string = switch_bool(is_string);
@@ -192,23 +191,25 @@ uint8 define_vars_analyzing(String inst, def_var_s vars_store[]) {
 			continue;
 		}
 		//------------------store a variable
-		//printf("QQ!!:%s\n",word);
+		//printf("QQ!!:%s\n", word);
 		if (!is_string && pars == 0 && acos == 0 && bras == 0 &&
 				((!is_equal && (inst[i] == ',' || i + 1 == len)) || inst[i] == '=') && data_type != 0) {
 			if (i + 1 == len) {
 				word = char_append(word, inst[i]);
 			}
-			//printf("DDDD@#DDDDDDD:%s;%s;%s\n",inst,data_type, word);
 			word = str_trim_space(word);
 			if (!is_valid_name(word, true)) {
 				exception_handler("invalid_name_var", __func__, word, "");
 				return 0;
 			}
+			//printf("DDDD@#DDDDDDD:%s;%s;%s\n", inst, data_type, word);
 			if (word != 0) {
 				//add new record to ret
 				vars_counter++;
+				String tmp1 = 0, tmp2 = 0;
 				return_name_index_var(word, false, &vars_store[vars_counter].name_var,
 						&vars_store[vars_counter].index_var);
+				//printf("@@WW:%s,%s\n", vars_store[vars_counter].name_var, vars_store[vars_counter].index_var);
 				str_init(&vars_store[vars_counter].main_type, data_type);
 				//printf("IIIII:%s[%i]=>%s\n",word,vars_counter,data_type);
 				vars_store[vars_counter].sub_type = 0;
@@ -527,7 +528,7 @@ String calculate_struct_expression(String value, String type_var, uint8 *sub_typ
 		//-----is an array
 		if (val_len > 2 && st_values[j][0] == '{' && st_values[j][val_len - 1] == '}') {
 			int32 max_indexes[MAX_ARRAY_DIMENSIONS];//get user indexes
-			uint8 indexes_len = return_size_value_dimensions(st_values[j], max_indexes);
+			uint8 indexes_len = return_size_value_dimensions(st_values[j], max_indexes, 0);
 			/*TODO:chck error by difference
 			 str_list indexes = 0;
 			uint32 indexes_len = char_split(attrs[2], ',', &indexes, true);
@@ -575,12 +576,13 @@ String calculate_struct_expression(String value, String type_var, uint8 *sub_typ
  * @param indexes
  * @return uint8
  */
-uint8 return_size_value_dimensions(String val, int32 indexes[]) {
+uint8 return_size_value_dimensions(String val, int32 indexes[], String *first_item) {
 	str_list entries = 0;
 	uint32 entries_len = 0;
 	str_list_append(&entries, val, entries_len++);
 	uint8 count = 0;
 	uint32 last_max = 1;
+	Boolean is_first = true;
 	for (;;) {
 		str_list tmp_entries = 0;
 		uint32 tmp_entries_len = 0;
@@ -627,6 +629,10 @@ uint8 return_size_value_dimensions(String val, int32 indexes[]) {
 						(entries[b][c] == ',' || c + 1 == ent_len)) {
 					if (c + 1 == ent_len)buf = char_append(buf, entries[b][c]);
 					str_list_append(&tmp_entries, str_trim_space(buf), tmp_entries_len++);
+					if (first_item != 0 && buf[0] != '{' && is_first) {
+						str_init(&(*first_item), buf);
+						is_first = false;
+					}
 					buf = 0;
 					continue;
 				}
@@ -647,7 +653,7 @@ uint8 return_size_value_dimensions(String val, int32 indexes[]) {
 }
 //*********************************************************
 /**
- * get an array value of var and analyze its items and return list of its items for set im memory
+ * get an array value of var and analyze its items and return list of its items for set in memory
  * @param value
  * @param type_var
  * @param indexes
@@ -749,7 +755,7 @@ vaar_en return_value_dimensions(String value, String type_var, int32 indexes[], 
 					if (i + 1 == indexes_len) {
 						String sec_type = determine_value_type(buf);
 						if (!str_equal(sec_type, type_var) && !str_equal(sec_type, "null") &&
-								!str_equal(sec_type, "struct")) {
+								!str_search(basic_types, sec_type, StrArraySize(basic_types))) {
 							exception_handler("val_def_var", __func__, buf, type_var);
 							return null;
 						}
@@ -784,11 +790,12 @@ vaar_en return_value_dimensions(String value, String type_var, int32 indexes[], 
  * @return String
  */
 String determine_value_type(String val) {
-	//****************init vars
+	//------------------init vars
 	Boolean is_string = false;
 	String final_type = 0, word = 0;
 	str_init(&final_type, "num");
-	//****************if a var
+	uint32 val_len = str_length(val);
+	//------------------if a var
 	if (is_valid_name(val, true)) {
 		String name = 0, index = 0;
 		return_name_index_var(val, true, &name, &index);
@@ -797,16 +804,22 @@ String determine_value_type(String val) {
 			return get_datas(get_Mvar(find_index_var_memory(ret_id)).type_var).name;
 		}
 	}
-	//****************analyzing
-	if (str_indexof(str_trim_space(val), "struct", 0) == 0)return "struct";
+	//------------------if is a struct
+	if (str_indexof(str_trim_space(val), "struct", 0) == 0) {
+		String stname = 0;
+		determine_struct_type(val, entry_table.cur_fid, &stname);
+		return stname;
+	}
+	//------------------if is null
 	if (str_equal(val, "null")) {
 		return "null";
 	}
+	//------------------if is short else(num,bool)
 	if (str_equal(val, "true") || str_equal(val, "false")) {
 		return "bool";
-	}
-	uint32 len = str_length(val);
-	for (uint32 i = 0; i < len; i++) {
+	} else if (str_is_num(val)) return "num";
+	//------------------if is long else(num,bool,str)
+	for (uint32 i = 0; i < val_len; i++) {
 		//------------------check is string
 		if (val[i] == '\"' && (i == 0 || val[i - 1] != '\\')) {
 			is_string = switch_bool(is_string);
@@ -814,7 +827,7 @@ String determine_value_type(String val) {
 		}
 		//------------------is boolean operators
 		String tmp1 = 0;
-		if (!is_string && i + 1 < len) {
+		if (!is_string && i + 1 < val_len) {
 			tmp1 = char_append(tmp1, val[i]);
 			tmp1 = char_append(tmp1, val[i + 1]);
 		}
@@ -826,7 +839,6 @@ String determine_value_type(String val) {
 			str_init(&final_type, "bool");
 			break;
 		}
-		
 		//------------------append to word
 		if (!is_string && char_search_count(words_splitter, val[i])) {
 			word = 0;
@@ -834,9 +846,116 @@ String determine_value_type(String val) {
 			word = char_append(word, val[i]);
 		}
 	}
-	
 	//****************return
 	return final_type;
+}
+
+//*********************************************************
+long_int determine_struct_type(String s, long_int struct_fid, String *struct_name) {
+	//-------------------init vars
+	String buf = 0;
+	str_list st_values = 0;
+	uint32 st_values_len = 0;
+	Boolean is_string = false, is_struct = false;
+	uint32 s_len = str_length(s);
+	int32 pars = 0, bras = 0, acos = 0;
+	//-------------------
+	for (uint32 i = 0; i < s_len; i++) {
+		//========is string
+		if (s[i] == '\"' && (i == 0 || s[i - 1] != '\\')) {
+			is_string = switch_bool(is_string);
+		}
+		//========count pars,bras,acos
+		if (!is_string) {
+			if (s[i] == '(')pars++;
+			else if (s[i] == ')')pars--;
+			else if (s[i] == '[')bras++;
+			else if (s[i] == ']')bras--;
+			else if (s[i] == '{')acos++;
+			else if (s[i] == '}')acos--;
+		}
+		//========is struct
+		if (!is_string && s[i] == '(' && pars == 1 && bras == 0 && acos == 0 &&
+				str_equal(str_trim_space(buf), "struct")) {
+			is_struct = true;
+			buf = 0;
+			continue;
+		}
+		//========get a value
+		if (!is_string && is_struct && bras == 0 && acos == 0 &&
+				((pars == 1 && s[i] == ',') || (s[i] == ')' && pars == 0))) {
+			//printf("$$#$#:%s\n", buf);
+			str_list_append(&st_values, str_trim_space(buf), st_values_len++);
+			buf = 0;
+			if (s[i] == ')')is_struct = false;
+			continue;
+		}
+		//========append to buf
+		buf = char_append(buf, s[i]);
+	}
+	//-------------------replace values by its types
+	//printf("##DDDDD[1]:%s\n", print_str_list(st_values, st_values_len));
+	for (uint32 i = 0; i < st_values_len; i++) {
+		//========if is a struct
+		if (str_indexof(st_values[i], "struct", 0) == 0) {
+			String stname = 0;
+			determine_struct_type(st_values[i], struct_fid, &stname);
+			str_init(&st_values[i], stname);
+		}
+			//========if is an array
+		else if (st_values[i][0] == '{') {
+			int32 indexes[MAX_ARRAY_DIMENSIONS];
+			String first_val = 0, var_dim = 0, data_type;
+			//determine count of dimensions
+			uint8 count = return_size_value_dimensions(st_values[i], indexes, &first_val);
+			for (uint8 j = 0; j < count; ++j) {
+				var_dim = str_append(var_dim, str_from_int32(indexes[j]));
+				if (j + 1 < count)var_dim = char_append(var_dim, ',');
+			}
+			//determine type of first value
+			data_type = determine_value_type(first_val);
+			str_init(&st_values[i], str_multi_append(data_type, ";", var_dim, 0, 0, 0));
+		}
+			//========if is a value
+		else {
+			str_init(&st_values[i], determine_value_type(st_values[i]));
+		}
+	}
+	//printf("##DDDDD[2]:%s\n", print_str_list(st_values, st_values_len));
+	//-------------------search for struct
+	datas *st = entry_table.datas_start;
+	for (;;) {
+		if ((st->fid == 0 || st->fid == struct_fid) && st->params_len == st_values_len) {
+			Boolean is_valid = true;
+			for (uint32 i = 0; i < st->params_len; ++i) {
+				str_list sec1 = 0, sec2 = 0;
+				char_split(st->params[i], ';', &sec1, false);
+				uint8 sec2_len = (uint8) char_split(st_values[i], ';', &sec2, false);
+				if (sec2_len == 1)str_list_append(&sec2, "0", sec2_len++);
+				//printf("#SSSAAA:%s@%s\n",st->params[i],st_values[i]);
+				//check data type
+				if (!str_equal(sec1[0], sec2[0])) {
+					is_valid = false;
+					break;
+				}
+				//check array index
+				if (!is_equal_arrays_indexes(sec1[2], sec2[1])) {
+					is_valid = false;
+					break;
+				}
+				//printf("EEWWW[%i]:%s\n", i, st->params[i]);
+			}
+			if (is_valid) {
+				str_init(&(*struct_name),st->name);
+				return st->id;
+			}
+		}
+		st = st->next;
+		if (st == 0) break;
+	}
+	//-------------------
+	(*struct_name) = 0;
+	return 0;
 }
 
 //*********************************************************
@@ -1290,7 +1409,7 @@ String return_true_false(String exp) {
 			//---------------start analyzing operand
 			//............function call
 			if (labeled_instruction(oprd) == FUNC_CALL_LBL_INST) {
-				str_init(&oprd, function_call(oprd, 2));
+				str_init(&oprd, function_call(oprd));
 				//msg("&FFF1:", oprd, value)
 				if (is_valid_name(oprd, true)) {
 					Mpoint po = return_var_memory_value(oprd);

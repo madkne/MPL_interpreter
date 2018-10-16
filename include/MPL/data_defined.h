@@ -198,6 +198,15 @@ typedef struct struct_descriptor_struct {
 	vaar_en st;
 	struct struct_descriptor_struct *next;
 } stde;
+//****************************functions_stack struct
+typedef struct functions_stack_struct {
+	long_int fid;
+	long_int fin;
+	long_int sid;
+	long_int order;
+	
+	struct functions_stack_struct *next;
+} fust;
 //****************************virtual memory
 //runtime
 typedef struct var_memory_struct {
@@ -316,6 +325,9 @@ struct entry_table_struct {
 	stde *stde_end;
 	long_int stde_id;
 	
+	fust *fust_start;
+	fust *fust_end;
+	uint32 fust_len;
 	
 	Mvar *var_memory_start;
 	Mvar *var_memory_end;
@@ -326,13 +338,13 @@ struct entry_table_struct {
 	long_int pointer_mem_id;
 	long_int pointer_mem_len;
 	
-	long_int cur_fid, cur_fin, cur_sid, cur_order, last_fin, last_sid, prev_fin_index;
-	long_int prev_fins_array[100];
+	long_int cur_fid, cur_fin, cur_sid, cur_order;
 	uint32 condition_level, in_loop, break_count, next_count;
 	String manage_func_name, Rsrc;
 	long_int manage_func_id, return_fin;
 	uint32 Rorder, Rline;
 	Boolean is_stop_APP_CONTROLLER, is_next_inst_running;
+	
 	
 };
 struct entry_table_struct entry_table;
@@ -409,5 +421,12 @@ void print_vaar(vaar_en s);
 void append_stde(stde s);
 
 stde get_stde(long_int id);
+
+//-------------------------fust funcs
+void append_fust(fust s);
+
+fust get_last_fust();
+
+void delete_last_fust();
 
 #endif //MPL_DATA_DEFINED_H

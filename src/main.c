@@ -76,6 +76,7 @@ Boolean start_interpreter() {
 	if (!ret0) {
 		return false;
 	}
+	//printf("\nHello.....\n\n");
 	//print_struct(PRINT_FUNC_ST);
 	//print_struct(PRINT_MAIN_SOURCE_ST);
 	//print_struct(PRINT_STRU_ST);
@@ -95,10 +96,14 @@ Boolean start_interpreter() {
 		return false;
 	}
 	
+//	String sname = 0;
+//	long_int sid = determine_struct_type("struct(struct({true,false},768+56),\"Hello\")", 0, &sname);
+//	printf("##SSSSSSSSS:%s,%i\n", sname, sid);
 	//print_struct(PRINT_STRUCT_DES_ST);
 	//print_struct(PRINT_MAGIC_MACROS_ST);
-	show_memory(0);
+	//show_memory(0);
 	//printf("@ZZXXX:%i\n",str_has_suffix("j4364567457","457"));
+	
 	//-----------------------free memory
 	interpreter_level = "free";
 }

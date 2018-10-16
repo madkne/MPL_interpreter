@@ -55,5 +55,9 @@ FILE *utf8_file_open(String filename, String mode);
 String replace_in_expression(String exp, String rep, int32 start, int32 end, Boolean remove_pars, Boolean is_trim);
 
 String make_valid_double(String s);
+
 String limit_decimal_huge_numbers(String s);
+
+Boolean is_equal_arrays_indexes(String s1, String s2);
+
 #endif /*__COMMON_FUNCS_H*/

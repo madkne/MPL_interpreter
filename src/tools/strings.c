@@ -6,7 +6,7 @@ Boolean str_equal(String s1, String s2) {
 	if (len != str_length(s2)) return false;
 	while (len > 0) {
 		len--;
-		if (s1[len] != s2[len]) return false;
+		if (s1[len] ^ s2[len]/*OR s1[len] != s2[len]*/) return false;
 	}
 	return true;
 }
@@ -383,8 +383,10 @@ uint32 str_list_size(str_list s) {
 
 //******************************************
 void str_empty(String *s) {
-	free(*s);
-	*s = 0;
+	if (s == 0 || !*s)return;
+	//printf("$RR:%s,%i,%i\n",*s,*s,s);
+	//free(*s); //is correct
+	*s = NULL;
 }
 
 //******************************************

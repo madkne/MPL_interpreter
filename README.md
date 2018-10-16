@@ -54,9 +54,11 @@ TODO
 * calculate multiplication huge numbers **[OK]**
 * calculate division huge numbers **[OK]**
 * calculate power huge numbers **[OK]**
-* implement function call **[..]**
-* init func parameters **[..]**
-* call built-in functions
+* implement function call **[OK]**
+* determine type of function parameter values **[OK]**
+* validation called function parameters **[OK]**
+* init function parameters **[..]**
+* call built-in functions **[..]**
 * implement return
 * implement alloc_vars
 * alloc struct expressions

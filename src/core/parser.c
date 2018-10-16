@@ -28,19 +28,18 @@ Boolean analyze_source_code() {
 	is_inline_stru = false;
 	//-------------------get tokens
 	get_all_tokens();
-	// print_struct(PRINT_TOKENS_SOURCE_ST);
+	//print_struct(PRINT_TOKENS_SOURCE_ST);
 	//-------------------init vars
 	uint8 state = 0; //1:func , 2:stru , 3:struct
 	uint32 ret = source_paths_search(entry_table.cur_source_path);
 	entry_table.cur_ascii_source_path = utf8_to_bytes_string(entry_table.cur_source_path);
-	//printf("CALL:%s\n",cur_ascii_source_path);
+	//printf("CALL:%s\n",entry_table.cur_ascii_source_path);
 	if (ret > 0)Apath = ret;
 	else {
 		utf8_str_list_append(&source_paths, entry_table.cur_source_path, entry_table.source_counter++);
 		Apath = entry_table.source_counter - 1;
 	}
 	//printf("GGGGG:%s,%i\n", print_str_list(source_paths, entry_table.source_counter), entry_table.source_counter);
-	//msg("Hello:%i,%b,Str:%s\n\n",45,false,"hello_world!");
 	//-------------------start parsing codes line by line
 	for (uint32 i = 0; i < entry_table.soco_tokens_count; i++) {
 		soco token_item = get_soco(2, i);
@@ -309,7 +308,7 @@ void manage_structs(uint32 *i) {
 //**********************************
 void manage_normal_instructions(uint32 *i) {
 	//-----------------init vars
-	String code = 0;
+	String code = 0, last = 0;
 	uint32 order = 0;
 	//-----------------analyze instruction
 	for (; *i < entry_table.soco_tokens_count; (*i)++) {
@@ -317,14 +316,20 @@ void manage_normal_instructions(uint32 *i) {
 		soco token_item = get_soco(2, ind);
 		String Acode = token_item.code;
 		Aline = token_item.line;
-		//----finish
-		if (str_ch_equal(Acode, ';')) break;
+		//----simi exceptions
+		//func() [0]
+		if (str_ch_equal(Acode, ';') && ind - 1 > 0 && ind + 1 < entry_table.soco_tokens_count &&
+				str_ch_equal(last, ')') && str_ch_equal(get_soco(2, ind + 1).code, '['))
+			continue;
+			//----finish
+		else if (str_ch_equal(Acode, ';')) break;
 		//----append to code
 		code = str_append(code, Acode);
 		if (ind + 1 < entry_table.soco_tokens_count && !char_search(splitters, Acode[0]) &&
 				!char_search(splitters, get_soco(2, ind + 1).code[0])) {
 			code = char_append(code, ' ');
 		}
+		str_init(&last, Acode);
 	}
 	//-----------------
 	order = get_order(cur_func_id, cur_stru_id);
@@ -379,6 +384,7 @@ void manage_functions(uint32 *i) {
 	//-----------------analyzing func params
 	def_var_s main_params[MAX_VAR_ALLOC_INSTRUCTIONS];
 	uint8 vars_counter = define_vars_analyzing(params, main_params);
+	//printf("#############:%s\n",params);
 	if (vars_counter == 0) {
 		parameters = 0;
 		params_len = 0;

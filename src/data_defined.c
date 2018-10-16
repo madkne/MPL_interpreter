@@ -19,7 +19,7 @@ uint8 tab_size_int = 6;
 uint8 max_estimate_divide_huge = 8;
 uint8 max_float_estimate_huge_X0 = 4;
 uint8 max_steps_estimate_huge = 8;
-uint32 max_decimal_has_huge=10;
+uint32 max_decimal_has_huge = 10;
 String set_logfile_path = 0;
 String new_line_char = "\n";
 String os_tmp_dir = 0;
@@ -126,7 +126,7 @@ void init_database() {
 	entry_table.stde_start = 0;
 	entry_table.stde_id = 0;
 	
-	entry_table.last_fin = 0, entry_table.last_sid = 0, entry_table.prev_fin_index = 0;
+
 	entry_table.condition_level = 0, entry_table.in_loop = 0, entry_table.break_count = 0, entry_table.next_count = 0;
 	entry_table.manage_func_name = 0, entry_table.Rsrc = 0;
 	entry_table.manage_func_id = 0, entry_table.return_fin = 0;
@@ -731,6 +731,50 @@ stde get_stde(long_int id) {
 	return null;
 }
 
+//*************************************************************
+//***************functions_stack functions*******************
+//*************************************************************
+void append_fust(fust s) {
+	fust *q;
+	q = (fust *) malloc(sizeof(fust));
+	if (q == 0) return;
+	q->sid = s.sid;
+	q->fid = s.fid;
+	q->fin = s.fin;
+	q->order = s.order;
+	q->next = 0;
+	if (entry_table.fust_start == 0) {
+		entry_table.fust_start = entry_table.fust_end = q;
+	} else {
+		entry_table.fust_end->next = q;
+		entry_table.fust_end = q;
+	}
+	entry_table.fust_len++;
+}
 
+//*************************************************************
+fust get_last_fust() {
+	fust null = {0, 0, 0};
+	if (entry_table.fust_end == 0)return null;
+	return (*entry_table.fust_end);
+}
 
+//*************************************************************
+void delete_last_fust() {
+	if (entry_table.fust_end == 0)return;
+	//get last-1 item
+	fust *tmp1 = entry_table.fust_start;
+	if (tmp1 == 0) return;
+	for (;;) {
+		if (tmp1->next == entry_table.fust_end) {
+			tmp1->next = 0;
+			break;
+		}
+		tmp1 = tmp1->next;
+		if (tmp1 == 0) break;
+	}
+	free(entry_table.fust_end);
+	entry_table.fust_end = tmp1;
+	entry_table.fust_len--;
+}
 

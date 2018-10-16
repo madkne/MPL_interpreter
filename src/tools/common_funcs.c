@@ -389,7 +389,7 @@ void str_list_append(str_list *s, String s1, uint32 len) {
 	//printf("CCCC:%s,%i\n",s1,len);
 	str_list tmp = 0;
 	str_list_init(&tmp, *s, len);
-	free(*s);
+	//if(*s!=NULL)free(*s);
 	(*s) = (str_list) malloc((len + 1) * sizeof(str_list));
 	if (*s == 0)return;
 	for (uint32 i = 0; i < len; i++) {
@@ -554,21 +554,36 @@ String make_valid_double(String s) {
 //*************************************************************
 String limit_decimal_huge_numbers(String s) {
 	uint32 s_len = str_length(s);
-	uint32 ind = 0,limit=0;
+	uint32 ind = 0, limit = 0;
 	Boolean is_point = false;
 	for (uint32 i = 0; i < s_len; i++) {
 		if (s[i] == '.') {
 			is_point = true;
 			continue;
 		}
-		if(is_point){
+		if (is_point) {
 			limit++;
-			if(limit==max_decimal_has_huge){
-				ind=i+1;
+			if (limit == max_decimal_has_huge) {
+				ind = i + 1;
 				break;
 			}
 		}
 	}
-	if(ind==0)ind=s_len;
-	return str_substring(s,0,ind);
+	if (ind == 0)ind = s_len;
+	return str_substring(s, 0, ind);
+}
+
+//*************************************************************
+Boolean is_equal_arrays_indexes(String s1, String s2) {
+	//printf("#WWWWW:%s@@%s\n",s1,s2);
+	if ((s1 == 0 && str_equal(s2, "0")) || (s2 == 0 && str_equal(s1, "0")))return true;
+	str_list sl1 = 0, sl2 = 0;
+	uint32 sl1_len = char_split(s1, ',', &sl1, true);
+	uint32 sl2_len = char_split(s2, ',', &sl2, true);
+	if (sl1_len != sl2_len)return false;
+	for (uint32 i = 0; i < sl1_len; ++i) {
+		if (str_ch_equal(sl1[i], '?') || str_ch_equal(sl2[i], '?'))continue;
+		if (!str_equal(sl1[i], sl2[i]))return false;
+	}
+	return true;
 }

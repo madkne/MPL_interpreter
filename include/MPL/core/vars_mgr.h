@@ -21,11 +21,13 @@ uint32 return_total_array_rooms(String index);
 
 String calculate_struct_expression(String value, String type_var, uint8 *sub_type);
 
-uint8 return_size_value_dimensions(String val, int32 indexes[]);
+uint8 return_size_value_dimensions(String val, int32 indexes[], String *first_item);
 
 vaar_en return_value_dimensions(String value, String type_var, int32 indexes[], uint8 indexes_len);
 
 String determine_value_type(String val);
+
+long_int determine_struct_type(String s, long_int struct_fid, String *struct_name);
 
 void calculate_value_of_var(String value, String type, String *ret_value, uint8 *ret_subtype);
 

@@ -5,22 +5,32 @@
 /*num jg=45;
 j++
 __config["AppName"]="dfhfg"*/
-
-func main(){
-	//num n[4,3],str s,s={{3,-8,9.78},{(24^3)/4+56.5,8f,null},{0x45,0o34+4,0b01011},{-3454,45h,12.4i}},"سلام"+" !"
-	num j=56h/0.565
-	str jj="Hello"+"!"
-
-	//bool bb[2]={(j>=56)&&false,false||true}
-	//__define["OSInfo"]=jj+" !..."
-	//str gh=__define["AppPath"]+__config["AppVersion"]
-	struct gg{
+func hello(str s[?], num n,vars pa){
+	printA(s)
+	return 45,"!!"
+}
+struct aaaaaa{
+		bool b[2,5],
+		num n
+	}
+struct gg{
 		bool b[?],
 		num n
 	}
 	struct gg1{
 		gg g,str u
 	}
+
+func main(){
+	//num n[4,3],str s,s={{3,-8,9.78},{(24^3)/4+56.5,8f,null},{0x45,0o34+4,0b01011},{-3454,45h,12.4i}},"سلام"+" !"
+	num j=56h/0.565
+	str jj="Hello"+"!"
+	num i1,str i2=hello({"ff","gg","ll"},&j)//{{"Q","A"},{"F",("rt")+"!"}}
+	//bool bb[2]={(j>=56)&&false,false||true}
+	//__define["OSInfo"]=jj+" !..."
+	//str gh=__define["AppPath"]+__config["AppVersion"]
+	
+
 	bool bb[2]={true,false}
 	//gg ss=struct(bb,67)
 	//gg1 ss1[2]={struct(ss,"rt"),struct(struct(true,123424),"Amin")}

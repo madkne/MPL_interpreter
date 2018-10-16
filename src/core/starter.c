@@ -2,7 +2,7 @@
 // Created by amindelavar on 9/21/2018.
 //
 #include <MPL/system.h>
-
+//**********************************************************
 Boolean start_runtime() {
 	//*************init global vars
 	init_global_vars();
@@ -24,7 +24,7 @@ Boolean start_runtime() {
 	return true;
 }
 
-//******************************
+//**********************************************************
 Boolean APP_CONTROLLER() {
 	//*************browsing execute instructions
 	//for (;;) {
@@ -54,8 +54,7 @@ Boolean APP_CONTROLLER() {
 			entry_table.Rorder = st->order;
 			//************show instruction line by line
 			if (is_programmer_debug >= 2) {
-				printf("---------INSTRUCTION(i:%i,f:%i,S:%i,Order:%i)\n%s$$$\n", st->id, st->func_id, st->stru_id,
-						st->order, st->code);
+				//printf("---------INSTRUCTION(i:%i,f:%i,S:%i,Order:%i)\n%s$$$\n", st->id, st->func_id, st->stru_id,st->order, st->code);
 			}
 			//************run instruction
 			int8 ret0 = INSTRUCTION_EXECUTOR(st->id);
@@ -82,7 +81,7 @@ Boolean APP_CONTROLLER() {
 	return 1;
 }
 
-//******************************
+//**********************************************************
 int8 INSTRUCTION_EXECUTOR(long_int index) {
 	instru st = get_instru_by_id(index);
 	String Rcode = str_trim_space(st.code);
@@ -97,8 +96,8 @@ int8 INSTRUCTION_EXECUTOR(long_int index) {
 		//msg("&Rcode", Rcode)
 		uint8 state = labeled_instruction(Rcode);
 		if (is_programmer_debug >= 0) {
-			printf("@###############INST(State:%i,fin:%i,line:%i):\n%s\n@###############\n", state, entry_table.cur_fin,
-					entry_table.Rline, Rcode);
+			printf("@###############INST(fid:%i,sid:%i,order:%i,state:%i,fin:%i,line:%i):\n%s\n", entry_table.cur_fid,
+					entry_table.cur_sid, entry_table.Rorder, state, entry_table.cur_fin, entry_table.Rline, Rcode);
 		}
 		//********************
 		switch (state) {
@@ -109,18 +108,16 @@ int8 INSTRUCTION_EXECUTOR(long_int index) {
 			}
 			case DEF_VARS_LBL_INST: {
 				Rcode = define_vars(Rcode);
-				if (str_equal(Rcode, "bad")) is_done = false;
 				break;
 			}
 			case ALLOC_MAGIC_MACROS_LBL_INST: {
 				Rcode = alloc_magic_macros(Rcode);
-				if (str_equal(Rcode, "bad")) is_done = false;
 				break;
 			}
-			case FUNC_CALL_LBL_INST:
-				is_done = false;
-				//Rcode = function_call(Rcode, 0);
+			case FUNC_CALL_LBL_INST: {
+				Rcode = function_call(Rcode);
 				break;
+			}
 			case ALLOC_VARS_LBL_INST:
 				is_done = false;
 				//Rcode = vars_allocation(Rcode)
@@ -159,8 +156,8 @@ int8 INSTRUCTION_EXECUTOR(long_int index) {
 				//exception_handler("unknown_instruction", "INSTRUCTION_EXECUTOR", Rcode, "")
 				break;
 			}
-			
 		}
+		if (str_equal(Rcode, BAD_CODE)) is_done = false;
 		//********************
 		if (!is_done) {
 			break;
@@ -180,7 +177,7 @@ int8 INSTRUCTION_EXECUTOR(long_int index) {
 	return SUCCESS_EXECUTE_INSTRUCTION;
 }
 
-//******************************
+//**********************************************************
 Boolean init_global_vars() {
 	long_int order = 1;
 	entry_table.cur_fin = 0;
@@ -231,3 +228,5 @@ Boolean init_global_vars() {
 		if (st == 0) break;
 	}
 }
+
+//**********************************************************
