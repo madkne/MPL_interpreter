@@ -5,7 +5,7 @@
 /*num jg=45;
 j++
 __config["AppName"]="dfhfg"*/
-func hello(str s[?], num n,vars pa){
+func hello(str s[?], num n,gg df,vars pa){
 	printA(s)
 	return 45,"!!"
 }
@@ -25,7 +25,8 @@ func main(){
 	//num n[4,3],str s,s={{3,-8,9.78},{(24^3)/4+56.5,8f,null},{0x45,0o34+4,0b01011},{-3454,45h,12.4i}},"سلام"+" !"
 	num j=56h/0.565
 	str jj="Hello"+"!"
-	num i1,str i2=hello({"ff","gg","ll"},&j)//{{"Q","A"},{"F",("rt")+"!"}}
+	//gg ss1=struct({true,false},56.7)
+	num i1,str i2=hello({"ff","gg","ll"},&j,struct({true,false},56.7))//{{"Q","A"},{"F",("rt")+"!"}}
 	//bool bb[2]={(j>=56)&&false,false||true}
 	//__define["OSInfo"]=jj+" !..."
 	//str gh=__define["AppPath"]+__config["AppVersion"]

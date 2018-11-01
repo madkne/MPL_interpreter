@@ -52,4 +52,6 @@ long_int return_var_ind_pointer_id(long_int pointer_id);
 
 uint32 return_var_dimensions(long_int var_ind, str_list *ret);
 
+long_int copy_memory_var(long_int var_index, String new_name, long_int fin);
+
 #endif //MPL_VIRTUAL_MEMORY_H

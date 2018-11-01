@@ -101,7 +101,8 @@ Boolean start_interpreter() {
 //	printf("##SSSSSSSSS:%s,%i\n", sname, sid);
 	//print_struct(PRINT_STRUCT_DES_ST);
 	//print_struct(PRINT_MAGIC_MACROS_ST);
-	//show_memory(0);
+	//copy_memory_var(find_index_var_memory(2),"rrrr",0);
+	show_memory(0);
 	//printf("@ZZXXX:%i\n",str_has_suffix("j4364567457","457"));
 	
 	//-----------------------free memory

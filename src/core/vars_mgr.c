@@ -5,7 +5,8 @@
 #include <MPL/system.h>
 
 
-Boolean is_valid_name(String name, Boolean is_array) {
+Boolean is_valid_name(String name, Boolean is_array)
+{
 	//fmt.Println("WWWWWWW:", name)
 	//var sp=[]byte{',','!','#','$','%','^','&','*','(',')','-','=','+','/','\\','.','?',':',';','~'}
 	uint32 name_len = str_length(name);
@@ -31,7 +32,7 @@ Boolean is_valid_name(String name, Boolean is_array) {
 				pars++;
 			else if (!is_string && name[i] == ']')
 				pars--;
-			
+
 			//------------------set name_v
 			if (!is_string && name[i] == '[' && name_v == 0 && pars == 1) {
 				name_v = str_trim_space(buf);
@@ -56,8 +57,9 @@ Boolean is_valid_name(String name, Boolean is_array) {
 		if (name_v == 0) {
 			str_init(&name_v, buf);
 		}
-		
-	} else {
+
+	}
+	else {
 		str_init(&name_v, name);
 	}
 	//msg("&%%%", name, name_v, index, extra)
@@ -67,14 +69,15 @@ Boolean is_valid_name(String name, Boolean is_array) {
 	}
 	//******************************check for name_v
 	if (str_length(name_v) > 0 &&
-			((name_v[0] >= '0' && name_v[0] <= '9') || (name_v[0] == '_' && str_equal(interpreter_level, "parse")))) {
+		((name_v[0] >= '0' && name_v[0] <= '9') || (name_v[0] == '_' && str_equal(interpreter_level, "parse")))) {
 		return false;
 	}
 	for (uint32 i = 0; i < str_length(name_v); i++) {
 		if ((name_v[i] >= '0' && name_v[i] <= '9') || (name_v[i] >= 'A' && name_v[i] <= 'Z') ||
-				(name_v[i] >= 'a' && name_v[i] <= 'z') || name_v[i] == '_' || (name_v[i] == '@' && i == 0)) {
+			(name_v[i] >= 'a' && name_v[i] <= 'z') || name_v[i] == '_' || (name_v[i] == '@' && i == 0)) {
 			continue;
-		} else {
+		}
+		else {
 			return false;
 		}
 	}
@@ -85,9 +88,9 @@ Boolean is_valid_name(String name, Boolean is_array) {
 	return true;
 }
 
-
 //*********************************************************
-void return_name_index_var(String s, Boolean is_empty_index, String *name, String *index) {
+void return_name_index_var(String s, Boolean is_empty_index, String *name, String *index)
+{
 	//printf("&DDD:%s\n",s);
 	//**************************define variables
 	String word = 0;
@@ -97,7 +100,7 @@ void return_name_index_var(String s, Boolean is_empty_index, String *name, Strin
 	if (!is_empty_index) {
 		str_init(&(*index), "0");
 	}
-	
+
 	//**************************start analyzing
 	uint32 len = str_length(s);
 	//----------------finding name and index of var
@@ -111,12 +114,14 @@ void return_name_index_var(String s, Boolean is_empty_index, String *name, Strin
 					word = char_append(word, s[i]);
 				}
 				str_init(&(*name), word);
-			} else if (name != 0 && s[i] == ']') {
+			}
+			else if (name != 0 && s[i] == ']') {
 				str_init(&(*index), word);
 				break;
 			}
 			word = 0;
-		} else {
+		}
+		else {
 			word = char_append(word, s[i]);
 		}
 	}
@@ -125,7 +130,8 @@ void return_name_index_var(String s, Boolean is_empty_index, String *name, Strin
 }
 
 //********************************************
-uint8 define_vars_analyzing(String inst, def_var_s vars_store[]) {
+uint8 define_vars_analyzing(String inst, def_var_s vars_store[])
+{
 	/**
 	1- num x1,x2,str x3 								---OK---
 	2- num x1,x2=(3+5)*x3 								---OK---
@@ -163,7 +169,8 @@ uint8 define_vars_analyzing(String inst, def_var_s vars_store[]) {
 		//------------------check is struct
 		if (pars == 0 && inst[i] == '(' && str_equal(word, "struct")) {
 			is_struct = true;
-		} else if (pars == 1 && inst[i] == ')') {
+		}
+		else if (pars == 1 && inst[i] == ')') {
 			is_struct = false;
 		}
 		//------------------continue if ' '
@@ -182,9 +189,9 @@ uint8 define_vars_analyzing(String inst, def_var_s vars_store[]) {
 		}
 		//------------------determine data type
 		if (!is_string && !is_equal && word != 0 && inst[i] == ' ' &&
-				(is_valid_name(word, false) || str_equal(word, "vars") || str_equal(word, "num") ||
-						str_equal(word, "str") || str_equal(word, "bool")) &&
-				(str_equal(interpreter_level, "parse") || search_datas(word, 0, true).id != 0)) {
+			(is_valid_name(word, false) || str_equal(word, "vars") || str_equal(word, "num") ||
+				str_equal(word, "str") || str_equal(word, "bool")) &&
+			(str_equal(interpreter_level, "parse") || search_datas(word, 0, true).id != 0)) {
 			//printf("EEEEDDDDDDD:%s\n",word);
 			str_init(&data_type, word);
 			word = 0;
@@ -193,7 +200,7 @@ uint8 define_vars_analyzing(String inst, def_var_s vars_store[]) {
 		//------------------store a variable
 		//printf("QQ!!:%s\n", word);
 		if (!is_string && pars == 0 && acos == 0 && bras == 0 &&
-				((!is_equal && (inst[i] == ',' || i + 1 == len)) || inst[i] == '=') && data_type != 0) {
+			((!is_equal && (inst[i] == ',' || i + 1 == len)) || inst[i] == '=') && data_type != 0) {
 			if (i + 1 == len) {
 				word = char_append(word, inst[i]);
 			}
@@ -208,7 +215,7 @@ uint8 define_vars_analyzing(String inst, def_var_s vars_store[]) {
 				vars_counter++;
 				String tmp1 = 0, tmp2 = 0;
 				return_name_index_var(word, false, &vars_store[vars_counter].name_var,
-						&vars_store[vars_counter].index_var);
+				                      &vars_store[vars_counter].index_var);
 				//printf("@@WW:%s,%s\n", vars_store[vars_counter].name_var, vars_store[vars_counter].index_var);
 				str_init(&vars_store[vars_counter].main_type, data_type);
 				//printf("IIIII:%s[%i]=>%s\n",word,vars_counter,data_type);
@@ -225,7 +232,7 @@ uint8 define_vars_analyzing(String inst, def_var_s vars_store[]) {
 		//------------------allocate values to variables
 		//msg("VVVV:", word, "|MMM:", pars)
 		if (is_equal && !is_string && (word != 0 || i + 1 == len) &&
-				((inst[i] == ',' && acos == 0) || (i + 1 == len && acos < 2)) && pars == 0 && bras == 0) {
+			((inst[i] == ',' && acos == 0) || (i + 1 == len && acos < 2)) && pars == 0 && bras == 0) {
 			if (i + 1 == len) {
 				word = char_append(word, inst[i]);
 			}
@@ -235,7 +242,7 @@ uint8 define_vars_analyzing(String inst, def_var_s vars_store[]) {
 				//msg("&SSS", vals_counter, vars_counter)
 				exception_handler("wrong_def_var", "define_vars_analyzing", word, "")
 			} else */
-			
+
 			vals_counter++;
 			//printf("UUU:%s,%s,%i\n", word,vars_store[vals_counter].main_type,vals_counter);
 			word = str_trim_space(word);
@@ -244,7 +251,7 @@ uint8 define_vars_analyzing(String inst, def_var_s vars_store[]) {
 			str_init(&vars_store[vals_counter].value_var, word);
 			word = 0;
 		}
-		
+
 		//------------------append to word
 		word = char_append(word, inst[i]);
 	}
@@ -288,9 +295,9 @@ uint8 define_vars_analyzing(String inst, def_var_s vars_store[]) {
 	return vars_counter + 1;
 }
 
-
 //*********************************************************
-uint8 determine_sub_type_var(String *value, String main_type) {
+uint8 determine_sub_type_var(String *value, String main_type)
+{
 	//----------------------------------if main_type is str or bool
 	if (str_equal(main_type, "str")) return STR_SUB_TYPE_ID;
 	else if (str_equal(main_type, "bool")) return BOOL_SUB_TYPE_ID;
@@ -318,15 +325,16 @@ uint8 determine_sub_type_var(String *value, String main_type) {
 			break;
 		}
 	}
-	
+
 	if (!is_point && len < MAX_INT_LEN) return INT_SUB_TYPE_ID;
 	if (is_point && len < MAX_FLOAT_LEN) return FLOAT_SUB_TYPE_ID;
-	
+
 	return HUGE_SUB_TYPE_ID;
 }
 
 //*********************************************************
-long_int return_var_id(String var_name, String var_index) {
+long_int return_var_id(String var_name, String var_index)
+{
 	//******************
 	for (long_int i = 0; i < entry_table.var_mem_len; i++) {
 		Mvar st = get_Mvar(i);
@@ -338,7 +346,7 @@ long_int return_var_id(String var_name, String var_index) {
 		if (st.func_index == 0 && str_equal(st.name, var_name)) {
 			return st.id;
 		}
-		
+
 	}
 	//******************return failed
 	//show_memory(0)
@@ -353,7 +361,8 @@ long_int return_var_id(String var_name, String var_index) {
  * @param var_index
  * @return String
  */
-String return_value_var_complete(long_int var_index) {
+String return_value_var_complete(long_int var_index)
+{
 	//******************init vars
 	if (var_index == 0) {
 		return 0;
@@ -365,10 +374,10 @@ String return_value_var_complete(long_int var_index) {
 	uint32 items_count = 0, store_po_len = 0;
 	//printf("!!!!!#################:%i,%i,%s\n",var_index,po_id,mvar.name);
 	//show_memory(0)
-	//printf("-----------------------VAR_COMPLETEL:%s %i:\n", mvar.name, mvar.type_var);
+	//printf("-----------------------VAR_COMPLETE:%s %i:\n", mvar.name, mvar.type_var);
 	//******************analyzing
 	for (;;) {
-		//printf("Store_Po:%s\n", print_str_list(store_po, store_po_len));
+		//printf("Store_Po:%i,%s,%s\n",po_id, print_str_list(store_po, store_po_len),final_value);
 		if (store_po_len > 0) {
 			//end of array or struct
 			if (str_equal(store_po[0], "p") || str_equal(store_po[0], "l")) {
@@ -378,9 +387,11 @@ String return_value_var_complete(long_int var_index) {
 				if (store_po_len > 0 && !str_equal(store_po[0], "p") && !str_equal(store_po[0], "l")) {
 					final_value = char_append(final_value, ',');
 					//items_count++;
-				} else if (store_po_len == 0)break;
+				}
+				else if (store_po_len == 0)break;
 				continue;
-			} else {
+			}
+			else {
 				po_id = str_to_long_int(store_po[0]);
 				str_list_delete_first(&store_po, store_po_len--);
 			}
@@ -398,7 +409,8 @@ String return_value_var_complete(long_int var_index) {
 			if (mpoint.type_data == 'p' && count > 1) {
 				final_value = char_append(final_value, '{');
 				end_node = 'p';
-			} else if ((mpoint.type_data == 'l')) {
+			}
+			else if ((mpoint.type_data == 'l')) {
 				final_value = str_append(final_value, "struct(");
 				end_node = 'l';
 			}
@@ -414,9 +426,11 @@ String return_value_var_complete(long_int var_index) {
 		}
 			//if type is a data
 		else {
+			if (store_po_len == 0) po_id = 0;
 			if (mpoint.type_data == 's') {
 				str_init(&mpoint.data, convert_to_string(mpoint.data));
-			} else if (mpoint.type_data == 'i' || mpoint.type_data == 'f' || mpoint.type_data == 'h') {
+			}
+			else if (mpoint.type_data == 'i' || mpoint.type_data == 'f' || mpoint.type_data == 'h') {
 				mpoint.data = char_append(mpoint.data, mpoint.type_data);
 			}
 			final_value = str_append(final_value, mpoint.data);
@@ -439,7 +453,8 @@ String return_value_var_complete(long_int var_index) {
  * @param index
  * @return uint32
  */
-uint32 return_total_array_rooms(String index) {
+uint32 return_total_array_rooms(String index)
+{
 	str_list ind = 0;
 	uint32 ret = 1;
 	uint8 count = (uint8) char_split(index, ',', &ind, true);
@@ -456,7 +471,8 @@ uint32 return_total_array_rooms(String index) {
  * @param type_var
  * @return vaar_en
  */
-String calculate_struct_expression(String value, String type_var, uint8 *sub_type) {
+String calculate_struct_expression(String value, String type_var, uint8 *sub_type)
+{
 	/**
 	 * struct(b,y[0,1],"gh",null)
 	 * struct(struct(5.6,{true,false}),true||false,bn,{{6,8},{8.8,0x56}})
@@ -493,14 +509,14 @@ String calculate_struct_expression(String value, String type_var, uint8 *sub_typ
 		}
 		//========is struct
 		if (!is_string && value[i] == '(' && pars == 1 && bras == 0 && acos == 0 &&
-				str_equal(str_trim_space(buf), "struct")) {
+			str_equal(str_trim_space(buf), "struct")) {
 			is_struct = true;
 			buf = 0;
 			continue;
 		}
 		//========get a value
 		if (!is_string && is_struct && bras == 0 && acos == 0 &&
-				((pars == 1 && value[i] == ',') || (value[i] == ')' && pars == 0))) {
+			((pars == 1 && value[i] == ',') || (value[i] == ')' && pars == 0))) {
 			//printf("$$#$#:%s\n", buf);
 			str_list_append(&st_values, str_trim_space(buf), st_values_len++);
 			buf = 0;
@@ -564,7 +580,7 @@ String calculate_struct_expression(String value, String type_var, uint8 *sub_typ
 	}
 	//--------------------
 	append_stde(struct_node);
-	printf("@STRUCT:%s=>[%i]%s\n", value, st_values_len, print_str_list(st_values, st_values_len));
+	//printf("@STRUCT:%s=>[%i]%s\n", value, st_values_len, print_str_list(st_values, st_values_len));
 	//print_vaar(struct_node.st);
 	return str_from_long_int(struct_node.id);
 }
@@ -576,7 +592,8 @@ String calculate_struct_expression(String value, String type_var, uint8 *sub_typ
  * @param indexes
  * @return uint8
  */
-uint8 return_size_value_dimensions(String val, int32 indexes[], String *first_item) {
+uint8 return_size_value_dimensions(String val, int32 indexes[], String *first_item)
+{
 	str_list entries = 0;
 	uint32 entries_len = 0;
 	str_list_append(&entries, val, entries_len++);
@@ -597,7 +614,7 @@ uint8 return_size_value_dimensions(String val, int32 indexes[], String *first_it
 				return 0;
 			}*/
 			//------
-			int32 pars = 0, bras = 0, acos = 0;
+			int32 pars = 0, bras = 0, acos = 0, struct_par = 0, struct_pos = -1;
 			String buf = 0;
 			Boolean is_string = false, is_struct = false;
 			//------
@@ -616,23 +633,29 @@ uint8 return_size_value_dimensions(String val, int32 indexes[], String *first_it
 					else if (entries[b][c] == '}')acos--;
 				}
 				//========is struct
-				if (!is_string && entries[b][c] == '(' && pars == 1 && bras == 0 && acos == 0 &&
-						str_equal(str_trim_space(buf), "struct")) {
+				if (!is_string && !is_struct && entries[b][c] == '(' && str_equal(str_trim_space(buf), "struct")) {
 					is_struct = true;
+					struct_par = pars - 1;
 					buf = 0;
 					continue;
-				} else if (!is_string && is_struct && entries[b][c] == ')' && pars == 0 && bras == 0 && acos == 0) {
+				}
+				else if (!is_string && is_struct && entries[b][c] == ')' && pars == struct_par) {
 					is_struct = false;
+					struct_pos = c;
 				}
 				//========split segments
 				if (!is_string && !is_struct && pars == 0 && bras == 0 && acos == 0 &&
-						(entries[b][c] == ',' || c + 1 == ent_len)) {
+					(entries[b][c] == ',' || c + 1 == ent_len)) {
 					if (c + 1 == ent_len)buf = char_append(buf, entries[b][c]);
 					str_list_append(&tmp_entries, str_trim_space(buf), tmp_entries_len++);
+
+					if (struct_pos > -1) buf = str_multi_append("struct(", buf, 0, 0, 0, 0);
+					//printf("EEWQ:%s,%i,%i\n", buf, struct_pos, c);
 					if (first_item != 0 && buf[0] != '{' && is_first) {
 						str_init(&(*first_item), buf);
 						is_first = false;
 					}
+					struct_pos = -1;
 					buf = 0;
 					continue;
 				}
@@ -660,7 +683,8 @@ uint8 return_size_value_dimensions(String val, int32 indexes[], String *first_it
  * @param indexes_len
  * @return vaar_en
  */
-vaar_en return_value_dimensions(String value, String type_var, int32 indexes[], uint8 indexes_len) {
+vaar_en return_value_dimensions(String value, String type_var, int32 indexes[], uint8 indexes_len)
+{
 	/**
 	samples:
 	- {{0b001010,78,0x56},{-456.88678,9999,0.99}}
@@ -671,7 +695,8 @@ vaar_en return_value_dimensions(String value, String type_var, int32 indexes[], 
 	Boolean is_string = false, is_struct = false;
 	vaar_en vals_array = {0, 0, 0};
 	vaar_en null = {0, 0, 0};
-	uint8 pars = 0/*count of parenthesis*/, bras = 0/*count of brackets*/, acos = 0/*count of acolads*/, count_d = 0/*count of dimensions */;
+	uint8 pars = 0/*count of parenthesis*/, bras = 0/*count of brackets*/, acos = 0/*count of acolads*/,
+		count_d = 0/*count of dimensions */;
 	String word = 0;
 	uint32 max_count = 0;
 	value = str_trim_space(value);
@@ -715,7 +740,8 @@ vaar_en return_value_dimensions(String value, String type_var, int32 indexes[], 
 			//------
 			if (entries[b][0] == '{' && entries[b][ent_len - 1] == '}') {
 				str_init(&entries[b], str_substring(entries[b], 1, ent_len - 1));
-			} else {
+			}
+			else {
 				//TODO:error
 				//printf("ERROR:%s\n",entries[b]);
 				return null;
@@ -741,21 +767,22 @@ vaar_en return_value_dimensions(String value, String type_var, int32 indexes[], 
 				}
 				//========is struct
 				if (!is_string && entries[b][c] == '(' && pars == 1 && bras == 0 && acos == 0 &&
-						str_equal(str_trim_space(buf), "struct")) {
+					str_equal(str_trim_space(buf), "struct")) {
 					is_struct = true;
-				} else if (!is_string && is_struct && entries[b][c] == ')' && pars == 0 && bras == 0 && acos == 0) {
+				}
+				else if (!is_string && is_struct && entries[b][c] == ')' && pars == 0 && bras == 0 && acos == 0) {
 					is_struct = false;
 				}
 				//========split segments
 				if (!is_string && !is_struct && pars == 0 && bras == 0 && acos == 0 &&
-						(entries[b][c] == ',' || c + 1 == ent_len)) {
+					(entries[b][c] == ',' || c + 1 == ent_len)) {
 					str_list_append(&tmp_entries, buf, tmp_entries_len++);
 					//printf("E$RR:%s\n", buf);
 					//----last step:register in vals_array
 					if (i + 1 == indexes_len) {
 						String sec_type = determine_value_type(buf);
 						if (!str_equal(sec_type, type_var) && !str_equal(sec_type, "null") &&
-								!str_search(basic_types, sec_type, StrArraySize(basic_types))) {
+							!str_search(basic_types, sec_type, StrArraySize(basic_types))) {
 							exception_handler("val_def_var", __func__, buf, type_var);
 							return null;
 						}
@@ -789,12 +816,17 @@ vaar_en return_value_dimensions(String value, String type_var, int32 indexes[], 
  * @param val
  * @return String
  */
-String determine_value_type(String val) {
+String determine_value_type(String val)
+{
 	//------------------init vars
 	Boolean is_string = false;
 	String final_type = 0, word = 0;
 	str_init(&final_type, "num");
 	uint32 val_len = str_length(val);
+	//------------------if is null
+	if (val == 0 || str_equal(val, "null")) {
+		return "null";
+	}
 	//------------------if a var
 	if (is_valid_name(val, true)) {
 		String name = 0, index = 0;
@@ -810,14 +842,11 @@ String determine_value_type(String val) {
 		determine_struct_type(val, entry_table.cur_fid, &stname);
 		return stname;
 	}
-	//------------------if is null
-	if (str_equal(val, "null")) {
-		return "null";
-	}
 	//------------------if is short else(num,bool)
 	if (str_equal(val, "true") || str_equal(val, "false")) {
 		return "bool";
-	} else if (str_is_num(val)) return "num";
+	}
+	else if (str_is_num(val)) return "num";
 	//------------------if is long else(num,bool,str)
 	for (uint32 i = 0; i < val_len; i++) {
 		//------------------check is string
@@ -842,7 +871,8 @@ String determine_value_type(String val) {
 		//------------------append to word
 		if (!is_string && char_search_count(words_splitter, val[i])) {
 			word = 0;
-		} else {
+		}
+		else {
 			word = char_append(word, val[i]);
 		}
 	}
@@ -851,7 +881,8 @@ String determine_value_type(String val) {
 }
 
 //*********************************************************
-long_int determine_struct_type(String s, long_int struct_fid, String *struct_name) {
+long_int determine_struct_type(String s, long_int struct_fid, String *struct_name)
+{
 	//-------------------init vars
 	String buf = 0;
 	str_list st_values = 0;
@@ -876,14 +907,14 @@ long_int determine_struct_type(String s, long_int struct_fid, String *struct_nam
 		}
 		//========is struct
 		if (!is_string && s[i] == '(' && pars == 1 && bras == 0 && acos == 0 &&
-				str_equal(str_trim_space(buf), "struct")) {
+			str_equal(str_trim_space(buf), "struct")) {
 			is_struct = true;
 			buf = 0;
 			continue;
 		}
 		//========get a value
 		if (!is_string && is_struct && bras == 0 && acos == 0 &&
-				((pars == 1 && s[i] == ',') || (s[i] == ')' && pars == 0))) {
+			((pars == 1 && s[i] == ',') || (s[i] == ')' && pars == 0))) {
 			//printf("$$#$#:%s\n", buf);
 			str_list_append(&st_values, str_trim_space(buf), st_values_len++);
 			buf = 0;
@@ -946,7 +977,7 @@ long_int determine_struct_type(String s, long_int struct_fid, String *struct_nam
 				//printf("EEWWW[%i]:%s\n", i, st->params[i]);
 			}
 			if (is_valid) {
-				str_init(&(*struct_name),st->name);
+				str_init(&(*struct_name), st->name);
 				return st->id;
 			}
 		}
@@ -966,8 +997,15 @@ long_int determine_struct_type(String s, long_int struct_fid, String *struct_nam
  * @param ret_value
  * @param ret_subtype
  */
-void calculate_value_of_var(String value, String type, String *ret_value, uint8 *ret_subtype) {
+void calculate_value_of_var(String value, String type, String *ret_value, uint8 *ret_subtype)
+{
 	uint8 sub_type = '0';
+	//----------------if is null
+	if (type == 0 || str_equal(type, "null")) {
+		(*ret_value) = "null";
+		(*ret_subtype) = sub_type;
+		return;
+	}
 	//----------------if is a variable
 	if (is_valid_name(value, true)) {
 		Mpoint m = return_var_memory_value(value);
@@ -981,25 +1019,29 @@ void calculate_value_of_var(String value, String type, String *ret_value, uint8 
 	//----------------
 	if (str_equal(type, "num")) {
 		calculate_math_expression(value, '_', &(*ret_value), &(*ret_subtype));
-	} else if (str_equal(type, "str")) {
+	}
+	else if (str_equal(type, "str")) {
 		calculate_string_expression(value, &(*ret_value), &(*ret_subtype));
-	} else if (str_equal(type, "bool")) {
+	}
+	else if (str_equal(type, "bool")) {
 		(*ret_value) = calculate_boolean_expression(value, &sub_type);
 		(*ret_subtype) = sub_type;
-	} else if (search_datas(type, entry_table.cur_fid, false).id != 0) {
+	}
+	else if (str_equal(type, "vars")) {
+		//printf("$RRRRRR:%s,%s\n",type,value);
+		(*ret_value) = determine_unknown_value(value, &sub_type);
+		(*ret_subtype) = sub_type;
+	}
+	else if (search_datas(type, entry_table.cur_fid, false).id != 0) {
 		(*ret_value) = calculate_struct_expression(value, type, &sub_type);
 		(*ret_subtype) = sub_type;
-	} else {
+	}
+	else {
 		(*ret_subtype) = 'n';
 		str_init(&(*ret_value), "null");
 	}
 	//TODO:
-	/*
-	sub_type = 'b'
-	case search_in_classes(type_var) > 0:
-		//msg("XXXX:", type_var, value_var)
-	*/
-	
+
 	//tmp_type, tmp_val := calculate_value_of_var(type_val, value, false)
 	/*if len(value) > 0 && (value[len(value)-1] == 'h' || value[len(value)-1] == 'f' || value[len(value)-1] == 'i') {
 		tmp_type = determine_type_num(value)
@@ -1012,7 +1054,8 @@ void calculate_value_of_var(String value, String type, String *ret_value, uint8 
 }
 
 //*********************************************************
-String calculate_boolean_expression(String exp, uint8 *sub_type) {
+String calculate_boolean_expression(String exp, uint8 *sub_type)
+{
 	/**
 	1- (true&&false)||true ---OK---
 	2- !(f==34) ---OK---
@@ -1080,12 +1123,12 @@ String calculate_boolean_expression(String exp, uint8 *sub_type) {
 				tmp1 = char_append(tmp1, exp[i]);
 				tmp1 = char_append(tmp1, exp[i + 1]);
 				//fmt.Println("ZZZZ:", tmp1, search_in_slice(boolean_operators, tmp1))
-				
+
 			}
 			//---------------get an expression
 			if (!is_string && ((exp[i] == ')' && pars == 0) ||
-					(tmp1 != 0 && str_search(boolean_operators, tmp1, StrArraySize(boolean_operators))) ||
-					i + 1 == exp_len) && bra == 0) {
+				(tmp1 != 0 && str_search(boolean_operators, tmp1, StrArraySize(boolean_operators))) ||
+				i + 1 == exp_len) && bra == 0) {
 				if (str_length(buf) > 2 && buf[0] == '!' && buf[1] == '(') {
 					starting += 1;
 					buf = str_substring(buf, 1, 0);
@@ -1097,19 +1140,20 @@ String calculate_boolean_expression(String exp, uint8 *sub_type) {
 				if (buf != 0 && (i + 1 == exp_len || (buf[0] == '(' && exp[i] == ')'))) {
 					buf = char_append(buf, exp[i]);
 				}
-				
+
 				if (buf != 0 && (str_search(boolean_operators, tmp1, StrArraySize(boolean_operators)) ||
-						(buf[0] != '(' && exp[i] == ')' && pars == 0))) {
+					(buf[0] != '(' && exp[i] == ')' && pars == 0))) {
 					//msg("&$$$:", tmp1, buf)
 					ending = i;
-				} else {
+				}
+				else {
 					ending = i + 1;
 				}
 				buf = str_trim_space(buf);
 				//msg("&&&&&&&:", buf, trim_sep_string(buf), starting, ending)
 				//search for true_false
 				if (!str_equal(str_trim_optimized_boolean(buf), "true") &&
-						!str_equal(str_trim_optimized_boolean(buf), "false") && buf != 0) {
+					!str_equal(str_trim_optimized_boolean(buf), "false") && buf != 0) {
 					int32 invalid_pars = 0;
 					buf = remove_incorrect_pars(buf, &invalid_pars);
 					starting += invalid_pars;
@@ -1139,7 +1183,7 @@ String calculate_boolean_expression(String exp, uint8 *sub_type) {
 						str_init(&buf, "false");
 					else if (str_equal(buf, "!false"))
 						str_init(&buf, "true");
-					
+
 					is_change = true;
 					if (starting == 0 && ending > exp_len - 2) {
 						is_change = false;
@@ -1154,7 +1198,7 @@ String calculate_boolean_expression(String exp, uint8 *sub_type) {
 			//---------------append to buf
 			if (!is_break) {
 				buf = char_append(buf, exp[i]);
-				
+
 				if (starting == -1) {
 					starting = i;
 				}
@@ -1162,14 +1206,15 @@ String calculate_boolean_expression(String exp, uint8 *sub_type) {
 			//---------------append to word_f
 			if (!is_break && !is_string && char_search_index(words_splitter, exp[i]) && exp[i] != ' ') {
 				word_f = 0;
-			} else {
+			}
+			else {
 				word_f = char_append(word_f, exp[i]);
 			}
 			//fg++
 			/*if (fg == 10) {
 				break;
 			}*/
-			
+
 		}
 		if (!is_change) {
 			break;
@@ -1202,32 +1247,34 @@ String calculate_boolean_expression(String exp, uint8 *sub_type) {
 				starting = -1;
 				//msg("PPPPPPPPPP")
 				continue;
-			} else if (exp[i] == ')')pars--;
+			}
+			else if (exp[i] == ')')pars--;
 			else if (exp[i] == '[')bra++;
 			else if (exp[i] == ']')bra--;
 		}
-		
+
 		//msg("DDD:", buf, i, string(exp[i]))
 		//---------------allocate bool1
 		if (!is_string && buf != 0 &&
-				(str_has_suffix(buf, "&&") || str_has_suffix(buf, "||") || str_has_suffix(buf, "~~") ||
-						(exp[i] == ')' && pars == 0)) && bool1 == 0 && op == 0 && bra == 0) {
+			(str_has_suffix(buf, "&&") || str_has_suffix(buf, "||") || str_has_suffix(buf, "~~") ||
+				(exp[i] == ')' && pars == 0)) && bool1 == 0 && op == 0 && bra == 0) {
 			String tmp = 0;
 			//printf("#EW:%s,%s\n",buf,tmp);
 			if (str_has_suffix(buf, "&&") || str_has_suffix(buf, "||") || str_has_suffix(buf, "~~")) {
 				op = str_substring(buf, buf_len - 2, 0);
 				tmp = str_substring(buf, 0, buf_len - 2);
 				ending = i - 3;
-			} else {
+			}
+			else {
 				ending = i;
 				str_init(&tmp, buf);
 			}
-			
+
 			if (str_equal(tmp, "!true"))
 				str_init(&tmp, "false");
 			else if (str_equal(tmp, "!false"))
 				str_init(&tmp, "true");
-			
+
 			if (str_equal(tmp, "true") || str_equal(tmp, "false")) {
 				str_init(&bool1, tmp);
 			}
@@ -1240,7 +1287,7 @@ String calculate_boolean_expression(String exp, uint8 *sub_type) {
 		}
 		//---------------end of calculation
 		if (!is_string && buf != 0 && (str_equal(buf, "true") || str_equal(buf, "false") || is_valid_name(buf, true)) &&
-				bool1 == 0 && bool2 == 0 && op == 0 && (exp[i] == '=' && i + 1 == str_length(exp))) {
+			bool1 == 0 && bool2 == 0 && op == 0 && (exp[i] == '=' && i + 1 == str_length(exp))) {
 			if (is_valid_name(buf, true))
 				buf = return_var_memory_value(buf).data;
 			str_init(&final_exp, buf);
@@ -1248,15 +1295,16 @@ String calculate_boolean_expression(String exp, uint8 *sub_type) {
 		}
 		//---------------allocate bool2
 		if (!is_string && buf != 0 &&
-				(str_has_suffix(buf, "&&") || str_has_suffix(buf, "||") || str_has_suffix(buf, "~~") ||
-						(exp[i] == '=' && i + 1 == str_length(exp)) || (exp[i] == ')' && pars == 0)) && bool2 == 0 &&
-				((exp[i] == '=' && bool1 == 0 && op == 0) || (bool1 != 0 && op != 0)) && bra == 0) {
+			(str_has_suffix(buf, "&&") || str_has_suffix(buf, "||") || str_has_suffix(buf, "~~") ||
+				(exp[i] == '=' && i + 1 == str_length(exp)) || (exp[i] == ')' && pars == 0)) && bool2 == 0 &&
+			((exp[i] == '=' && bool1 == 0 && op == 0) || (bool1 != 0 && op != 0)) && bra == 0) {
 			String tmp = 0;
 			if (str_has_suffix(buf, "&&") || str_has_suffix(buf, "||") || str_has_suffix(buf, "~~")) {
 				//op = buf[len(buf)-2:]
 				tmp = str_substring(buf, 0, buf_len - 2);
 				ending = i - 3;
-			} else {
+			}
+			else {
 				str_init(&tmp, buf);
 				ending = i;
 			}
@@ -1264,13 +1312,13 @@ String calculate_boolean_expression(String exp, uint8 *sub_type) {
 				str_init(&tmp, "false");
 			else if (str_equal(tmp, "!false"))
 				str_init(&tmp, "true");
-			
+
 			if (str_equal(tmp, "true") || str_equal(tmp, "false")) {
 				str_init(&bool2, tmp);
 			}
 			//fmt.Printf("EEEE:%s[%s]%s{%s}\n\t%s;%s\n", bool1, op, bool2, tmp, buf, exp)
 			//**************analyze bool1&bool2
-			
+
 			//*************calculate bool1&bool2
 			String result = 0;
 			str_init(&result, "false");
@@ -1278,7 +1326,7 @@ String calculate_boolean_expression(String exp, uint8 *sub_type) {
 			else if (str_equal(op, "||") && (str_equal(bool1, "true") || str_equal(bool2, "true")))
 				str_init(&result, "true");
 			else if (str_equal(op, "~~") && ((str_equal(bool1, "true") && str_equal(bool2, "false")) ||
-					(str_equal(bool1, "false") && str_equal(bool2, "true"))))
+				(str_equal(bool1, "false") && str_equal(bool2, "true"))))
 				str_init(&result, "true");
 			else if (op == 0 && bool1 == 0 && (str_equal(bool2, "true") || str_equal(bool2, "false")))
 				str_init(&result, bool2);
@@ -1301,7 +1349,7 @@ String calculate_boolean_expression(String exp, uint8 *sub_type) {
 			i = -1;
 			continue;
 		}
-		
+
 		//---------------append to buf
 		buf = char_append(buf, exp[i]);
 		if (starting == -1) {
@@ -1310,7 +1358,7 @@ String calculate_boolean_expression(String exp, uint8 *sub_type) {
 		/*if (!is_string && exp[i] == '!' && (i + 1 >= str_length(exp) || exp[i + 1] != '='))
 		{
 		}*/
-		
+
 	}
 	//printf("#EEEE12:%s,%s,%s\n", EXP, exp, final_exp);
 	//***********************return final_exp
@@ -1318,7 +1366,8 @@ String calculate_boolean_expression(String exp, uint8 *sub_type) {
 	return final_exp;
 }
 
-String return_true_false(String exp) {
+String return_true_false(String exp)
+{
 	/**
 	1- c_name=="AliReza" 		---OK---
 	2- init() 					---OK---
@@ -1331,7 +1380,7 @@ String return_true_false(String exp) {
 	3- magic macros
 	4- values (str,num,bool values)
 	*/
-	
+
 	//***********************define variables
 	String final_exp = 0, buf = 0, op = 0, operand1 = 0, operand2 = 0;
 	str_init(&final_exp, "false");
@@ -1345,7 +1394,7 @@ String return_true_false(String exp) {
 		exp = str_substring(exp, 1, 0);
 		is_not = true;
 	}
-	
+
 	for (uint32 i = 0; i < str_length(exp); i++) {
 		uint32 exp_len = str_length(exp);
 		//---------------check is string
@@ -1369,7 +1418,8 @@ String return_true_false(String exp) {
 			if (str_search(comparative_operators, tmp1, StrArraySize(comparative_operators))) {
 				str_init(&op, tmp1);
 				stop_buf = 2;
-			} else if (tmp1[0] == '<' || tmp1[0] == '>') {
+			}
+			else if (tmp1[0] == '<' || tmp1[0] == '>') {
 				op = char_to_str(tmp1[0]);
 				stop_buf = 1;
 			}
@@ -1387,10 +1437,11 @@ String return_true_false(String exp) {
 		//---------------append to buf
 		if (stop_buf == 0) {
 			buf = char_append(buf, exp[i]);
-		} else {
+		}
+		else {
 			stop_buf--;
 		}
-		
+
 	}
 	//msg("&Operands:", operand1, op, operand2)
 	//***********************start calculating
@@ -1401,7 +1452,8 @@ String return_true_false(String exp) {
 		//---------------
 		if (i == 0) {
 			str_init(&oprd, operand1);
-		} else {
+		}
+		else {
 			str_init(&oprd, operand2);
 		}
 		//---------------
@@ -1418,7 +1470,7 @@ String return_true_false(String exp) {
 					oprd = 0;
 				}
 				//msg("&FFGG1:", operand1)
-				
+
 			}
 				//............variable
 			else if (is_valid_name(oprd, true)) {
@@ -1432,7 +1484,8 @@ String return_true_false(String exp) {
 				tyy = po.type_data;
 				oprd = 0;
 				//............value
-			} else {
+			}
+			else {
 				uint8 typ = '0';
 				String value = determine_unknown_value(oprd, &typ);
 				final_res = str_reomve_quotations(value, char_to_str(typ));
@@ -1445,7 +1498,8 @@ String return_true_false(String exp) {
 		if (i == 0) {
 			str_init(&operand1, final_res);
 			type1 = tyy;
-		} else {
+		}
+		else {
 			str_init(&operand2, final_res);
 			type2 = tyy;
 		}
@@ -1454,7 +1508,8 @@ String return_true_false(String exp) {
 	//---------------calculate operand1,operand2 with op
 	if (op == 0 && operand2 == 0 && (str_equal(operand1, "true") || str_equal(operand1, "false"))) {
 		str_init(&operand1, final_exp);
-	} else {
+	}
+	else {
 		String nums_state = 0;
 		if (str_equal(op, ">=") || str_equal(op, "<=") || str_equal(op, ">") || str_equal(op, "<")) {
 			//-----------remove '+'
@@ -1474,7 +1529,7 @@ String return_true_false(String exp) {
 				int32 calc2 = str_to_int32(operand2);
 				if (calc1 < calc2)str_init(&nums_state, "<");
 				else if (calc1 > calc2)str_init(&nums_state, ">");
-				
+
 				if (calc1 == calc2) {
 					str_init(&nums_state, "=");
 				}
@@ -1485,7 +1540,7 @@ String return_true_false(String exp) {
 				double calc2 = str_to_double(operand2);
 				if (calc1 < calc2)str_init(&nums_state, "<");
 				else if (calc1 > calc2)str_init(&nums_state, ">");
-				
+
 				if (calc1 == calc2) {
 					str_init(&nums_state, "=");
 				}
@@ -1571,20 +1626,22 @@ String return_true_false(String exp) {
 			str_init(&final_exp, "true");
 		else if (str_equal(op, "<") && str_equal(nums_state, "<"))
 			str_init(&final_exp, "true");
-		
+
 	}
 	//***********************return final_exp
 	//msg("&TRUE_FALSE_FINAL", operand1, operand2, op, final_exp)
 	if (is_not && str_equal(final_exp, "true")) {
 		str_init(&final_exp, "false");
-	} else if (is_not && str_equal(final_exp, "false")) {
+	}
+	else if (is_not && str_equal(final_exp, "false")) {
 		str_init(&final_exp, "true");
 	}
 	return final_exp;
 }
 
 //*********************************************************
-String determine_unknown_value(String value, uint8 *sub_type) {
+String determine_unknown_value(String value, uint8 *sub_type)
+{
 	String type_val = determine_value_type(value);
 	String ret_val = 0;
 	uint8 ret_type = 0;
@@ -1594,7 +1651,8 @@ String determine_unknown_value(String value, uint8 *sub_type) {
 }
 
 //*********************************************************
-String format_string_expression(String exp) {
+String format_string_expression(String exp)
+{
 	/**
 	1- str st2="Hi %st1% ! you are %d1[1,0]%\n" ---OK---
 	2- str st2="Hi \%st1\% ! you are %d1[1,0]%\n" ---OK---
@@ -1614,14 +1672,15 @@ String format_string_expression(String exp) {
 				is_format = switch_bool(is_format);
 				if (is_format) {
 					start = i;
-				} else {
+				}
+				else {
 					//printf("&###:%s\n", word /*, final_exp, exp*/);
 					end = i;
 					Mpoint po = return_var_memory_value(word);
 					if (po.type_data != '0') {
 						//String tmp3=0 = final_exp
 						final_exp = str_multi_append(str_substring(final_exp, 0, start), po.data,
-								str_substring(final_exp, end + 1, 0), 0, 0, 0);
+						                             str_substring(final_exp, end + 1, 0), 0, 0, 0);
 						//printf("PP::%s,%s\n", word, final_exp);
 						is_change = true;
 						break;
@@ -1645,7 +1704,8 @@ String format_string_expression(String exp) {
 }
 
 //*********************************************************
-void calculate_string_expression(String exp, String *value, uint8 *sub_type) {
+void calculate_string_expression(String exp, String *value, uint8 *sub_type)
+{
 	/**
 	1- "Ind: %i[0]%\n" ---OK---
 	2- "Hello "+sd[0,1] ---OK---
@@ -1665,7 +1725,8 @@ void calculate_string_expression(String exp, String *value, uint8 *sub_type) {
 		str_init(&(*value), "\"\"");
 		(*sub_type) = 's';
 		return;
-	} else if (str_equal(exp, "\"\\\"")) {
+	}
+	else if (str_equal(exp, "\"\\\"")) {
 		str_init(&(*value), exp);
 		(*sub_type) = 's';
 		return;
@@ -1685,7 +1746,8 @@ void calculate_string_expression(String exp, String *value, uint8 *sub_type) {
 				str1 = 0, str2 = 0, op = 0, buf = 0;
 				starting = -1;
 				continue;
-			} else if (exp[i] == ')')pars--;
+			}
+			else if (exp[i] == ')')pars--;
 			else if (exp[i] == '[')bra++;
 			else if (exp[i] == ']')bra--;
 		}
@@ -1702,7 +1764,8 @@ void calculate_string_expression(String exp, String *value, uint8 *sub_type) {
 					str1 = utf8_to_bytes_string(get_utst(uid).utf8_string);
 					//utf8_str_print("aaaaaa",ustr,true);
 				}
-			} else {
+			}
+			else {
 				Mpoint point = return_var_memory_value(buf);
 				str_init(&str1, point.data);
 				if (point.type_data == 's' || point.type_data == 'u') {
@@ -1730,7 +1793,7 @@ void calculate_string_expression(String exp, String *value, uint8 *sub_type) {
 		}
 		//---------------allocate str2
 		if (!is_string && (exp[i] == '=' || exp[i] == ')' || exp[i] == '+') && op != 0 && is_str1 && str2 == 0 &&
-				buf != 0 && bra == 0) {
+			buf != 0 && bra == 0) {
 			ending = i;
 			Boolean is_valid_val = false;
 			if (buf_len >= 2 && buf[0] == '\"' && buf[buf_len - 1] == '\"') {
@@ -1742,7 +1805,8 @@ void calculate_string_expression(String exp, String *value, uint8 *sub_type) {
 					str2 = utf8_to_bytes_string(get_utst(uid).utf8_string);
 					//utf8_str_print("aaaaaa",ustr,true);
 				}
-			} else if (str_is_num(buf) && (exp[i] == '=' || exp[i] == ')')) {
+			}
+			else if (str_is_num(buf) && (exp[i] == '=' || exp[i] == ')')) {
 				str_init(&str2, buf);
 				is_valid_val = true;
 				if (str_indexof(str2, UTF8_ID_LABEL, 0) == 0) {
@@ -1751,7 +1815,8 @@ void calculate_string_expression(String exp, String *value, uint8 *sub_type) {
 					str2 = utf8_to_bytes_string(get_utst(uid).utf8_string);
 					//utf8_str_print("aaaaaa",ustr,true);
 				}
-			} else {
+			}
+			else {
 				Mpoint point = return_var_memory_value(buf);
 				str_init(&str2, point.data);
 				if (point.type_data == 's') {
@@ -1779,7 +1844,7 @@ void calculate_string_expression(String exp, String *value, uint8 *sub_type) {
 			if (str_indexof(str2, "%", 0) > -1) {
 				str2 = format_string_expression(str2);
 			}
-			
+
 			//msg("&G2", str1, str2, buf)
 			//*************calculate str1&str2
 			String result = 0;
@@ -1820,7 +1885,8 @@ void calculate_string_expression(String exp, String *value, uint8 *sub_type) {
 					buf = utf8_to_bytes_string(get_utst(uid).utf8_string);
 					//utf8_str_print("aaaaaa",ustr,true);
 				}
-			} else if (is_valid_name(buf, true)) {
+			}
+			else if (is_valid_name(buf, true)) {
 				String buf1 = 0;
 				str_init(&buf1, buf);
 				Mpoint point = return_var_memory_value(buf);
@@ -1828,7 +1894,8 @@ void calculate_string_expression(String exp, String *value, uint8 *sub_type) {
 				is_str_style = false;
 				if (point.type_data == 's' || point.type_data == 'n' || point.type_data == 'u') {
 					is_valid_val = true;
-				} else {
+				}
+				else {
 					//msg("&Str", buf, string(tmp1), is_valid_val)
 					str_init(&buf, buf1);
 				}
@@ -1853,7 +1920,8 @@ void calculate_string_expression(String exp, String *value, uint8 *sub_type) {
 			if (!is_str_style) {
 				if (type == 'u') str_init(&utf8_buf, buf);
 				buf = str_multi_append("\"", buf, "\"", 0, 0, 0);
-			} else if (type == 'u') {
+			}
+			else if (type == 'u') {
 				str_init(&utf8_buf, str_substring(buf, 1, buf_len - 1));
 			}
 			if (type == 'u') {
@@ -1887,7 +1955,8 @@ void calculate_string_expression(String exp, String *value, uint8 *sub_type) {
  * @param retval
  * @param rettype
  */
-void calculate_math_expression(String exp, uint8 target_type, String *retval, uint8 *rettype) {
+void calculate_math_expression(String exp, uint8 target_type, String *retval, uint8 *rettype)
+{
 	//***********************define variables
 	String final_exp = 0;
 	str_init(&final_exp, "0");
@@ -1910,9 +1979,9 @@ void calculate_math_expression(String exp, uint8 target_type, String *retval, ui
 	}
 	//----------------if is ()
 	exp = remove_unused_parenthesis(exp);
-	
+
 	uint32 len_exp = str_length(exp);
-	
+
 	if (len_exp == 1 && (exp[0] < '0' || exp[0] > '9')) {
 		str_init(&(*retval), "0");
 		(*rettype) = 'i';
@@ -1929,7 +1998,8 @@ void calculate_math_expression(String exp, uint8 target_type, String *retval, ui
 			op = 0, num1 = 0, num2 = 0, buf = 0;
 			starting = -1;
 			continue;
-		} else if (exp[i] == ')')pars--;
+		}
+		else if (exp[i] == ')')pars--;
 		else if (exp[i] == '[')bra++;
 		else if (exp[i] == ']')bra--;
 		//---------------allocate num1
@@ -1941,7 +2011,8 @@ void calculate_math_expression(String exp, uint8 target_type, String *retval, ui
 				str_init(&num1, buf);
 				is_valid_val = true;
 				ty1 = set_type_of_math(&num1, 0);
-			} else {
+			}
+			else {
 				Mpoint mpoint = return_var_memory_value(buf);
 				if (mpoint.type_data == 'i' || mpoint.type_data == 'f' || mpoint.type_data == 'h') {
 					str_init(&num1, mpoint.data);
@@ -1958,7 +2029,7 @@ void calculate_math_expression(String exp, uint8 target_type, String *retval, ui
 				return;
 			}
 			//*************
-			
+
 			op = exp[i];
 			//printf("&Buf1:%s,%s,%c,%c\n", buf, num1, type_exp,op);
 			buf = 0;
@@ -1967,7 +2038,7 @@ void calculate_math_expression(String exp, uint8 target_type, String *retval, ui
 		}
 		//---------------allocate num2
 		if ((char_search(single_operators, exp[i]) || exp[i] == '=' || exp[i] == ')') && buf != 0 && num2 == 0 &&
-				num1 != 0 && op != 0 && bra == 0) {
+			num1 != 0 && op != 0 && bra == 0) {
 			buf = str_trim_space(buf);
 			buf = remove_unused_parenthesis(buf);
 			Boolean is_valid_val = false;
@@ -1976,9 +2047,10 @@ void calculate_math_expression(String exp, uint8 target_type, String *retval, ui
 				str_init(&num2, buf);
 				is_valid_val = true;
 				ty2 = set_type_of_math(&num2, 0);
-			} else {
+			}
+			else {
 				Mpoint mpoint = return_var_memory_value(buf);
-				
+
 				if (mpoint.type_data == 'i' || mpoint.type_data == 'f' || mpoint.type_data == 'h') {
 					str_init(&num2, mpoint.data);
 					is_valid_val = true;
@@ -2000,7 +2072,8 @@ void calculate_math_expression(String exp, uint8 target_type, String *retval, ui
 				uint8 tmp23 = '_';
 				tmp23 = set_type_of_math(&num1, &num2);
 				type_exp = priority_math_type(type_exp, tmp23);
-			} else {
+			}
+			else {
 				type_exp = ty1;
 				type_exp = priority_math_type(type_exp, ty2);
 			}
@@ -2016,12 +2089,13 @@ void calculate_math_expression(String exp, uint8 target_type, String *retval, ui
 			//*************calculate num1&num2
 			String result = 0;
 			str_init(&result, "0");
-			
+
 			result = calculate_two_numbers(num1, num2, op, type_exp);
 			//*************resize result
 			if (type_exp == 'i' && (str_length(result) > MAX_INT_LEN || str_indexof(result, ".", 0) >= 0)) {
 				result = resize_to_int(result);
-			} else if (type_exp == 'f' && str_length(result) > MAX_FLOAT_LEN) {
+			}
+			else if (type_exp == 'f' && str_length(result) > MAX_FLOAT_LEN) {
 				result = resize_to_float(result);
 			}
 			//printf("&VVV:%s,%s,%c,%c=>%s\n", num1, num2, op, type_exp, result);
@@ -2037,7 +2111,7 @@ void calculate_math_expression(String exp, uint8 target_type, String *retval, ui
 			}
 			expression = str_multi_append(s1, result, s2, 0, 0, 0);
 			str_init(&exp, expression);
-			
+
 			//*************end calculate
 			//msg("DDDD:", starting)
 			//printf("CALC:%s%c%s=%s\n\t%s\n", num1, op, num2, result, exp);
@@ -2066,11 +2140,12 @@ void calculate_math_expression(String exp, uint8 target_type, String *retval, ui
 			if (str_indexof(buf, "0x", 0) > -1 || str_indexof(buf, "0b", 0) > -1 || str_indexof(buf, "0o", 0) > -1) {
 				buf = is_radix_need_convert(buf, type_exp);
 			}
-			
+
 			//msg("&NNN",buf,is_ok,string(type_exp))
 			if (str_is_num(buf)) {
 				is_valid_val = true;
-			} else if (str_equal(buf, "null")) {
+			}
+			else if (str_equal(buf, "null")) {
 				is_valid_val = true;
 				str_init(&buf, "0");
 			}
@@ -2085,7 +2160,8 @@ void calculate_math_expression(String exp, uint8 target_type, String *retval, ui
 			uint32 buf_len = str_length(buf);
 			if (type_exp == 'i' && (buf_len > MAX_INT_LEN || str_indexof(buf, ".", 0) > 0)) {
 				buf = resize_to_int(buf);
-			} else if (type_exp == 'f' && buf_len > MAX_FLOAT_LEN) {
+			}
+			else if (type_exp == 'f' && buf_len > MAX_FLOAT_LEN) {
 				buf = resize_to_float(buf);
 			}
 			str_init(&final_exp, buf);
@@ -2116,7 +2192,8 @@ void calculate_math_expression(String exp, uint8 target_type, String *retval, ui
  * @param type_exp
  * @return String
  */
-String calculate_two_numbers(String num1, String num2, uint8 op, uint8 type_exp) {
+String calculate_two_numbers(String num1, String num2, uint8 op, uint8 type_exp)
+{
 	String result = 0;
 	str_init(&result, "0");
 	//msg("&$$$", num1, num2, op, string(type_exp))
@@ -2124,13 +2201,14 @@ String calculate_two_numbers(String num1, String num2, uint8 op, uint8 type_exp)
 	if (op == '/' && str_equal(num2, "0")) {
 		exception_handler("zero_division", __func__, str_multi_append(num1, "/", num2, 0, 0, 0), "");
 		return "0";
-	} else if (op == '%' && (type_exp == 'f' || type_exp == 'h')) {
+	}
+	else if (op == '%' && (type_exp == 'f' || type_exp == 'h')) {
 		//com_type, _, _ := fitting_value(string(type_exp), "", "com_type")
 		//exception_handler("wrong_remainder", __func__, com_type, "")
 		//TODO:error
 		return "0";
 	}
-	
+
 	//*********************************calculate num1,num2
 	//----------------int
 	if (type_exp == 'i') {
@@ -2138,7 +2216,7 @@ String calculate_two_numbers(String num1, String num2, uint8 op, uint8 type_exp)
 		num2 = resize_to_int(num2);
 		int32 n1 = str_to_int32(num1);
 		int32 n2 = str_to_int32(num2);
-		
+
 		if (op == '/' && n2 == 0) {
 			exception_handler("zero_division", __func__, str_multi_append(num1, "/", num2, 0, 0, 0), "");
 			return "0";
@@ -2164,7 +2242,7 @@ String calculate_two_numbers(String num1, String num2, uint8 op, uint8 type_exp)
 				double ret = int32_power((double) n1, n2);
 				if (ret > MAX_INT_NUMBER) {
 					exception_handler("out_of_range_integer", "calculate_two_numbers",
-							str_multi_append(num1, "^", num2, 0, 0, 0), "");
+					                  str_multi_append(num1, "^", num2, 0, 0, 0), "");
 					return "0";
 				}
 				//printf("DDDDDDD:%li\n",ret);
@@ -2241,7 +2319,7 @@ String calculate_two_numbers(String num1, String num2, uint8 op, uint8 type_exp)
 			}
 		}
 	}
-	
+
 	return result;
 }
 
@@ -2255,7 +2333,8 @@ String calculate_two_numbers(String num1, String num2, uint8 op, uint8 type_exp)
  * @param ret_num2
  * @return int32
  */
-int32 balance_huge_numbers(String num1, String num2, uint8 type_nums, String *ret_num1, String *ret_num2) {
+int32 balance_huge_numbers(String num1, String num2, uint8 type_nums, String *ret_num1, String *ret_num2)
+{
 	//****************init vars
 	uint32 num1_1_len = 0, num1_2_len = 0, num2_1_len = 0, num2_2_len = 0;
 	String num1_1 = 0, num1_2 = 0, num2_1 = 0, num2_2 = 0;
@@ -2280,7 +2359,8 @@ int32 balance_huge_numbers(String num1, String num2, uint8 type_nums, String *re
 		if (!is_point) {
 			num1_1_len++;
 			num1_1 = char_append(num1_1, num1[ii]);
-		} else {
+		}
+		else {
 			num1_2_len++;
 			num1_2 = char_append(num1_2, num1[ii]);
 		}
@@ -2299,7 +2379,8 @@ int32 balance_huge_numbers(String num1, String num2, uint8 type_nums, String *re
 		if (!is_point) {
 			num2_1_len++;
 			num2_1 = char_append(num2_1, num2[ii]);
-		} else {
+		}
+		else {
 			num2_2_len++;
 			num2_2 = char_append(num2_2, num2[ii]);
 		}
@@ -2316,7 +2397,8 @@ int32 balance_huge_numbers(String num1, String num2, uint8 type_nums, String *re
 		for (uint32 i = 0; i < num1_1_len - num2_1_len; i++) {
 			num2_1 = char_append(num2_1, '0');
 		}
-	} else {
+	}
+	else {
 		for (uint32 i = 0; i < num2_1_len - num1_1_len; i++) {
 			num1_1 = char_append(num1_1, '0');
 		}
@@ -2328,7 +2410,8 @@ int32 balance_huge_numbers(String num1, String num2, uint8 type_nums, String *re
 		for (uint32 i = 0; i < num1_2_len - num2_2_len; i++) {
 			num2_2 = char_append(num2_2, '0');
 		}
-	} else {
+	}
+	else {
 		for (uint32 i = 0; i < num2_2_len - num1_2_len; i++) {
 			num1_2 = char_append(num1_2, '0');
 		}
@@ -2340,9 +2423,11 @@ int32 balance_huge_numbers(String num1, String num2, uint8 type_nums, String *re
 	//****************determine main point
 	if (type_nums == 's'/*if type is sum*/) {
 		point = str_length(num1_1);
-	} else if (type_nums == 'm')/*if type is multiple */ {
+	}
+	else if (type_nums == 'm')/*if type is multiple */ {
 		point = str_length(num1_2) + str_length(num2_2);
-	} else if (type_nums == 'd')/*if type is division */ {
+	}
+	else if (type_nums == 'd')/*if type is division */ {
 		point = str_length(num1_1) + str_length(num1_2);
 	}
 	//****************return
@@ -2367,14 +2452,15 @@ int32 balance_huge_numbers(String num1, String num2, uint8 type_nums, String *re
  * @return int32
  */
 int32 determine_max_min_huge_numbers(String num1, String num2, uint8 type_nums, String *mmax, String *mmin,
-		uint8 *final_type) {
+                                     uint8 *final_type)
+{
 	//****************init vars
 	uint8 final_op = '+', op1 = '+', op2 = '+', max = '0', min = '0';
 	String num3 = 0, num4 = 0;
 	String num1_1 = 0, num1_2 = 0, num2_1 = 0, num2_2 = 0;
 	Boolean is_point = false;
 	//****************balance num1,num2
-	
+
 	int32 point = balance_huge_numbers(num1, num2, type_nums, &num3, &num4);
 	//printf("#TTTTTT:%s,%s=>%s,%s,%i\n", num1, num2, num3, num4, point);
 	op1 = num3[0];
@@ -2387,7 +2473,8 @@ int32 determine_max_min_huge_numbers(String num1, String num2, uint8 type_nums, 
 		if (!is_point) {
 			num1_1 = char_append(num1_1, num3[i]);
 			num2_1 = char_append(num2_1, num4[i]);
-		} else {
+		}
+		else {
 			num1_2 = char_append(num1_2, num3[i]);
 			num2_2 = char_append(num2_2, num4[i]);
 		}
@@ -2404,7 +2491,8 @@ int32 determine_max_min_huge_numbers(String num1, String num2, uint8 type_nums, 
 		if (n1 > n2) {
 			max = '1';
 			break;
-		} else if (n2 > n1) {
+		}
+		else if (n2 > n1) {
 			max = '2';
 			break;
 		}
@@ -2417,7 +2505,8 @@ int32 determine_max_min_huge_numbers(String num1, String num2, uint8 type_nums, 
 			if (n1 > n2) {
 				max = '1';
 				break;
-			} else if (n2 > n1) {
+			}
+			else if (n2 > n1) {
 				max = '2';
 				break;
 			}
@@ -2432,7 +2521,8 @@ int32 determine_max_min_huge_numbers(String num1, String num2, uint8 type_nums, 
 	if (max == '1') {
 		(*mmax) = str_multi_append(num1_1, num1_2, 0, 0, 0, 0);
 		(*mmin) = str_multi_append(num2_1, num2_2, 0, 0, 0, 0);
-	} else {
+	}
+	else {
 		(*mmin) = str_multi_append(num1_1, num1_2, 0, 0, 0, 0);
 		(*mmax) = str_multi_append(num2_1, num2_2, 0, 0, 0, 0);
 	}
@@ -2444,7 +2534,8 @@ int32 determine_max_min_huge_numbers(String num1, String num2, uint8 type_nums, 
 
 //*********************************************************
 //[OK]
-String sum_huge_numbers(String num1, String num2, Boolean is_neg) {
+String sum_huge_numbers(String num1, String num2, Boolean is_neg)
+{
 	//****************init vars
 	String first = 0, second = 0, result = 0;
 	Boolean is_sum = true, is_carry = false;
@@ -2495,7 +2586,7 @@ String sum_huge_numbers(String num1, String num2, Boolean is_neg) {
 			}
 			result = str_append(result, str_from_int32(tmp1));
 		}
-	
+
 	//----------------reverse result and finish
 	result = str_reverse(result);
 	//printf("#QQQQQQ:%s,%s,%i,%i=>%s\n", num1, num2, is_sum, point_s, result);
@@ -2514,7 +2605,8 @@ String sum_huge_numbers(String num1, String num2, Boolean is_neg) {
 	result = str_trim_number(result);
 	if (op == '-') {
 		result = str_make_negative_number(result);
-	} else if (is_sum && is_carry) {
+	}
+	else if (is_sum && is_carry) {
 		result = str_multi_append("1", result, 0, 0, 0, 0);
 	}
 	//****************return
@@ -2525,7 +2617,8 @@ String sum_huge_numbers(String num1, String num2, Boolean is_neg) {
 }
 
 //*********************************************************
-String muliply_huge_numbers(String num1, String num2) {
+String muliply_huge_numbers(String num1, String num2)
+{
 	//****************init vars
 	uint8 op1 = '0', op2 = '0', final_op = '0';
 	String result = 0, zeros = 0, res1 = 0, res2 = 0, num3 = 0, num4 = 0;
@@ -2562,7 +2655,8 @@ String muliply_huge_numbers(String num1, String num2) {
 				carry = tmp2;
 				if (res_ch == 1) {
 					res1 = str_append(res1, str_from_int32(tmp3));
-				} else {
+				}
+				else {
 					res2 = str_append(res2, str_from_int32(tmp3));
 				}
 				//msg("&HHH:", res1, res2, string(num4[j]), string(num3[i]))
@@ -2570,19 +2664,21 @@ String muliply_huge_numbers(String num1, String num2) {
 			if (carry > 0) {
 				if (res_ch == 1) {
 					res1 = str_append(res1, str_from_int32(carry));
-				} else {
+				}
+				else {
 					res2 = str_append(res2, str_from_int32(carry));
 				}
 			}
-			
+
 			if (res_ch == 1) {
 				res1 = str_reverse(res1);
 				res1 = str_append(res1, zeros);
-			} else {
+			}
+			else {
 				res2 = str_reverse(res2);
 				res2 = str_append(res2, zeros);
 			}
-			
+
 			//msg("&YYYY:", string(num3[i]), res1, res2, zeros)
 			res_ch++;
 			if (res_ch == 3) {
@@ -2636,13 +2732,14 @@ String muliply_huge_numbers(String num1, String num2) {
 	if (final_op == '-') {
 		result = str_multi_append("-", result, 0, 0, 0, 0);
 	}
-	
+
 	//****************return
 	return result;
 }
 
 //*********************************************************
-String divide_huge_numbers(String num1, String num2) {
+String divide_huge_numbers(String num1, String num2)
+{
 	//Using Newton–Raphson division algorithm
 	//****************init vars
 	String result = 0, X0 = 0, Xi = 0, num3 = 0, num4 = 0;
@@ -2721,7 +2818,8 @@ String divide_huge_numbers(String num1, String num2) {
  * @param type_exp
  * @return String
  */
-String is_radix_need_convert(String buf, uint8 type_exp) {
+String is_radix_need_convert(String buf, uint8 type_exp)
+{
 	Boolean is_neg = false;
 	if (str_length(buf) > 1 && (buf[0] == '-' || buf[0] == '+')) {
 		if (buf[0] == '-') {
@@ -2735,7 +2833,7 @@ String is_radix_need_convert(String buf, uint8 type_exp) {
 		buf = convert_radixes_to_dec(buf, 8, type_exp);
 	else if (str_indexof(buf, "0x", 0) == 0)
 		buf = convert_radixes_to_dec(buf, 16, type_exp);
-	
+
 	if (is_neg) {
 		buf = str_multi_append("-", buf, 0, 0, 0, 0);
 	}
@@ -2750,7 +2848,8 @@ String is_radix_need_convert(String buf, uint8 type_exp) {
  * @param type_exp
  * @return String
  */
-String convert_radixes_to_dec(String base, uint8 radix, uint8 type_exp) {
+String convert_radixes_to_dec(String base, uint8 radix, uint8 type_exp)
+{
 	//msg("&^^", base, radix)
 	String final = 0, int_s = 0, float_s = 0;
 	uint8 start_x, after_point = 1;
@@ -2771,7 +2870,7 @@ String convert_radixes_to_dec(String base, uint8 radix, uint8 type_exp) {
 			str_init(&nmb, "0123456789abcdef");
 			break;
 	}
-	
+
 	//*******************
 	if (base[0] == '-') {
 		final = char_append(final, '-');
@@ -2791,17 +2890,18 @@ String convert_radixes_to_dec(String base, uint8 radix, uint8 type_exp) {
 		}
 		if (!is_point && is_base && char_search(nmb, base[i])) {
 			int_s = char_append(int_s, base[i]);
-		} else if (is_point && is_base && char_search(nmb, base[i])) {
+		}
+		else if (is_point && is_base && char_search(nmb, base[i])) {
 			float_s = char_append(float_s, base[i]);
 		}
 	}
-	
+
 	//*******************convert int_s to decimal
 	int32 b = str_length(int_s) - 1;
 	for (uint32 i = 0; i < str_length(int_s); i++) {
 		double n3 = int32_power(radix, b);
 		b--;
-		
+
 		int32 n4 = char_search_index(nmb, int_s[i]);
 		res_ii += (n4 * n3);
 	}
@@ -2841,7 +2941,8 @@ String convert_radixes_to_dec(String base, uint8 radix, uint8 type_exp) {
  * @param str_val
  * @return String
  */
-String resize_to_int(String str_val) {
+String resize_to_int(String str_val)
+{
 	String fin_res = 0;
 	for (uint32 i = 0; i < str_length(str_val); i++) {
 		if (str_val[i] == '.' || str_length(fin_res) > MAX_INT_LEN) {
@@ -2858,7 +2959,8 @@ String resize_to_int(String str_val) {
  * @param str_val
  * @return String
  */
-String resize_to_float(String str_val) {
+String resize_to_float(String str_val)
+{
 	String fin_res = 0;
 	uint32 count = 0;
 	for (uint32 i = 0; i < str_length(str_val); i++) {
@@ -2882,7 +2984,8 @@ String resize_to_float(String str_val) {
  * @param tmp1
  * @return uint8
  */
-uint8 priority_math_type(uint8 type_exp, uint8 tmp1) {
+uint8 priority_math_type(uint8 type_exp, uint8 tmp1)
+{
 	if (tmp1 == 'h' || type_exp == 'h')
 		return 'h';
 	if (tmp1 == 'f' || type_exp == 'f')
@@ -2897,7 +3000,8 @@ uint8 priority_math_type(uint8 type_exp, uint8 tmp1) {
  * @param value
  * @return String
  */
-String remove_unused_parenthesis(String value) {
+String remove_unused_parenthesis(String value)
+{
 	/**
 		- (56+6) => 56+6
 		- ((5+5)+6) => (5+5)+6
@@ -2912,14 +3016,15 @@ String remove_unused_parenthesis(String value) {
 			if (value[i] == '\"' && (i == 0 || value[i - 1] != '\\')) {
 				is_string = switch_bool(is_string);
 			}
-			
+
 			if (!is_string && value[i] == '(')pars++;
 			else if (!is_string && value[i] == ')') {
 				pars--;
 				if (i + 1 == len && pars == 0) {
 					is_remove = true;
 					is_br = true;
-				} else if (i + 1 < len && pars == 0) {
+				}
+				else if (i + 1 < len && pars == 0) {
 					is_br = true;
 				}
 			}
@@ -2941,19 +3046,21 @@ String remove_unused_parenthesis(String value) {
  * @param num22
  * @return uint8
  */
-uint8 set_type_of_math(String *num11, String *num22) {
+uint8 set_type_of_math(String *num11, String *num22)
+{
 	String num1 = 0;
 	String num2 = 0;
 	str_init(&num1, (*num11));
 	if (num22 != 0)str_init(&num2, (*num22));
-	
+
 	uint32 num1_len = str_length(num1);
 	uint32 num2_len = (num22 != 0) ? str_length(num2) : 0;
 	uint8 type_exp = '0';
 	Boolean is_hex1 = false, is_hex2 = false;
 	if (num1_len > 2 && num1[0] == '0' && num1[1] == 'x') {
 		is_hex1 = true;
-	} else if (num2_len > 2 && num2[0] == '0' && num2[1] == 'x') {
+	}
+	else if (num2_len > 2 && num2[0] == '0' && num2[1] == 'x') {
 		is_hex2 = true;
 	}
 	uint8 num2_t = '0';
@@ -2966,20 +3073,21 @@ uint8 set_type_of_math(String *num11, String *num22) {
 		str_init(&(*num11), num1);
 		if (num22 != 0)str_init(&(*num22), num2);
 		return '0';
-	} else if (num1_t == 'h' || num2_t == 'h')
+	}
+	else if (num1_t == 'h' || num2_t == 'h')
 		type_exp = 'h';
 	else if (num1_t == 'f' || num2_t == 'f')
 		type_exp = 'f';
 	else type_exp = 'i';
 	if (num1_len > 0 && !is_hex1 &&
-			((num1[num1_len - 1] == 'i' && type_exp == 'i') || (num1[num1_len - 1] == 'f' && type_exp == 'f') ||
-					(num1[num1_len - 1] == 'h' && type_exp == 'h'))) {
+		((num1[num1_len - 1] == 'i' && type_exp == 'i') || (num1[num1_len - 1] == 'f' && type_exp == 'f') ||
+			(num1[num1_len - 1] == 'h' && type_exp == 'h'))) {
 		num1 = str_substring(num1, 0, num1_len - 1);
 	}
-	
+
 	if (num2_len > 0 && !is_hex2 &&
-			((num2[num2_len - 1] == 'i' && type_exp == 'i') || (num2[num2_len - 1] == 'f' && type_exp == 'f') ||
-					(num2[num2_len - 1] == 'h' && type_exp == 'h'))) {
+		((num2[num2_len - 1] == 'i' && type_exp == 'i') || (num2[num2_len - 1] == 'f' && type_exp == 'f') ||
+			(num2[num2_len - 1] == 'h' && type_exp == 'h'))) {
 		num2 = str_substring(num2, 0, num2_len - 1);
 	}
 	//printf("DDFFFF:%s,%i\n", num1, num2_len);
@@ -2995,13 +3103,14 @@ uint8 set_type_of_math(String *num11, String *num22) {
  * @param num
  * @return uint8
  */
-uint8 determine_type_num(String num) {
+uint8 determine_type_num(String num)
+{
 	//**********************define
 	uint8 num_type = '0';
 	uint32 len = str_length(num);
 	//var is_neg=false
 	if (len > 3 && (num[0] == '-' || num[0] == '+') && num[1] == '0' &&
-			(num[2] == 'b' || num[2] == 'o' || num[2] == 'x')) {
+		(num[2] == 'b' || num[2] == 'o' || num[2] == 'x')) {
 		if (num[0] == '-') {
 			//is_neg=true
 		}
@@ -3020,7 +3129,8 @@ uint8 determine_type_num(String num) {
 		int32 ind = str_indexof(num, ".", 0);
 		if (ind == -1) {
 			return 'd';
-		} else {
+		}
+		else {
 			return 'i';
 		}
 	}
@@ -3059,7 +3169,8 @@ uint8 determine_type_num(String num) {
 		}
 		if (!is_point && num[i] >= '0' && num[i] <= '9') {
 			before++;
-		} else if (is_point && num[i] >= '0' && num[i] <= '9') {
+		}
+		else if (is_point && num[i] >= '0' && num[i] <= '9') {
 			after++;
 		}
 	}
@@ -3077,7 +3188,7 @@ uint8 determine_type_num(String num) {
 	else
 		return 'h';
 	//return '0';
-	
+
 }
 //*********************************************************
 //*********************************************************

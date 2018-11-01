@@ -60,4 +60,6 @@ String limit_decimal_huge_numbers(String s);
 
 Boolean is_equal_arrays_indexes(String s1, String s2);
 
+Boolean has_two_limiting(String s, uint8 l1, uint8 l2, Boolean ignore_space);
+
 #endif /*__COMMON_FUNCS_H*/

@@ -5,12 +5,15 @@
 #include <MPL/system.h>
 
 //********************************************
-uint8 labeled_instruction(String code) {
+uint8 labeled_instruction(String code)
+{
 	//----------------------init variables
 	uint8 state = UNKNOWN_LBL_INST;
 	Boolean is_string = false, is_equal = false, is_ret = false;
-	uint16 par = 0/*count of parenthesis */, bra = 0/*count of brackets*/, aco = 0/*count of acolads*/, store_counter = 0;
-	String word = 0/*just create by words_splitter*/, case_word = 0/*create by words_splitter,single_operators*/, com_word = 0/*create by words_splitter,single_operators and skip brackets*/, buffer = 0;
+	uint16 par = 0/*count of parenthesis */, bra = 0/*count of brackets*/, aco = 0/*count of acolads*/,
+		store_counter = 0;
+	String word = 0/*just create by words_splitter*/, case_word = 0/*create by words_splitter,single_operators*/,
+		com_word = 0/*create by words_splitter,single_operators and skip brackets*/, buffer = 0;
 	int16 last_pars = -1;
 	String word_store[10];
 	uint8 last_sep = 0;
@@ -38,14 +41,14 @@ uint8 labeled_instruction(String code) {
 		}
 		//------------------is return keyword
 		if (!is_string && (code[i] == ' ' || code[i] == '(' || i + 1 == len) && word != 0 &&
-				str_equal(word, "return")) {
+			str_equal(word, "return")) {
 			state = RETURN_LBL_INST;
 			is_ret = true;
 			//break
 		}
 		//------------------is next or break keyword
 		if (!is_string && ((code[i] == ' ' || code[i] == '(' || i + 1 == len) && word != 0 &&
-				(str_equal(word, "next") || str_equal(word, "break") || i + 1 == len))) {
+			(str_equal(word, "next") || str_equal(word, "break") || i + 1 == len))) {
 			Boolean is_not = false;
 			if (i + 1 == len) {
 				is_not = true;
@@ -62,13 +65,14 @@ uint8 labeled_instruction(String code) {
 		}
 		//------------------is define variables
 		if (!is_string && !is_equal && code[i] == ' ' && word != 0 &&
-				!str_search(keywords_out, word, StrArraySize(keywords_out))) {
+			!str_search(keywords_out, word, StrArraySize(keywords_out))) {
 			//printf("Data type:%s,%i\n", word,search_datas(word, 0, 0, true).id);
 			if (search_datas(word, 0, true).id == 0 && !is_ret) {
 				//exception_handler("wrong_type_var", "labeled_instruction:89", word, "")
 				//TODO:
 				return UNKNOWN_LBL_INST;
-			} else {
+			}
+			else {
 				state = DEF_VARS_LBL_INST;
 				//printf("RRRRRRRRRRRRRRRRRR:%s,%s\n",word,code);
 			}
@@ -97,13 +101,14 @@ uint8 labeled_instruction(String code) {
 			//printf("SSSSSSSS:%s\n", case_word);
 			last_pars = par - 1;
 			//break
-		} else if (last_pars > -1 && last_pars == par && state == FUNC_CALL_LBL_INST) {
+		}
+		else if (last_pars > -1 && last_pars == par && state == FUNC_CALL_LBL_INST) {
 			break;
 		}
 		//------------------is ++ or --
 		if (!is_string && com_word != 0 && i + 1 < len &&
-				((code[i] == '+' && code[i + 1] == '+') || (code[i] == '-' && code[i + 1] == '-')) &&
-				state == UNKNOWN_LBL_INST && is_valid_name(com_word, true)) {
+			((code[i] == '+' && code[i + 1] == '+') || (code[i] == '-' && code[i + 1] == '-')) &&
+			state == UNKNOWN_LBL_INST && is_valid_name(com_word, true)) {
 			//msg("TTT%$:", com_word)
 			state = ALLOC_SHORT_LBL_INST;
 			break;
@@ -121,25 +126,28 @@ uint8 labeled_instruction(String code) {
 			}
 			//msg("WORD:", word)
 			word = 0;
-		} else {
+		}
+		else {
 			word = char_append(word, code[i]);
 			//msg("WORD_C", word)
 		}
 		//--------------
 		if (!is_string && (char_search(words_splitter, code[i]) || char_search(single_operators, code[i]))) {
 			case_word = 0;
-		} else {
+		}
+		else {
 			case_word = char_append(case_word, code[i]);
 		}
 		//--------------
 		if (!is_string && (char_search(words_splitter, code[i]) || char_search(single_operators, code[i])) &&
-				bra == 0 && code[i] != '[' && code[i] != ']') {
+			bra == 0 && code[i] != '[' && code[i] != ']') {
 			//msg("COM_WORD:", com_word)
 			com_word = 0;
-		} else {
+		}
+		else {
 			com_word = char_append(com_word, code[i]);
 		}
-		
+
 	}
 	//------------------final switch
 	//msg("&&&&", state)
@@ -152,7 +160,8 @@ uint8 labeled_instruction(String code) {
 }
 
 //****************************************************
-String define_vars(String inst) {
+String define_vars(String inst)
+{
 	def_var_s vars_store[MAX_VAR_ALLOC_INSTRUCTIONS];
 	uint8 vars_counter = define_vars_analyzing(inst, vars_store);
 	//printf("!@!!@!@:%s,%i\n",inst,vars_counter);
@@ -171,13 +180,13 @@ String define_vars(String inst) {
 		//printf("%DEF_VAR:%s,%s,%s\n",vars_store[i].main_type,vars_store[i].name_var,vars_store[i].value_var);
 		vars_store[i].name_var = str_multi_append(vars_store[i].name_var, "[", vars_store[i].index_var, "]", 0, 0);
 		long_int ret1 = set_memory_var(entry_table.cur_fin, entry_table.cur_sid, vars_store[i].name_var,
-				vars_store[i].value_var, vars_store[i].main_type, true);
+		                               vars_store[i].value_var, vars_store[i].main_type, true);
 		//msg("&INIT_VAR:", st.name_var,st.value_var)
 		if (ret1 == 0) {
 			return BAD_CODE;
 		}
 		vars_list[vars_list_counter++] = ret1;
-		
+
 	}
 	//show_memory(0);
 	//msg("Define:", inst, cur_cid, cur_fid, cur_sid)
@@ -185,7 +194,8 @@ String define_vars(String inst) {
 }
 
 //****************************************************
-String alloc_magic_macros(String exp) {
+String alloc_magic_macros(String exp)
+{
 	/**
 	 * __define["Hello"]=j
 	 * num gh=__define["Hello"]+3
@@ -220,7 +230,7 @@ String alloc_magic_macros(String exp) {
 		}
 		//=====get a magic macro
 		if (!is_string && buf != 0 && is_buf && bras_start == bras && exp[i] != ']' &&
-				(char_search(single_operators, exp[i]) || char_search(words_splitter, exp[i]) || i + 1 == exp_len)) {
+			(char_search(single_operators, exp[i]) || char_search(words_splitter, exp[i]) || i + 1 == exp_len)) {
 			is_buf = false;
 			end = i;
 			bras_start = -1;
@@ -231,7 +241,7 @@ String alloc_magic_macros(String exp) {
 			equal_ind = i;
 			if (i >= end)is_use_magic = false;
 		}
-		
+
 		//=====append to buf
 		if (is_buf) {
 			buf = char_append(buf, exp[i]);
@@ -280,10 +290,12 @@ String alloc_magic_macros(String exp) {
 		if (mm_type == DEFINE_MAGIC_MACRO_TYPE && get_mama(mm_type, mm_index).id > 0) {
 			exception_handler("reinitialized_in__define_mm", __func__, mm_index, mm_name);
 			return BAD_CODE;
-		} else if (mm_type == CONFIG_MAGIC_MACRO_TYPE && get_mama(CONFIG_MAGIC_MACRO_TYPE, mm_index).id == 0) {
+		}
+		else if (mm_type == CONFIG_MAGIC_MACRO_TYPE && get_mama(CONFIG_MAGIC_MACRO_TYPE, mm_index).id == 0) {
 			exception_handler("not_exist__config_mm", __func__, mm_index, 0);
 			return BAD_CODE;
-		} else if (mm_type == CONFIG_MAGIC_MACRO_TYPE && entry_table.cur_fin != 0) {
+		}
+		else if (mm_type == CONFIG_MAGIC_MACRO_TYPE && entry_table.cur_fin != 0) {
 			exception_handler("not_global__config_mm", __func__, 0, 0);
 			return BAD_CODE;
 		}
@@ -299,7 +311,8 @@ String alloc_magic_macros(String exp) {
 }
 
 //****************************************************
-String function_call(String exp) {
+String function_call(String exp)
+{
 	/**
 	1- os.out("Hello") ---OK---
 	2- inst1.find(5,"hi") ---OK---
@@ -315,8 +328,9 @@ String function_call(String exp) {
 	String ret_exp = 0, buffer = 0, word = 0, index = 0, func_name = 0, pack_name = 0, ret_vars = 0;
 	str_list parameters = 0;
 	uint32 params_len = 0;
-	Boolean is_string = false, is_par = false;
-	int32 pars = 0, bras = 0, acos = 0, st_func = -1, en_func = -1, tmp1 = -1, pars_num = -1, bras_num = 0, count_ind = 0;
+	Boolean is_string = false, is_par = false, is_struct = false;
+	int32 pars = 0, bras = 0, acos = 0, st_func = -1, en_func = -1, tmp1 = -1, pars_num = -1, bras_num = 0,
+		count_ind = 0, struct_par = -1;
 	uint32 exp_len = str_length(exp);
 	//********************start analyzing
 	for (uint32 i = 0; i < exp_len; i++) {
@@ -324,6 +338,14 @@ String function_call(String exp) {
 		//------------------check is string
 		if (exp[i] == '\"' && (i == 0 || exp[i - 1] != '\\')) {
 			is_string = switch_bool(is_string);
+		}
+		//------------------check is struct
+		if (!is_string && !is_struct && exp[i] == '(' && str_equal(word, "struct")) {
+			is_struct = true;
+			struct_par = pars + 1;
+		}
+		else if (!is_string && is_struct && exp[i] == ')' && struct_par == pars) {
+			is_struct = false;
 		}
 		//------------------continue if ' '
 		if (!is_string && i + 1 < exp_len && exp[i] == ' ' && (exp[i + 1] == '(' || exp[i + 1] == '['))continue;
@@ -347,26 +369,28 @@ String function_call(String exp) {
 			continue;
 		}
 		//------------------if is '(' (func_name)
-		if (!is_string && exp[i] == '(' && word != 0 && is_valid_name(word, false) && en_func == -1 && acos == 0) {
-			//printf("&HHHH:%s\n", word);
+		if (!is_string && exp[i] == '(' && word != 0 && !str_equal(word, "struct") && is_valid_name(word, false) &&
+			en_func == -1 && acos == 0) {
+			//printf("&HHHH:%s,%s\n", word,print_str_list(parameters, params_len));
 			str_init(&func_name, word);
 			pars_num = pars - 1;
 			bras_num = bras;
 			parameters = 0;
 			params_len = 0;
 			is_par = true;
+			is_struct = false;
 			str_empty(&word);
 			str_empty(&buffer);
 			if (st_func == -1)st_func = tmp1;
 			continue;
 		}
 		//------------------ get parameters
-		if (!is_string && (exp[i] == ',' || (exp[i] == ')' && pars == pars_num)) && is_par && acos == 0 &&
-				bras == bras_num) {
+		if (!is_string && !is_struct && (exp[i] == ',' || (exp[i] == ')' && pars == pars_num)) && is_par && acos == 0 &&
+			bras == bras_num) {
 			buffer = str_trim_space(buffer);
 			//msg("&DDD:", buffer, pars_num, pars)
 			if (buffer != 0)str_list_append(&parameters, buffer, params_len++);
-			
+
 			if (exp[i] == ')' && pars == pars_num) {
 				is_par = false;
 				en_func = i + 1;
@@ -386,6 +410,7 @@ String function_call(String exp) {
 				break;
 			}
 			str_empty(&buffer);
+			str_empty(&word);
 			continue;
 		}
 		//------------------append to buffer & word
@@ -393,11 +418,12 @@ String function_call(String exp) {
 			buffer = char_append(buffer, exp[i]);
 		}
 		if (!is_string &&
-				(exp[i] == ' ' || exp[i] == '.' || exp[i] == ',' || exp[i] == '(' || exp[i] == ')' || exp[i] == '=' ||
-						char_search(single_operators, exp[i])) && bras == 0) {
+			(exp[i] == ' ' || exp[i] == '.' || exp[i] == ',' || exp[i] == '(' || exp[i] == ')' || exp[i] == '=' ||
+				char_search(single_operators, exp[i])) && bras == 0) {
 			count_ind = i;
 			word = 0;
-		} else {
+		}
+		else {
 			if (word == 0) {
 				tmp1 = i;
 			}
@@ -437,7 +463,8 @@ String function_call(String exp) {
  * @param index
  * @return String
  */
-String init_calling_function(String pname, String fname, str_list params, uint32 param_len, String index) {
+String init_calling_function(String pname, String fname, str_list params, uint32 param_len, String index)
+{
 	//--------------------init vars
 	str_list vars_return = 0;
 	uint32 vars_ret_len = 0;
@@ -445,21 +472,24 @@ String init_calling_function(String pname, String fname, str_list params, uint32
 	//--------------------record all registers
 	fust s = {entry_table.cur_fid, entry_table.cur_fin, entry_table.cur_sid, entry_table.cur_order};
 	append_fust(s);
-	
+
 	int32 ret0 = set_function_parameters(pname, fname, params, param_len);
 	//********************
 	//msg("&YYY", func_f, ret0)
 	//	var
 	//	ret1 = 0
 	if (ret0 == -1) {
-	
-	} else if (ret0 == 0) {
+
+	}
+	else if (ret0 == 0) {
 		//	return ret_vars
-	} else if (ret0 == 2) {
+	}
+	else if (ret0 == 2) {
 		//*********************search for core_lib
 		//ret1 = 1
-	} else if (ret0 == 1) {
-		
+	}
+	else if (ret0 == 1) {
+
 		//if call_libs_class()
 		//			cur_order = 1
 		//			cur_sid = 0
@@ -527,7 +557,8 @@ String init_calling_function(String pname, String fname, str_list params, uint32
 }
 
 //****************************************************
-int32 set_function_parameters(String pack_name, String func_name, str_list pars, uint32 pars_len) {
+int32 set_function_parameters(String pack_name, String func_name, str_list pars, uint32 pars_len)
+{
 	/**
 	func_params types:
 	1- normal: string gh,gh1,digit f1
@@ -540,6 +571,7 @@ int32 set_function_parameters(String pack_name, String func_name, str_list pars,
 	3- expanded arrays : {5,9.6,-6},{struct(9,"78")}
 	4- expanded structs : struct(0,"fsdg",true)
 	*/
+	//printf("SDDDDDDD:%s,%i\n", print_str_list(pars, pars_len), pars_len);
 	//-----------------------------init vars
 	Boolean is_user_func = false;
 	str_list func_params = 0;
@@ -547,7 +579,7 @@ int32 set_function_parameters(String pack_name, String func_name, str_list pars,
 	//-----------------------------determine parameters type
 	str_list ret_pars = 0;
 	uint32 ret_pars_len = determine_type_name_func_parameters(pars, pars_len, &ret_pars);
-	printf("######PARS:%s\n", print_str_list(ret_pars, ret_pars_len));
+	printf("######PARS:%s\n%s\n", print_str_list(ret_pars, ret_pars_len), print_str_list(pars, pars_len));
 	//-----------------------------search for function
 	blst *tmp1;
 	tmp1 = entry_table.blst_func_start;
@@ -555,27 +587,24 @@ int32 set_function_parameters(String pack_name, String func_name, str_list pars,
 	for (;;) {
 		if (str_equal(tmp1->lbl, func_name)) {
 			//printf("##FUNC:%s,%s\n", tmp1->lbl, print_str_list(tmp1->params, tmp1->params_len));
-			Boolean is_this = true;
 			if (tmp1->params_len == 0 && ret_pars_len != 0) {
-				is_this = false;
 				goto ENDLOOP;
-			} else {
+			}
+			else {
 				//if call params is less than func params
 				if (ret_pars_len + 1 < tmp1->params_len || (ret_pars_len + 1 == tmp1->params_len &&
-						str_indexof(tmp1->params[ret_pars_len], "vars;", 0) != 0)) {
-					is_this = false;
+					str_indexof(tmp1->params[ret_pars_len], "vars;", 0) != 0)) {
 					goto ENDLOOP;
 				}
 				//if func params is less than call params
 				if (tmp1->params_len < ret_pars_len &&
-						str_indexof(tmp1->params[tmp1->params_len - 1], "vars;", 0) != 0) {
-					is_this = false;
+					str_indexof(tmp1->params[tmp1->params_len - 1], "vars;", 0) != 0) {
 					goto ENDLOOP;
 				}
 				//move on ret_pars array
 				for (uint32 i = 0; i < ret_pars_len; ++i) {
 					if (tmp1->params_len < i + 1) break;
-					//printf("#STR:%s==%s\n", tmp1->params[i], ret_pars[i]);
+					//printf("+STR:%s==%s\n", tmp1->params[i], ret_pars[i]);
 					str_list p1 = 0, p2 = 0;
 					char_split(tmp1->params[i], ';', &p1, false);
 					char_split(ret_pars[i], ';', &p2, false);
@@ -585,7 +614,6 @@ int32 set_function_parameters(String pack_name, String func_name, str_list pars,
 						for (uint32 j = i; j < ret_pars_len; ++j) {
 							char_split(ret_pars[j], ';', &p3, false);
 							if (p3[3] != 0/*if is array*/|| str_ch_equal(p3[2], '2')/*if is reference var*/) {
-								is_this = false;
 								goto ENDLOOP;
 							}
 						}
@@ -593,27 +621,25 @@ int32 set_function_parameters(String pack_name, String func_name, str_list pars,
 					}
 					//-----check data types
 					if (!str_equal(p1[0], p2[0])) {
-						is_this = false;
 						goto ENDLOOP;
 					}
 					//-----check dimensions
-					//printf("@WWWW:%s,%s\n",p1[2],p2[3]);
+					//printf("@WWWW:%s,%s\n", p1[2], p2[3]);
 					if (!is_equal_arrays_indexes(p1[2], p2[3])) {
 						//printf("@##EEE\n");
-						is_this = false;
 						goto ENDLOOP;
 					}
 				}
+				//printf("FFFFFFFFFFFFFFFF\n");
 			}
-			//--------
-			if (is_this) {
-				//printf("FUNC_PARS:%s,%s\n", func_name, print_str_list(tmp1->params, tmp1->params_len));
-				entry_table.cur_fid = tmp1->id;
-				func_params = tmp1->params;
-				func_params_len = tmp1->params_len;
-				is_user_func = true;
-				break;
-			}
+			//-------- if find function
+			//printf("FUNC_PARS:%s,%s\n", func_name, print_str_list(tmp1->params, tmp1->params_len));
+			entry_table.cur_fid = tmp1->id;
+			func_params = tmp1->params;
+			func_params_len = tmp1->params_len;
+			is_user_func = true;
+			break;
+
 		}
 		ENDLOOP:
 		tmp1 = tmp1->next;
@@ -628,42 +654,86 @@ int32 set_function_parameters(String pack_name, String func_name, str_list pars,
 		//TODO:create built-in function
 	}
 	//-----------------------------init & allocate function params
-	Boolean is_vars=false;
-	String vars_name=0;
+	Boolean is_vars = false;
+	String vars_name = 0;
 	for (uint32 i = 0; i < func_params_len; ++i) {
 		str_list p1 = 0, p2 = 0;
-		uint32 p1_len = char_split(ret_pars[i], ';', &p1, false);
-		uint32 p2_len = char_split(func_params[i], ';', &p2, false);
-		printf("#STR:%s==%s\n", ret_pars[i], func_params[i]);
+		uint32 p1_len = 0;
+		char_split(func_params[i], ';', &p2, false);
+		if (i < ret_pars_len) {
+			p1_len = char_split(ret_pars[i], ';', &p1, false);
+			printf("#STR:%s==%s&&%s (%i,%i)\n", ret_pars[i], func_params[i], pars[i], p1_len, func_params_len);
+			if (p1_len == 0)break;
+		}
 		//====is vars
-		if(str_equal(p2[0],"vars")){
-			is_vars=true;
-			str_init(&vars_name,p2[1]);
+		if (str_equal(p2[0], "vars")) {
+			is_vars = true;
+			str_init(&vars_name, p2[1]);
+			//if called function parameters has more than one vars values
+			if (ret_pars_len > func_params_len) {
+				for (uint32 j = 0; j < func_params_len - ret_pars_len; ++j)
+					str_list_append(&func_params, "vars;;0", func_params_len++);
+			}
+				//if called function parameters has no any vars values
+			else if (ret_pars_len < func_params_len) {
+				set_memory_var(entry_table.cur_fin, 0, vars_name, 0, "vars", true);
+				break;
+			}
+		}
+		//====define var by value
+		if (str_ch_equal(p1[2], '0')) {
+			if (is_vars) {
+				//TODO:
+			}
+			else {
+				String namei = 0;
+				if (p1[3] == 0 || str_ch_equal(p1[3], '0'))str_init(&namei, p2[1]);
+				else namei = str_multi_append(p2[1], "[", p1[3], "]", 0, 0);
+				set_memory_var(entry_table.cur_fin, 0, namei, pars[i], p2[0], true);
+			}
+		}
+			//====define var by var
+		else if (str_ch_equal(p1[2], '1')) {
+			if (is_vars) {
+				//TODO:
+			}
+			else {
+				copy_memory_var(str_to_long_int(p1[1]), p2[1], entry_table.cur_fin);
+			}
+		}
+			//====define var by reference var
+		else if (str_ch_equal(p1[2], '2')) {
+			Mvar ref_var = get_Mvar(str_to_long_int(p1[1]));
+			add_to_var_memory(ref_var.pointer_id, entry_table.cur_fin, 0, ref_var.type_var, p2[1], 0);
 		}
 	}
+	//show_memory(0);
 	return 1;
 }
 
 //****************************************************
-uint32 determine_type_name_func_parameters(str_list params, uint32 params_len, str_list *ret) {
-	//printf("$$$$TP:%s\n", print_str_list(params, params_len));
+uint32 determine_type_name_func_parameters(str_list params, uint32 params_len, str_list *ret)
+{
+	//printf("$$$$TP:%s,%i\n", print_str_list(params, params_len), params_len);
 	//-----------init vars
 	uint32 ret_len = 0;
 	//ret[i]="type;var_index;state;var_dimensions" state: 0=value,1=var,2=reference
 	for (uint32 i = 0; i < params_len; ++i) {
 		uint32 param_len = str_length(params[i]);
-		//printf("@@@PAR:%s\n", params[i]);
+		//printf("@@@PAR:%s,%i\n", params[i],is_valid_name(params[i], true));
 		//====if is a variable or reference variable
 		if (is_valid_name(params[i], true) ||
-				(param_len > 1 && params[i][0] == '&' && is_valid_name(str_substring(params[i], 1, 0), false))) {
+			(param_len > 1 && params[i][0] == '&' && is_valid_name(str_substring(params[i], 1, 0), false))) {
 			uint8 state = '1';
+			String par_var = 0;
 			if (params[i][0] == '&') {
-				params[i] = str_substring(params[i], 1, 0);
+				str_init(&par_var, str_substring(params[i], 1, 0));
 				state = '2';
 			}
+			else str_init(&par_var, params[i]);
 			String state_s = str_multi_append(";", char_to_str(state), ";", 0, 0, 0);
 			String name = 0, index = 0;
-			return_name_index_var(params[i], true, &name, &index);
+			return_name_index_var(par_var, true, &name, &index);
 			long_int var_id = return_var_id(name, "0");
 			if (var_id > 0) {
 				long_int real_id = find_index_var_memory(var_id);
@@ -678,13 +748,14 @@ uint32 determine_type_name_func_parameters(str_list params, uint32 params_len, s
 					//printf("^^^FF:%s=>%i,%s\n",params[i],tmp1_len,tmp1[0]);
 					if (str_ch_equal(var_dim, '1') || str_ch_equal(var_dim, '0'))var_dim = 0;
 					str_list_append(&(*ret),
-							str_multi_append(type_name, ";", str_from_long_int(real_id), state_s, var_dim, 0),
-							ret_len++);
+					                str_multi_append(type_name, ";", str_from_long_int(real_id), state_s, var_dim, 0),
+					                ret_len++);
 				}
 					//if is a room of var
 				else {
 					str_list_append(&(*ret),
-							str_multi_append(type_name, ";", str_from_long_int(real_id), state_s, index, 0), ret_len++);
+					                str_multi_append(type_name, ";", str_from_long_int(real_id), state_s, index, 0),
+					                ret_len++);
 				}
 				continue;
 			}
@@ -700,11 +771,13 @@ uint32 determine_type_name_func_parameters(str_list params, uint32 params_len, s
 		}
 		//determine value type
 		value_type = determine_value_type(value);
+		//if not array
+		if (str_ch_equal(var_dim, '1') && !has_two_limiting(params[i], '{', '}', true)) str_init(&var_dim, "0");
 		//append to ret
-		//printf("#DDD:%s=>%i,%s\n", params[i], count, value);
+		//printf("#VAL:%s=>%s,%s,%s\n", params[i],var_dim, value,value_type);
 		str_list_append(&(*ret), str_multi_append(value_type, ";0;0;", var_dim, 0, 0, 0), ret_len++);
 	}
-	
+
 	return ret_len;
 }
 

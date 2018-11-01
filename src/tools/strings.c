@@ -90,6 +90,10 @@ String char_join(str_list s, uint8 sp, uint32 size, Boolean is_remove_empty) {
 
 //******************************************
 uint32 char_split(String s, uint8 sp, str_list *ret, Boolean is_remove_empty) {
+	if(s==0) {
+		*ret=0;
+		return 0;
+	}
 	uint32 ind = 0;
 	uint32 len = str_length(s);
 	String buf = 0;

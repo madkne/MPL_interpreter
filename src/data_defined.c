@@ -5,30 +5,50 @@
 #include <MPL/system.h>
 
 String interpreter_level = 0;
+
 String project_root = 0;
+
 String main_source_name = 0;
+
 String interpreter_path = 0;
+
 uint8 MAX_INT_LEN = 0;
+
 uint8 MAX_FLOAT_LEN = 0;
+
 int8 errors_mode = ERROR_ID;
+
 int8 warnings_mode = WARNING_ID;
+
 uint8 is_programmer_debug = 2;
+
 String tab_size = "\t\t\t\t\t\t"; //6
 uint8 tab_size_int = 6;
 
 uint8 max_estimate_divide_huge = 8;
+
 uint8 max_float_estimate_huge_X0 = 4;
+
 uint8 max_steps_estimate_huge = 8;
+
 uint32 max_decimal_has_huge = 10;
+
 String set_logfile_path = 0;
+
 String new_line_char = "\n";
+
 String os_tmp_dir = 0;
+
 uint32 BufferSize = 4096;
+
 String hostname = 0;
+
 String os_version = 0;
+
 uint64 os_total_memory = 0; //in bytes
 uint64 os_total_disk = 0; //in kilo-bytes
 long_int max_size_id = 0;
+
 String logfile_path = 0;
 
 String exceptions_group[] = {"ImportError",           //0
@@ -46,32 +66,49 @@ String exceptions_group[] = {"ImportError",           //0
                              "FloatingPointError",   //12
                              "CommandError"          //13
 };
+
 String exceptions_type[4] = {"CANCEL", "FATAL", "ERROR", "WARNING"};
+
 String keywords[18] = {"func", "true", "false", "null", "if", "elif", "else", "loop", "manage", "next", "break",
                        "return", "num", "str", "bool", "struct", "vars", "import"};
+
 String keywords_out[13] = {"func", "true", "false", "null", "if", "elif", "else", "loop", "manage", "next", "break",
                            "return", "import"};
+
 String magic_macros[3] = {"__config", "__define", "__session"};
+
 String block_instructions[5] = {"loop", "if", "elif", "else", "manage"};
+
 //uint8 keywords_splitter[5] = {':', ' ', '{', '=', '('};
 uint8 single_operators[] = {'+', '-', '*', '/', '%', '^', '|', '&', '~'};
+
 String comparative_operators[] = {"==", ">=", "<=", ">", "<", "!="};
+
 String alloc_operators[] = {"=", "+=", "-=", "*=", "/=", "%=", "^=", ":=", "|=", "&=", "~="};
+
 String boolean_operators[] = {"&&", "||", "~~"};
+
 String basic_types[3] = {"str", "num", "bool"};
+
 uint8 golden_bytes[] = {7, 11, 27, 127, 223};
+
 uint8 splitters[] = {' ', '(', ')', '=', '[', ']', '{', '}', ';', ','};
+
 uint8 words_splitter[] = {':', ' ', '{', '=', '(', ',', '.', '[', ']', '}', ')', ';'};
+
 String sub_types[] = {"s", "b", "i", "f", "h"};
 
 utf8_str_list source_paths;
+
 str_list program_argvs;
+
 uint32 argvs_len = 0;
 
 //*************************************************************
 //*********************public functions************************
 //*************************************************************
-void init_database() {
+void init_database()
+{
 	//---------------init project_root
 	str_list entries, filename;
 	uint32 size = char_split(stdin_source_path, OS_SEPARATOR, &entries, true);
@@ -86,54 +123,54 @@ void init_database() {
 	//---------------init max_int ,max_float
 	MAX_INT_LEN = INT_USED_BYTES * 2;
 	MAX_FLOAT_LEN = (FLOAT_USED_BYTES * 2) - 2;
-	
+
 	//---------------
 	interpreter_path = 0;
 	//---------------init entry_table
 	entry_table.import_start = 0;
 	entry_table.import_id = 1;
 	entry_table.import_inst_count = 0;
-	
-	
+
+
 	entry_table.utst_start = 0;
 	entry_table.utf8_strings_id = 1;
-	
+
 	entry_table.soco_main_count = 0;
 	entry_table.source_counter = 0;
 	entry_table.soco_tokens_count = 0;
 	entry_table.soco_tokens_start = 0;
-	
+
 	entry_table.blst_func_start = 0;
 	entry_table.blst_stru_start = 0;
 	entry_table.func_id = 1;
 	entry_table.stru_id = 0;
 	entry_table.func_index = 1;
-	
+
 	entry_table.datas_start = 0;
 	entry_table.datas_id = 1;
-	
+
 	entry_table.instru_start = 0;
 	entry_table.inst_id = 1;
-	
+
 	entry_table.inor_start = 0;
 	entry_table.inor_count = 0;
-	
+
 	entry_table.bifs_start = 0;
-	
+
 	entry_table.mama_start = 0;
 	entry_table.mama_id = 0;
-	
+
 	entry_table.stde_start = 0;
 	entry_table.stde_id = 0;
-	
+
 
 	entry_table.condition_level = 0, entry_table.in_loop = 0, entry_table.break_count = 0, entry_table.next_count = 0;
 	entry_table.manage_func_name = 0, entry_table.Rsrc = 0;
 	entry_table.manage_func_id = 0, entry_table.return_fin = 0;
 	entry_table.Rorder = 0, entry_table.Rline = 0;
 	entry_table.is_stop_APP_CONTROLLER = false, entry_table.is_next_inst_running = false;
-	
-	
+
+
 	str_utf8 stdin_src;
 	str_to_utf8(&stdin_src, "stdin");
 	utf8_str_list_append(&source_paths, stdin_src, entry_table.source_counter++);
@@ -146,6 +183,8 @@ void init_database() {
 	append_datas(tmp3);
 	datas tmp4 = {0, 0, "struct", MAIN_DATA_TYPE, 0, 0};
 	append_datas(tmp4);
+	datas tmp5 = {0, 0, "vars", MAIN_DATA_TYPE, 0, 0};
+	append_datas(tmp5);
 	//struct::exception(num id,str msg,str group,num type,str src,num line)
 	str_list exception_params = 0;
 	uint32 exception_params_len = 0;
@@ -155,16 +194,16 @@ void init_database() {
 	str_list_append(&exception_params, "num;type;", exception_params_len++);
 	str_list_append(&exception_params, "str;src;", exception_params_len++);
 	str_list_append(&exception_params, "num;line;", exception_params_len++);
-	datas tmp5 = {0, 0, "exception", STRUCT_DATA_TYPE, exception_params, exception_params_len};
-	append_datas(tmp5);
-	
-}
+	datas tmp6 = {0, 0, "exception", STRUCT_DATA_TYPE, exception_params, exception_params_len};
+	append_datas(tmp6);
 
+}
 
 //*************************************************************
 //*******************import_inst functions**********************
 //*************************************************************
-void append_imin(imin s) {
+void append_imin(imin s)
+{
 	imin *q;
 	q = (imin *) malloc(sizeof(imin));
 	if (q == 0) return;
@@ -179,7 +218,8 @@ void append_imin(imin s) {
 	q->next = 0;
 	if (entry_table.import_start == 0) {
 		entry_table.import_start = entry_table.import_end = q;
-	} else {
+	}
+	else {
 		entry_table.import_end->next = q;
 		entry_table.import_end = q;
 	}
@@ -187,7 +227,8 @@ void append_imin(imin s) {
 }
 
 //*************************************************************
-imin get_imin(long_int id) {
+imin get_imin(long_int id)
+{
 	imin ret = {0, 0, false, 0, 0, 0, 0};
 	imin *tmp1 = entry_table.import_start;
 	for (;;) {
@@ -202,7 +243,8 @@ imin get_imin(long_int id) {
 }
 
 //*************************************************************
-imin get_first_active_imin() {
+imin get_first_active_imin()
+{
 	imin ret = {0, 0, false, 0, 0, 0, 0};
 	imin *tmp1 = entry_table.import_start;
 	for (;;) {
@@ -217,14 +259,16 @@ imin get_first_active_imin() {
 }
 
 //*************************************************************
-void delete_imin(long_int id, Boolean is_delete) {
+void delete_imin(long_int id, Boolean is_delete)
+{
 	imin *tmp1 = entry_table.import_start;
 	for (;;) {
 		if (tmp1->is_active && tmp1->id == id) {
 			entry_table.import_inst_count--;
 			if (!is_delete) {
 				tmp1->is_active = false;
-			} else {
+			}
+			else {
 				//TODO: delete import node
 			}
 			break;
@@ -237,7 +281,8 @@ void delete_imin(long_int id, Boolean is_delete) {
 //*************************************************************
 //*******************source_code functions*********************
 //*************************************************************
-void append_soco(uint8 type, soco s) {
+void append_soco(uint8 type, soco s)
+{
 	soco *q;
 	q = (soco *) malloc(sizeof(soco));
 	if (q == 0) return;
@@ -249,7 +294,8 @@ void append_soco(uint8 type, soco s) {
 		//printf("QW!!!:%s,%i,%s\n", s.code, entry_table.soco_main_start, q->code);
 		if (entry_table.soco_main_start == 0) {
 			entry_table.soco_main_start = entry_table.soco_main_end = q;
-		} else {
+		}
+		else {
 			entry_table.soco_main_end->next = q;
 			entry_table.soco_main_end = q;
 		}
@@ -268,7 +314,8 @@ void append_soco(uint8 type, soco s) {
 }
 
 //*************************************************************
-void clear_soco(uint8 type) {
+void clear_soco(uint8 type)
+{
 	//soco_main
 	if (type == 1 && entry_table.soco_main_start > 0) {
 		entry_table.soco_main_count = 0;
@@ -281,7 +328,8 @@ void clear_soco(uint8 type) {
 			free(tmp1);
 			if (entry_table.soco_main_end == 0) break;
 		}
-	} else if (type == 2 && entry_table.soco_tokens_start > 0) {
+	}
+	else if (type == 2 && entry_table.soco_tokens_start > 0) {
 		entry_table.soco_tokens_count = 0;
 		soco *tmp1;
 		entry_table.soco_tokens_end = entry_table.soco_tokens_start;
@@ -296,7 +344,8 @@ void clear_soco(uint8 type) {
 }
 
 //*************************************************************
-soco get_soco(uint8 type, uint32 ind) {
+soco get_soco(uint8 type, uint32 ind)
+{
 	soco ret = {0, 0, 0};
 	uint32 ii = 0;
 	soco *tmp1;
@@ -316,14 +365,15 @@ soco get_soco(uint8 type, uint32 ind) {
 		tmp1 = tmp1->next;
 		if (tmp1 == 0) break;
 	}
-	
+
 	return ret;
 }
 
 //*************************************************************
 //******************utf8_strings functions*********************
 //*************************************************************
-void append_utst(utst s) {
+void append_utst(utst s)
+{
 	utst *q;
 	q = (utst *) malloc(sizeof(utst));
 	if (q == 0) return;
@@ -340,7 +390,8 @@ void append_utst(utst s) {
 }
 
 //*************************************************************
-utst get_utst(long_int id) {
+utst get_utst(long_int id)
+{
 	utst ret = {0, 0, 0, 0};
 	utst *tmp1 = entry_table.utst_start;
 	for (;;) {
@@ -357,7 +408,8 @@ utst get_utst(long_int id) {
 //*************************************************************
 //****************block_structures functions*******************
 //*************************************************************
-void append_blst(blst s) {
+void append_blst(blst s)
+{
 	blst *q;
 	q = (blst *) malloc(sizeof(blst));
 	if (q == 0) return;
@@ -393,14 +445,15 @@ void append_blst(blst s) {
 }
 
 //*************************************************************
-blst search_lbl_func(String lbl, str_list params, uint32 par_len) {
+blst search_lbl_func(String lbl, str_list params, uint32 par_len)
+{
 	blst null = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 	blst *tmp1;
 	tmp1 = entry_table.blst_func_start;
 	//------------------
 	for (;;) {
 		if (par_len == tmp1->params_len && str_equal(tmp1->lbl, lbl) &&
-				str_list_equal(tmp1->params, tmp1->params_len, params, par_len)) {
+			str_list_equal(tmp1->params, tmp1->params_len, params, par_len)) {
 			return (*tmp1);
 		}
 		tmp1 = tmp1->next;
@@ -412,12 +465,13 @@ blst search_lbl_func(String lbl, str_list params, uint32 par_len) {
 //*************************************************************
 //*******************data_types functions**********************
 //*************************************************************
-void append_datas(datas s) {
+void append_datas(datas s)
+{
 	datas *q;
 	q = (datas *) malloc(sizeof(datas));
 	if (q == 0) return;
 	q->id = ++entry_table.datas_id;
-	
+
 	q->type = s.type;
 	q->fid = s.fid;
 	str_init(&q->name, s.name);
@@ -436,7 +490,8 @@ void append_datas(datas s) {
 }
 
 //*************************************************************
-datas get_datas(long_int id) {
+datas get_datas(long_int id)
+{
 	datas null = {0, 0, 0, 0, 0, 0};
 	datas *st = entry_table.datas_start;
 	if (st == 0) return null;
@@ -449,8 +504,10 @@ datas get_datas(long_int id) {
 }
 
 //*************************************************************
-datas search_datas(String name, long_int fid, Boolean is_all) {
+datas search_datas(String name, long_int fid, Boolean is_all)
+{
 	datas null = {0, 0, 0, 0, 0, 0};
+	//printf("!!!!!SSSSS:%s\n",name);
 	datas *st = entry_table.datas_start;
 	if (st == 0) return null;
 	for (;;) {
@@ -459,14 +516,15 @@ datas search_datas(String name, long_int fid, Boolean is_all) {
 		st = st->next;
 		if (st == 0) break;
 	}
-	
+
 	return null;
 }
 
 //*************************************************************
 //******************instructions functions*********************
 //*************************************************************
-void append_instru(instru s) {
+void append_instru(instru s)
+{
 	instru *q;
 	q = (instru *) malloc(sizeof(instru));
 	if (q == 0) return;
@@ -488,7 +546,8 @@ void append_instru(instru s) {
 }
 
 //*************************************************************
-instru get_instru_by_id(long_int id) {
+instru get_instru_by_id(long_int id)
+{
 	instru null = {0, 0, 0, 0, 0, 0, 0, 0};
 	instru *st = entry_table.instru_start;
 	if (st == 0) return null;
@@ -505,7 +564,8 @@ instru get_instru_by_id(long_int id) {
 //*************************************************************
 //***************instructions_order functions******************
 //*************************************************************
-void append_inor(inor s) {
+void append_inor(inor s)
+{
 	inor *q;
 	q = (inor *) malloc(sizeof(inor));
 	if (q == 0) return;
@@ -516,14 +576,16 @@ void append_inor(inor s) {
 	entry_table.inor_count++;
 	if (entry_table.inor_start == 0) {
 		entry_table.inor_start = entry_table.inor_end = q;
-	} else {
+	}
+	else {
 		entry_table.inor_end->next = q;
 		entry_table.inor_end = q;
 	}
 }
 
 //*************************************************************
-uint32 get_order(long_int fid, long_int sid) {
+uint32 get_order(long_int fid, long_int sid)
+{
 	inor *tmp1 = entry_table.inor_start;
 	if (tmp1 == 0) return 0;
 	for (;;) {
@@ -537,7 +599,8 @@ uint32 get_order(long_int fid, long_int sid) {
 }
 
 //*************************************************************
-void set_order(long_int fid, long_int sid, uint32 order) {
+void set_order(long_int fid, long_int sid, uint32 order)
+{
 	uint32 index = 0;
 	Boolean is_exist = false;
 	//***************search
@@ -557,7 +620,8 @@ void set_order(long_int fid, long_int sid, uint32 order) {
 	if (!is_exist) {
 		inor tmp2 = {fid, sid, order, 0};
 		append_inor(tmp2);
-	} else {
+	}
+	else {
 		uint32 ind = 0;
 		inor *tmp1 = entry_table.inor_start;
 		for (;;) {
@@ -575,7 +639,8 @@ void set_order(long_int fid, long_int sid, uint32 order) {
 //*************************************************************
 //***************stru_to_in_struct functions******************
 //*************************************************************
-void empty_stoi(stoi s[], uint32 size) {
+void empty_stoi(stoi s[], uint32 size)
+{
 	for (uint32 i = 0; i < size; i++) {
 		s[i].id = 0;
 		s[i].is_active = false;
@@ -587,7 +652,8 @@ void empty_stoi(stoi s[], uint32 size) {
 //*************************************************************
 //****************built_in_funcs functions*********************
 //*************************************************************
-void append_bifs(bifs s) {
+void append_bifs(bifs s)
+{
 	bifs *q;
 	q = (bifs *) malloc(sizeof(bifs));
 	if (q == 0) return;
@@ -601,14 +667,16 @@ void append_bifs(bifs s) {
 	q->next = 0;
 	if (entry_table.bifs_start == 0) {
 		entry_table.bifs_start = entry_table.bifs_end = q;
-	} else {
+	}
+	else {
 		entry_table.bifs_end->next = q;
 		entry_table.bifs_end = q;
 	}
 }
 
 //*************************************************************
-void add_to_bifs(long_int id, uint8 type, String func_name, String params, String returns) {
+void add_to_bifs(long_int id, uint8 type, String func_name, String params, String returns)
+{
 	uint8 par_len = 0, ret_len = 0;
 	par_len = char_search_count(params, ';');
 	ret_len = char_search_count(returns, ';');
@@ -619,7 +687,8 @@ void add_to_bifs(long_int id, uint8 type, String func_name, String params, Strin
 //*************************************************************
 //****************built_in_funcs functions*********************
 //*************************************************************
-void append_mama(mama s) {
+void append_mama(mama s)
+{
 	mama *q;
 	q = (mama *) malloc(sizeof(mama));
 	if (q == 0) return;
@@ -631,20 +700,23 @@ void append_mama(mama s) {
 	q->next = 0;
 	if (entry_table.mama_start == 0) {
 		entry_table.mama_start = entry_table.mama_end = q;
-	} else {
+	}
+	else {
 		entry_table.mama_end->next = q;
 		entry_table.mama_end = q;
 	}
 }
 
 //*************************************************************
-void add_to_mama(uint8 type, uint8 sub_type, String key, String value) {
+void add_to_mama(uint8 type, uint8 sub_type, String key, String value)
+{
 	mama tmp = {++entry_table.mama_id, type, sub_type, key, value, 0};
 	append_mama(tmp);
 }
 
 //*************************************************************
-mama get_mama(uint8 type, String key) {
+mama get_mama(uint8 type, String key)
+{
 	mama null = {0, 0, 0, 0, 0, 0};
 	mama *tmp1 = entry_table.mama_start;
 	if (tmp1 == 0) return null;
@@ -661,7 +733,8 @@ mama get_mama(uint8 type, String key) {
 //*************************************************************
 //********************vals_array functions*********************
 //*************************************************************
-void append_vaar(vaar s, vaar_en *s1) {
+void append_vaar(vaar s, vaar_en *s1)
+{
 	vaar *q;
 	q = (vaar *) malloc(sizeof(vaar));
 	if (q == 0) return;
@@ -673,14 +746,16 @@ void append_vaar(vaar s, vaar_en *s1) {
 	q->next = 0;
 	if ((*s1).start == 0) {
 		(*s1).start = (*s1).end = q;
-	} else {
+	}
+	else {
 		(*s1).end->next = q;
 		(*s1).end = q;
 	}
 }
 
 //*************************************************************
-void print_vaar(vaar_en s) {
+void print_vaar(vaar_en s)
+{
 	vaar *tmp1 = s.start;
 	if (tmp1 == 0) {
 		printf("--NULL-- Vars_Array_struct\n");
@@ -700,7 +775,8 @@ void print_vaar(vaar_en s) {
 //*************************************************************
 //***************struct_descriptor functions*******************
 //*************************************************************
-void append_stde(stde s) {
+void append_stde(stde s)
+{
 	stde *q;
 	q = (stde *) malloc(sizeof(stde));
 	if (q == 0) return;
@@ -710,14 +786,16 @@ void append_stde(stde s) {
 	q->next = 0;
 	if (entry_table.stde_start == 0) {
 		entry_table.stde_start = entry_table.stde_end = q;
-	} else {
+	}
+	else {
 		entry_table.stde_end->next = q;
 		entry_table.stde_end = q;
 	}
 }
 
 //*************************************************************
-stde get_stde(long_int id) {
+stde get_stde(long_int id)
+{
 	stde null = {0, 0, 0};
 	stde *tmp1 = entry_table.stde_start;
 	if (tmp1 == 0) return null;
@@ -734,7 +812,8 @@ stde get_stde(long_int id) {
 //*************************************************************
 //***************functions_stack functions*******************
 //*************************************************************
-void append_fust(fust s) {
+void append_fust(fust s)
+{
 	fust *q;
 	q = (fust *) malloc(sizeof(fust));
 	if (q == 0) return;
@@ -745,7 +824,8 @@ void append_fust(fust s) {
 	q->next = 0;
 	if (entry_table.fust_start == 0) {
 		entry_table.fust_start = entry_table.fust_end = q;
-	} else {
+	}
+	else {
 		entry_table.fust_end->next = q;
 		entry_table.fust_end = q;
 	}
@@ -753,14 +833,16 @@ void append_fust(fust s) {
 }
 
 //*************************************************************
-fust get_last_fust() {
+fust get_last_fust()
+{
 	fust null = {0, 0, 0};
 	if (entry_table.fust_end == 0)return null;
 	return (*entry_table.fust_end);
 }
 
 //*************************************************************
-void delete_last_fust() {
+void delete_last_fust()
+{
 	if (entry_table.fust_end == 0)return;
 	//get last-1 item
 	fust *tmp1 = entry_table.fust_start;

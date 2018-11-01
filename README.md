@@ -2,10 +2,11 @@ Mini Portable Language - MPL (BETA-0.1)
 ============================================
 
 _This is a small,fast and simple interpreter also best solution to common problems of programmers._
-[![license](https://img.shields.io/github/license/Netflix/pollyjs.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 
 TODO
 --------
+
+### <<publish MPL-BETA version of MPL (for windows)>>
 
 * init exeptions **[OK]**
 * define mpl arguments **[OK]**
@@ -57,9 +58,11 @@ TODO
 * implement function call **[OK]**
 * determine type of function parameter values **[OK]**
 * validation called function parameters **[OK]**
-* init function parameters **[..]**
-* call built-in functions **[..]**
+* init function parameters **[OK]**
+* support for vars values parameters **[..]**
+* switch to another function **[..]**
 * implement return
+* call built-in functions
 * implement alloc_vars
 * alloc struct expressions
 * implement short alloc vars
@@ -99,10 +102,10 @@ TODO
 * optimizing huge numbers
 * optimizing RAM,CPU usage
 
-### <<publish BETA version of MPL (for windows)>>
+### <<publish MPL-RC version of MPL (for windows)>>
 
 * support package files
-* publish BETA version for linux
+* publish RC version for linux
 * run scripts in command line
 * add math module for advanced calculation
 * add net module
@@ -110,13 +113,17 @@ TODO
 * add many built-in functions
 * support minimal gui for windows
 * add regex module
+* development vars usage for struct and array
+* support mpl repository
+* support mpl forum
 
-### <<publish MPL1 version of MPL (for windows,linux)>>
+### <<publish MPL-HELLO version of MPL (for windows,linux)>>
 
 * support for multi threading
 * support minimal gui for gtk
-* support mpl repository
-* support mpl forum
+* To be continued ...
+
+### <<publish MPL-HI version of MPL (for windows,linux)>>
 
 ### To be continued ...
 
@@ -126,16 +133,16 @@ MPL Language Features
 > support utf-8 strings **[OK]** <br>
 > support radix numbers **[OK]** <br>
 > has XOR operand **[OK]** <br>
-> support data structures [..] <br>
-> support magic macros [..] <br>
+> support data structures **[OK]** <br>
+> support magic macros <br>
 > support huge numbers <br>
 > support override functions <br>
 > has built-in functions <br>
 > manage exceptions <br>
 > has bit operands <br>
-> support unlimited function parameters <br>
+> support unlimited function parameters **[OK]** <br>
 > support multi return values <br>
-> support call by refrence vars <br>
+> support call by refrence vars **[OK]** <br>
 > support short allocations for vars <br>
 > support browse arrays in loop <br>
 > support switch condition <br>
@@ -144,7 +151,7 @@ MPL Hello World Program
 --------
 
     func main(){
-        print("Hello World!\n)
+        print("Hello World!\n")
     }
 
 Get Starterd
@@ -152,9 +159,9 @@ Get Starterd
 
 ### [Windows] : Build Mpl.exe
 
-> First clone the repository and then install python3 for ruuning build tool and mingw64 for compiling mpl. Then run 'build_win32_migw64.py' or double click on 'build_run_win32.bat'. Finally created a folder by name 'win32-release'. <br>
+> First clone the repository and then install python3 for ruuning build tool and mingw64 for compiling mpl. Then run 'build_win32_migw64.py' in 'tools' directory. Finally created a folder by name 'win32-release'. <br>
 > Now  you can run  a file by name 'main.mpl' through command 'mpl.exe main.mpl' and you can see the result! <br>
-> [Mpl is portable!] you can move 'mpl.exe' to any where. it's a static executable file and not need to any files.(It's not need any modules or packages or docs or anything... Their are just for easier programming by mpl ) <br>
+> [Mpl is portable!] you can move 'mpl.exe' to any where. it's a static executable file and not need to any files.(It's not need any modules or packages or docs or anything... Their are just for easier programming by mpl:)) ) <br>
 
 
 MPL Sample Program
@@ -217,12 +224,12 @@ Programmers & Designers
 Events
 --------
 
-* 0.1.0-0.6.0 : Publish 'BETA' version of MPL (2018)  <b>[DONE]</b>
+* 0.1.0-0.6.0 : Publish 'BETA' version of MPL (2018)  **[DONE]**
 * 0.3.0-1.0.0 : complete 'www.mpl-lang.ir' website and MPL documentation (2018-2019)
 * 0.9.0-1.0.0 : 5 daily rolling publish (2018-2019)
-* 1.0.0-2.0.0 : Publish 'MPL1' version of MPL (2019-2020)
-* 2.0.0-3.0.0 : Publish 'MPL2' version of MPL and complete gui programming on windows and linux (2019-2021)
-* 3.0.0-4.0.0 : Publish 'MPL3' version of MPL and entering mpl to servers and web applications (2020-2022)
+* 1.0.0-2.0.0 : Publish 'MPL-RC' version of MPL (2019-2020)
+* 2.0.0-3.0.0 : Publish 'MPL-HELLO' version of MPL and complete gui programming on windows and linux (2019-2021)
+* 3.0.0-4.0.0 : Publish 'MPLHI' version of MPL and entering mpl to servers and web applications (2020-2022)
 
 MPL is best choice FOR
 --------
@@ -231,3 +238,12 @@ MPL is best choice FOR
 2. start to learning the programming world
 3. create small and common tools for programmers
 4. personal programming for spend timeend time
+
+
+<hr>
+<center style='background-color:skyblue;padding:5px 2%;border-radius:5px;'>
+        <div style='text-shadow:2px 4px 4px rgba(0,0,0,0.3);margin:5px;color:#fff;border-bottom:0;background-color:blue;display:inline-block;padding:3px 6px;border-radius:10px;font-size:xx-large;box-shadow:1px 2px 3px 0 rgba(0,0,0,0.1);user-select:none;'>mpl:))</div><br>
+        -+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-<br>
+        | Mini Portable Language - MPL  |<br>
+        -+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-<br>
+</center>

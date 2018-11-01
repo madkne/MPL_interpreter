@@ -1,7 +1,8 @@
 #include <MPL/system.h>
 
 //******************************************
-String read_input() {
+String read_input()
+{
 	String ret = "";
 	uint8 c = 0;
 	for (;;) {
@@ -13,7 +14,8 @@ String read_input() {
 }
 
 //******************************************
-String get_host_name() {
+String get_host_name()
+{
 	#if WINDOWS_PLATFORM == true
 	return getenv("COMPUTERNAME");
 	#elif LINUX_PLATFORM == true
@@ -23,7 +25,8 @@ String get_host_name() {
 }
 
 //******************************************
-long_int get_pid() {
+long_int get_pid()
+{
 	#if WINDOWS_PLATFORM == true
 	return (long_int) GetCurrentProcessId();
 	#elif LINUX_PLATFORM == true
@@ -33,7 +36,8 @@ long_int get_pid() {
 }
 
 //******************************************
-String get_absolute_path(String path) {
+String get_absolute_path(String path)
+{
 	//uint8 resolved_path[PATH_MAX+1];
 	#if LINUX_PLATFORM == 1
 	String abs_path=0;
@@ -53,13 +57,15 @@ String get_absolute_path(String path) {
 }
 
 //******************************************
-Boolean switch_bool(Boolean b) {
+Boolean switch_bool(Boolean b)
+{
 	if (b) return false;
 	return true;
 }
 
 //******************************************
-void msg(String format, ...) {
+void msg(String format, ...)
+{
 	String *argvs = (String *) &format;
 	argvs++;
 	uint32 c = 0;
@@ -70,7 +76,8 @@ void msg(String format, ...) {
 		if (c != '%') {
 			//dbg_putc(c);
 			printf("%c", c);
-		} else {
+		}
+		else {
 			c = *format++;
 			switch (c) {
 				case 'c':
@@ -82,7 +89,7 @@ void msg(String format, ...) {
 					str = (String) argvs++;
 					if (!str) str_init(&str, "[NULL]");
 					printf("%s", str);
-					
+
 					break;
 				case 'b':
 					u32 = *(int *) argvs++;
@@ -96,15 +103,15 @@ void msg(String format, ...) {
 					break;
 					//default:
 					//printf();
-				
+
 			}
 		}
 	}
 }
 
-
 //******************************************
-void longint_list_delete_first(longint_list *s, uint32 len) {
+void longint_list_delete_first(longint_list *s, uint32 len)
+{
 	if (len == 0) {
 		(*s) = 0;
 		return;
@@ -122,7 +129,8 @@ void longint_list_delete_first(longint_list *s, uint32 len) {
 }
 
 //******************************************
-void longint_list_append(longint_list *s, uint32 len, long_int n) {
+void longint_list_append(longint_list *s, uint32 len, long_int n)
+{
 	longint_list tmp = 0;
 	longint_list_init(&tmp, *s, len);
 	free(*s);
@@ -135,7 +143,8 @@ void longint_list_append(longint_list *s, uint32 len, long_int n) {
 }
 
 //*************************************************************
-uint32 longint_list_join(longint_list *s, longint_list a1, uint32 a1_len, longint_list a2, uint32 a2_len) {
+uint32 longint_list_join(longint_list *s, longint_list a1, uint32 a1_len, longint_list a2, uint32 a2_len)
+{
 	//if(s!=0)free(*s);
 	uint32 ind = 0;
 	(*s) = (longint_list) malloc((a1_len + a2_len) * sizeof(longint_list));
@@ -150,7 +159,8 @@ uint32 longint_list_join(longint_list *s, longint_list a1, uint32 a1_len, longin
 }
 
 //*************************************************************
-void longint_list_init(longint_list *s, longint_list val, uint32 len) {
+void longint_list_init(longint_list *s, longint_list val, uint32 len)
+{
 	if (len == 0) {
 		(*s) = 0;
 		return;
@@ -163,7 +173,8 @@ void longint_list_init(longint_list *s, longint_list val, uint32 len) {
 }
 
 //*************************************************************
-String longint_list_print(longint_list s, uint32 len) {
+String longint_list_print(longint_list s, uint32 len)
+{
 	if (len == 0) return "[NULL]";
 	String ret = 0;
 	ret = char_append(ret, '{');
@@ -177,7 +188,8 @@ String longint_list_print(longint_list s, uint32 len) {
 }
 
 //******************************************
-double int32_power(double base, int32 power) {
+double int32_power(double base, int32 power)
+{
 	double ret = 1;
 	Boolean is_neg = false;
 	if (power < 0) {
@@ -194,7 +206,8 @@ double int32_power(double base, int32 power) {
 }
 
 //******************************************
-String get_current_datetime(uint8 type) {
+String get_current_datetime(uint8 type)
+{
 	time_t t = time(NULL);
 	struct tm tim = *localtime(&t);
 	//char s[64];
@@ -203,11 +216,12 @@ String get_current_datetime(uint8 type) {
 	if (type == 1) {
 		ret = malloc(6 * sizeof(int) + 5);
 		sprintf(ret, "%i-%i-%i %i:%i:%i", tim.tm_year + 1900, tim.tm_mon + 1, tim.tm_mday, tim.tm_hour, tim.tm_min,
-				tim.tm_sec);
-	} else if (type == 2) {
+		        tim.tm_sec);
+	}
+	else if (type == 2) {
 		return str_from_long_int((long_int) t);
 	}
-	
+
 	//strftime(s, sizeof(s), "%c", tm);
 	return ret;
 }
@@ -215,7 +229,8 @@ String get_current_datetime(uint8 type) {
 
 //******************************************
 //******************************************
-String print_str_list(str_list s, uint32 len) {
+String print_str_list(str_list s, uint32 len)
+{
 	if (len == 0) return "[NULL]";
 	String ret = 0;
 	ret = char_append(ret, '{');
@@ -229,13 +244,14 @@ String print_str_list(str_list s, uint32 len) {
 }
 
 //******************************************
-void print_struct(uint8 which) {
+void print_struct(uint8 which)
+{
 	if (which == 0 || which == PRINT_IMPORT_ST) {
 		imin *tmp1 = entry_table.import_start;
 		printf("=====Print import_inst_struct :\n");
 		for (;;) {
 			printf("Active:%i,id:%li,type:%i,line:%i,source:[%i]\n", tmp1->is_active, tmp1->id, tmp1->type, tmp1->line,
-					tmp1->source_id);
+			       tmp1->source_id);
 			utf8_str_print("path:", tmp1->path, true);
 			utf8_str_print("source:", source_paths[tmp1->source_id], true);
 			printf("\n");
@@ -243,17 +259,19 @@ void print_struct(uint8 which) {
 			if (tmp1 == 0) break;
 		}
 		printf("=====End printed\n");
-	} else if (which == 0 || which == PRINT_EXCEPTIONS_ST) {
+	}
+	else if (which == 0 || which == PRINT_EXCEPTIONS_ST) {
 		exli *tmp1 = entry_table.exli_start;
 		printf("=====Print exceptions_list_struct :\n");
 		for (;;) {
 			printf("id:%i,type:%i,group:%s,lbl:%s,text:%s\n", tmp1->id, tmp1->type, exceptions_group[tmp1->group],
-					tmp1->lbl, tmp1->text);
+			       tmp1->lbl, tmp1->text);
 			tmp1 = tmp1->next;
 			if (tmp1 == 0) break;
 		}
 		printf("=====End printed\n");
-	} else if (which == 0 || which == PRINT_UTF8_ST) {
+	}
+	else if (which == 0 || which == PRINT_UTF8_ST) {
 		utst *tmp1 = entry_table.utst_start;
 		if (tmp1 == 0) return;
 		printf("=====Print utf8_strings_struct :\n");
@@ -264,7 +282,8 @@ void print_struct(uint8 which) {
 			if (tmp1 == 0) break;
 		}
 		printf("=====End printed\n");
-	} else if (which == 0 || which == PRINT_MAIN_SOURCE_ST) {
+	}
+	else if (which == 0 || which == PRINT_MAIN_SOURCE_ST) {
 		soco *tmp1 = entry_table.soco_main_start;
 		if (tmp1 == 0) return;
 		printf("=====Print source_code_struct :\n");
@@ -274,7 +293,8 @@ void print_struct(uint8 which) {
 			if (tmp1 == 0) break;
 		}
 		printf("=====End printed\n");
-	} else if (which == 0 || which == PRINT_TOKENS_SOURCE_ST) {
+	}
+	else if (which == 0 || which == PRINT_TOKENS_SOURCE_ST) {
 		soco *tmp1 = entry_table.soco_tokens_start;
 		if (tmp1 == 0) return;
 		printf("=====Print source_code_tokens_struct :\n");
@@ -284,7 +304,8 @@ void print_struct(uint8 which) {
 			if (tmp1 == 0) break;
 		}
 		printf("=====End printed\n");
-	} else if (which == 0 || which == PRINT_FUNC_ST) {
+	}
+	else if (which == 0 || which == PRINT_FUNC_ST) {
 		blst *tmp1 = entry_table.blst_func_start;
 		if (tmp1 == 0) return;
 		printf("=====Print func_block_struct :\n");
@@ -294,40 +315,44 @@ void print_struct(uint8 which) {
 			if (tmp1 == 0) break;
 		}
 		printf("=====End printed\n");
-	} else if (which == 0 || which == PRINT_INSTRU_ST) {
+	}
+	else if (which == 0 || which == PRINT_INSTRU_ST) {
 		instru *tmp1 = entry_table.instru_start;
 		if (tmp1 == 0) return;
 		printf("=====Print instructions_struct :\n");
 		for (;;) {
 			printf("(id:%li,fid:%li,sid:%li,order:%li,type:%i,line:%i),code:%s\n", tmp1->id, tmp1->func_id,
-					tmp1->stru_id, tmp1->order, tmp1->type, tmp1->line, tmp1->code);
+			       tmp1->stru_id, tmp1->order, tmp1->type, tmp1->line, tmp1->code);
 			tmp1 = tmp1->next;
 			if (tmp1 == 0) break;
 		}
 		printf("=====End printed\n");
-	} else if (which == 0 || which == PRINT_STRUCT_ST) {
+	}
+	else if (which == 0 || which == PRINT_STRUCT_ST) {
 		datas *tmp1 = entry_table.datas_start;
 		if (tmp1 == 0) return;
 		printf("=====Print struct_struct :\n");
 		for (;;) {
 			printf("(id:%li,fid:%li,len:%i),name:%s,params:%s\n", tmp1->id, tmp1->fid, tmp1->params_len, tmp1->name,
-					print_str_list(tmp1->params, tmp1->params_len));
+			       print_str_list(tmp1->params, tmp1->params_len));
 			tmp1 = tmp1->next;
 			if (tmp1 == 0) break;
 		}
 		printf("=====End printed\n");
-	} else if (which == 0 || which == PRINT_STRU_ST) {
+	}
+	else if (which == 0 || which == PRINT_STRU_ST) {
 		blst *tmp1 = entry_table.blst_stru_start;
 		if (tmp1 == 0) return;
 		printf("=====Print block_structure_struct :\n");
 		for (;;) {
 			printf("id:%li,lbl[%i]:%s,(fid:%li,sid:%li),argvs:%s\n", tmp1->id, tmp1->type, tmp1->lbl, tmp1->func_id,
-					tmp1->stru_id, print_str_list(tmp1->params, tmp1->params_len));
+			       tmp1->stru_id, print_str_list(tmp1->params, tmp1->params_len));
 			tmp1 = tmp1->next;
 			if (tmp1 == 0) break;
 		}
 		printf("=====End printed\n");
-	} else if (which == 0 || which == PRINT_STRUCT_DES_ST) {
+	}
+	else if (which == 0 || which == PRINT_STRUCT_DES_ST) {
 		stde *tmp1 = entry_table.stde_start;
 		if (tmp1 == 0) return;
 		printf("=====Print struct descriptor :\n");
@@ -338,7 +363,8 @@ void print_struct(uint8 which) {
 			if (tmp1 == 0) break;
 		}
 		printf("=====End printed\n");
-	} else if (which == 0 || which == PRINT_MAGIC_MACROS_ST) {
+	}
+	else if (which == 0 || which == PRINT_MAGIC_MACROS_ST) {
 		mama *tmp1 = entry_table.mama_start;
 		if (tmp1 == 0) return;
 		printf("=====Print magic macros :\n");
@@ -352,7 +378,8 @@ void print_struct(uint8 which) {
 }
 
 //*************************************************************
-uint32 source_paths_search(str_utf8 path) {
+uint32 source_paths_search(str_utf8 path)
+{
 	for (uint32 i = 0; i < entry_table.source_counter; i++) {
 		if (utf8_str_equal(path, source_paths[i]))
 			return i;
@@ -361,13 +388,15 @@ uint32 source_paths_search(str_utf8 path) {
 }
 
 //*************************************************************
-utst return_utf8_string_value(String s) {
+utst return_utf8_string_value(String s)
+{
 	utst nil = {0, 0, 0};
 	uint32 len = str_length(s);
 	String val = 0;
 	if (len > 2 && s[0] == '\"' && s[len - 1] == '\"') {
 		val = str_substring(s, 1, len - 1);
-	} else {
+	}
+	else {
 		str_init(&val, s);
 	}
 	//------------
@@ -379,13 +408,15 @@ utst return_utf8_string_value(String s) {
 		return ut;
 		//printf("UTT:%s=>%s,%i\n", s, utf8_to_unicode_str(ut.utf8_string), ut.max_bytes_per_char);
 		//utf8_str_print("UTF8", ut.utf8_string, false);
-	} else
+	}
+	else
 		return nil;
-	
+
 }
 
 //*************************************************************
-void str_list_append(str_list *s, String s1, uint32 len) {
+void str_list_append(str_list *s, String s1, uint32 len)
+{
 	//printf("CCCC:%s,%i\n",s1,len);
 	str_list tmp = 0;
 	str_list_init(&tmp, *s, len);
@@ -400,7 +431,8 @@ void str_list_append(str_list *s, String s1, uint32 len) {
 }
 
 //*************************************************************
-void str_list_init(str_list *s, str_list val, uint32 len) {
+void str_list_init(str_list *s, str_list val, uint32 len)
+{
 	if (len == 0) {
 		(*s) = 0;
 		return;
@@ -417,7 +449,8 @@ void str_list_init(str_list *s, str_list val, uint32 len) {
 }
 
 //*************************************************************
-void str_list_delete_first(str_list *s, uint32 len) {
+void str_list_delete_first(str_list *s, uint32 len)
+{
 	if (len == 0) {
 		(*s) = 0;
 		return;
@@ -435,7 +468,8 @@ void str_list_delete_first(str_list *s, uint32 len) {
 }
 
 //*************************************************************
-uint32 str_list_join(str_list *s, str_list a1, uint32 a1_len, str_list a2, uint32 a2_len) {
+uint32 str_list_join(str_list *s, str_list a1, uint32 a1_len, str_list a2, uint32 a2_len)
+{
 	//if(s!=0)free(*s);
 	uint32 ind = 0;
 	(*s) = (str_list) malloc((a1_len + a2_len) * sizeof(str_list));
@@ -450,7 +484,8 @@ uint32 str_list_join(str_list *s, str_list a1, uint32 a1_len, str_list a2, uint3
 }
 
 //*************************************************************
-Boolean str_list_equal(str_list s1, uint32 len1, str_list s2, uint32 len2) {
+Boolean str_list_equal(str_list s1, uint32 len1, str_list s2, uint32 len2)
+{
 	if (len1 != len2) return false;
 	if (len1 == 0)return true;
 	for (uint32 i = 0; i < len1; ++i) {
@@ -460,7 +495,8 @@ Boolean str_list_equal(str_list s1, uint32 len1, str_list s2, uint32 len2) {
 }
 
 //*************************************************************
-void utf8_str_list_append(utf8_str_list *s, str_utf8 s1, uint32 len) {
+void utf8_str_list_append(utf8_str_list *s, str_utf8 s1, uint32 len)
+{
 	//printf("CCCC:%s,%i\n",s1,len);
 	utf8_str_list tmp = 0;
 	utf8_str_list_init(&tmp, *s, len);
@@ -475,7 +511,8 @@ void utf8_str_list_append(utf8_str_list *s, str_utf8 s1, uint32 len) {
 }
 
 //*************************************************************
-String remove_incorrect_pars(String str, int32 *invalid_pars) {
+String remove_incorrect_pars(String str, int32 *invalid_pars)
+{
 	String final = 0;
 	str_init(&final, str);
 	Boolean is_string = false;
@@ -499,17 +536,19 @@ String remove_incorrect_pars(String str, int32 *invalid_pars) {
 	uint32 final_len = str_length(final);
 	if (pars > 0 && pars < final_len) {
 		final = str_substring(final, pars, 0);
-	} else if (pars < 0 && (-pars) < final_len) {
+	}
+	else if (pars < 0 && (-pars) < final_len) {
 		final = str_substring(final, 0, final_len - (-pars));
 	}
 	//msg("&***", pars)
 	(*invalid_pars) = pars;
 	return final;
-	
+
 }
 
 //*************************************************************
-FILE *utf8_file_open(String filename, String mode) {
+FILE *utf8_file_open(String filename, String mode)
+{
 	#if LINUX_PLATFORM == 1
 	//TODO:utf8 fopen for linux
 	#elif WINDOWS_PLATFORM == 1
@@ -523,13 +562,15 @@ FILE *utf8_file_open(String filename, String mode) {
 }
 
 //*************************************************************
-String replace_in_expression(String exp, String rep, int32 start, int32 end, Boolean remove_pars, Boolean is_trim) {
+String replace_in_expression(String exp, String rep, int32 start, int32 end, Boolean remove_pars, Boolean is_trim)
+{
 	//msg("&@@@", exp, rep, start, end)
 	String s1 = 0, s2 = 0, expression = 0;
 	if (is_trim) {
 		s1 = str_trim_space(str_substring(exp, 0, start));
 		s2 = str_trim_space(str_substring(exp, end, 0));
-	} else {
+	}
+	else {
 		s1 = str_substring(exp, 0, start);
 		s2 = str_substring(exp, end, 0);
 	}
@@ -543,7 +584,8 @@ String replace_in_expression(String exp, String rep, int32 start, int32 end, Boo
 }
 
 //*************************************************************
-String make_valid_double(String s) {
+String make_valid_double(String s)
+{
 	uint32 s_len = str_length(s);
 	if (s_len == 0 || (s_len == 1 && s[0] == '.'))return "0";
 	if (s_len > 1 && s[0] == '.')return str_multi_append("0", s, 0, 0, 0, 0);
@@ -552,7 +594,8 @@ String make_valid_double(String s) {
 }
 
 //*************************************************************
-String limit_decimal_huge_numbers(String s) {
+String limit_decimal_huge_numbers(String s)
+{
 	uint32 s_len = str_length(s);
 	uint32 ind = 0, limit = 0;
 	Boolean is_point = false;
@@ -574,7 +617,8 @@ String limit_decimal_huge_numbers(String s) {
 }
 
 //*************************************************************
-Boolean is_equal_arrays_indexes(String s1, String s2) {
+Boolean is_equal_arrays_indexes(String s1, String s2)
+{
 	//printf("#WWWWW:%s@@%s\n",s1,s2);
 	if ((s1 == 0 && str_equal(s2, "0")) || (s2 == 0 && str_equal(s1, "0")))return true;
 	str_list sl1 = 0, sl2 = 0;
@@ -586,4 +630,13 @@ Boolean is_equal_arrays_indexes(String s1, String s2) {
 		if (!str_equal(sl1[i], sl2[i]))return false;
 	}
 	return true;
+}
+//*************************************************************
+Boolean has_two_limiting(String s, uint8 l1, uint8 l2, Boolean ignore_space)
+{
+	if (ignore_space)s = str_trim_space(s);
+	uint32 len = str_length(s);
+	if (len < 2)return false;
+	if (s[0] == l1 && s[len - 1] == l2)return true;
+	return false;
 }
