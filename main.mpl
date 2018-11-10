@@ -6,7 +6,7 @@
 j++
 __config["AppName"]="dfhfg"*/
 func hello(str s[?], num n,gg df,vars pa){
-	printA(s)
+	print("struct is : ",df,"\n----\n")//print("fhfh:%n%\n")
 	return 45,"!!"
 }
 struct aaaaaa{
@@ -26,7 +26,7 @@ func main(){
 	num j=56h/0.565
 	str jj="Hello"+"!"
 	//gg ss1=struct({true,false},56.7)
-	num i1,str i2=hello({"ff","gg","ll"},&j,struct({true,false},56.7))//{{"Q","A"},{"F",("rt")+"!"}}
+	num i1,str i2=hello({"ff","gg","ll"},&j,struct({true,false},56.7),"strkk",j)//{{"Q","A"},{"F",("rt")+"!"}}
 	//bool bb[2]={(j>=56)&&false,false||true}
 	//__define["OSInfo"]=jj+" !..."
 	//str gh=__define["AppPath"]+__config["AppVersion"]

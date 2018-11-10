@@ -56,7 +56,7 @@ if os.path.exists(build_folder+"\\bin\\mpl.exe"):
 #----------------------compile mpl sources
 print("=== Start compiling source files [mpl.exe]...");
 sources=[
-[scr_folder+"/main.c","../src/main.c -o "+obj_folder+"/main.o"],
+[scr_folder+"/main.c",scr_folder+"/main.c -o "+obj_folder+"/main.o"],
 [scr_folder+"/data_defined.c",scr_folder+"/data_defined.c -o "+obj_folder+"/data_defined.o"],
 [scr_folder+"/exceptions.c",scr_folder+"/exceptions.c -o "+obj_folder+"/exceptions.o"],
 [scr_folder+"/built_in.c",scr_folder+"/built_in.c -o "+obj_folder+"/built_in.o"],
@@ -68,7 +68,8 @@ sources=[
 [scr_folder+"/core/importer.c",scr_folder+"/core/importer.c -o "+obj_folder+"/importer.o"],
 [scr_folder+"/core/starter.c",scr_folder+"/core/starter.c -o "+obj_folder+"/starter.o"],
 [scr_folder+"/core/run_mgr.c",scr_folder+"/core/run_mgr.c -o "+obj_folder+"/run_mgr.o"],
-[scr_folder+"/core/virtual_memory.c",scr_folder+"/core/virtual_memory.c -o "+obj_folder+"/virtual_memory.o"]
+[scr_folder+"/core/virtual_memory.c",scr_folder+"/core/virtual_memory.c -o "+obj_folder+"/virtual_memory.o"],
+[scr_folder+"/built_in/mpl_builtin.c",scr_folder+"/built_in/mpl_builtin.c -o "+obj_folder+"/mpl_builtin.o"]
 ];
 for i in range(0,len(sources),1):
 	ind=sources[i];

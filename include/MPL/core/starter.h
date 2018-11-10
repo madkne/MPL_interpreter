@@ -7,7 +7,7 @@
 
 Boolean start_runtime();
 
-Boolean APP_CONTROLLER();
+int8 APP_CONTROLLER();
 int8 INSTRUCTION_EXECUTOR(long_int index);
 Boolean init_global_vars();
 #endif //MPL_STARTER_H

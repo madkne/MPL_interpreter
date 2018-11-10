@@ -43,5 +43,6 @@
 #include "tools/common_funcs.h"
 #include "tools/strings.h"
 #include "tools/utf8.h"
-//---------------------------------
+//---------------------------------built-in functions
+#include "built_in/mpl_builtin.h"
 #endif //MPL_SYSTEM_H

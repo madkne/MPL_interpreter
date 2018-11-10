@@ -1,4 +1,4 @@
-Mini Portable Language - MPL (BETA-0.1)
+Mini Portable Language - MPL (BETA-0.2)
 ============================================
 
 _This is a small,fast and simple interpreter also best solution to common problems of programmers._
@@ -59,10 +59,18 @@ TODO
 * determine type of function parameter values **[OK]**
 * validation called function parameters **[OK]**
 * init function parameters **[OK]**
-* support for vars values parameters **[..]**
-* switch to another function **[..]**
-* implement return
-* call built-in functions
+* support for vars values parameters **[OK]**
+* switch to another function **[OK]**
+* implement return keyword **[OK]**
+* return values from function **[OK]**
+* return value by index from function **[OK]**
+* call built-in functions **[OK]**
+* implement control characters **[OK]**
+* implement print built-in function **[OK]**
+* implement some built-in functions **[..]**
+* return values from built-in functions **[..]**
+* complete built-in function call **[..]**
+* implement garbage collector for functions
 * implement alloc_vars
 * alloc struct expressions
 * implement short alloc vars
@@ -77,7 +85,6 @@ TODO
 * alloc array vars
 * set structs in functions parameter
 * define loop
-* start garbage collector
 * start review_array_loop
 * implement next
 * implement break

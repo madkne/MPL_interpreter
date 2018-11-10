@@ -250,6 +250,7 @@ uint8 define_vars_analyzing(String inst, def_var_s vars_store[])
 			vars_store[vals_counter].sub_type = '0';
 			str_init(&vars_store[vals_counter].value_var, word);
 			word = 0;
+			continue;
 		}
 
 		//------------------append to word

@@ -7,17 +7,17 @@
 
 //**************************************************define interpreter constants
 #define  APP_NAME                       "Mini Portable Language"
-#define  VERSION                        "0.1.75"               //1.10.100
+#define  VERSION                        "0.2.07"               //1.10.100
 #define  VERSION_NAME                   "BETA"
 #define  SLOGAN                         "The solution to common problems of programmers" //راه حل کارهای متداول برنامه
 // نویسان
 #define  FIRST_BUILD                    "2018.9.19"
 #define  LICENCE                        "FREE-MPL"
 #define  OFFICIAL_WEBSITE               "http://mpl-lang.ir"
-#define  C_CORE_CODE_LINES              8193
-#define  H_CORE_CODE_LINES              886
+#define  C_CORE_CODE_LINES              9117
+#define  H_CORE_CODE_LINES              899
 #define  LANGUAGE_CREATOR               "Mohammad Amin Delavar Khalafi"
-#define  CONFIDENCE_LEVEL               4
+#define  CONFIDENCE_LEVEL               5
 #define  WINDOWS_COMPATIBLE             true
 #define  LINUX_COMPATIBLE               false
 //**************************************************define
@@ -48,7 +48,8 @@
 #define   MAX_OPENED_FILES              20
 #define   END_OF_FILE                  -10
 #define   SYSTEM_STRING_DEFINE          "SYS__STR_"
-#define   RETURN_TMP_NAME               "@ret_"
+#define   RETURN_TMP_NAME               "@ret"
+#define   RETURN_TMP_POINTER_ID         1
 #define   STRUCTURES_LABEL              "@@@STRU_"
 #define   SWITCH_LABEL                  "@@@SWITCH_"
 #define   UTF8_ID_LABEL                 "-!U8!_"
@@ -113,6 +114,7 @@
 #define PRINT_STRU_ST                   9
 #define PRINT_MAGIC_MACROS_ST           10
 #define PRINT_STRUCT_DES_ST             11
+#define PRINT_FUNCTIONS_STACK_ST        12
 //------------------------------------------
 #define   BOOL_SUB_TYPE_ID              1
 #define   STR_SUB_TYPE_ID               2
@@ -138,9 +140,12 @@
 #define   DEFINE_MAGIC_MACRO_TYPE       1
 #define   CONFIG_MAGIC_MACRO_TYPE       2
 #define   SESSION_MAGIC_MACRO_TYPE      3
-//------------------------------------------used in built_in-determine type of magic
+//------------------------------------------
 #define   FAILED_EXECUTE_INSTRUCTION    1
 #define   SUCCESS_EXECUTE_INSTRUCTION   2
+//------------------------------------------used in APP_CONTROLLER return
+#define   BAD_RETURN_APP_CONTROLLER     0
+#define   NORMAL_RETURN_APP_CONTROLLER  1
 //**************************************************typedef
 typedef char int8;
 typedef unsigned char uint8;

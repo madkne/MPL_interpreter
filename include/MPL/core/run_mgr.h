@@ -5,18 +5,21 @@
 #ifndef MPL_RUN_MGR_H
 #define MPL_RUN_MGR_H
 
-uint8 labeled_instruction(String code);
+uint8 labeled_instruction (String code);
 
-String define_vars(String inst);
+String define_vars (String inst);
 
-String alloc_magic_macros(String exp);
+String alloc_magic_macros (String exp);
 
-String function_call(String exp);
+String function_call (String exp);
 
-String init_calling_function(String pname, String fname, str_list params, uint32 param_len, String index);
+String init_calling_function (String pname, String fname, str_list params, uint32 param_len, String index);
 
-int32 set_function_parameters(String pack_name, String func_name, str_list pars, uint32 pars_len);
+Boolean
+is_exact_function (str_list func_params, uint32 func_params_len, str_list type_params, uint32 params_len,Boolean is_built_in);
 
-uint32 determine_type_name_func_parameters(str_list params, uint32 params_len, str_list *ret);
+int32 set_function_parameters (String pack_name, String func_name, str_list pars, uint32 pars_len);
 
+uint32 determine_type_name_func_parameters (str_list params, uint32 params_len, str_list *ret);
+Boolean function_return (String exp);
 #endif //MPL_RUN_MGR_H

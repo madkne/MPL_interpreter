@@ -33,6 +33,7 @@ void init_exceptions_list_data() {
 	define_new_exception(4, ERROR_ID, "out_of_range_break_next", InterruptedError, "'!1@1!' is not between 1 .. !2@2!");
 	define_new_exception(5, ERROR_ID, "out_of_range_integer", InterruptedError, "result of '!1@1!' expression is out of range of integer");
 	define_new_exception(6, ERROR_ID, "out_of_range_float", InterruptedError, "result of '!1@1!' expression is out of range of float");
+  define_new_exception(7, ERROR_ID, "array_index_out_of_range", InterruptedError, "Index Array '!1@1!' is out of range from '0' to '!2@2!'");
 	
 	define_new_exception(5, ERROR_ID, "review_array_out_of_range", InterruptedError,
 			"review array can not assign '!1@1!' to more than '!2@2!' variables");
@@ -77,6 +78,8 @@ void init_exceptions_list_data() {
 			"'!1@1!' was defined in '__define' magic macro. you can not Re-initialized it");
 	define_new_exception(10, ERROR_ID, "not_global__config_mm", ValueError,
 			"you can not edit '__config' magic macro items inside of a function");
+  define_new_exception(11, ERROR_ID, "not_float_array_index", ValueError,
+                       "Array index can not be as a float or huge number");
 	//\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\
 	//NotExistError
 	define_new_exception(1, ERROR_ID, "not_exist_func", NotExistError,
