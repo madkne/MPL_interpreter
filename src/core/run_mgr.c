@@ -539,16 +539,15 @@ String init_calling_function (String pname, String fname, str_list params, uint3
   entry_table.parent_fin = entry_table.cur_fin;
   //--------------------init function parameters
   int32 ret0 = set_function_parameters (pname, fname, params, param_len);
-  //********************
-  //msg("&YYY", func_f, ret0)
+  //--------------------analyzing ret0
   Boolean is_return = false;
   if (ret0 == -1)
 	{
 	  //TODO:
 	}
+	//if exist a built-in function
   else if (ret0 == 2)
 	{
-	  //*********************search for built-in functions
 	  is_return = true;
 	}
   else if (ret0 == 1)
@@ -560,6 +559,7 @@ String init_calling_function (String pname, String fname, str_list params, uint3
 	  is_return = true;
 	}
   //TODO:
+  //--------------------if returned values
   if (is_return)
 	{
 	  long_int ret_po_ind = find_index_pointer_memory (RETURN_TMP_POINTER_ID);
@@ -573,20 +573,14 @@ String init_calling_function (String pname, String fname, str_list params, uint3
 		}
 	  edit_Mpoint (ret_po_ind, 0, 0, true, false);
 
-	  //*********************return and reset settings
+	  //--------------------analyzing call function index
 	  if (index != 0)
 		{
-		  String reti = 0;
-		  uint8 rett = 0;
-		  calculate_math_expression (index, '_', &reti, &rett);
-		  int32 real_ind = str_to_int32 (reti);
-		  if (rett == 'f' || rett == 'h')
+		  index = simplification_var_index (index);
+		  int32 real_ind = str_to_int32 (index);
+		  if (real_ind >= rets_len)
 			{
-			  exception_handler ("not_float_array_index", __func__, 0, 0);
-			}
-		  else if (real_ind < 0 || real_ind >= rets_len)
-			{
-			  exception_handler ("array_index_out_of_range", __func__, str_from_int32 (real_ind), str_from_int32 (
+			  exception_handler ("array_index_overflow", __func__, str_from_int32 (real_ind), str_from_int32 (
 				  rets_len - 1));
 			}
 		  else
@@ -605,12 +599,9 @@ String init_calling_function (String pname, String fname, str_list params, uint3
 			}
 		}
 	}
-  //	//*********************close function
-  //	//msg("&####&&:", last_fin, cur_fin)
-  //	if ret0 != 2
-  //	{
-  //		garbage_collector('f')
-  //	}
+  //--------------------call garbage_collector(gc)
+  garbage_collector ('f');
+  //--------------------return to parent function
   //print_struct(PRINT_FUNCTIONS_STACK_ST);
   fust lst = get_last_fust ();
   delete_last_fust ();
@@ -622,6 +613,40 @@ String init_calling_function (String pname, String fname, str_list params, uint3
   //show_memory(0)
   //fmt.Scanf("%s")
   return ret_vars;
+}
+//****************************************************
+void garbage_collector (uint8 type)
+{
+  //show_memory (0);
+  for (;;)
+	{
+	  Boolean is_change = false;
+	  for (long_int i = 0; i < entry_table.var_mem_len; i++)
+		{
+		  is_change = false;
+		  Mvar st = get_Mvar (i);
+		  if (st.name == 0)continue;
+
+		  //---------------------delete all tmp variables that starts with @
+		  //		  if ((type == '@' ) && st.name != 0 && st.name[0] == '@' && entry_table.cur_fin == st.func_index)
+		  //			{
+		  //			  //printf ("##GC[@]:%s\n", st.name);
+		  //			  delete_full_memory_var (i, true);
+		  //			  is_change = true;
+		  //			  break;
+		  //			}
+		  //---------------------delete all function variables
+		  if ((type == 'f') && st.func_index == entry_table.cur_fin)
+			{
+			  //printf ("##GC[f]:%s\n", st.name);
+			  delete_full_memory_var (i, true);
+			  is_change = true;
+			  break;
+			}
+		}
+	  if (!is_change)return;
+	}
+  //show_memory (0);
 }
 
 //****************************************************
@@ -760,9 +785,24 @@ int32 set_function_parameters (String pack_name, String func_name, str_list pars
 	//-----------------------------maybe is a built-in function or not valid a function
   else
 	{
-	  //TODO:create built-in function
-	  str_list return_builtin = 0;
-	  uint32 return_builtin_len = call_built_in_funcs (func_name, pars, ret_pars, pars_len, &return_builtin);
+	  str_list returns_builtin = 0;
+	  uint32 returns_builtin_len = call_built_in_funcs (func_name, pars, ret_pars, pars_len, &returns_builtin);
+	  //if find built-in function
+	  if (returns_builtin_len > 0)
+		{
+		  String return_builtin = 0;
+		  //create a return expression
+		  str_init (&return_builtin, "return ");
+		  for (uint32 i = 0; i < returns_builtin_len; i++)
+			{
+			  return_builtin = str_append (return_builtin, returns_builtin[i]);
+			  if (i + 1 < returns_builtin_len)return_builtin = str_append (return_builtin, ",");
+			}
+		  //printf("Built-in return:%s\n",return_builtin);
+		  //call function_return
+		  function_return (return_builtin);
+		  return 2;
+		}
 	  //if not a built-in function
 	  exception_handler ("not_exist_func", __func__, func_name, print_str_list (pars, pars_len));
 	  return 0;
@@ -1009,14 +1049,14 @@ Boolean function_return (String exp)
 	  if (str_ch_equal (p1[2], '0'))
 		{
 		  //msg("RET_MMM:", tmp2, tmp1[1], tmp1[0])
-		  long_int var_id = set_memory_var (entry_table.parent_fin, 0, tmp2, return_vals[i], p1[0], true);
+		  long_int var_id = set_memory_var (entry_table.cur_fin, 0, tmp2, return_vals[i], p1[0], true);
 		  if (return_ids != 0)return_ids = char_append (return_ids, ';');
 		  return_ids = str_append (return_ids, str_from_long_int (var_id));
 		}
 		//---------------define var by variable
 	  else if (str_ch_equal (p1[2], '1'))
 		{
-		  long_int var_id = copy_memory_var (str_to_long_int (p1[1]), tmp2, entry_table.parent_fin);
+		  long_int var_id = copy_memory_var (str_to_long_int (p1[1]), tmp2, entry_table.cur_fin);
 		  if (return_ids != 0)return_ids = char_append (return_ids, ';');
 		  return_ids = str_append (return_ids, str_from_long_int (var_id));
 		}
@@ -1026,4 +1066,337 @@ Boolean function_return (String exp)
   //****************return
   //show_memory(40)
   return true;
+}
+
+//****************************************************
+int8 vars_allocation (String exp)
+{
+  /**
+	* value operators:
+	* = , += , -= , *= , /= , %= , ^= , :=
+    * ---- bool operators: =,:=
+    * ---- str operators: =,+=,:=
+    * ---- num operators: =, += , -= , *= , /= , %= , ^= , :=
+	* array operators:
+	* =,:=
+    * struct operators:
+    * =,:=
+	* 1- nu1[0]+=45 || st1*=2 ---..---
+	* 2- st1[0,1],st1="Amin"*3,"Reza" ---..---
+	* 3- st1[0,8]=st2[9,4] ---..---
+	* 4- st1[0],nu2+="Hi",(45^f[0]) ---..---
+	* 5- st1="Am";st2="Re"; st1:=st2 => st1="Re";st2="Am"; ---..---
+	* 6- st1=st2 //st1={4,7,9},st2={5,8,9,0} ---..---
+	* 7- st1:=st2 //st1=struct(67,true),st2=struct(0.7567,false) ---..---
+	* 8- st1={5,9,0} //st1={1,2} => st1={5,9,0} ---..---
+    * 9- st1=st2 //st1=struct(67,true),st2=struct(0.7567,false) ---..---
+	* Samples:
+	* 1- st1,d1[0,0],d1[0,1]+=" Jone",(60*10),d1[1,0] ---..---
+	* 2- st1:=st2[0] ---...---
+	* 3- st1,st2[0]="HELLO" ---..---
+	*/
+  //--------------init vars
+  uint32 len = str_length (exp);
+  int8 status = 0;
+  String word = 0, equal_type = 0;
+  Boolean is_string = false, is_equal = false, is_empty = false, is_struct = false;
+  int32 vars_counter = 0, vals_counter = 0, pars = 0, bras = 0, acos = 0;
+  struct alloc_var_struct {
+	  String type;
+	  String name;
+	  String alloc;
+	  String index;
+  };
+  struct alloc_var_struct alloc_var[MAX_VAR_ALLOC_INSTRUCTIONS];
+  String public_ops[6] = {"+=", "-=", "*=", "/=", "%=", "^="};
+  //printf("ALLOC_EXP:%s\n",exp);
+  //--------------parsing alloc expression
+  for (uint32 i = 0; i < len; i++)
+	{
+	  is_empty = false;
+	  //----check is string
+	  if (exp[i] == '\"' && (i == 0 || exp[i - 1] != '\\'))
+		is_string = switch_bool (is_string);
+	  //----check is struct
+	  if (pars == 0 && exp[i] == '(' && str_equal (word, "struct"))
+		is_struct = true;
+	  else if (pars == 1 && exp[i] == ')')
+		is_struct = false;
+	  //----continue if ' '
+	  if (!is_string && i + 1 < len && exp[i] == ' ' && (exp[i + 1] == '(' || exp[i + 1] == '['))continue;
+	  //----count bras,pars,acos
+	  if (!is_string)
+		{
+		  if (exp[i] == '(')pars++;
+		  else if (exp[i] == ')')pars--;
+		  else if (exp[i] == '{')acos++;
+		  else if (exp[i] == '}')acos--;
+		  else if (exp[i] == '[')bras++;
+		  else if (exp[i] == ']')bras--;
+		  else if (exp[i] == '=')is_equal = true;
+		}
+	  //----is a allocation operator
+	  String temp1 = 0;
+	  Boolean is_alloc_op = false;
+	  if (!is_string && i + 1 < len)
+		{
+		  temp1 = str_substring (exp, i, i + 2);
+		  if (str_search (alloc_operators, temp1, StrArraySize (alloc_operators)))is_alloc_op = true;
+		}
+	  if (!is_string && temp1 != 0 && (is_alloc_op || exp[i + 1] == '='))
+		{
+		  is_equal = true;
+		  if (is_alloc_op)
+			str_init (&equal_type, temp1);
+		  else
+			{
+			  str_init (&equal_type, "=");
+			  word = char_append (word, exp[i]);
+			}
+		  //printf("QQQQ:%s,%s\n",equal_type,word);
+		  is_empty = true;
+		}
+	  //----store a variable
+	  if (!is_string && pars == 0 && bras == 0 && word != 0 && ((exp[i] == ',' && !is_equal) || (is_empty && is_equal))
+		  )
+		{
+		  //------finding name and index of var
+		  word = str_trim_space (word);
+		  String name = 0, index = 0;
+		  return_name_index_var (word, true, &name, &index);
+		  index = simplification_var_index (index);
+		  vars_counter++;
+		  String type_name = get_datas (get_Mvar (find_index_var_memory (return_var_id (name, index))).type_var).name;
+		  //msg("&GGGG:", return_var_id(name, index), name, index)
+		  str_init (&alloc_var[vars_counter - 1].type, type_name);
+		  str_init (&alloc_var[vars_counter - 1].name, name);
+		  str_init (&alloc_var[vars_counter - 1].index, index);
+		  alloc_var[vars_counter - 1].alloc = 0;
+		  //printf ("@@@:%i,%s,%s\n", return_var_id (name, index), name, index);
+		  word = 0;
+		  if (is_empty)i++;
+		  continue;
+		}
+	  //----allocate values to variables
+	  if (is_equal && !is_string && !is_struct && bras == 0 && acos == 0 && (word != 0 || i + 1 == len)
+	      && ((exp[i] == ',' && pars == 0) || (i + 1 == len && pars < 2)) && vals_counter < vars_counter)
+		{
+		  if (i + 1 == len) word = char_append (word, exp[i]);
+		  //msg("UUU:", word)
+		  vals_counter++;
+		  str_init (&alloc_var[vals_counter - 1].alloc, word);
+		  word = 0;
+		  continue;
+		}
+	  //----append to word
+	  if (is_empty) word = 0;
+	  else word = char_append (word, exp[i]);
+	}
+  //--------------alloc one value to many variables
+  if (vals_counter == 1 && vars_counter > 1)
+	{
+	  for (uint32 i = 1; i < vars_counter; i++)
+		{
+		  if (!str_equal (alloc_var[0].type, alloc_var[i].type))
+			continue;
+		  str_init (&alloc_var[i].alloc, alloc_var[0].alloc);
+		}
+	}
+  //show alloc_var array
+  //  printf ("$$$QQQQ:%s[%i,%i]:\n", equal_type, vars_counter, vals_counter);
+  //  for (int j = 0; j < vars_counter; ++j)
+  //	{
+  //	  printf ("%i=>%s %s[%s]= %s\n", j, alloc_var[j]
+  //		  .type, alloc_var[j].name, alloc_var[j].index, alloc_var[j].alloc);
+  //	}
+  //--------------allocation vars with new values
+  for (uint32 i = 0; i < vars_counter; i++)
+	{
+	  struct alloc_var_struct st = alloc_var[i];
+	  //init1
+	  String origin_val = 0;
+	  String origin_type = 0;
+	  String ret_val = 0;
+	  uint8 ret_sub = 0;
+	  uint8 origin_sub_type = 0;
+	  long_int value_pointer_ind = 0;
+	  Boolean is_origin_array = false;
+	  //init2
+	  long_int var_id = return_var_id (st.name, "0");
+	  long_int Tid = find_index_var_memory (var_id);
+	  Mvar main_var = get_Mvar (Tid);
+	  str_init (&origin_type, get_datas (main_var.type_var).name);
+	  calculate_value_of_var (st.alloc, st.type, &ret_val, &ret_sub);
+	  if (ret_sub == '0')
+		{
+		  //TODO:error
+		  // return -1;
+		}
+	  else if (!str_equal (origin_type, st.type))
+		{
+		  //TODO:error
+		  return -1;
+		}
+
+	  if (st.index == 0)
+		{
+		  origin_val = return_value_var_complete (Tid);
+		  if (origin_val != 0 && origin_val[0] == '{')is_origin_array = true;
+		  else
+			{
+			  if (str_equal (origin_type, "str"))origin_sub_type = 's';
+			  else if (str_equal (origin_type, "bool"))origin_sub_type = 'b';
+			  else if (str_equal (origin_type, "num"))origin_sub_type = determine_type_num (origin_val);
+			  value_pointer_ind = get_data_memory_index (main_var.pointer_id, "0");
+			}
+		}
+	  else
+		{
+		  long_int data_ind = get_data_memory_index (main_var.pointer_id, st.index);
+		  Mpoint main_val = get_Mpoint (data_ind);
+		  value_pointer_ind = data_ind;
+		  str_init (&origin_val, main_val.data);
+		  origin_sub_type = main_val.type_data;
+		  if (origin_sub_type == 's')origin_val = str_reomve_quotations (origin_val, "s");
+		  //TODO:errors,warnings
+		}
+	  //init3
+	  String final_res = 0;
+	  //operator '='
+	  if (str_equal (equal_type, "="))
+		{
+		  String final_res = 0;
+		  //init vars
+		  printf ("WWWWWWWW:%s=>%s\n", st.name, origin_val);
+		  //array
+		  if (is_origin_array)
+			{
+			  //if array alloc is a var
+			  if (is_valid_name (st.alloc, true))
+				{
+				  String al_name = 0, al_index = 0;
+				  return_name_index_var (st.alloc, true, &al_name, &al_index);
+				  long_int alloc_ind = find_index_var_memory (return_var_id (al_name, "0"));
+				  if (alloc_ind == 0)
+					{
+					  //TODO:error
+					  return -1;
+					}
+
+				  final_res = return_value_var_complete (alloc_ind);
+				}
+			  printf ("is array :=%s\n", final_res);
+			  //continue by array value like {45,89.7}
+			  if (!alloc_array_var (Tid, final_res, origin_type)) return -1;
+
+			}
+			//value
+		  else
+			{
+			  Mpoint p = get_Mpoint (value_pointer_ind);
+			  if (p.type_data == 'l'/*if is a struct value*/)
+				{
+				  origin_val = get_Mpoint (value_pointer_ind).data;
+				  String struct_id = calculate_struct_expression (st.alloc, origin_type, &origin_sub_type);
+				  //print_struct (PRINT_STRUCT_DES_ST);
+				  printf ("is struct =:%s,%s,%i\n", st.alloc, struct_id, value_pointer_ind);
+				  if (origin_sub_type == '0'
+				      || !alloc_struct_var (search_datas (origin_type, 0, true), value_pointer_ind, get_stde(str_to_long_int (struct_id)).st))
+					{
+					  printf ("@@@@@@@@@@@@@@@failed....\n");
+					  return -1;
+					}
+				}
+			  else
+				{
+				  if (p.type_data == 'i' || p.type_data == 'f' || p.type_data == 'h'/*if is num value*/)
+					calculate_math_expression (st.alloc, p.type_data, &final_res, &p.type_data);
+				  else if (p.type_data == 's')
+					{
+					  calculate_string_expression (st.alloc, &final_res, &p.type_data);
+					  final_res = str_reomve_quotations (final_res, "s");
+					}
+				  else if (p.type_data == 'b')final_res = calculate_boolean_expression (st.alloc, &p.type_data);
+				  edit_Mpoint (value_pointer_ind, final_res, 0, true, false);
+				}
+			  //printf ("is value :=:%i(%s),%s=>%s\n", value_pointer_ind, origin_val, st.alloc, final_res);
+
+
+			}
+		}
+		//operator ':='
+	  else if (str_equal (equal_type, ":="))
+		{
+		  //init vars
+		  String al_name = 0, al_index = 0;
+		  Boolean not_index = false, is_alloc_array = false;
+		  return_name_index_var (st.alloc, true, &al_name, &al_index);
+		  if (al_index == 0/*check if alloc var has index*/)
+			{
+			  not_index = true;
+			  str_init (&al_index, "0");
+			}
+		  long_int alloc_id = find_index_var_memory (return_var_id (al_name, 0));
+		  if (alloc_id == 0/*check if exist alloc var*/)
+			{
+			  //TODO:error
+			  return -1;
+			}
+		  Mvar v = get_Mvar (alloc_id);
+		  if (is_array_var (v.pointer_id, false))is_alloc_array = true;
+		  Mpoint al_value = get_Mpoint (get_data_memory_index (v.pointer_id, al_index));
+		  if (v.type_var != main_var.type_var)
+			{
+			  //TODO:error
+			  return -1;
+			}
+		  //var
+		  if ((is_origin_array || is_alloc_array) && not_index)
+			{
+			  long_int tmp = main_var.pointer_id;
+			  change_Mvar_pointer_id (Tid, v.pointer_id);
+			  change_Mvar_pointer_id (alloc_id, tmp);
+			  //printf ("is array :=:%i,%i\n",Tid,alloc_id);
+			}
+			//value
+		  else
+			{
+			  if (al_value.type_data == 'l'/*if is a struct value*/)
+				{
+				  origin_val = get_Mpoint (value_pointer_ind).data;
+				  origin_sub_type = 'l';
+				}
+
+			  edit_Mpoint (find_index_pointer_memory (al_value.id), origin_val, origin_sub_type, true, true);
+			  edit_Mpoint (value_pointer_ind, al_value.data, al_value.type_data, true, true);
+			  //printf ("is value :=:%i(%s),%i(%s)\n", value_pointer_ind, origin_val, find_index_pointer_memory (al_value.id) , al_value.data);
+			}
+		}
+		//operator +=,-=,*=,/=,%=,^=
+	  else if (str_search (public_ops, equal_type, 6))
+		{
+		  uint8 rettype = 0;
+		  if (str_equal (origin_type, "num"))
+			{
+			  if (origin_sub_type == 0)origin_sub_type = '_';
+			  calculate_math_expression (str_multi_append (origin_val, char_to_str (equal_type[0]), st
+				  .alloc, 0, 0, 0), origin_sub_type, &final_res, &rettype);
+			}
+		  else if (equal_type[0] == '+' && str_equal (origin_type, "str"))
+			{
+			  calculate_string_expression (str_multi_append (origin_val, "+", st
+				  .alloc, 0, 0, 0), &final_res, &rettype);
+			  final_res = str_reomve_quotations (final_res, "s");
+			}
+		  //printf ("@##DDDD:%i-%s(%c):%s,%s=>%s\n", value_pointer_ind, origin_type, origin_sub_type, origin_val, st.alloc, final_res);
+		  if (rettype == '_' || rettype == '0' || rettype == 0)
+			{
+			  //TODO:error
+			  return -1;
+			}
+		  edit_Mpoint (value_pointer_ind, final_res, rettype, true, false);
+		}
+	}
+  //--------------return
+  return status;
 }

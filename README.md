@@ -1,12 +1,15 @@
-Mini Portable Language - MPL (BETA-0.2)
+**mpl:))** Mini Portable Language - MPL (BETA-0.2)
 ============================================
 
 _This is a small,fast and simple interpreter also best solution to common problems of programmers._
 
+>The solution to common problems of programmers<br>
+>راه حل کارهای متداول برنامه نویسان
+
 TODO
 --------
 
-### <<publish MPL-BETA version of MPL (for windows)>>
+### ((:publish MPL-BETA version of MPL (for windows):))
 
 * init exeptions **[OK]**
 * define mpl arguments **[OK]**
@@ -58,8 +61,10 @@ TODO
 * implement function call **[OK]**
 * determine type of function parameter values **[OK]**
 * validation called function parameters **[OK]**
+* set arrays in functions parameter **[OK]**
 * init function parameters **[OK]**
 * support for vars values parameters **[OK]**
+* set structs in functions parameter **[OK]**
 * switch to another function **[OK]**
 * implement return keyword **[OK]**
 * return values from function **[OK]**
@@ -67,13 +72,19 @@ TODO
 * call built-in functions **[OK]**
 * implement control characters **[OK]**
 * implement print built-in function **[OK]**
-* implement some built-in functions **[..]**
-* return values from built-in functions **[..]**
-* complete built-in function call **[..]**
-* implement garbage collector for functions
-* implement alloc_vars
-* alloc struct expressions
-* implement short alloc vars
+* implement some built-in functions **[OK]**
+* return values from built-in functions **[OK]**
+* complete built-in function call **[OK]**
+* implement garbage collector for functions **[OK]**
+* implement alloc_vars **[OK]**
+* alloc values expressions **[OK]**
+* alloc array expressions **[OK]**
+* alloc struct expressions **[OK]**
+* replace values of vars by ':=' **[OK]**
+* define an array by '?' index **[OK]**
+* define an empty array **[OK]**
+* support struct entries for constant and allocation **[..]**
+* implement short alloc by '++','--' **[..]**
 * implement structures
 * define manage
 * start exception_handler
@@ -81,35 +92,38 @@ TODO
 * define elif,else
 * comparison struct expressions
 * recursive functions
-* set arrays in functions parameter
-* alloc array vars
-* set structs in functions parameter
 * define loop
 * start review_array_loop
 * implement next
 * implement break
+* **_complete main structure of mpl_**
+* start for developing 'mprog' program
+* start offline documentation of mpl **[OK]**
+* complete structure of mpl-docs **[..]**
+* support alloc struct has array by '?'
+* complete alloc struct expressions
+* support for modules files
 * set new __session
-* create offline documentation of mpl
 * complete import error_handling
 * complete mpl built-in functions
+* support sqlite3 as a module
 * complete built-in constants
 * complete data built-in functions
 * building MPL website
-* add switch keyword instead of if,elif,else
+* implement switch keyword
 * parsing and converting switch instruction
 * support for embedded files
 * complete parse error_handling
 * complete os built-in functions
-* suppot for modules files
-* using sqlite3 as a module
 * complete mean_run error_handling
 * complete support utf8
 * complete offline docs
+* complete 'mprog' program
 * complete sample codes
 * optimizing huge numbers
 * optimizing RAM,CPU usage
 
-### <<publish MPL-RC version of MPL (for windows)>>
+### ((:publish MPL-RC version of MPL (for windows):))
 
 * support package files
 * publish RC version for linux
@@ -123,16 +137,23 @@ TODO
 * development vars usage for struct and array
 * support mpl repository
 * support mpl forum
+* alloc by bit operands
 
-### <<publish MPL-HELLO version of MPL (for windows,linux)>>
+### ((:publish MPL-HELLO version of MPL (for windows,linux):))
 
 * support for multi threading
 * support minimal gui for gtk
 * To be continued ...
 
-### <<publish MPL-HI version of MPL (for windows,linux)>>
+### ((:publish MPL-HI version of MPL (for windows,linux):))
 
 ### To be continued ...
+
+MPL Sample Codes
+--------
+
+* files lines counter
+* implement a linked-list
 
 MPL Language Features
 --------
@@ -143,12 +164,12 @@ MPL Language Features
 > support data structures **[OK]** <br>
 > support magic macros <br>
 > support huge numbers <br>
-> support override functions <br>
-> has built-in functions <br>
+> support override functions **[OK]** <br>
+> has built-in functions **[OK]** <br>
 > manage exceptions <br>
 > has bit operands <br>
 > support unlimited function parameters **[OK]** <br>
-> support multi return values <br>
+> support multi return values **[OK]** <br>
 > support call by refrence vars **[OK]** <br>
 > support short allocations for vars <br>
 > support browse arrays in loop <br>
@@ -168,7 +189,7 @@ Get Starterd
 
 > First clone the repository and then install python3 for ruuning build tool and mingw64 for compiling mpl. Then run 'build_win32_migw64.py' in 'tools' directory. Finally created a folder by name 'win32-release'. <br>
 > Now  you can run  a file by name 'main.mpl' through command 'mpl.exe main.mpl' and you can see the result! <br>
-> [Mpl is portable!] you can move 'mpl.exe' to any where. it's a static executable file and not need to any files.(It's not need any modules or packages or docs or anything... Their are just for easier programming by mpl:)) ) <br>
+> [Mpl is portable!] you can move 'mpl.exe' to any where. it's a static executable file and not need to any files.(It's not need any modules or packages or docs or anything... Their are just for easier programming by **mpl:))** ) <br>
 
 
 MPL Sample Program
@@ -177,7 +198,7 @@ MPL Sample Program
     import "file:$/data/sam.mpl"
     //=>edit __config values
     __config["AppName"]="MyProgram"
-    //=>edit __session values. it is store in a database
+    //=>edit __session values. it is store in a built-in database
     __session["AppName"]="MyProgram"
     //------------
     //=>define main function,start point of any program
@@ -187,7 +208,7 @@ MPL Sample Program
         print("سلام بر دنیا!\n"); 
         str uu[2,2]={{"x","v"},{"h","i"}}
         //=> browse an array
-        loop(str u,b=null;u,b:uu){
+        loop(str u,b;u,b:uu){
             //=>print a calculated string
             print("u is: %u%,and b is: %b%\n");
         }
@@ -226,17 +247,19 @@ MPL Sample Program
 Programmers & Designers
 --------
 
-1. Mohammad Amin Delavar Khalafi [main programmer,designer],[Iran],[amindelavar@hotmail.com]
+1. Mohammad Amin Delavar Khalafi [main developer,designer],[Iran],[amindelavar@hotmail.com]
 
 Events
 --------
 
-* 0.1.0-0.6.0 : Publish 'BETA' version of MPL (2018)  **[DONE]**
-* 0.3.0-1.0.0 : complete 'www.mpl-lang.ir' website and MPL documentation (2018-2019)
-* 0.9.0-1.0.0 : 5 daily rolling publish (2018-2019)
+* 0.1.0-0.9.0 : Publish 'BETA' version of MPL for windows (2018-2019)  **[DONE]**
+* 0.3.0-1.0.0 : Complete 'www.mpl-lang.ir' website and MPL documentation (2018-2019)
+* 0.9.0-1.0.0 : 10 daily rolling publish and complete modules (2018-2019)
 * 1.0.0-2.0.0 : Publish 'MPL-RC' version of MPL (2019-2020)
-* 2.0.0-3.0.0 : Publish 'MPL-HELLO' version of MPL and complete gui programming on windows and linux (2019-2021)
-* 3.0.0-4.0.0 : Publish 'MPLHI' version of MPL and entering mpl to servers and web applications (2020-2022)
+* 2.0.0-3.0.0 : Publish 'MPL-HELLO' version of MPL (2019-2021)
+* 2.2.0-4.0.0 : Complete gui programming on windows and linux (2019-2022)
+* 2.5.0-4.5.0 : Enter mpl to servers and web applications (2019-2023)
+* 3.0.0-4.0.0 : Publish 'MPL-HI' version of MPL (2020-2022)
 
 MPL is best choice FOR
 --------
@@ -248,9 +271,8 @@ MPL is best choice FOR
 
 
 <hr>
-<center style='background-color:skyblue;padding:5px 2%;border-radius:5px;'>
-        <div style='text-shadow:2px 4px 4px rgba(0,0,0,0.3);margin:5px;color:#fff;border-bottom:0;background-color:blue;display:inline-block;padding:3px 6px;border-radius:10px;font-size:xx-large;box-shadow:1px 2px 3px 0 rgba(0,0,0,0.1);user-select:none;'>mpl:))</div><br>
-        -+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-<br>
-        | Mini Portable Language - MPL  |<br>
-        -+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-<br>
+<center>
+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-<br>
+| Mini Portable Language - MPL  |<br>
+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-<br>
 </center>

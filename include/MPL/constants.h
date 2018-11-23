@@ -7,17 +7,17 @@
 
 //**************************************************define interpreter constants
 #define  APP_NAME                       "Mini Portable Language"
-#define  VERSION                        "0.2.07"               //1.10.100
+#define  VERSION                        "0.2.70"               //1.10.100
 #define  VERSION_NAME                   "BETA"
 #define  SLOGAN                         "The solution to common problems of programmers" //راه حل کارهای متداول برنامه
 // نویسان
 #define  FIRST_BUILD                    "2018.9.19"
-#define  LICENCE                        "FREE-MPL"
+#define  LICENCE                        "OPEN-MPL"
 #define  OFFICIAL_WEBSITE               "http://mpl-lang.ir"
 #define  C_CORE_CODE_LINES              9117
 #define  H_CORE_CODE_LINES              899
 #define  LANGUAGE_CREATOR               "Mohammad Amin Delavar Khalafi"
-#define  CONFIDENCE_LEVEL               5
+#define  CONFIDENCE_LEVEL               11     //100%
 #define  WINDOWS_COMPATIBLE             true
 #define  LINUX_COMPATIBLE               false
 //**************************************************define
@@ -146,6 +146,10 @@
 //------------------------------------------used in APP_CONTROLLER return
 #define   BAD_RETURN_APP_CONTROLLER     0
 #define   NORMAL_RETURN_APP_CONTROLLER  1
+//------------------------------------------used in built-in input,fread function
+#define   READ_CHAR_INPUT_TYPE          "1"
+#define   READ_LINE_INPUT_TYPE          "2"
+#define   READ_ALL_INPUT_TYPE           "3"
 //**************************************************typedef
 typedef char int8;
 typedef unsigned char uint8;

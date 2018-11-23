@@ -85,7 +85,7 @@ uint8 single_operators[] = {'+', '-', '*', '/', '%', '^', '|', '&', '~'};
 
 String comparative_operators[] = {"==", ">=", "<=", ">", "<", "!="};
 
-String alloc_operators[] = {"=", "+=", "-=", "*=", "/=", "%=", "^=", ":=", "|=", "&=", "~="};
+String alloc_operators[11] = { "+=", "-=", "*=", "/=", "%=", "^=", ":=", "|=", "&=", "~=","!="};
 
 String boolean_operators[] = {"&&", "||", "~~"};
 

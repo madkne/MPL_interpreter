@@ -165,7 +165,23 @@ void edit_Mpoint (long_int i, String data, uint8 subtype, Boolean set_data, Bool
 	  if (tmp1 == 0) break;
 	}
 }
-
+//****************************************************
+void change_Mvar_pointer_id (long_int i, long_int new_po)
+{
+  long_int counter = 0;
+  Mvar *tmp1 = entry_table.var_memory_start;
+  for (;;)
+	{
+	  if (i == counter)
+		{
+		  (*tmp1).pointer_id = new_po;
+		  return;
+		}
+	  tmp1 = tmp1->next;
+	  counter++;
+	  if (tmp1 == 0) break;
+	}
+}
 //****************************************************
 /**
  * get a name(and index) of var and return a Mpoint struct of var by its index
@@ -328,6 +344,7 @@ set_memory_var (long_int fin, long_int sid, String name, String value_var, Strin
   vaar_en vals_array = {0, 0, 0};
   //int32 set_indexes[MAX_ARRAY_DIMENSIONS + 1];
   int32 max_indexes[MAX_ARRAY_DIMENSIONS];//get user indexes
+  max_indexes[0] = 0;
   Boolean is_multi_array = false, is_struct = false;
   uint8 indexes_len = 0;//count of user indexes dimensions
   //*******************************************if type is a struct
@@ -343,6 +360,7 @@ set_memory_var (long_int fin, long_int sid, String name, String value_var, Strin
   //is_multi array
   if (tmp_ind != 0 && !str_equal (tmp_ind, "0"))
 	{
+	  Boolean has_unknown_index = false;
 	  is_multi_array = true;
 	  str_list indexes;
 	  indexes_len = (uint8) char_split (tmp_ind, ',', &indexes, true);
@@ -354,7 +372,30 @@ set_memory_var (long_int fin, long_int sid, String name, String value_var, Strin
 	  //******************add indexes to max_indexes
 	  for (uint32 i = 0; i < indexes_len; i++)
 		{
-		  max_indexes[i] = str_to_int32 (indexes[i]);
+		  if (str_equal (indexes[i], "?"))
+			{
+			  has_unknown_index = true;
+			  max_indexes[i] = -10;
+			}
+		  else max_indexes[i] = str_to_int32 (indexes[i]);
+		}
+	  //******************if has ? index
+	  if (has_unknown_index)
+		{
+		  if (value_var == 0)
+			{
+			  //TODO:error
+			}
+		  int32 tmp_indexes[MAX_ARRAY_DIMENSIONS];
+		  uint8 tmp_len = return_size_value_dimensions (value_var, tmp_indexes, 0);
+		  if (tmp_len != indexes_len)
+			{
+			  //TODO:error
+			}
+		  for (uint32 i = 0; i < indexes_len; i++)
+			{
+			  if (max_indexes[i] == -10)max_indexes[i] = tmp_indexes[i];
+			}
 		}
 	}
   str_init (&name, tmp_name);
@@ -366,13 +407,23 @@ set_memory_var (long_int fin, long_int sid, String name, String value_var, Strin
 	  return 0;
 	}
   //*******************************************analyzing values of variable
+  //if value is null
+  if (value_var == 0 || str_equal (value_var, "null"))
+	{//printf("fgjfjff:%s,%i[%i]\n",type_var,max_indexes[0],indexes_len);
+	  if (str_search (basic_types, type_var, StrArraySize (basic_types)))
+		value_var = return_default_value (type_var);
+	  else
+		value_var = create_null_array (type_var, max_indexes, indexes_len);
+	  //printf ("####EmptyVal:%s,%s\n", type_var, value_var);
+	}
   //is multi array
   if (is_multi_array)
 	{
 	  vals_array = return_value_dimensions (value_var, type_var, max_indexes, indexes_len);
+	  //print_vaar (vals_array);
 	  if (vals_array.start == 0)
 		{
-		  //printf("###########failed1\n");
+		  //printf ("###########failed1\n");
 		  //TODO:error
 		  return 0;
 		}
@@ -386,7 +437,7 @@ set_memory_var (long_int fin, long_int sid, String name, String value_var, Strin
 		  exception_handler ("not_defined_array", __func__, name, "");
 		  return 0;
 		}
-	  //printf("DDDDDDDDD:%s,%s\n", value_var,type_var);
+	  //printf ("DDDDDDDDD:%s,%s\n", value_var, type_var);
 	  String main_value = 0;
 	  uint8 sub_type = '0';
 	  calculate_value_of_var (value_var, type_var, &main_value, &sub_type);
@@ -404,7 +455,7 @@ set_memory_var (long_int fin, long_int sid, String name, String value_var, Strin
 	  append_vaar (s, &vals_array);
 	  //TODO:
 	}
-  //print_vaar(vals_array);
+  //  print_vaar(vals_array);
   //*******************************************determine type of var
   datas data_type = search_datas (type_var, entry_table.cur_fid, false);
   //printf("#$EEEE:%s,%i,%i\n",type_var,data_type.id,is_struct);
@@ -607,7 +658,7 @@ void show_memory (uint8 wh)
 			{
 			  continue;
 			}
-		  printf ("VAR(id:%i,fin:%i,sid:%i,pointer:%i,type:%i)\n\t%s,{extra:%s}\n=====================\n", st.id,
+		  printf ("%i:VAR(id:%i,fin:%i,sid:%i,pointer:%i,type:%i)\n\t%s,{extra:%s}\n=====================\n", i, st.id,
 		          st.func_index, st.stru_index, st.pointer_id, st.type_var, st.name, st.extra);
 		}
 	}
@@ -618,7 +669,7 @@ void show_memory (uint8 wh)
 	  for (long_int i = 0; i < entry_table.pointer_mem_len; i++)
 		{
 		  Mpoint st = get_Mpoint (i);
-		  printf ("POINTER(id:%i,Type:%c)%s\n", st.id, st.type_data, st.data);
+		  printf ("%i:POINTER(id:%i,Type:%c)%s\n", i, st.id, st.type_data, st.data);
 		}
 	}
   printf ("+++++++++++++++++++++++++\n");
@@ -696,6 +747,7 @@ Boolean delete_pointer_memory (long_int id)
  */
 long_int find_index_pointer_memory (long_int id)
 {
+  if (id == 0)return 0;
   for (long_int i = 0; i < entry_table.pointer_mem_len; i++)
 	{
 	  if (get_Mpoint (i).id == id)
@@ -732,6 +784,7 @@ Boolean delete_var_memory (long_int id)
  */
 long_int find_index_var_memory (long_int id)
 {
+  if (id == 0)return 0;
   for (long_int i = 0; i < entry_table.var_mem_len; i++)
 	{
 	  if (get_Mvar (i).id == id)
@@ -814,7 +867,34 @@ long_int copy_memory_var (long_int var_index, String new_name, long_int fin)
   //******************return
   return set_memory_var (fin, 0, new_name, final_value, type_var, true);
 }
+//****************************************************
+uint32 recursive_list_pointer_ids (long_int pointer_id, longint_list *ret)
+{
+  uint32 len = 0, tmp_len = 0;
+  longint_list tmp = 0;
+  longint_list_append (&tmp, tmp_len++, pointer_id);
+  for (;;)
+	{
+	  if (tmp_len == 0)break;
+	  long_int po_id = longint_list_delete_first (&tmp, tmp_len--);
+	  Mpoint p = get_Mpoint (find_index_pointer_memory (po_id));
+	  if (p.type_data == 'p')
+		{
+		  str_list tmp1 = 0;
+		  uint32 tmp1_len = char_split (p.data, ';', &tmp1, true);
+		  for (uint32 i = 0; i < tmp1_len; i++)
+			{
+			  longint_list_append (&tmp, tmp_len++, str_to_long_int (tmp1[i]));
+			}
+		}
+	  else
+		{
+		  longint_list_append (&(*ret), len++, po_id);
+		}
+	}
 
+  return len;
+}
 //func review_create_array_from(po_id long_int) (string,byte,bool)
 //func get_data_memory_index(pointer_id long_int, index_var string) (long_int, string)
 //****************************************************

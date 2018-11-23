@@ -115,72 +115,53 @@ int8 INSTRUCTION_EXECUTOR (long_int index)
 		          entry_table.cur_sid, entry_table.Rorder, state, entry_table.cur_fin, entry_table.Rline, Rcode);
 		}
 	  //********************
-	  switch (state)
+	  if (state == UNKNOWN_LBL_INST)
 		{
-		  case UNKNOWN_LBL_INST:
-			{
-			  is_done = false;
-			  if (str_equal (Rcode, "null")) return SUCCESS_EXECUTE_INSTRUCTION;
-			  exception_handler ("unknown_instruction", __func__, Rcode, "");
-			  break;
-			}
-		  case DEF_VARS_LBL_INST:
-			{
-			  Rcode = define_vars (Rcode);
-			  break;
-			}
-		  case ALLOC_MAGIC_MACROS_LBL_INST:
-			{
-			  Rcode = alloc_magic_macros (Rcode);
-			  break;
-			}
-		  case FUNC_CALL_LBL_INST:
-			{
-			  Rcode = function_call (Rcode);
-			  break;
-			}
-		  case ALLOC_VARS_LBL_INST:
-			is_done = false;
-		  //Rcode = vars_allocation(Rcode)
-		  break;
-		  case RETURN_LBL_INST:
-			{
-			  is_done = false;
-			  Boolean ret = function_return (Rcode);
-			  Rcode = 0;
-			  /*if Rcode == "true"
-			  {
-				  return 3
-			  } else if Rcode == "false"
-			  {
-				  return 1
-			  }*/
-			  break;
-			}
-		  case STRUCTURE_LBL_INST:
-			is_done = false;
-		  //Rcode = init_structures(Rcode)
-		  break;
-		  case ALLOC_SHORT_LBL_INST:
-			is_done = false;
-		  //Rcode = vars_allocation_short(Rcode)
-		  break;
-		  case NEXT_BREAK_LBL_INST:
-			{
-			  is_done = false;
-			  /*Rcode = next_break_loop(Rcode)
-			  if Rcode == "-next"
-			  {
-				  return 13
-			  }*/
-			  break;
-			}
-		  default:
-			{
-			  is_done = false;
-			  //exception_handler("unknown_instruction", "INSTRUCTION_EXECUTOR", Rcode, "")
-			  break;
-			}
+		  is_done = false;
+		  if (str_equal (Rcode, "null")) return SUCCESS_EXECUTE_INSTRUCTION;
+		  exception_handler ("unknown_instruction", __func__, Rcode, "");
+		}
+	  else if (state == DEF_VARS_LBL_INST) Rcode = define_vars (Rcode);
+	  else if (state == ALLOC_MAGIC_MACROS_LBL_INST)Rcode = alloc_magic_macros (Rcode);
+	  else if (state == FUNC_CALL_LBL_INST)Rcode = function_call (Rcode);
+	  else if (state == ALLOC_VARS_LBL_INST)
+	    {
+		  int8 status = vars_allocation (Rcode);
+		  Rcode=0;
+		  if(status==-1)is_done=false;
+	    }
+	  else if (state == RETURN_LBL_INST)
+		{
+		  Boolean ret = function_return (Rcode);
+		  Rcode = 0;
+		  /*if Rcode == "true"
+		  {
+			  return 3
+		  } else if Rcode == "false"
+		  {
+			  return 1
+		  }*/
+		}
+		//else if(state==STRUCTURE_LBL_INST)Rcode = init_structures(Rcode);
+
+		//		  case ALLOC_SHORT_LBL_INST:
+		//			is_done = false;
+		//		  //Rcode = vars_allocation_short(Rcode)
+		//		  break;
+		//		  case NEXT_BREAK_LBL_INST:
+		//			{
+		//			  is_done = false;
+		//			  /*Rcode = next_break_loop(Rcode)
+		//			  if Rcode == "-next"
+		//			  {
+		//				  return 13
+		//			  }*/
+		//			  break;
+		//			}
+	  else
+		{
+		  is_done = false;
+		  //exception_handler("unknown_instruction", "INSTRUCTION_EXECUTOR", Rcode, "")
 		}
 	  if (str_equal (Rcode, BAD_CODE)) is_done = false;
 	  //********************

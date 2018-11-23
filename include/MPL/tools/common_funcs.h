@@ -6,14 +6,14 @@ String read_input ();
 String get_host_name ();
 
 long_int get_pid ();
-
+String get_mpl_dir_path ();
 String get_absolute_path (String path);
 
 Boolean switch_bool (Boolean b);
 
 void msg (String format, ...);
 
-void longint_list_delete_first (longint_list *s, uint32 len);
+long_int longint_list_delete_first (longint_list *s, uint32 len);
 
 void longint_list_append (longint_list *s, uint32 len, long_int n);
 
@@ -61,5 +61,10 @@ Boolean is_equal_arrays_indexes (String s1, String s2);
 
 Boolean has_two_limiting (String s, uint8 l1, uint8 l2, Boolean ignore_space);
 String generate_return_var_name (String name, uint32 *co);
-String replace_control_chars(String val);
+String replace_control_chars (String val);
+Boolean is_equal_data_types (uint8 t1, uint8 t2);
+int32 search_int32_array (int32 a[], uint32 al, int32 n);
+Boolean delete_int32_element_array (int32 a[], uint32 al, int32 n, Boolean delete_last);
+uint8 convert_index_to_int32 (String ind, int32 ret[], Boolean manage_ques);
+int32 read_lines_from_file (String path, str_list *lines, Boolean skip_empty_lines);
 #endif /*__COMMON_FUNCS_H*/

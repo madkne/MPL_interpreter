@@ -27,7 +27,7 @@ String convert_to_string (String s)
 String str_reomve_quotations (String s, String type)
 {
   uint32 s_len = str_length (s);
-  if ((str_equal (type, "s") || str_equal (type, "str")) && s_len >= 2 && s[0] == '\"' && s[s_len - 1] == '\"')
+  if ((str_ch_equal (type,'s') || str_equal (type, "str")) && s_len >= 2 && s[0] == '\"' && s[s_len - 1] == '\"')
 	{
 	  return str_substring (s, 1, s_len - 1);
 	}
@@ -585,7 +585,12 @@ String str_from_int32 (int32 x)
   ret = str_reverse (ret);
   return ret;
 }
-
+//******************************************
+String str_from_bool (Boolean x)
+{
+  if (x)return "true";
+  return "false";
+}
 //******************************************
 String str_from_int64 (int64 x)
 {

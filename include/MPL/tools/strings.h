@@ -51,7 +51,7 @@ String str_to_upper_case (String text);
 String str_to_lower_case (String text);
 
 String str_from_int32 (int32 x);
-
+String str_from_bool (Boolean x);
 String str_from_int64 (int64 x);
 
 double str_to_double (String s);

@@ -6,5 +6,9 @@
 #define MPL_MPL_BUILTIN_H
 
 Boolean _MPL_TYPE__print (str_list items, uint32 len);
+String _MPL_TYPE__typeof (String value, String type);
+String _MPL_TYPE__input (String type);
 
+
+String _MPL_TYPE__var_type (String value, String type);
 #endif //MPL_MPL_BUILTIN_H

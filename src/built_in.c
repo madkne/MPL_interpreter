@@ -7,7 +7,7 @@
 uint32 call_built_in_funcs (String func_name, str_list params, str_list partypes, uint32 params_len, str_list *returns)
 {
   //-----------------init vars
-  uint32 func_id = 0;
+  uint32 func_id = 0, returns_len = 0;
   uint8 func_type = 0;
   str_list argvs = 0;
   //-----------------find function
@@ -60,11 +60,11 @@ uint32 call_built_in_funcs (String func_name, str_list params, str_list partypes
 		  String ret1 = 0;
 		  uint8 ret2 = 0;
 		  calculate_value_of_var (params[i], p1[0], &ret1, &ret2);
-		  ret1=str_reomve_quotations(ret1,p1[0]);
+		  ret1 = str_reomve_quotations (ret1, p1[0]);
 		  str_list_append (&argvs, ret1, i);
 		}
 	}
-  printf ("@BUILT-IN:%s;%s\n", print_str_list (params, params_len), print_str_list (argvs, params_len));
+  //printf ("@BUILT-IN:%s;%s\n", print_str_list (params, params_len), print_str_list (argvs, params_len));
   //---------------------MPL Function Calls----------------------
   if (func_type == MPL_BUILT_IN_TYPE)
 	{
@@ -72,7 +72,31 @@ uint32 call_built_in_funcs (String func_name, str_list params, str_list partypes
 		{}
 	  else if (func_id == 2/*print*/)
 		{
-		   _MPL_TYPE__print(argvs,params_len);
+		  Boolean ret = _MPL_TYPE__print (argvs, params_len);
+		  str_list_append (&(*returns), str_from_bool (ret), returns_len++);
+		}
+	  else if (func_id == 3/*typeof*/)
+		{
+		  str_list p = 0;
+		  char_split (partypes[0], ';', &p, false);
+		  String ret = _MPL_TYPE__typeof (argvs[0], p[0]);
+		  str_list_append (&(*returns), convert_to_string (ret), returns_len++);
+		  // printf ("Result of \'typeof\':%s[%s]=>%s\n", argvs[0], p[0], ret);
+		}
+	  else if (func_id == 4/*input*/)
+		{
+		  String ret = _MPL_TYPE__input (argvs[0]);
+		  str_list_append (&(*returns), convert_to_string (ret), returns_len++);
+		  //printf ("Result of \'input\':%s=>%s\n", argvs[0], ret);
+		}
+
+	  else if (func_id == 21/*var_type*/)
+		{
+		  str_list p = 0;
+		  char_split (partypes[0], ';', &p, false);
+		  String ret = p[0];
+		  str_list_append (&(*returns), convert_to_string (ret), returns_len++);
+		  // printf ("Result of \'var_type\':%s[%s]=>%s\n", argvs[0], p[0], ret);
 		}
 	  //TODO:complete
 	}
@@ -86,8 +110,9 @@ uint32 call_built_in_funcs (String func_name, str_list params, str_list partypes
 	{
 	  //TODO:complete
 	}
+  //-----------------return
 
-  return 0;
+  return returns_len;
 }
 //***********************************
 
@@ -96,15 +121,15 @@ void init_built_in_funcs ()
 {
   add_to_bifs (0, 0, 0, 0, 0);
   /**
-   * a=bool|str|num|struct : value
+   * a=bool|str|num|struct|var[0] : value
    * aa=bool[?,..]|str[?,..]|num[?,..]|struct[?,..] : var
    * aa..=bool[?,..]|str[?,..]|num[?,..]|struct[?,..] : var,var,..
    */
   //----------------------------------mpl built_in
   add_to_bifs (1, MPL_BUILT_IN_TYPE, "len", "aa", "num;?");
   add_to_bifs (2, MPL_BUILT_IN_TYPE, "print", "aa..", "bool"); //=>[OK]
-  add_to_bifs (3, MPL_BUILT_IN_TYPE, "typeof", "a", "str");
-  add_to_bifs (4, MPL_BUILT_IN_TYPE, "input", "num", "str");
+  add_to_bifs (3, MPL_BUILT_IN_TYPE, "typeof", "a", "str"); //=>[OK]
+  add_to_bifs (4, MPL_BUILT_IN_TYPE, "input", "num", "str"); //=>[OK]
   add_to_bifs (5, MPL_BUILT_IN_TYPE, "error_handle", "num|str|str", "bool");
   add_to_bifs (6, MPL_BUILT_IN_TYPE, "config_all", 0, "str;?,2");
   add_to_bifs (7, MPL_BUILT_IN_TYPE, "define_all", 0, "str;?,2");
@@ -121,6 +146,7 @@ void init_built_in_funcs ()
   add_to_bifs (18, MPL_BUILT_IN_TYPE, "mpl_execute", "str", "str");
   add_to_bifs (19, MPL_BUILT_IN_TYPE, "trace_var", "aa", "bool");
   add_to_bifs (20, MPL_BUILT_IN_TYPE, "trace_func", "aa", "bool");
+  add_to_bifs (21, MPL_BUILT_IN_TYPE, "var_type", "aa", "str"); //=>[OK]
   //----------------------------------data types built_in
   add_to_bifs (1, DATA_BUILT_IN_TYPE, "str_split", "str|str", "str;?");
   add_to_bifs (2, DATA_BUILT_IN_TYPE, "str_replace", "str|str|str", "bool");
@@ -181,9 +207,9 @@ void init_built_in_defines ()
   add_to_mama (DEFINE_MAGIC_MACRO_TYPE, 'i', "LeftTrim", "1");
   add_to_mama (DEFINE_MAGIC_MACRO_TYPE, 'i', "RightTrim", "2");
   add_to_mama (DEFINE_MAGIC_MACRO_TYPE, 'i', "BothTrim", "0");
-  add_to_mama (DEFINE_MAGIC_MACRO_TYPE, 'i', "ReadChar", "1");
-  add_to_mama (DEFINE_MAGIC_MACRO_TYPE, 'i', "ReadLine", "2");
-  add_to_mama (DEFINE_MAGIC_MACRO_TYPE, 'i', "ReadAll", "0");
+  add_to_mama (DEFINE_MAGIC_MACRO_TYPE, 'i', "ReadChar", READ_CHAR_INPUT_TYPE);
+  add_to_mama (DEFINE_MAGIC_MACRO_TYPE, 'i', "ReadLine", READ_LINE_INPUT_TYPE);
+  add_to_mama (DEFINE_MAGIC_MACRO_TYPE, 'i', "ReadAll", READ_ALL_INPUT_TYPE);
   add_to_mama (DEFINE_MAGIC_MACRO_TYPE, 'i', "CpuInfo", "1");
   add_to_mama (DEFINE_MAGIC_MACRO_TYPE, 'i', "MemoryInfo", "2");
   add_to_mama (DEFINE_MAGIC_MACRO_TYPE, 'i', "OSInfo", "3");

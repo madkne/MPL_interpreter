@@ -19,6 +19,7 @@ Mvar get_Mvar (long_int i);
 
 Mpoint get_Mpoint (long_int i);
 void edit_Mpoint (long_int i, String data, uint8 subtype, Boolean set_data, Boolean set_type);
+void change_Mvar_pointer_id (long_int i, long_int new_po);
 Mpoint return_var_memory_value (String var_name);
 
 long_int get_data_memory_index (long_int pointer_id, String index_var);
@@ -53,5 +54,5 @@ long_int return_var_ind_pointer_id (long_int pointer_id);
 uint32 return_var_dimensions (long_int var_ind, str_list *ret);
 
 long_int copy_memory_var (long_int var_index, String new_name, long_int fin);
-
+uint32 recursive_list_pointer_ids(long_int pointer_id,longint_list *ret);
 #endif //MPL_VIRTUAL_MEMORY_H

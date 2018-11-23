@@ -2,13 +2,43 @@
 import os
 from os import path
 import glob
+import sys
+import shutil
 #from subprocess import call
+
+
+#-------------------------------functions------------------------------------
+def copy_dir(src,dst,folder):
+	dirs=[folder];
+	i=0;
+	line_counter=0
+	while True:
+		if(i==len(dirs)):break;
+		#print("Dir:"+dirs[i],i,len(dirs),src,dst)
+		item=dirs[i]
+		#del dirs[i]
+		with os.scandir(src+"/"+item) as it:
+			for entry in it:
+				if entry.is_file():
+					#print("Cfile:",dst+"/"+item+"/"+entry.name);
+					if os.path.exists(dst+"/"+item+"/"+entry.name):
+						os.remove(dst+"/"+item+"/"+entry.name);
+						shutil.copyfile(src+"/"+item+"/"+entry.name,dst+"/"+item+"/"+entry.name)  
+				elif entry.is_dir():
+					#print("Cdir:",dst+"/"+item+"/"+entry.name);
+					if not os.path.exists(dst+"/"+item+"/"+entry.name):
+						os.makedirs(dst+"/"+item+"/"+entry.name);
+					dirs.append(item+"/"+entry.name)
+		i+=1
+
+
+#-------------------------------functions------------------------------------
 
 os.system("cls");
 os.system("color 1f");
 #----------------------define vars
 #enable warnings :  -Wall -Wextra
-cflags="-I ../include -std=c99 -g  -fmax-errors=2 -c ";
+cflags="-I ../include -std=c99  -fmax-errors=2 -c ";
 build_folder="../win32-release";
 obj_folder="../obj";
 scr_folder="../src";
@@ -25,12 +55,13 @@ if os.path.exists(logfile):
 #for j in compfiles:
 #	print(compfiles)
 #----------------------
-print("\t~~~~~MPL Build Tool (BY Python3) V 2.1~~~~~");
+print("\t~~~~~MPL Build Tool (BY Python3) V 2.5~~~~~");
 print("=== Start Building win32 release of MPL Compiler using Mingw64....");
 #----------------------init dirs
 #-----create docs file
 if not os.path.exists(build_folder+"\\docs"):
     os.makedirs(build_folder+"\\docs");
+copy_dir("../", build_folder,"docs");
 #-----create modules file
 if not os.path.exists(build_folder+"\\modules"):
     os.makedirs(build_folder+"\\modules");
@@ -57,6 +88,7 @@ if os.path.exists(build_folder+"\\bin\\mpl.exe"):
 print("=== Start compiling source files [mpl.exe]...");
 sources=[
 [scr_folder+"/main.c",scr_folder+"/main.c -o "+obj_folder+"/main.o"],
+[scr_folder+"/mpl_help.c",scr_folder+"/mpl_help.c -o "+obj_folder+"/mpl_help.o"],
 [scr_folder+"/data_defined.c",scr_folder+"/data_defined.c -o "+obj_folder+"/data_defined.o"],
 [scr_folder+"/exceptions.c",scr_folder+"/exceptions.c -o "+obj_folder+"/exceptions.o"],
 [scr_folder+"/built_in.c",scr_folder+"/built_in.c -o "+obj_folder+"/built_in.o"],
@@ -99,7 +131,7 @@ if is_error==1:
 else:
     obj_files=glob.glob(obj_folder+"/*.o");
     all_files=' '.join(obj_files);
-    is_error=os.system("gcc -g "+all_files+" -o "+build_folder+"/mpl.exe");
+    is_error=os.system("gcc "+all_files+" -o "+build_folder+"/mpl.exe");
     
 #----------------------finish
 if is_error==1:
@@ -116,9 +148,16 @@ else:
 	#----------------------run mpl.exe
 	print("=== Running mpl.exe ...");
 	print("_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_");
-	os.system("..\\win32-release\\mpl.exe ..\\main.mpl");
+	#os.system("..\\win32-release\\mpl.exe ..\\main.mpl");
+	os.system("..\\win32-release\\mpl.exe -h keywords -l");
 	#os.system("dir");
 	#os.system("pause");
+	
+	
+	
+	
+
+
 
 
 

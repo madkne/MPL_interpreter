@@ -17,13 +17,20 @@ import,func,return
 Operators:
 +,-,*,/,%,^,&,|,~
 ==,<=,>=,!=,<,>
-+=,++,--,-=,*=,/=,%=,^=,:=,&=,|=,~=
++=,++,--,-=,*=,/=,%=,^=,:=,&=,|=,~=,!=
 !,&&,||,~~ 
+-----:=
+work for values,arrays,structs
+change and replace pointer of two variables
+and for values change their no its pointers
+num k1={4,8,9} //var_memory.pointer_id=4
+num k2={41,81,91} //var_memory.pointer_id=7
+k1:=k2  //k1.pointer_id=7;k2.pointer_id=4;
 -----------------------------
 keyword functions:
 struct(vars)
 built-in functions:
-len(var[..]),print(val|var[..]) ,typeof(var),input(num),error_handle(num,str,str),config_all(),define_all(),define_isset(str),embed_run(str[?]),argvs(),session_all(),session_isset(str),crop(var[..],num,num),search(var[..],var),push(var[..],var[..],num),pop(var[..],num),del(var[..]),mpl_execute(str),trace_var(var[?,..]),trace_func(str,num),echo(var)/*just used in embed files*/
+len(var[..]),print(val|var[..]) ,typeof(var),input(num),error_handle(num,str,str),config_all(),define_all(),define_isset(str),embed_run(str[?]),argvs(),session_all(),session_isset(str),crop(var[..],num,num),search(var[..],var),push(var[..],var[..],num),pop(var[..],num),del(var[..]),mpl_execute(str),trace_var(var[?,..]),trace_func(str,num),echo(var)/*just used in embed files*/,var_type(var[..])
 
 
 str_split(str[..],str) ,str_replace(str,str,str),to_num(var,bool),to_bool(var),to_str(var),at(var,num),str_at(str,num,str),str_crop(str,num,num),str_indexof(str,str,num),str_uppercase(str),str_lowercase(str),str_trim(str,num),is_num(var),is_bool(var),is_str(var),str_contains(str,str),str_join(str,str),bool_switch(bool),str_reverse(str),to_chars(var),base_convert(num,num,bool)
@@ -37,7 +44,7 @@ ERROR:num,FATAL:num,WARNING:num,AppPath:str,OSType:str,OSArch:str,PathSeparator:
 -----------------------------
 built-in config:(by __config)
 - can use and just edited in global and outside of functions
-ErrorsMode,WarningsMode,SetLogFile,MaxHugeDivideSteps,MaxHugeDecimalNumbers,TabSize,EnableSafeMode,AppVersion,AppName,AppLicense,EnableSession,SaveSessionOnExit,AutoCreateDocs,EnableHelpArgument,OptimizeMode,SetByteCode,RunOnlyOS,RunOnlyArch,AppCreator,NameSpace/*used for package files*/,SessionDatabasePath,OverwriteBuiltinFuncs
+ErrorsMode,WarningsMode,SetLogFile,MaxHugeDivideSteps,MaxHugeDecimalNumbers,TabSize,EnableSafeMode,AppVersion,AppName,AppLicense,EnableSession,SaveSessionOnExit,EnableHelpArgument,OptimizeMode,SetByteCode,RunOnlyOS,RunOnlyArch,AppCreator,NameSpace/*used for package files*/,SessionDatabasePath,OverwriteBuiltinFuncs
 -----------------------------
 Extensions:
 - mpl : mpl source files
@@ -46,9 +53,10 @@ Extensions:
 - mdo : mpl documentation files
 -----------------------------
 Application
-- mpl    : MPL Interpreter
-- mdebug : MPL Debugger
-- mprog  : MPL Program Manager
+- mpl		: MPL Interpreter
+- mdebug	: MPL Debugger
+- mprog		: MPL Program Manager
+- madoc		: MPL Advanced Documentation
 -----------------------------
 external modules:
 sqlite,math,mgt,net
@@ -134,6 +142,8 @@ st2 j=struct(struct(false,"ui",-9.99h),true)
 st3 f=struct({3.6,-8},true)
 num jj=f.n[0];bool bb=f.b
 num kl=h[1].n+f.n[0]
+- you can call entries of a struct by '.'
+num a=j.v.n[1]
 -----str,num,bool:
 str y="GH"
 str h,num n[3,5],bool b[3];
@@ -143,7 +153,8 @@ num n={{2,7},{8.9,-9}} //=>n[2,2]
 n={5,8}//=>raise an error
 -----arrays
 num j[4,7]
-num jj=j[4,?]
+- you must define an array by its dimensions like: num k[3]={3,5,8}
+- you can define an array by '?' dimension but you must assign it by a value like : num k[?]={5,7,8,8} //k[4]
 
 -----vars:
 - vars just include struct and num,bool,str values and not arrays
@@ -207,7 +218,7 @@ int main(){
 -----main.mpl
 import "pack:$/lib1.mpl"
 func main(){
-	num j=mylib.sum(6,7,8.8)
+	num j=mylib->sum(6,7,8.8)
 }
 -----lib1.mpl
 -------------lib1.mpl can not have a main function

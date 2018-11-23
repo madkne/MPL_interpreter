@@ -35,7 +35,30 @@ long_int get_pid ()
   #endif
   return 0;
 }
+//******************************************
+String get_mpl_dir_path ()
+{
+  String out = 0;
+  #if LINUX_PLATFORM == 1
 
+  #elif WINDOWS_PLATFORM == 1
+  uint8 ownPth[MAX_PATH];
+  HMODULE hModule = GetModuleHandle (NULL);
+  if (hModule != NULL)
+	{
+	  // Use GetModuleFileName() with module handle to get the path
+	  GetModuleFileName (hModule, ownPth, (sizeof (ownPth)));
+	  str_list entries = 0;
+	  uint32 size = char_split (ownPth, OS_SEPARATOR, &entries, true);
+	  for (uint32 i = 0; i < size - 1; i++)
+		{
+		  out = str_append (out, entries[i]);
+		  if (i + 1 < size)out = char_append (out, OS_SEPARATOR);
+		}
+	}
+  #endif
+  return out;
+}
 //******************************************
 String get_absolute_path (String path)
 {
@@ -115,14 +138,15 @@ void msg (String format, ...)
 }
 
 //******************************************
-void longint_list_delete_first (longint_list *s, uint32 len)
+long_int longint_list_delete_first (longint_list *s, uint32 len)
 {
   if (len == 0)
 	{
 	  (*s) = 0;
-	  return;
+	  return 0;
 	}
   longint_list tmp = 0;
+  long_int ret = 0;
   longint_list_init (&tmp, (*s), len);
   free ((*s));
   (*s) = (longint_list) malloc ((len - 1) * sizeof (longint_list));
@@ -132,7 +156,9 @@ void longint_list_delete_first (longint_list *s, uint32 len)
 	  //str_init(&(*s)[i],val[i]);
 	  (*s)[ind++] = tmp[i];
 	}
+  ret = tmp[0];
   free (tmp);
+  return ret;
 }
 
 //******************************************
@@ -140,7 +166,7 @@ void longint_list_append (longint_list *s, uint32 len, long_int n)
 {
   longint_list tmp = 0;
   longint_list_init (&tmp, *s, len);
-  free (*s);
+  //  free (*s);
   (*s) = (longint_list) malloc ((len + 1) * sizeof (longint_list));
   if (*s == 0)return;
   for (uint32 i = 0; i < len; i++)
@@ -765,5 +791,105 @@ String replace_control_chars (String val)
 	  else ret = char_append (ret, val[i]);
 	}
   return ret;
+
+}
+//*************************************************************
+Boolean is_equal_data_types (uint8 t1, uint8 t2)
+{
+  if (t1 == 0 || t2 == 0 || t1 == '0' || t2 == '0')return false;
+  if (t1 == t2)return true;
+  if ((t1 == 'i' || t1 == 'f' || t1 == 'h') && (t2 == 'i' || t2 == 'f' || t2 == 'h'))return true;
+  return false;
+
+}
+//*************************************************************
+int32 search_int32_array (int32 a[], uint32 al, int32 n)
+{
+  if (al < 1)return -1;
+  for (int32 i = 0; i < al; ++i)
+	{
+	  if (a[i] == n)return i;
+	}
+  return -1;
+}
+//*************************************************************
+Boolean delete_int32_element_array (int32 a[], uint32 al, int32 n, Boolean delete_last)
+{
+  int32 tmp[al - 1];
+  uint32 co = 0;
+  Boolean is_find = false;
+  if (delete_last)
+	{
+	  co = al - 2;
+	  for (int32 i = al - 1; i >= 0; i--)
+		{
+		  if (i < 0)break;
+		  if (a[i] == n && !is_find) is_find = true;
+		  else tmp[co--] = a[i];
+		}
+	}
+  else
+	for (int32 i = 0; i < al; ++i)
+	  {
+		if (a[i] == n && !is_find) is_find = true;
+		else tmp[co++] = a[i];
+	  }
+  for (int32 i = 0; i < al - 1; ++i)
+	{
+	  a[i] = tmp[i];
+	}
+  a[al - 1] = -1;
+  return is_find;
+}
+//*************************************************************
+uint8 convert_index_to_int32 (String ind, int32 ret[], Boolean manage_ques)
+{
+  str_list indexes = 0;
+  uint8 indexes_len = 0;
+  uint8 ret_len = 0;
+  indexes_len = (uint8) char_split (ind, ',', &indexes, true);
+  if (indexes_len > MAX_ARRAY_DIMENSIONS)
+	{
+	  //TODO:error
+	  return 0;
+	}
+  for (uint32 i = 0; i < indexes_len; i++)
+	{
+	  if (manage_ques && str_ch_equal (indexes[i], '?'))ret[ret_len++] = 1;
+	  else if (str_ch_equal (indexes[i], '?'))ret[ret_len++] = -1;
+	  else ret[ret_len++] = str_to_int32 (indexes[i]);
+	}
+  return ret_len;
+}
+//*************************************************************
+int32 read_lines_from_file (String path, str_list *lines, Boolean skip_empty_lines)
+{
+  FILE *fp = fopen (path, "r");
+  if (fp == NULL)return -1;
+  // printf ("PATH:%s\n", path);
+  int32 lines_co = 0;
+  for (;;)
+	{
+	  String line = 0;
+	  for (;;)
+		{
+		  int32 buf = fgetc (fp);
+		  if (buf == EOF)goto ENDOFFILE;
+		  if(buf==0)continue;
+		  if ('\n' == buf || '\r' == buf)break;
+		  line = char_append (line, buf);
+		  //printf("-----%s\n",line);
+		}
+	  if (skip_empty_lines)
+		{
+		  line = str_trim_space (line);
+		  if (line == 0)continue;
+		}
+	  //printf ("LI:%s\n", line);
+	  str_list_append (&(*lines), line, lines_co++);
+	}
+  ENDOFFILE:
+  fclose (fp);
+  return lines_co;
 
 }

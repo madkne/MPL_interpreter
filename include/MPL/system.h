@@ -30,6 +30,7 @@
 //---------------------------------normal functions
 #include "exceptions.h"
 #include "built_in.h"
+#include "mpl_help.h"
 //---------------------------------core functions
 #include "core/importer.h"
 #include "core/parser.h"
