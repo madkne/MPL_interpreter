@@ -895,6 +895,41 @@ uint32 recursive_list_pointer_ids (long_int pointer_id, longint_list *ret)
 
   return len;
 }
+//****************************************************
+uint32 delete_array_Mpoints (long_int pointer_id, Boolean is_delete_root)
+{
+  uint32 co = 0;
+  uint32 len = 0, tmp_len = 0;
+  longint_list tmp = 0;
+  longint_list_append (&tmp, tmp_len++, pointer_id);
+  for (;;)
+	{
+	  if (tmp_len == 0)break;
+	  long_int po_id = longint_list_delete_first (&tmp, tmp_len--);
+	  long_int po_ind = find_index_pointer_memory (po_id);
+	  Mpoint p = get_Mpoint (po_ind);
+	  if (p.type_data == 'p' || p.type_data == 'l')
+		{
+		  str_list tmp1 = 0;
+		  uint32 tmp1_len = char_split (p.data, ';', &tmp1, true);
+		  for (uint32 i = 0; i < tmp1_len; i++)
+			{
+			  longint_list_append (&tmp, tmp_len++, str_to_long_int (tmp1[i]));
+			}
+		}
+	  if (po_id == pointer_id)continue;
+	  delete_Mpoint (po_ind);
+	  co++;
+	}
+  if (is_delete_root)
+	{
+	  //printf ("Root:%i,%i\n", pointer_id, find_index_pointer_memory (pointer_id));
+	  delete_Mpoint (find_index_pointer_memory (pointer_id));
+	  co++;
+	}
+
+  return co;
+}
 //func review_create_array_from(po_id long_int) (string,byte,bool)
 //func get_data_memory_index(pointer_id long_int, index_var string) (long_int, string)
 //****************************************************

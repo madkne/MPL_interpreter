@@ -67,4 +67,5 @@ int32 search_int32_array (int32 a[], uint32 al, int32 n);
 Boolean delete_int32_element_array (int32 a[], uint32 al, int32 n, Boolean delete_last);
 uint8 convert_index_to_int32 (String ind, int32 ret[], Boolean manage_ques);
 int32 read_lines_from_file (String path, str_list *lines, Boolean skip_empty_lines);
+String find_first_var_name(String exp,uint32 start,Boolean is_inverse,uint32 *endpoint);
 #endif /*__COMMON_FUNCS_H*/

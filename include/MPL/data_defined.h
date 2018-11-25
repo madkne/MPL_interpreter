@@ -349,6 +349,9 @@ struct entry_table_struct {
 	uint32 Rorder, Rline;
 	Boolean is_stop_APP_CONTROLLER, is_next_inst_running;
 
+	str_list post_short_alloc;
+	uint32 post_short_alloc_len;
+
 };
 struct entry_table_struct entry_table;
 

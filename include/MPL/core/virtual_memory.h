@@ -55,4 +55,5 @@ uint32 return_var_dimensions (long_int var_ind, str_list *ret);
 
 long_int copy_memory_var (long_int var_index, String new_name, long_int fin);
 uint32 recursive_list_pointer_ids(long_int pointer_id,longint_list *ret);
+uint32 delete_array_Mpoints (long_int pointer_id,Boolean is_delete_root);
 #endif //MPL_VIRTUAL_MEMORY_H

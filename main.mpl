@@ -25,18 +25,25 @@ struct gg{
 func main(){
 	//num n[4,3],str s,s={{3,-8,9.78},{(24^3)/4+56.5,8f,null},{0x45,0o34+4,0b01011},{-3454,45h,12.4i}},"سلام"+" !"
 	num j,j1,j2[3]=56h,78.46,{67,9.6787,-35}
-	gg gh[?]={struct({{"A","B"},{"AA","BB"}},6),struct({{"D","E"},{"DD","EE"}},-56*9)}
+	//gg gh[?]={struct({{"A","B"},{"AA","BB"}},6),struct({{"D","E"},{"DD","EE"}},-56*9)}
 	//gg1 st1[?]={struct(struct({true,false},1000),"Hello"),struct(struct({false,false},9999),"Amin")}
 	//{{45,45},{45,78},{5756,0}}
-	gg fg[2];
+	//gg1 fg[2];
 	//num df[3]
 	str jj="Hello"+"!"
+	//--jj
+	//j1++
+	//--jj
+	num q=1
+	num e1=(45*q++) //=>e1=45,q=2
+	q=1
+	num e2=(45*++q) //=>e2=90,q=2
 	//bool bb[2]={true,false}
 	//gg ss1=struct({true,false},56.7)
 	//gg ss2=struct(bb,67)
 	//ss1:=ss2
 	//jj="ZZZZZZZZZZ%j%ZZZZZ"
-	fg=gh
+	//fg=gh
 	//fg=struct(struct({{"A","B"},{"AA","BB"}},1000),"Hello")
 	//j,jj+= 4,"---"
 	//j:=j2

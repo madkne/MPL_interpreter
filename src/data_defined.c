@@ -85,7 +85,7 @@ uint8 single_operators[] = {'+', '-', '*', '/', '%', '^', '|', '&', '~'};
 
 String comparative_operators[] = {"==", ">=", "<=", ">", "<", "!="};
 
-String alloc_operators[11] = { "+=", "-=", "*=", "/=", "%=", "^=", ":=", "|=", "&=", "~=","!="};
+String alloc_operators[11] = {"+=", "-=", "*=", "/=", "%=", "^=", ":=", "|=", "&=", "~=", "!="};
 
 String boolean_operators[] = {"&&", "||", "~~"};
 
@@ -176,6 +176,9 @@ void init_database ()
   str_utf8 stdin_src;
   str_to_utf8 (&stdin_src, "stdin");
   utf8_str_list_append (&source_paths, stdin_src, entry_table.source_counter++);
+  //---------------init post short_alloc
+  entry_table.post_short_alloc = 0;
+  entry_table.post_short_alloc_len = 0;
   //---------------init data_types
   datas tmp1 = {0, 0, "str", MAIN_DATA_TYPE, 0, 0};
   append_datas (tmp1);

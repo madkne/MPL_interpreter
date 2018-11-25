@@ -3881,58 +3881,13 @@ Boolean alloc_struct_var (datas type_datas, long_int pointer_index, vaar_en stru
   for (uint32 i = 0; i < ret1_len; i++)
 	longint_list_append (&po_inds, po_inds_len++, find_index_pointer_memory (str_to_long_int (ret1[i])));
   //printf("QQQQQ:%s\n",longint_list_print (po_inds,po_inds_len));
-  //browse pointers
+  long_int po_idd = set_struct_node_Mpoint (struct_id);
+  Mpoint mp_new = get_Mpoint (find_index_pointer_memory (po_idd));
+  //delete unusable pointers of old struct
+  uint32 count = delete_array_Mpoints (mp.id, false);
+  printf ("!!!!!:[%i,%i,%i],%s,%s\n", po_idd, mp.id, count, mp.data, mp_new.data);
+  edit_Mpoint (pointer_index, mp_new.data, 0, true, false);
 
-  vaar *st = struct_id.start;
-  for (uint32 i = 0; i < ret1_len; i++)
-	{
-	  if (st == 0)break;
-	  str_list ret2 = 0;
-	  Mpoint p = get_Mpoint (po_inds[i]);
-	  long_int p_ind = find_index_pointer_memory (str_to_long_int (p.data));
-	  char_split (type_datas.params[i], ';', &ret2, false);
-	  printf ("@!:%i:[%s]%s=>%s(%s,%c)\n", p.id, ret2[0], type_datas.params[i], p.data, st->value, st->sub_type);
-	  if (st->sub_type == 'l' && !str_search (basic_types, ret2[0], StrArraySize (basic_types))/*is struct*/)
-		{
-		  //printf ("struct:%s,%i\n", search_datas (ret2[0], 0, true).name, p_ind);
-		  if (!alloc_struct_var (search_datas (ret2[0], 0, true), find_index_pointer_memory (str_to_long_int (p.data)), get_stde (str_to_long_int (st->value))
-			  .st))
-			return false;
-		}
-	  else if (ret2[2] == 0 || str_ch_equal (ret2[2], '0')/*is value*/)
-		{
-		  if (st->sub_type == 's')st->value = str_reomve_quotations (st->value, "s");
-		  edit_Mpoint (p_ind, st->value, st->sub_type, true, true);
-		}
-	  else/*is array*/{
-		  uint32 max_rooms = return_total_array_rooms (ret2[2]);
-		  longint_list ret3 = 0;
-		  uint32 ret3_len = recursive_list_pointer_ids (p.id, &ret3);
-		  printf ("array:%s(%i),[%i]%s,%s\n", ret2[2], max_rooms, p.id, p.data, longint_list_print (ret3, ret3_len));
-		  for (uint32 j = 0; j < max_rooms; j++)
-			{
-			  printf ("AR[%i]:%s(%c)\n", j, st->value, st->sub_type);
-			  if (j < ret3_len)
-				{
-				  long_int ret3_ind = find_index_pointer_memory (ret3[j]);
-				  Mpoint p1 = get_Mpoint (ret3_ind);
-				  if (p1.type_data == 'l'/*is struct*/)
-					{
-					  //TODO
-					}
-				  else /*is value*/{
-					  if (st->sub_type == 's')st->value = str_reomve_quotations (st->value, "s");
-					  edit_Mpoint (ret3_ind, st->value, st->sub_type, true, true);
-					}
-				}
-
-			  if (j + 1 < max_rooms)
-				st = st->next;
-			}
-		}
-	  //printf ("STT:%s(%c):%i/%i\n", st->value, st->sub_type, i, ret1_len);
-	  st = st->next;
-	}
   return true;
 }
 //*********************************************************

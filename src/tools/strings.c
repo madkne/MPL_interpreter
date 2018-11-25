@@ -494,7 +494,7 @@ String str_substring (String s, uint32 start, uint32 end)
 {
   uint32 s_len = str_length (s);
   if (end == 0 && start > 0)end = s_len;
-  if (start >= end || start == end) return 0;
+  if (start >= end) return 0;
   if (end > s_len)end = s_len;
   String ret = 0;
   for (uint32 i = start; i < end; i++)
@@ -612,7 +612,11 @@ String str_from_int64 (int64 x)
   ret = str_reverse (ret);
   return ret;
 }
-
+//******************************************
+Boolean str_to_bool(String s){
+	if(str_ch_equal(s,'1')||str_equal(s,"true")||str_equal(str_to_lower_case(s),"true")) return true;
+	return false;
+}
 //******************************************
 double str_to_double (String s)
 {

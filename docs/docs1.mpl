@@ -32,7 +32,6 @@ struct(vars)
 built-in functions:
 len(var[..]),print(val|var[..]) ,typeof(var),input(num),error_handle(num,str,str),config_all(),define_all(),define_isset(str),embed_run(str[?]),argvs(),session_all(),session_isset(str),crop(var[..],num,num),search(var[..],var),push(var[..],var[..],num),pop(var[..],num),del(var[..]),mpl_execute(str),trace_var(var[?,..]),trace_func(str,num),echo(var)/*just used in embed files*/,var_type(var[..])
 
-
 str_split(str[..],str) ,str_replace(str,str,str),to_num(var,bool),to_bool(var),to_str(var),at(var,num),str_at(str,num,str),str_crop(str,num,num),str_indexof(str,str,num),str_uppercase(str),str_lowercase(str),str_trim(str,num),is_num(var),is_bool(var),is_str(var),str_contains(str,str),str_join(str,str),bool_switch(bool),str_reverse(str),to_chars(var),base_convert(num,num,bool)
 
 exit(num),mkdir(str),shell(str),time(),fopen(str,str),fclose(num),fwrite(num,str),fread(num,str,num),finfo(str),proc_start(str,str[?]),abspath(str),copy(str,str),exist(str),remove(str),scandir(str,num),runtime_info(num),shutdown(num),rand(num,num)
@@ -44,22 +43,34 @@ ERROR:num,FATAL:num,WARNING:num,AppPath:str,OSType:str,OSArch:str,PathSeparator:
 -----------------------------
 built-in config:(by __config)
 - can use and just edited in global and outside of functions
-ErrorsMode,WarningsMode,SetLogFile,MaxHugeDivideSteps,MaxHugeDecimalNumbers,TabSize,EnableSafeMode,AppVersion,AppName,AppLicense,EnableSession,SaveSessionOnExit,EnableHelpArgument,OptimizeMode,SetByteCode,RunOnlyOS,RunOnlyArch,AppCreator,NameSpace/*used for package files*/,SessionDatabasePath,OverwriteBuiltinFuncs
+ErrorsState,WarningsState,ExportLogFile,MaxHugeDivideSteps,MaxHugeDecimalNumbers,TabSize,SafeMode,AppVersion,AppName,AppLicense,SessionMode,SaveSessionOnExit,HelpArgumentMode,OptimizeMode,ExportByteCode,RunOnlyOS,RunOnlyArch,AppCreator,NameSpace/*used for package files*/,SessionDatabasePath,OverwriteBuiltinMode,DebugMode
 -----------------------------
 Extensions:
 - mpl : mpl source files
 - mbc : mpl bytecode files
 - mdb : mpl database files
 - mdo : mpl documentation files
+- mcf : mpl configuration files
 -----------------------------
 Application
 - mpl		: MPL Interpreter
-- mdebug	: MPL Debugger
 - mprog		: MPL Program Manager
 - madoc		: MPL Advanced Documentation
 -----------------------------
 external modules:
 sqlite,math,mgt,net
+-----------------------------
+++,--:
+str:("Hello")
+	++:"Hello " (add a space end of string)
+	--:"Hell" (remove last char of string)
+num:(45.5)
+	++:46.5 (plus num by 1)
+	--:44.5 (subtraction num by 1)
+samples:
+num q=1
+num e1=(45*q++) //=>e1=45,q=2
+num e2=(45*++q) //=>e2=90,q=2
 -----------------------------
 null for data types:
 num  k=null => k=null
@@ -79,7 +90,7 @@ control characters:
 sample using keywords:
 -----import:
 import "file:$/data/data1.mpl" //import from project root($)
-import "mod:/users/libs/sqlite.so" //import from absolute path
+import "mod:sqlite" //import from absolute path
 import "embed:c:/java/main.java"
 import "pack:$/libs/lib1.mpl"
 -----magic macros

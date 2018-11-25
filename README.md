@@ -82,10 +82,11 @@ TODO
 * alloc struct expressions **[OK]**
 * replace values of vars by ':=' **[OK]**
 * define an array by '?' index **[OK]**
+* support alloc struct has array by '?' **[OK]**
 * define an empty array **[OK]**
-* support struct entries for constant and allocation **[..]**
-* implement short alloc by '++','--' **[..]**
-* implement structures
+* implement short alloc by '++','--' pre **[OK]**
+* implement short alloc by '++','--' post **[OK]**
+* implement structures **[..]**
 * define manage
 * start exception_handler
 * define if
@@ -96,12 +97,13 @@ TODO
 * start review_array_loop
 * implement next
 * implement break
+
 * **_complete main structure of mpl_**
+
 * start for developing 'mprog' program
+* support struct entries for constant and allocation
 * start offline documentation of mpl **[OK]**
 * complete structure of mpl-docs **[..]**
-* support alloc struct has array by '?'
-* complete alloc struct expressions
 * support for modules files
 * set new __session
 * complete import error_handling
@@ -154,6 +156,8 @@ MPL Sample Codes
 
 * files lines counter
 * implement a linked-list
+* snack cmd animation
+* cmd advanced calculator
 
 MPL Language Features
 --------

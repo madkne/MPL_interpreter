@@ -7,10 +7,10 @@
 
 //**************************************************define interpreter constants
 #define  APP_NAME                       "Mini Portable Language"
-#define  VERSION                        "0.2.70"               //1.10.100
+#define  VERSION                        "0.2.79"               //1.10.100
 #define  VERSION_NAME                   "BETA"
-#define  SLOGAN                         "The solution to common problems of programmers" //راه حل کارهای متداول برنامه
-// نویسان
+#define  SLOGAN                         "The solution to common problems of programmers" //راه حل کارهای متداول برنامه نویسان
+
 #define  FIRST_BUILD                    "2018.9.19"
 #define  LICENCE                        "OPEN-MPL"
 #define  OFFICIAL_WEBSITE               "http://mpl-lang.ir"
