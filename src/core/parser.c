@@ -482,7 +482,8 @@ void manage_structures(uint32 *i, String lbl) {
 		//printf("CFFFF:%s,%s,%i\n",lbl, print_str_list(params, params_len), params_len);
 		
 		//-----------------append to blst
-		blst tmp1 = {0, cur_func_id, cur_stru_id, type, lbl, params, params_len, Aline, Apath, 0};
+		String inst = str_multi_append(STRUCTURES_LABEL, str_from_long_int(cur_stru_id+1), 0, 0, 0, 0);
+		blst tmp1 = {0, cur_func_id, cur_stru_id, type, inst, params, params_len, Aline, Apath, 0};
 		append_blst(tmp1);
 		
 		cur_stru_id = entry_table.stru_id;
@@ -494,7 +495,6 @@ void manage_structures(uint32 *i, String lbl) {
 		//-----------------append to instru
 		long_int order = get_order(cur_func_id, sid_t);
 		set_order(cur_func_id, sid_t, ++order);
-		String inst = str_multi_append(STRUCTURES_LABEL, str_from_long_int(cur_stru_id), 0, 0, 0, 0);
 		
 		instru tmp2 = {0, cur_func_id, sid_t, order, inst, STRUCTURE_LBL_INST, Aline, Apath, 0};
 		append_instru(tmp2);

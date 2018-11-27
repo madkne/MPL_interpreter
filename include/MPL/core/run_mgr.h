@@ -29,4 +29,6 @@ Boolean function_return(String exp);
 int8 vars_allocation(String exp);
 String vars_allocation_short(String exp);
 Boolean do_show_allocation(String var_name, Boolean is_plusplus);
+Boolean init_structures(String exp);
+Boolean structure_MANAGE(long_int st_id, String value);
 #endif //MPL_RUN_MGR_H

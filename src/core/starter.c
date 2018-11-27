@@ -39,19 +39,20 @@ int8 APP_CONTROLLER() {
 	  //msg("&BREAKS:", break_count)
 	  break_count--;
 	  is_stop_APP_CONTROLLER = true;
-  }
-  if (is_stop_APP_CONTROLLER) {
-	  //msg("&BREAKS:", break_count)
-	  is_stop_APP_CONTROLLER = false;
-	  return 2;
   }*/
+  if (entry_table.is_stop_APP_CONTROLLER) {
+    //msg("&BREAKS:", break_count)
+    entry_table.is_stop_APP_CONTROLLER = false;
+    return STOP_RETURN_APP_CONTROLLER;
+  }
   //***************search for current instruction
   instru *st = entry_table.instru_start;
   if (st == 0) return false;
   for (;;) {
     //printf("XSSSS:%i<>%i,%i<>%i,%i<>%i\n", st->func_id, cur_fid , st->stru_id, cur_sid , st->order, cur_order);
-    if (st->func_id == entry_table.cur_fid && st->stru_id == entry_table.cur_sid &&
-        st->order == entry_table.cur_order) {
+    if (st->func_id == entry_table.cur_fid
+        && st->stru_id == entry_table.cur_sid
+        && st->order == entry_table.cur_order) {
       //printf("IIIII:%s\n", st->code);
       entry_table.Rorder = st->order;
       //************show instruction line by line
@@ -126,8 +127,11 @@ int8 INSTRUCTION_EXECUTOR(long_int index) {
       }*/
     } else if (state == ALLOC_SHORT_LBL_INST) {
       Rcode = vars_allocation_short(Rcode);
+    } else if (state == STRUCTURE_LBL_INST) {
+      Boolean ret = init_structures(Rcode);
+      Rcode = 0;
+      if (!ret)is_done = false;
     }
-      //else if(state==STRUCTURE_LBL_INST)Rcode = init_structures(Rcode);
       //		  case NEXT_BREAK_LBL_INST:
       //			{
       //			  is_done = false;

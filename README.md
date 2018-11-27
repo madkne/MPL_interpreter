@@ -86,9 +86,10 @@ TODO
 * define an empty array **[OK]**
 * implement short alloc by '++','--' pre **[OK]**
 * implement short alloc by '++','--' post **[OK]**
-* implement structures **[..]**
-* define manage
-* start exception_handler
+* implement structures **[OK]**
+* define manage **[..]**
+* start exception_handler **[OK]**
+* set errors,warnings for manage struct **[..]**
 * define if
 * define elif,else
 * comparison struct expressions
@@ -100,7 +101,7 @@ TODO
 
 * **_complete main structure of mpl_**
 
-* start for developing 'mprog' program
+* start for developing 'mprog' program **[OK]**
 * support struct entries for constant and allocation
 * start offline documentation of mpl **[OK]**
 * complete structure of mpl-docs **[..]**

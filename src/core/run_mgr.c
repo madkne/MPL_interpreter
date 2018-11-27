@@ -1303,3 +1303,76 @@ Boolean do_show_allocation(String var_name, Boolean is_plusplus) {
   edit_Mpoint(ret_ind, result, 0, true, false);
   return true;
 }
+
+//****************************************************
+Boolean init_structures(String exp) {
+/**
+	1- manage(e) ---OK---
+	2- if(ty==45) ---OK---
+	3- loop(num i,j=0;ty.IsExist();i+=j)
+	*/
+  blst *rec = entry_table.blst_stru_start;
+  for (;;) {
+    //printf("@@@@:%s,%s\n",exp,rec->lbl);
+    if (str_equal(rec->lbl, exp)) {
+      if (rec->type == MANAGE_STRU_ID) {
+        return structure_MANAGE(rec->id, rec->params[0]);
+      } else if (rec->type == IF_STRU_ID || rec->type == ELIF_STRU_ID || rec->type == ELSE_STRU_ID) {
+//TODO
+      } else if (rec->type == LOOP_STRU_ID) {
+//TODO
+      }
+      return true;
+    }
+    rec = rec->next;
+    if (rec == 0) break;
+  }
+
+  return false;
+}
+//****************************************************
+Boolean structure_MANAGE(long_int st_id, String value) {
+/**
+ * manage(e)
+ * manage()
+ */
+  //--------------------determine value
+  value = str_trim_space(value);
+  //printf("###manage:%s\n", value);
+  if (str_length(value) == 0)str_init(&value, "null");
+  else {
+    long_int id = return_var_id(value, 0);
+    if (id == 0) {
+      //TODO:error
+      return false;
+    }
+    value = str_from_long_int(id);
+  }
+  //--------------------record all registers
+  stst
+      s = {MANAGE_STRU_ID, entry_table.cur_fid, entry_table.cur_fin, st_id,entry_table.cur_sid, entry_table.cur_order, value};
+  append_stst(s);
+
+//--------------------set new registers
+  entry_table.cur_order = 1;
+  entry_table.cur_sid = st_id;
+  //--------------------start point
+  int8 ret1 = APP_CONTROLLER();
+  /*if return_fin > 0 && return_fin == cur_fin {
+      is_stop_APP_CONTROLLER = true
+  }*/
+//  if (ret1 == 2) {
+//
+//  }
+  //****************end of manage
+  //--------------------call garbage_collector(gc)
+  garbage_collector('A');
+  //TODO
+  //--------------------return to parent structure
+  //print_struct(PRINT_FUNCTIONS_STACK_ST);
+  stst lst = get_last_stst();
+  entry_table.cur_sid = lst.parent_sid;
+  entry_table.cur_order = lst.order;
+  delete_last_stst();
+  return true;
+}

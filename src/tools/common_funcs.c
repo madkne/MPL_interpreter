@@ -378,6 +378,24 @@ void print_struct(uint8 which) {
       if (tmp1 == 0) break;
     }
     printf("=====End printed\n");
+  } else if (which == 0 || which == PRINT_STRUCTURES_STACK_ST) {
+    stst *tmp1 = entry_table.stst_start;
+    if (tmp1 == 0) return;
+    printf("=====Print structures stack :\n");
+    for (;;) {
+      printf("type:%i,fid:%i,fin:%i,sid:%i,Psid:%li,order:%li,extra:%s\n",
+             tmp1->type,
+             tmp1->fid,
+             tmp1->fin,
+             tmp1->sid,
+             tmp1->parent_sid,
+             tmp1
+                 ->order,
+             tmp1->extra);
+      tmp1 = tmp1->next;
+      if (tmp1 == 0) break;
+    }
+    printf("=====End printed\n");
   }
 }
 

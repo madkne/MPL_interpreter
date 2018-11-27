@@ -27,8 +27,9 @@ num k1={4,8,9} //var_memory.pointer_id=4
 num k2={41,81,91} //var_memory.pointer_id=7
 k1:=k2  //k1.pointer_id=7;k2.pointer_id=4;
 -----------------------------
-keyword functions:
-struct(vars)
+built-in structs :
+exception
+-----------------------------
 built-in functions:
 len(var[..]),print(val|var[..]) ,typeof(var),input(num),error_handle(num,str,str),config_all(),define_all(),define_isset(str),embed_run(str[?]),argvs(),session_all(),session_isset(str),crop(var[..],num,num),search(var[..],var),push(var[..],var[..],num),pop(var[..],num),del(var[..]),mpl_execute(str),trace_var(var[?,..]),trace_func(str,num),echo(var)/*just used in embed files*/,var_type(var[..])
 
@@ -179,6 +180,8 @@ func fg(num n,vars v){
 	}
 }
 -----manage:
+- manage can get not any parameters like : manage() or manage(null)
+- you can create complex manage structures.
 exception e; //built-in struct => struct exception{num id,str msg,str group,num type,str src,num line};
 manage(e){
 //err1

@@ -31,13 +31,19 @@ func main(){
 	//gg1 fg[2];
 	//num df[3]
 	str jj="Hello"+"!"
-	//--jj
+	exception e;
+	manage(){
+		num n=5/0
+		str sdsds="!!!!!!!"
+	
+	}
+	--jj
 	//j1++
 	//--jj
-	num q=1
-	num e1=(45*q++) //=>e1=45,q=2
-	q=1
-	num e2=(45*++q) //=>e2=90,q=2
+	//num q=1
+	//num e1=(45*q++) //=>e1=45,q=2
+	//q=1
+	//num e2=(45*++q)
 	//bool bb[2]={true,false}
 	//gg ss1=struct({true,false},56.7)
 	//gg ss2=struct(bb,67)

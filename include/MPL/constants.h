@@ -7,7 +7,7 @@
 
 //**************************************************define interpreter constants
 #define  APP_NAME                       "Mini Portable Language"
-#define  VERSION                        "0.2.79"               //1.10.100
+#define  VERSION                        "0.2.83"               //1.10.100
 #define  VERSION_NAME                   "BETA"
 #define  SLOGAN                         "The solution to common problems of programmers" //راه حل کارهای متداول برنامه نویسان
 
@@ -115,6 +115,7 @@
 #define PRINT_MAGIC_MACROS_ST           10
 #define PRINT_STRUCT_DES_ST             11
 #define PRINT_FUNCTIONS_STACK_ST        12
+#define PRINT_STRUCTURES_STACK_ST       13
 //------------------------------------------
 #define   BOOL_SUB_TYPE_ID              1
 #define   STR_SUB_TYPE_ID               2
@@ -146,6 +147,7 @@
 //------------------------------------------used in APP_CONTROLLER return
 #define   BAD_RETURN_APP_CONTROLLER     0
 #define   NORMAL_RETURN_APP_CONTROLLER  1
+#define   STOP_RETURN_APP_CONTROLLER    2
 //------------------------------------------used in built-in input,fread function
 #define   READ_CHAR_INPUT_TYPE          "1"
 #define   READ_LINE_INPUT_TYPE          "2"

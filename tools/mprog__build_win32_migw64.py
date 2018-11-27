@@ -45,7 +45,9 @@ if os.path.exists(build_folder+"\\bin\\mprog.exe"):
 #----------------------compile mprog sources
 print("=== Start compiling source files [mprog.exe]...");
 sources=[
-[scr_folder+"/main.c",scr_folder+"/main.c -o "+obj_folder+"/main.o"]
+[scr_folder+"/main.c",scr_folder+"/main.c -o "+obj_folder+"/main.o"],
+[scr_folder+"/parser.c",scr_folder+"/parser.c -o "+obj_folder+"/parser.o"],
+[scr_folder+"/data_structs.c",scr_folder+"/data_structs.c -o "+obj_folder+"/data_structs.o"]
 ]
 
 for i in range(0,len(sources),1):
