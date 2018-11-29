@@ -6,7 +6,9 @@ import sys
 import shutil
 #from subprocess import call
 
-
+#-----------------------------
+#python3 build_win32_migw64.py
+#-----------------------------
 #-------------------------------functions------------------------------------
 def copy_dir(src,dst,folder):
 	dirs=[folder];

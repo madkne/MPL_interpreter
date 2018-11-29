@@ -516,12 +516,17 @@ String init_calling_function(String pname, String fname, str_list params, uint32
         if (i + 1 < rets_len)ret_vars = char_append(ret_vars, ',');
       }
     }
+
   }
+  //--------------------get last registers data
+  fust lst = get_last_fust();
   //--------------------call garbage_collector(gc)
-  garbage_collector('f');
+  if (is_return && lst.fin != entry_table.cur_fin) {
+    garbage_collector('f');
+  }
   //--------------------return to parent function
   //print_struct(PRINT_FUNCTIONS_STACK_ST);
-  fust lst = get_last_fust();
+
   delete_last_fust();
   entry_table.cur_fid = lst.fid;
   entry_table.cur_fin = lst.fin;
@@ -541,7 +546,13 @@ void garbage_collector(uint8 type) {
       is_change = false;
       Mvar st = get_Mvar(i);
       if (st.name == 0)continue;
-
+      //---------------------delete all current structure variables
+      if (type == 'A' && st.func_index == entry_table.cur_fin && st.stru_index == entry_table.cur_sid) {
+        //printf("####A:%s,%i,%i,%i\n", st.name, st.id, st.stru_index, i);
+        delete_full_memory_var(i, true);
+        is_change = true;
+        break;
+      }
       //---------------------delete all tmp variables that starts with @
       //		  if ((type == '@' ) && st.name != 0 && st.name[0] == '@' && entry_table.cur_fin == st.func_index)
       //			{
@@ -1110,7 +1121,7 @@ int8 vars_allocation(String exp) {
     if (str_equal(equal_type, "=")) {
       String final_res = 0;
       //init vars
-      printf("WWWWWWWW:%s=>%s\n", st.name, origin_val);
+      //printf("WWWWWWWW:%s=>%s\n", st.name, origin_val);
       //array
       if (is_origin_array) {
         //if array alloc is a var
@@ -1125,7 +1136,7 @@ int8 vars_allocation(String exp) {
 
           final_res = return_value_var_complete(alloc_ind);
         }
-        printf("is array :=%s\n", final_res);
+//        printf("is array :=%s\n", final_res);
         //continue by array value like {45,89.7}
         if (!alloc_array_var(Tid, final_res, origin_type)) return -1;
 
@@ -1137,13 +1148,13 @@ int8 vars_allocation(String exp) {
           origin_val = get_Mpoint(value_pointer_ind).data;
           String struct_id = calculate_struct_expression(st.alloc, origin_type, &origin_sub_type);
           //print_struct (PRINT_STRUCT_DES_ST);
-          printf("is struct =:%s,%s,%i\n", st.alloc, struct_id, value_pointer_ind);
+//          printf("is struct =:%s,%s,%i\n", st.alloc, struct_id, value_pointer_ind);
           if (origin_sub_type == '0'
               || !alloc_struct_var(search_datas(origin_type, 0, true),
                                    value_pointer_ind,
                                    get_stde(str_to_long_int(struct_id))
                                        .st)) {
-            printf("@@@@@@@@@@@@@@@failed....\n");
+//            printf("@@@@@@@@@@@@@@@failed....\n");
             return -1;
           }
         } else {
@@ -1317,8 +1328,10 @@ Boolean init_structures(String exp) {
     if (str_equal(rec->lbl, exp)) {
       if (rec->type == MANAGE_STRU_ID) {
         return structure_MANAGE(rec->id, rec->params[0]);
-      } else if (rec->type == IF_STRU_ID || rec->type == ELIF_STRU_ID || rec->type == ELSE_STRU_ID) {
-//TODO
+      } else if (rec->type == IF_STRU_ID
+          || rec->type == ELIF_STRU_ID
+          || rec->type == ELSE_STRU_ID) {
+        return structure_CONDITION(rec->id, rec->type, rec->params[0]);
       } else if (rec->type == LOOP_STRU_ID) {
 //TODO
       }
@@ -1350,7 +1363,8 @@ Boolean structure_MANAGE(long_int st_id, String value) {
   }
   //--------------------record all registers
   stst
-      s = {MANAGE_STRU_ID, entry_table.cur_fid, entry_table.cur_fin, st_id,entry_table.cur_sid, entry_table.cur_order, value};
+      s = {MANAGE_STRU_ID, entry_table.cur_fid, entry_table.cur_fin, st_id, entry_table.cur_sid, entry_table.cur_order,
+      value};
   append_stst(s);
 
 //--------------------set new registers
@@ -1374,5 +1388,10 @@ Boolean structure_MANAGE(long_int st_id, String value) {
   entry_table.cur_sid = lst.parent_sid;
   entry_table.cur_order = lst.order;
   delete_last_stst();
+  return true;
+}
+//****************************************************
+Boolean structure_CONDITION(long_int st_id, uint8 type, String value) {
+
   return true;
 }

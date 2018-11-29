@@ -29,7 +29,6 @@ Boolean start_runtime() {
 //**********************************************************
 int8 APP_CONTROLLER() {
   //*************browsing execute instructions
-  //for (;;) {
   /*if (return_fin == cur_fin && return_fin > 0) {
 	  return 1;
   } else if (return_fin > 0) {
@@ -40,15 +39,17 @@ int8 APP_CONTROLLER() {
 	  break_count--;
 	  is_stop_APP_CONTROLLER = true;
   }*/
-  if (entry_table.is_stop_APP_CONTROLLER) {
-    //msg("&BREAKS:", break_count)
-    entry_table.is_stop_APP_CONTROLLER = false;
-    return STOP_RETURN_APP_CONTROLLER;
-  }
+
   //***************search for current instruction
   instru *st = entry_table.instru_start;
   if (st == 0) return false;
   for (;;) {
+    //************is is_occur_error_exception is true
+    if (entry_table.is_occur_error_exception) {
+      //msg("&BREAKS:", break_count)
+      entry_table.is_occur_error_exception = false;
+      return STOP_RETURN_APP_CONTROLLER;
+    }
     //printf("XSSSS:%i<>%i,%i<>%i,%i<>%i\n", st->func_id, cur_fid , st->stru_id, cur_sid , st->order, cur_order);
     if (st->func_id == entry_table.cur_fid
         && st->stru_id == entry_table.cur_sid
@@ -147,6 +148,7 @@ int8 INSTRUCTION_EXECUTOR(long_int index) {
       //exception_handler("unknown_instruction", "INSTRUCTION_EXECUTOR", Rcode, "")
     }
     if (str_equal(Rcode, BAD_CODE)) is_done = false;
+    else if (entry_table.is_occur_error_exception) is_done = false;
     //********************
     if (!is_done) {
       break;
@@ -175,6 +177,7 @@ int8 INSTRUCTION_EXECUTOR(long_int index) {
     //show_prev_fins_array()
   }
   //show_memory(0)
+  //printf("###QWER:%i\n",entry_table.is_stop_APP_CONTROLLER);
   return SUCCESS_EXECUTE_INSTRUCTION;
 }
 

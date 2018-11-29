@@ -364,7 +364,7 @@ struct entry_table_struct {
   String Rsrc;
   long_int return_fin;
   uint32 Rorder, Rline;
-  Boolean is_stop_APP_CONTROLLER, is_next_inst_running;
+  Boolean is_stop_APP_CONTROLLER, is_next_inst_running,is_occur_error_exception;
 
   str_list post_short_alloc;
   uint32 post_short_alloc_len;

@@ -10,5 +10,7 @@ String _MPL_TYPE__typeof (String value, String type);
 String _MPL_TYPE__input (String type);
 
 
+uint32 _MPL_TYPE__push(long_int var_ind, String value,String val_type, String wh);
+
 String _MPL_TYPE__var_type (String value, String type);
 #endif //MPL_MPL_BUILTIN_H

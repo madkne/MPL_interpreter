@@ -179,18 +179,26 @@ int8 exception_handler(String lbl_err, const char func_occur[], String rep1, Str
       case WARNING_ID: ret_num = warnings_mode;
         break;
     }
+//    printf("@@@@:%i,%s\n",ret_num,manage_exception_store);
     if (ret_num == CANCEL_ID) {
       return ret_num;
     }
     //---------if manage_exception_store not 'null'
     if (!str_equal(manage_exception_store, "null")) {
-      //TODO
+      uint8 sub = 0;
+      String struct_id = calculate_struct_expression(create_exli_struct(st, rep1, rep2), "exception", &sub);
+      print_vaar(get_stde(str_to_long_int(struct_id)).st);
+      _MPL_TYPE__push(find_index_var_memory(str_to_long_int(manage_exception_store)),
+                      struct_id,
+                      "exception",
+                      RIGHT_DIRECT);
     }
     //---------if was error
     if (ret_num == ERROR_ID) {
+      //printf("@@@@WWWWW:\n");
       //cur_sid = last_sid
       //cur_order = last_order
-      entry_table.is_stop_APP_CONTROLLER = true;
+      entry_table.is_occur_error_exception = true;
     }
       //---------if was fatal
     else if (ret_num == FATAL_ID) {
@@ -231,7 +239,28 @@ exli get_exli(long_int i) {
   }
   return null;
 }
+//**************************************************************
+String create_exli_struct(exli s, String rep1, String rep2) {
+  String ret = 0;
+//replace rep1,rep2
+  s.text = str_replace(s.text, "!1@1!", rep1, -1);
+  s.text = str_replace(s.text, "!2@2!", rep2, -1);
+  //create struct value
+  //struct::exception(num id,str msg,str group,num type,str src,num line)
+  ret = str_append("struct(", str_from_long_int((long_int) s.id));
+  ret = char_append(ret, ',');
+  ret = str_multi_append(ret, "\"", s.text, "\"", 0, 0);
+  ret = char_append(ret, ',');
+  ret = str_multi_append(ret, "\"", exceptions_group[s.group], "\"", 0, 0);
+  ret = char_append(ret, ',');
+  ret = str_append(ret, str_from_int32((int32) s.type));
+  ret = char_append(ret, ',');
+  ret = str_multi_append(ret, "\"", entry_table.Rsrc, "\"", 0, 0);
+  ret = char_append(ret, ',');
+  ret = str_append(ret, str_from_int32((int32) entry_table.Rline));
 
+  return ret;
+}
 //**************************************************************
 void define_new_exception(uint32 id, int8 type, String lbl, uint8 group, String text) {
   //id;type;group;label;text

@@ -173,7 +173,9 @@ void init_database() {
   entry_table.Rsrc = 0;
   entry_table.return_fin = 0;
   entry_table.Rorder = 0, entry_table.Rline = 0;
-  entry_table.is_stop_APP_CONTROLLER = false, entry_table.is_next_inst_running = false;
+  entry_table.is_stop_APP_CONTROLLER = false;
+  entry_table.is_next_inst_running = false;
+  entry_table.is_occur_error_exception = false;
 
   str_utf8 stdin_src;
   str_to_utf8(&stdin_src, "stdin");

@@ -31,8 +31,10 @@ func main(){
 	//gg1 fg[2];
 	//num df[3]
 	str jj="Hello"+"!"
+	//num ns=push(gh,struct({{"Ac","Bc"},{"Ac","Bc"}},6000),1)//push(jj,"uiuiuiuiui",2)
+	
 	exception e;
-	manage(){
+	manage(e){
 		num n=5/0
 		str sdsds="!!!!!!!"
 	

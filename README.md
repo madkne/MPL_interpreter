@@ -87,12 +87,14 @@ TODO
 * implement short alloc by '++','--' pre **[OK]**
 * implement short alloc by '++','--' post **[OK]**
 * implement structures **[OK]**
-* define manage **[..]**
+* define manage **[OK]**
 * start exception_handler **[OK]**
-* set errors,warnings for manage struct **[..]**
-* define if
-* define elif,else
-* comparison struct expressions
+* implement push built-in functions **[OK]**
+* push errors,warnings for manage var exception **[OK]**
+* call gc for deleting structure vars **[OK]**
+* define if **[..]**
+* define elif,else **[..]**
+* comparison struct expressions **[..]**
 * recursive functions
 * define loop
 * start review_array_loop
@@ -119,6 +121,7 @@ TODO
 * complete parse error_handling
 * complete os built-in functions
 * complete mean_run error_handling
+* complete built-in error_handling
 * complete support utf8
 * complete offline docs
 * complete 'mprog' program
@@ -130,7 +133,6 @@ TODO
 
 * support package files
 * publish RC version for linux
-* run scripts in command line
 * add math module for advanced calculation
 * add net module
 * support for a debugger

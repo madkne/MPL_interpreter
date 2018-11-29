@@ -10,6 +10,7 @@ uint32 call_built_in_funcs (String func_name, str_list params, str_list partypes
   uint32 func_id = 0, returns_len = 0;
   uint8 func_type = 0;
   str_list argvs = 0;
+  long_int var0_ind=0;
   //-----------------find function
   bifs *st = entry_table.bifs_start;
   for (;;)
@@ -46,13 +47,14 @@ uint32 call_built_in_funcs (String func_name, str_list params, str_list partypes
   //convert vars to values
   for (uint32 i = 0; i < params_len; i++)
 	{
-
 	  str_list p1 = 0;
 	  char_split (partypes[i], ';', &p1, false);
 	  //is var
 	  if (str_ch_equal (p1[2], '1') || str_ch_equal (p1[2], '2'))
 		{
 		  str_list_append (&argvs, return_value_var_complete (str_to_long_int (p1[1])), i);
+          //if param[0] is var, store its index
+          if(i==0) var0_ind=str_to_long_int (p1[1]);
 		}
 		//is value
 	  else
@@ -64,6 +66,7 @@ uint32 call_built_in_funcs (String func_name, str_list params, str_list partypes
 		  str_list_append (&argvs, ret1, i);
 		}
 	}
+
   //printf ("@BUILT-IN:%s;%s\n", print_str_list (params, params_len), print_str_list (argvs, params_len));
   //---------------------MPL Function Calls----------------------
   if (func_type == MPL_BUILT_IN_TYPE)
@@ -89,6 +92,14 @@ uint32 call_built_in_funcs (String func_name, str_list params, str_list partypes
 		  str_list_append (&(*returns), convert_to_string (ret), returns_len++);
 		  //printf ("Result of \'input\':%s=>%s\n", argvs[0], ret);
 		}
+      else if (func_id == 15/*push*/)
+      {
+        str_list p = 0;
+        char_split (partypes[1], ';', &p, false);
+        uint32 ret = _MPL_TYPE__push (var0_ind,argvs[1],p[0],argvs[2]);
+        str_list_append (&(*returns), str_from_long_int ((long_int)ret), returns_len++);
+        //printf ("Result of \'input\':%s=>%s\n", argvs[0], ret);
+      }
 
 	  else if (func_id == 21/*var_type*/)
 		{
@@ -141,7 +152,7 @@ void init_built_in_funcs ()
   add_to_bifs (13, MPL_BUILT_IN_TYPE, "crop", "aa|num|num", "aa");
   add_to_bifs (14, MPL_BUILT_IN_TYPE, "search", "aa|a|num", "num");
   add_to_bifs (15, MPL_BUILT_IN_TYPE, "push", "aa|a|num", "num");
-  add_to_bifs (16, MPL_BUILT_IN_TYPE, "pop", "aa|a|num", "num");
+  add_to_bifs (16, MPL_BUILT_IN_TYPE, "pop", "aa|num", "num");
   add_to_bifs (17, MPL_BUILT_IN_TYPE, "del", "aa", "bool");
   add_to_bifs (18, MPL_BUILT_IN_TYPE, "mpl_execute", "str", "str");
   add_to_bifs (19, MPL_BUILT_IN_TYPE, "trace_var", "aa", "bool");
@@ -204,9 +215,9 @@ void init_built_in_defines ()
   add_to_mama (DEFINE_MAGIC_MACRO_TYPE, 'i', "FloatSize", str_from_int32 (MAX_FLOAT_LEN));
   add_to_mama (DEFINE_MAGIC_MACRO_TYPE, 's', "MplVersion", str_multi_append (VERSION_NAME, "-", VERSION, 0, 0, 0));
   add_to_mama (DEFINE_MAGIC_MACRO_TYPE, 's', "AppPath", project_root);
-  add_to_mama (DEFINE_MAGIC_MACRO_TYPE, 'i', "LeftTrim", "1");
-  add_to_mama (DEFINE_MAGIC_MACRO_TYPE, 'i', "RightTrim", "2");
-  add_to_mama (DEFINE_MAGIC_MACRO_TYPE, 'i', "BothTrim", "0");
+  add_to_mama (DEFINE_MAGIC_MACRO_TYPE, 'i', "LeftDirect", LEFT_DIRECT);
+  add_to_mama (DEFINE_MAGIC_MACRO_TYPE, 'i', "RightDirect", RIGHT_DIRECT);
+  add_to_mama (DEFINE_MAGIC_MACRO_TYPE, 'i', "BothDirect", BOTH_DIRECT);
   add_to_mama (DEFINE_MAGIC_MACRO_TYPE, 'i', "ReadChar", READ_CHAR_INPUT_TYPE);
   add_to_mama (DEFINE_MAGIC_MACRO_TYPE, 'i', "ReadLine", READ_LINE_INPUT_TYPE);
   add_to_mama (DEFINE_MAGIC_MACRO_TYPE, 'i', "ReadAll", READ_ALL_INPUT_TYPE);
