@@ -7,17 +7,17 @@
 
 //**************************************************define interpreter constants
 #define  APP_NAME                       "Mini Portable Language"
-#define  VERSION                        "0.2.94"               //1.10.100
+#define  VERSION                        "0.3.11"    //1.10.100
 #define  VERSION_NAME                   "BETA"
 #define  SLOGAN                         "The solution to common problems of programmers" //راه حل کارهای متداول برنامه نویسان
 
 #define  FIRST_BUILD                    "2018.9.19"
 #define  LICENCE                        "OPEN-MPL"
 #define  OFFICIAL_WEBSITE               "http://mpl-lang.ir"
-#define  C_CORE_CODE_LINES              10807
+#define  C_CORE_CODE_LINES              10807       //0.2.90
 #define  H_CORE_CODE_LINES              947
 #define  LANGUAGE_CREATOR               "Mohammad Amin Delavar Khalafi"
-#define  CONFIDENCE_LEVEL               11     //100%
+#define  CONFIDENCE_LEVEL               15          //100%
 #define  WINDOWS_COMPATIBLE             true
 #define  LINUX_COMPATIBLE               false
 //**************************************************define
@@ -39,6 +39,8 @@
 #define   MAX_FLOAT_NUMBER              DBL_MAX
 #endif
 //------------------------------------------
+#define   EXIT_SUCCESS                  0
+#define   EXIT_FAILURE                  1
 #define   INT_USED_BYTES                sizeof(MAX_INT_NUMBER)
 #define   FLOAT_USED_BYTES              sizeof(MAX_FLOAT_NUMBER)
 #define   MAX_ARRAY_DIMENSIONS          5
@@ -54,8 +56,6 @@
 #define   SWITCH_LABEL                  "@@@SWITCH_"
 #define   UTF8_ID_LABEL                 "-!U8!_"
 #define   UTF8_ID_LBL_LEN               6
-#define   SEGMENTS_SPLIT                "\"?\"=!=\"?\"" // "?"=="?"
-#define   SORT_SPLIT                    "!@!"
 #define   PARAM_ARRAY_NAME              "__ArrayParam_"
 #define   WHITE_SPACES                  " \t\n\v\f\r"
 #define   BAD_CODE                      "@!BAD!@"
@@ -97,7 +97,7 @@
 #define   CommandError                  13
 //------------------------------------------
 #define IMPORT_FILE                     1
-#define IMPORT_LIBRARY                  2
+#define IMPORT_PACKAGE                  2
 #define IMPORT_EMBEDDED                 3
 #define IMPORT_MODULE                   4
 //------------------------------------------
@@ -116,6 +116,7 @@
 #define PRINT_STRUCT_DES_ST             11
 #define PRINT_FUNCTIONS_STACK_ST        12
 #define PRINT_STRUCTURES_STACK_ST       13
+#define PRINT_CONDITION_LEVEL_ST        14
 //------------------------------------------
 #define   BOOL_SUB_TYPE_ID              1
 #define   STR_SUB_TYPE_ID               2

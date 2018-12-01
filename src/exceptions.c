@@ -202,7 +202,7 @@ int8 exception_handler(String lbl_err, const char func_occur[], String rep1, Str
     }
       //---------if was fatal
     else if (ret_num == FATAL_ID) {
-      exit(1);
+      __syscall_exit(EXIT_FAILURE);
     }
   }
 
@@ -334,7 +334,7 @@ int8 print_error(long_int line_err, String name_err, String file_err, String rep
   }
   //-----------------------handle fatal
   if (type_err == FATAL_ID) {
-    exit(1);
+    __syscall_exit(EXIT_FAILURE);
   }
   return type_err;
 }

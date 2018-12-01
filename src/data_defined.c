@@ -168,7 +168,12 @@ void init_database() {
   entry_table.stst_start = 0;
   entry_table.stst_len = 0;
 
-  entry_table.condition_level = 0, entry_table.in_loop = 0, entry_table.break_count = 0, entry_table.next_count = 0;
+  entry_table.cole_start = 0;
+  entry_table.cole_len = 0;
+
+  entry_table.in_loop = 0;
+  entry_table.break_count = 0;
+  entry_table.next_count = 0;
 
   entry_table.Rsrc = 0;
   entry_table.return_fin = 0;
@@ -455,6 +460,22 @@ blst search_lbl_func(String lbl, str_list params, uint32 par_len) {
   }
   return null;
 }
+//*************************************************************
+blst search_lbl_stru(String lbl) {
+  blst null = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+  blst *tmp1;
+  tmp1 = entry_table.blst_stru_start;
+  if (lbl == 0 || lbl[0] != '@')return null;
+  //------------------
+  for (;;) {
+    if (str_equal(tmp1->lbl, lbl)) {
+      return (*tmp1);
+    }
+    tmp1 = tmp1->next;
+    if (tmp1 == 0) break;
+  }
+  return null;
+}
 
 //*************************************************************
 //*******************data_types functions**********************
@@ -549,7 +570,20 @@ instru get_instru_by_id(long_int id) {
   }
   return null;
 }
-
+//*************************************************************
+instru get_instru_by_params(long_int fid, long_int sid, uint32 order) {
+  instru null = {0, 0, 0, 0, 0, 0, 0, 0};
+  instru *st = entry_table.instru_start;
+  if (st == 0) return null;
+  for (;;) {
+    if (st->func_id == fid && st->stru_id == sid && st->order == order) {
+      return (*st);
+    }
+    st = st->next;
+    if (st == 0) break;
+  }
+  return null;
+}
 //*************************************************************
 //***************instructions_order functions******************
 //*************************************************************
@@ -795,7 +829,7 @@ void append_fust(fust s) {
   q->next = 0;
   if (entry_table.fust_start == 0) {
     entry_table.fust_start = entry_table.fust_end = q;
-  } else {
+  } else {//printf("!!!:%i,%i\n",s.fin,entry_table.fust_end);
     entry_table.fust_end->next = q;
     entry_table.fust_end = q;
   }
@@ -825,6 +859,7 @@ void delete_last_fust() {
   }
   free(entry_table.fust_end);
   entry_table.fust_end = tmp1;
+  if (entry_table.fust_end == 0)entry_table.fust_start = 0;
   entry_table.fust_len--;
 }
 
@@ -874,5 +909,53 @@ void delete_last_stst() {
   }
   free(entry_table.stst_end);
   entry_table.stst_end = tmp1;
+  if (entry_table.stst_end == 0)entry_table.stst_end = 0;
   entry_table.stst_len--;
+}
+//*************************************************************
+//***************condition_level functions*********************
+//*************************************************************
+void append_cole(cole s) {
+  cole *q;
+  q = (cole *) malloc(sizeof(cole));
+  if (q == 0) return;
+  q->id = ++entry_table.cole_len;
+  q->fin = s.fin;
+  q->sid = s.sid;
+  q->is_complete = s.is_complete;
+  q->next = 0;
+  if (entry_table.cole_start == 0) {
+    entry_table.cole_start = entry_table.cole_end = q;
+  } else {
+    entry_table.cole_end->next = q;
+    entry_table.cole_end = q;
+  }
+}
+//*************************************************************
+cole get_cole_by_id(uint32 id) {
+  cole null = {0, 0, 0, 0, 0};
+  cole *tmp1 = entry_table.cole_start;
+  if (tmp1 == 0) return null;
+  for (;;) {
+    if (tmp1->id == id) {
+      return (*tmp1);
+    }
+    tmp1 = tmp1->next;
+    if (tmp1 == 0) break;
+  }
+  return null;
+}
+//*************************************************************
+Boolean set_cole_complete(uint32 id) {
+  cole *tmp1 = entry_table.cole_start;
+  if (tmp1 == 0) return false;
+  for (;;) {
+    if (tmp1->id == id) {
+      tmp1->is_complete = true;
+      return true;
+    }
+    tmp1 = tmp1->next;
+    if (tmp1 == 0) break;
+  }
+  return false;
 }

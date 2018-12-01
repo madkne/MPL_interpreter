@@ -222,6 +222,15 @@ typedef struct structures_stack_struct {
 
   struct structures_stack_struct *next;
 } stst;
+//****************************condition_level struct
+typedef struct condition_level_struct {
+  uint32 id;
+  long_int fin;
+  long_int sid;
+  Boolean is_complete;
+
+  struct condition_level_struct *next;
+} cole;
 //****************************virtual memory
 //runtime
 typedef struct var_memory_struct {
@@ -359,12 +368,18 @@ struct entry_table_struct {
   long_int pointer_mem_id;
   long_int pointer_mem_len;
 
+  cole *cole_start;
+  cole *cole_end;
+  uint32 cole_len;
+//  Boolean condition_level[MAX_COMPLEX_CONDITIONS];
+//  int32 condition_level_ind;
+
   long_int cur_fid, cur_fin, cur_sid, cur_order, parent_fin;
-  uint32 condition_level, in_loop, break_count, next_count;
+  uint32 in_loop, break_count, next_count;
   String Rsrc;
   long_int return_fin;
   uint32 Rorder, Rline;
-  Boolean is_stop_APP_CONTROLLER, is_next_inst_running,is_occur_error_exception;
+  Boolean is_stop_APP_CONTROLLER, is_next_inst_running, is_occur_error_exception;
 
   str_list post_short_alloc;
   uint32 post_short_alloc_len;
@@ -400,7 +415,7 @@ utst get_utst(long_int id);
 void append_blst(blst s);
 
 blst search_lbl_func(String lbl, str_list params, uint32 par_len);
-
+blst search_lbl_stru(String lbl);
 //-------------------------datas funcs
 void append_datas(datas s);
 
@@ -412,7 +427,7 @@ datas search_datas(String name, long_int fid, Boolean is_all);
 void append_instru(instru s);
 
 instru get_instru_by_id(long_int id);
-
+instru get_instru_by_params(long_int fid, long_int sid, uint32 order);
 //-------------------------inor funcs
 void append_inor(inor s);
 
@@ -455,5 +470,9 @@ void delete_last_fust();
 void append_stst(stst s);
 stst get_last_stst();
 void delete_last_stst();
+//-------------------------cole funcs
+void append_cole(cole s);
+cole get_cole_by_id(uint32 id);
+Boolean set_cole_complete(uint32 id);
 
 #endif //MPL_DATA_DEFINED_H

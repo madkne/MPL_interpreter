@@ -78,6 +78,7 @@ void str_detachment_float(String s, String *s1, String *s2);
 
 //***********************************************************************************
 String char_backspace(String s);
+uint8 char_to_uint8(uint8 c, Boolean *has_err);
 String char_join(str_list s, uint8 sp, uint32 size, Boolean is_remove_empty);
 
 uint32 char_split(String s, uint8 sp, str_list *ret, Boolean is_remove_empty);

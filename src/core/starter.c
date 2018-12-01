@@ -57,9 +57,9 @@ int8 APP_CONTROLLER() {
       //printf("IIIII:%s\n", st->code);
       entry_table.Rorder = st->order;
       //************show instruction line by line
-      if (is_programmer_debug >= 2) {
-        //printf("---------INSTRUCTION(i:%i,f:%i,S:%i,Order:%i)\n%s$$$\n", st->id, st->func_id, st->stru_id,st->order, st->code);
-      }
+//      if (is_programmer_debug >= 2) {
+//        //printf("---------INSTRUCTION(i:%i,f:%i,S:%i,Order:%i)\n%s$$$\n", st->id, st->func_id, st->stru_id,st->order, st->code);
+//      }
       //************run instruction
       int8 ret0 = INSTRUCTION_EXECUTOR(st->id);
       //msg("&UUUU")

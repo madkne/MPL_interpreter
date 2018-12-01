@@ -15,10 +15,11 @@ next,break
 import,func,return
 -----------------------------
 Operators:
-+,-,*,/,%,^,&,|,~
++,-,*,/,%,^
 ==,<=,>=,!=,<,>
 +=,++,--,-=,*=,/=,%=,^=,:=,&=,|=,~=,!=
-!,&&,||,~~ 
+!,&&,||,~~
+ 
 -----:=
 work for values,arrays,structs
 change and replace pointer of two variables
@@ -37,9 +38,14 @@ print(val|var[..])[OK],typeof(var)[OK],input(num)[OK],push(var[..],var[..],num)[
 --Not Completed:
 len(var[..]),error_handle(num,str,str),config_all(),define_all(),define_isset(str),embed_run(str[?]),argvs(),session_all(),session_isset(str),crop(var[..],num,num),search(var[..],var),mpl_execute(str),trace_var(var[?,..]),trace_func(str,num),echo(var)/*just used in embed files*/,var_type(var[..]),pop(var[..],num)/*just for var[?]*/,del(var[..])
 -------DATA functions:
-str_split(str[..],str) ,str_replace(str,str,str),to_num(var,bool),to_bool(var),to_str(var),at(var,num),str_at(str,num,str),str_crop(str,num,num),str_indexof(str,str,num),str_uppercase(str),str_lowercase(str),str_trim(str,num),is_num(var),is_bool(var),is_str(var),str_contains(str,str),str_join(str,str),bool_switch(bool),str_reverse(str),to_chars(var),base_convert(num,num,bool)
+--Completed:
+--Not Completed:
+str_split(str[..],str) ,str_replace(str,str,str),to_num(var,bool),to_bool(var),to_str(var),at(var,num),str_at(str,num,str),str_crop(str,num,num),str_indexof(str,str,num),str_uppercase(str),str_lowercase(str),str_trim(str,num),is_num(var),is_bool(var),is_str(var),str_contains(str,str),str_join(str,str),bool_switch(bool),str_reverse(str),to_chars(var),base_convert(num,num,bool),sqrt(num),factorial(num),bit_xor(num,num),bit_and(num,num),bit_or(num,num),not_not(num),bit_complement10(num),bit_complement2(num)
 -------OS functions:
-exit(num),mkdir(str),shell(str),time(),fopen(str,str),fclose(num),fwrite(num,str),fread(num,str,num),finfo(str),proc_start(str,str[?]),abspath(str),copy(str,str),exist(str),remove(str),scandir(str,num),runtime_info(num),shutdown(num),rand(num,num)
+--Completed:
+exit(num)
+--Not Completed:
+mkdir(str),shell(str),time(),fopen(str,str),fclose(num),fwrite(num,str),fread(num,str,num),finfo(str),proc_start(str,str[?]),abspath(str),copy(str,str),exist(str),remove(str),scandir(str,num),runtime_info(num),shutdown(num),rand(num,num)
 -----------------------------
 built-in constants:(by __define)
 - not edited and just use

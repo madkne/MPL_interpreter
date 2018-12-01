@@ -8,8 +8,17 @@ __config["AppName"]="dfhfg"*/
 func hello(str s[?], num n,gg df,vars pa){
 	print("struct is : ",df,"\n----\n")
 	str fg=input(2)
+	if(fg=="hello")print("............\n")
 	return 45,fg
 }
+
+func fib(num n){
+	 if (n != 0)
+            return n * fib(n-1); // recursive call
+        else
+            return 1;
+}
+
 struct aaaaaa{
 		bool b[2,5],
 		num n
@@ -25,20 +34,35 @@ struct gg{
 func main(){
 	//num n[4,3],str s,s={{3,-8,9.78},{(24^3)/4+56.5,8f,null},{0x45,0o34+4,0b01011},{-3454,45h,12.4i}},"سلام"+" !"
 	num j,j1,j2[3]=56h,78.46,{67,9.6787,-35}
-	//gg gh[?]={struct({{"A","B"},{"AA","BB"}},6),struct({{"D","E"},{"DD","EE"}},-56*9)}
+	gg gh[?]={struct({{"A","B"},{"AA","BB"}},6),struct({{"D","E"},{"DD","EE"}},-56*9)}
 	//gg1 st1[?]={struct(struct({true,false},1000),"Hello"),struct(struct({false,false},9999),"Amin")}
 	//{{45,45},{45,78},{5756,0}}
 	//gg1 fg[2];
 	//num df[3]
 	str jj="Hello"+"!"
-	//num ns=push(gh,struct({{"Ac","Bc"},{"Ac","Bc"}},6000),1)//push(jj,"uiuiuiuiui",2)
+	num ns=fib(5)
+	print("FIB(5) is :%ns%\n")
+	//num ns=push(gh,struct({{"Ac","Bc"},{"Ac","Bc"}},6000),2)//__define["LeftDirect"] push(jj,"uiuiuiuiui",2)
+	//print(gh,"\n")
+	if(jj=="Hello!") {
+		if(j<40)print("11\n")
+		if(j>40) print("12\n")
+		
+	}
+	elif(jj=="Hello!"&&true)print("2\n")
+	else {
+	print("3\n")
+	print("4\n")
+	}
 	
-	exception e;
+	jj++
+	//elif(j=="h")print("ffffff")
+	/*exception e;
 	manage(e){
 		num n=5/0
 		str sdsds="!!!!!!!"
 	
-	}
+	}*/
 	--jj
 	//j1++
 	//--jj

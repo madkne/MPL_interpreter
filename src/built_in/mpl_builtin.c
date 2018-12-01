@@ -12,6 +12,7 @@
  * @samples print(s,"\n")||print({4,8.7},"er"+"AS",67.5};
  */
 Boolean _MPL_TYPE__print(str_list items, uint32 len) {
+//  printf("!!!!:%s(%i)\n",print_str_list(items,len),len);
   for (uint32 i = 0; i < len; i++) {
     printf(replace_control_chars(items[i]));
   }
@@ -48,10 +49,10 @@ uint32 _MPL_TYPE__push(long_int var_ind, String value, String val_type, String w
     //TODO:error
     return 0;
   }
-  printf("***rt:%i,%s,%s\n", var_ind, value, wh);
+//  printf("***rt:%i,%s,%s\n", var_ind, value, wh);
   //get Mvar
   Mvar var = get_Mvar(var_ind);
-  //calculate index of var
+  //----------------------calculate index of var
   str_list c1 = 0;
   uint32 c1_len = return_var_dimensions(var_ind, &c1);
   uint32 var_len = (uint32) str_to_long_int(c1[0]);
@@ -60,19 +61,19 @@ uint32 _MPL_TYPE__push(long_int var_ind, String value, String val_type, String w
     //TODO:error
     return 0;
   }
-  //if value type and var type is not equal
+  //----------------------if value type and var type is not equal
   String var_type = get_datas(var.type_var).name;
   if (!str_equal(val_type, var_type) && !str_equal(val_type, "null")) {
     //TODO:error
     return var_len;
   }
-  //get first room pointer index
+  //----------------------get first room pointer index
   long_int first_po_ind = find_index_pointer_memory(var.pointer_id);
   String first_room = get_Mpoint(first_po_ind).data;
   //determine if struct type
   Boolean is_struct = false;
   if (!str_search(basic_types, var_type, StrArraySize(basic_types))) is_struct = true;
-  //create new value pointer
+  //----------------------create new value pointer
   long_int new_pointer_id = 0;
   if (is_struct) {
 //    print_vaar(get_stde(str_to_long_int(value)).st);
@@ -84,7 +85,7 @@ uint32 _MPL_TYPE__push(long_int var_ind, String value, String val_type, String w
     else if (str_equal(val_type, "bool")) sub_type = 'b';
     new_pointer_id = add_to_pointer_memory(value, sub_type);
   }
-  //start of pushing
+  //----------------------start of pushing
   if (str_equal(wh, LEFT_DIRECT)) {
     edit_Mpoint(first_po_ind,
                 str_multi_append(str_from_long_int(new_pointer_id), ";", first_room, 0, 0, 0),

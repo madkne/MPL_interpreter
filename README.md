@@ -1,4 +1,4 @@
-**mpl:))** Mini Portable Language - MPL (BETA-0.2)
+**mpl:))** Mini Portable Language - MPL (BETA-0.3)
 ============================================
 
 _This is a small,fast and simple interpreter also best solution to common problems of programmers._
@@ -92,10 +92,12 @@ TODO
 * implement push built-in functions **[OK]**
 * push errors,warnings for manage var exception **[OK]**
 * call gc for deleting structure vars **[OK]**
-* define if **[..]**
-* define elif,else **[..]**
-* comparison struct expressions **[..]**
-* recursive functions
+* define if **[OK]**
+* define elif **[OK]**
+* define else **[OK]**
+* follow order of if,elif else **[OK]**
+* implement condition level for managing if,elif,else **[..]**
+* recursive functions **[..]**
 * define loop
 * start review_array_loop
 * implement next
@@ -107,7 +109,11 @@ TODO
 * support struct entries for constant and allocation
 * start offline documentation of mpl **[OK]**
 * complete structure of mpl-docs **[..]**
+* start os built-in functions **[OK]**
+* start data built-in functions
 * support for modules files
+* comparison struct expressions
+* comparison huge numbers **[OK]**
 * set new __session
 * complete import error_handling
 * complete mpl built-in functions
@@ -137,6 +143,7 @@ TODO
 * add net module
 * support for a debugger
 * add many built-in functions
+* start mgt built-in functions
 * support minimal gui for windows
 * add regex module
 * development vars usage for struct and array
@@ -167,20 +174,24 @@ MPL Language Features
 
 > support utf-8 strings **[OK]** <br>
 > support radix numbers **[OK]** <br>
-> has XOR operand **[OK]** <br>
+> has boolean XOR operand **[OK]** <br>
 > support data structures **[OK]** <br>
 > support magic macros <br>
-> support huge numbers <br>
+> support huge numbers **[OK]**<br>
 > support override functions **[OK]** <br>
 > has built-in functions **[OK]** <br>
-> manage exceptions <br>
-> has bit operands <br>
+> manage exceptions **[OK]** <br>
+> support multi dimensions arrays **[OK]** <br>
+> has bit functions <br>
 > support unlimited function parameters **[OK]** <br>
 > support multi return values **[OK]** <br>
 > support call by refrence vars **[OK]** <br>
-> support short allocations for vars <br>
+> support short allocations for vars **[OK]** <br>
 > support browse arrays in loop <br>
 > support switch condition <br>
+> support built-in os syscalls <br>
+> has built-in garbage collector(gc) <br>
+> expandibility by c libraries <br>
 
 MPL Hello World Program
 --------

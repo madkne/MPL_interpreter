@@ -237,7 +237,8 @@ String alloc_magic_macros(String exp) {
     //=====is equal
     if (!is_string && exp[i] == '=') {
       equal_ind = i;
-      if (i >= end)is_use_magic = false;
+//      printf("@@@@@@@@@@@@:%i,%i\n",i,end);
+      if (end != -1 && i >= end)is_use_magic = false;
     }
 
     //=====append to buf
@@ -325,7 +326,7 @@ String function_call(String exp) {
   uint32 params_len = 0;
   Boolean is_string = false, is_par = false, is_struct = false;
   int32 pars = 0, bras = 0, acos = 0, st_func = -1, en_func = -1, tmp1 = -1, pars_num = -1, bras_num = 0,
-      count_ind = 0, struct_par = -1;
+      count_ind = 0, struct_par = -1, equal_pos = -1;
   uint32 exp_len = str_length(exp);
   //********************start analyzing
   for (uint32 i = 0; i < exp_len; i++) {
@@ -343,6 +344,10 @@ String function_call(String exp) {
     }
     //------------------continue if ' '
     if (!is_string && i + 1 < exp_len && exp[i] == ' ' && (exp[i + 1] == '(' || exp[i + 1] == '['))continue;
+    //------------------if is equal
+    if (!is_string && exp[i] == '=' && equal_pos == -1) {
+      equal_pos = i;
+    }
     //------------------count parenthesis
     if (!is_string) {
       if (exp[i] == '(')pars++;
@@ -425,20 +430,16 @@ String function_call(String exp) {
     //msg("TTTT:", word)
   }
   //********************calling functions
-  //printf("&DDD:%s=>%s,%s,%s,%s,%i,%i,%s=>%s\n", exp, pack_name, func_name, print_str_list(parameters, params_len),index, st_func, en_func, ret_exp, str_substring(exp, st_func, en_func));
+//  printf("&DDD:%s=>%s,%s,%s[[%i]],%s,%i,%i,%s=>%s\n", exp, pack_name, func_name, print_str_list(parameters, params_len),params_len,index, st_func, en_func, ret_exp, str_substring(exp, st_func, en_func));
+
   ret_vars = init_calling_function(pack_name, func_name, parameters, params_len, index);
   if (ret_vars == 0)str_init(&ret_vars, "null");
-  //	//********************return
-  //	//msg("&PP", func_pack, func_name, parameters, "\n", index, st_func, en_func, ret_exp, ret_vars, pars_num)
-  //	//show_memory(40)
-  //	if st_func == 0 && status == 0
-  //	{
-  //		return ""
-  //	}
-  //	if status == 1
-  //	{
-  //		return ret_vars
-  //	}
+  //********************return
+//  	printf("***return:%i,%i\n",equal_pos,st_func);
+  //is function call has with no assignment
+  if (equal_pos == -1 || equal_pos > st_func) {
+    return 0;
+  }
   if (en_func > -1 && st_func > -1) {
     ret_exp = str_multi_append(str_substring(exp, 0, st_func), ret_vars, str_substring(exp, en_func, 0), 0, 0, 0);
   }
@@ -466,8 +467,10 @@ String init_calling_function(String pname, String fname, str_list params, uint32
   fust s = {entry_table.cur_fid, entry_table.cur_fin, entry_table.cur_sid, entry_table.cur_order,
       entry_table.parent_fin};
   append_fust(s);
+  //printf("STOP:%s\n",fname);
   //--------------------set new parent fin
   entry_table.parent_fin = entry_table.cur_fin;
+
   //--------------------init function parameters
   int32 ret0 = set_function_parameters(pname, fname, params, param_len);
   //--------------------analyzing ret0
@@ -605,7 +608,7 @@ is_exact_function(str_list func_params,
     for (uint32 i = 0; i < params_len; ++i) {
       Boolean is_a_builtin = false;
       if (func_params_len < i + 1) break;
-      //printf ("+STR:%s==%s\n", func_params[i], type_params[i]);
+//      printf ("+STR:%s==%s\n", func_params[i], type_params[i]);
       str_list p1 = 0, p2 = 0;
       char_split(func_params[i], ';', &p1, false);
       char_split(type_params[i], ';', &p2, false);
@@ -660,15 +663,15 @@ int32 set_function_parameters(String pack_name, String func_name, str_list pars,
   3- expanded arrays : {5,9.6,-6},{struct(9,"78")}
   4- expanded structs : struct(0,"fsdg",true)
   */
-  //printf("SDDDDDDD:%s,%i\n", print_str_list(pars, pars_len), pars_len);
-  //-----------------------------init vars
+//  printf("SDDDDDDD:%s,%i\n", print_str_list(pars, pars_len), pars_len);
+//  -----------------------------init vars
   Boolean is_user_func = false;
   str_list func_params = 0;
   uint32 func_params_len = 0;
   //-----------------------------determine parameters type
   str_list ret_pars = 0;
   uint32 ret_pars_len = determine_type_name_func_parameters(pars, pars_len, &ret_pars);
-  //printf("######PARS:%s\n%s\n", print_str_list(ret_pars, ret_pars_len), print_str_list(pars, pars_len));
+//  printf("######PARS:%s\n%s\n", print_str_list(ret_pars, ret_pars_len), print_str_list(pars, pars_len));
   //-----------------------------search for function
   blst *tmp1;
   tmp1 = entry_table.blst_func_start;
@@ -849,7 +852,7 @@ uint32 determine_type_name_func_parameters(str_list params, uint32 params_len, s
     //if not array
     if (str_ch_equal(var_dim, '1') && !has_two_limiting(params[i], '{', '}', true)) str_init(&var_dim, "0");
     //append to ret
-    //printf("#VAL:%s=>%s,%s,%s\n", params[i],var_dim, value,value_type);
+//    printf("#VAL:%s=>%s,%s,%s\n", params[i],var_dim, value,value_type);
     str_list_append(&(*ret), str_multi_append(value_type, ";0;0;", var_dim, 0, 0, 0), ret_len++);
   }
 
@@ -1286,7 +1289,7 @@ String vars_allocation_short(String exp) {
   String tmp2 = str_substring(exp, end, 0);
   if (tmp1 == 0 && tmp2 == 0) return 0;
   exp = str_multi_append(tmp1, result, tmp2, 0, 0, 0);
-  printf("***alloc_short***:%s;%s,%i(%i,%i)[%s,%s]\n", exp, var_name, is_plusplus, start, end, tmp1, tmp2);
+//  printf("***alloc_short***:%s;%s,%i(%i,%i)[%s,%s]\n", exp, var_name, is_plusplus, start, end, tmp1, tmp2);
   return exp;
 }
 
@@ -1311,6 +1314,7 @@ Boolean do_show_allocation(String var_name, Boolean is_plusplus) {
     else calculate_math_expression(str_multi_append(val.data, "-", "1", 0, 0, 0), val.type_data, &result, &ret1);
   }
   //set result
+//  printf("++--:%s=>((%s))%s;\n",var_name,val.data,result);
   edit_Mpoint(ret_ind, result, 0, true, false);
   return true;
 }
@@ -1331,6 +1335,7 @@ Boolean init_structures(String exp) {
       } else if (rec->type == IF_STRU_ID
           || rec->type == ELIF_STRU_ID
           || rec->type == ELSE_STRU_ID) {
+        //print_struct(PRINT_STRU_ST);
         return structure_CONDITION(rec->id, rec->type, rec->params[0]);
       } else if (rec->type == LOOP_STRU_ID) {
 //TODO
@@ -1392,6 +1397,81 @@ Boolean structure_MANAGE(long_int st_id, String value) {
 }
 //****************************************************
 Boolean structure_CONDITION(long_int st_id, uint8 type, String value) {
+/**
+	1- if(ex.is_Ok)
+	2- elif (4==fg) ---OK---
+	3- else ---OK---
+	-------Samples:
+	if (pk1.xid()>=10000)print("NUM1\n")
+		elif(pk1.xid()>=1000)print("NUM2\n")
+		elif(pk1.xid()>=100)print("NUM3\n")
+		else print("NUM4\n")
+	*/
+  printf("##condition:%i,%i,%s,%i\n", st_id, type, value, get_cole_by_id(entry_table.cole_len).is_complete);
+  //----------------check for elif , else that have if
+  if ((type == ELSE_STRU_ID || type == ELIF_STRU_ID)) {
+    Boolean failed = false;
+    if (entry_table.cur_order == 1)failed = true;
+    else {
+      uint8 tt = search_lbl_stru(get_instru_by_params(entry_table.cur_fid,
+                                                      entry_table.cur_sid,
+                                                      (uint32) entry_table.cur_order - 1).code).type;
+      if (type == ELIF_STRU_ID && tt != IF_STRU_ID)failed = true;
+      else if (type == ELSE_STRU_ID && tt != IF_STRU_ID && tt != ELIF_STRU_ID)failed = true;
+    }
+    if (failed) {
+      //TODO:error
+      return false;
+    }
+  }
+  //----------------
+  if (type == IF_STRU_ID) {
+    cole s = {0, entry_table.cur_fin, entry_table.cur_sid, false};
+    append_cole(s);
+  } else if (get_cole_by_id(entry_table.cole_len).is_complete) {
+    return true;
+  }
+  //----------------check if value is true
+  Boolean bool_true = true;String bool_out=0;
+  if (type == IF_STRU_ID || type == ELIF_STRU_ID) {
+    uint8 sub = 0;
+    bool_out = calculate_boolean_expression(value, &sub);
+    bool_true = str_to_bool(bool_out);
+  }
+  printf("--Condition:%s=>%s\n", value, bool_out);
+  //----------------if bool_true is true
+  if (bool_true) {
+    Boolean ret = set_cole_complete(entry_table.cole_len);
+    if (!ret) {
+      //TODO:error
+      return false;
+    }
+    //--------------------record all registers
+    stst s =
+        {IF_STRU_ID, entry_table.cur_fid, entry_table.cur_fin, st_id, entry_table.cur_sid, entry_table.cur_order, 0};
+    append_stst(s);
 
+//--------------------set new registers
+    entry_table.cur_order = 1;
+    entry_table.cur_sid = st_id;
+    //--------------------start point
+    int8 ret1 = APP_CONTROLLER();
+    /*if return_fin > 0 && return_fin == cur_fin {
+        is_stop_APP_CONTROLLER = true
+    }*/
+//  if (ret1 == 2) {
+//
+//  }
+    //****************end of manage
+    //--------------------call garbage_collector(gc)
+    garbage_collector('A');
+    //TODO
+    //--------------------return to parent structure
+    //print_struct(PRINT_FUNCTIONS_STACK_ST);
+    stst lst = get_last_stst();
+    entry_table.cur_sid = lst.parent_sid;
+    entry_table.cur_order = lst.order;
+    delete_last_stst();
+  }
   return true;
 }

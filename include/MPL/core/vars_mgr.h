@@ -49,6 +49,7 @@ determine_max_min_huge_numbers (String num1, String num2, uint8 type_nums, Strin
 String sum_huge_numbers (String num1, String num2, Boolean is_neg);
 String muliply_huge_numbers (String num1, String num2);
 String divide_huge_numbers (String num1, String num2);
+uint8 comparison_huge_numbers(String num1,String num2,uint8 sub);
 String is_radix_need_convert (String buf, uint8 type_exp);
 String convert_radixes_to_dec (String base, uint8 radix, uint8 type_exp);
 String resize_to_int (String str_val);

@@ -65,22 +65,11 @@ int main (int argc, char **argv)
 		}
 	}
   //printf("Hello World:%s,%li\n",argv[1],str_length(""));
+  print_struct(PRINT_CONDITION_LEVEL_ST);
   //-------------------------time of end program
-  if (is_programmer_debug >= 1 && interpreter_mode == 4)
-	{
-	  AppStartedClock = clock () - AppStartedClock;
-	  double time_taken = ((double) AppStartedClock) / CLOCKS_PER_SEC; // in seconds
-	  if (time_taken == 0)
-		{
-		  time_taken += 0.000001;
-		  //printf("BAD\n");
-		}
-	  else
-		printf ("Process finished during %.6f seconds with exit code 0\n", time_taken);
-	}
+  __syscall_exit(EXIT_SUCCESS);
   return 0;
 }
-
 //************************************************
 Boolean start_interpreter ()
 {

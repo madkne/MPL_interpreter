@@ -383,7 +383,7 @@ void print_struct(uint8 which) {
     if (tmp1 == 0) return;
     printf("=====Print structures stack :\n");
     for (;;) {
-      printf("type:%i,fid:%i,fin:%i,sid:%i,Psid:%li,order:%li,extra:%s\n",
+      printf("type:%i,fid:%i,fin:%li,sid:%li,Psid:%li,order:%li,extra:%s\n",
              tmp1->type,
              tmp1->fid,
              tmp1->fin,
@@ -392,6 +392,16 @@ void print_struct(uint8 which) {
              tmp1
                  ->order,
              tmp1->extra);
+      tmp1 = tmp1->next;
+      if (tmp1 == 0) break;
+    }
+    printf("=====End printed\n");
+  } else if (which == 0 || which == PRINT_CONDITION_LEVEL_ST) {
+    cole *tmp1 = entry_table.cole_start;
+    if (tmp1 == 0) return;
+    printf("=====Print condition level :\n");
+    for (;;) {
+      printf("[id:%i,fin:%i,sid:%i]:%i\n", tmp1->id, tmp1->fin, tmp1->sid, tmp1->is_complete);
       tmp1 = tmp1->next;
       if (tmp1 == 0) break;
     }
@@ -813,6 +823,16 @@ String find_first_var_name(String exp, uint32 start, Boolean is_inverse, uint32 
     }
     str_init(&ret, buf);
   }
+  return ret;
+}
+//*************************************************************
+String format_int32_array(int32 s[], uint32 start, uint32 end) {
+  String ret = "{";
+  for (uint32 i = start; i < end; i++) {
+    ret = str_append(ret, str_from_int32(s[i]));
+    if (i + 1 < end)ret = char_append(ret, ',');
+  }
+  ret = char_append(ret, '}');
   return ret;
 }
 

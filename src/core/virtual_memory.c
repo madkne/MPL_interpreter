@@ -669,7 +669,7 @@ void show_memory (uint8 wh)
 	  for (long_int i = 0; i < entry_table.pointer_mem_len; i++)
 		{
 		  Mpoint st = get_Mpoint (i);
-		  printf ("%i:POINTER(id:%i,Type:%c)%s\n", i, st.id, st.type_data, st.data);
+		  printf ("%i:POINTER(id:%i,Type:%c)%s;\n", i, st.id, st.type_data, st.data);
 		}
 	}
   printf ("+++++++++++++++++++++++++\n");
