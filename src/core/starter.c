@@ -9,9 +9,11 @@ Boolean start_runtime() {
   //*************init variables
   entry_table.func_index++; //add one for main() function
   //add_to_prev_fins_array(0)
-  entry_table.cur_fid = 0, entry_table.cur_fin = entry_table.func_index, entry_table.cur_sid = 0, entry_table
-      .parent_fin = 0,
-      entry_table.cur_order = 1;
+  entry_table.cur_fid = 0;
+  entry_table.cur_fin = entry_table.func_index;
+  entry_table.cur_sid = 0;
+  entry_table.parent_fin = 0;
+  entry_table.cur_order = 1;
   //*************find main function
   blst main_func = search_lbl_func("main", 0, 0);
   if (main_func.id == 0) {
@@ -20,6 +22,13 @@ Boolean start_runtime() {
   }
   entry_table.cur_fid = main_func.id;
   //printf("LLLL:%i,%s\n",main_func.id,main_func.lbl);
+
+  //*************start debugger if enabled
+//  print_magic_macros(CONFIG_MAGIC_MACRO_TYPE);
+  if (str_to_bool(get_mama(CONFIG_MAGIC_MACRO_TYPE, DEBUG_MODE).value)) {
+    start_debugger();
+  }
+
   //*************start program from fid=2,fin=2,sid=0,order=1
   APP_CONTROLLER();
   //*************return
@@ -87,15 +96,17 @@ int8 APP_CONTROLLER() {
 
 //**********************************************************
 int8 INSTRUCTION_EXECUTOR(long_int index) {
+  //---------------------init
   instru st = get_instru_by_id(index);
   String Rcode = str_trim_space(st.code);
   entry_table.Rline = st.line;
   entry_table.Rsrc = utf8_to_bytes_string(source_paths[st.source_id]);
   Boolean is_done = true;
-  //	if Rcode == "@__@" {
-  //		show_memory(40)
-  //		return 0
-  //	}
+  //---------------------check breakpoints
+  if (is_find_debr(entry_table.Rline, entry_table.Rsrc)) {
+    on_breakpoint_interrupt(Rcode);
+  }
+  //---------------------
   if (str_equal(Rcode, "null")) return SUCCESS_EXECUTE_INSTRUCTION;
   while ((Rcode = str_trim_space(Rcode)) != 0) {
     //msg("&Rcode", Rcode)
@@ -104,7 +115,7 @@ int8 INSTRUCTION_EXECUTOR(long_int index) {
       printf("@###############INST(fid:%i,sid:%i,order:%i,state:%i,fin:%i,line:%i):\n%s\n", entry_table.cur_fid,
              entry_table.cur_sid, entry_table.Rorder, state, entry_table.cur_fin, entry_table.Rline, Rcode);
     }
-    //********************
+    //---------------------analyzing all states
     if (state == UNKNOWN_LBL_INST) {
       is_done = false;
       if (str_equal(Rcode, "null")) return SUCCESS_EXECUTE_INSTRUCTION;

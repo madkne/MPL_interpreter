@@ -172,7 +172,7 @@ void manage_import_keywords(uint32 *i) {
     soco token_item = get_soco(2, *i);
     String Acode = token_item.code;
     Aline = token_item.line;
-    //printf("gggg:%i,%i,%s\n", *i, Aline, Acode);
+//    printf("gggg:%i,%i,%s\n", *i, Aline, Acode);
     //---------finish loop
     if (str_equal(Acode, ";")) {
       if (path == 0) {
@@ -180,29 +180,37 @@ void manage_import_keywords(uint32 *i) {
                     "manage_import_keywords:173");
         return;
       } else {
+
         //analyze type of import
         utst ret = return_utf8_string_value(path);
         if (ret.id == 0) {
-          print_error(Aline, "import_syntax_error", entry_table.cur_ascii_source_path, path, "",
-                      "manage_import_keywords:180");
-          return;
+          path = str_reomve_quotations(path, "s");
+          ret.id = ++entry_table.utf8_strings_id;
+          utf8_str_init(&ret.utf8_string, utf8_encode_bytes(validate_path(path)));
+          ret.max_bytes_per_char = utf8_str_max_bytes(ret.utf8_string, false);
+          append_utst(ret);
+        } else {
+          ret.utf8_string = utf8_encode_bytes(validate_path(utf8_to_bytes_string(ret.utf8_string)));
         }
-        uint8 import_type = 0;
 
+//        printf("WWWW:%s;%s;%s\n", project_root, utf8_to_bytes_string(ret.utf8_string), path);
+        uint8 import_type = 0;
         String tmp1 = utf8_to_str(ret.utf8_string);
         tmp1 = str_trim_space(tmp1);
         if (str_indexof(tmp1, "file:", 0) == 0) {
           import_type = IMPORT_FILE;
           ret.utf8_string = utf8_str_simple_replace(ret.utf8_string, "file:", 0, 1);
-        } else if (str_indexof(tmp1, "embed:", 0) == 0) {
-          import_type = IMPORT_EMBEDDED;
-          ret.utf8_string = utf8_str_simple_replace(ret.utf8_string, "embed:", 0, 1);
-        } else {
+        }
+// else if (str_indexof(tmp1, "embed:", 0) == 0) {
+//          import_type = IMPORT_EMBEDDED;
+//          ret.utf8_string = utf8_str_simple_replace(ret.utf8_string, "embed:", 0, 1);
+//        }
+        else {
           print_error(Aline, "import_not_support_protocol", entry_table.cur_ascii_source_path, tmp1, "",
                       "manage_import_keywords");
           return;
         }
-        //replace project_root by $$ sign
+        //replace project_root by $ sign
         ret.utf8_string = utf8_str_simple_replace(ret.utf8_string, "$", project_root, 1);
         imin tmp2 = {entry_table.import_id++, import_type, true, ret.utf8_string, ret.max_bytes_per_char, 0,
             Aline, Apath};
@@ -216,7 +224,6 @@ void manage_import_keywords(uint32 *i) {
       str_init(&path, Acode);
     }
     //---------
-
   }
 }
 
@@ -335,13 +342,43 @@ void manage_normal_instructions(uint32 *i) {
   //-----------------
   order = get_order(cur_func_id, cur_stru_id);
   set_order(cur_func_id, cur_stru_id, ++order);
+  //-----------------trim code
+  code = trim_instruction_code(code);
   //-----------------append to instru
   instru tmp1 = {0, cur_func_id, cur_stru_id, order, code, UNKNOWN_LBL_INST, Aline, Apath, 0};
 //  printf("XXSSSS:fid:%i,sid:%i,line:%i=>%s\n", cur_func_id, cur_stru_id, tmp1.line, code);
   append_instru(tmp1);
 //  printf("PPPP:%li,%s(%li,%li,%li)\n",order,code,pid,fid,sid);
 }
-
+//**********************************
+String trim_instruction_code(String code) {
+  //------------------init vars
+  Boolean is_string = false;
+  String ret = 0;
+  uint32 len = str_length(code);
+  //------------------start analyzing
+  for (uint32 i = 0; i < len; i++) {
+    //------------------check is string
+    if (code[i] == '\"' && (i == 0 || code[i - 1] != '\\')) {
+      is_string = switch_bool(is_string);
+    }
+    //------------------continue if ' ' is before
+    if (!is_string && i + 1 < len && code[i] == ' '
+        && (char_search(single_operators, code[i + 1]) || char_search(words_splitter, code[i + 1]))) {
+      continue;
+    }
+      //------------------continue if ' ' is after
+    else if (!is_string && i - 1 >= 0 && code[i] == ' '
+        && (char_search(single_operators, code[i - 1]) || char_search(words_splitter, code[i - 1]))) {
+      continue;
+    }
+    //------------------append to ret
+    ret = char_append(ret, code[i]);
+  }
+  //------------------return
+//  printf("@Code:%s=>%s$\n", code, ret);
+  return ret;
+}
 //**********************************
 void manage_functions(uint32 *i) {
   //-----------------init vars
@@ -460,6 +497,7 @@ void manage_structures(uint32 *i, String lbl) {
   if (type == ELSE_STRU_ID) {
     str_list_append(&params, "null", params_len++);
   } else {
+    buf = trim_instruction_code(buf); //trim code
     str_list_append(&params, buf, params_len++);
   }
 //  printf("@@@DDDD:%s,%s\n", lbl, buf);

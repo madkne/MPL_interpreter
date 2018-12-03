@@ -17,6 +17,7 @@ String help_groups[] = {
 	"keywords",
 	"built_in",
 	"exceptions",
+	"debugger",
 	"get_started",
 	"about"
 };

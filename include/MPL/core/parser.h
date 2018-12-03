@@ -15,7 +15,7 @@ void manage_import_keywords(uint32 *i);
 void manage_structs(uint32 *i);
 
 void manage_normal_instructions(uint32 *i);
-
+String trim_instruction_code(String code);
 void manage_functions(uint32 *i);
 
 void manage_structures(uint32 *i, String lbl);
@@ -23,6 +23,5 @@ void manage_structures(uint32 *i, String lbl);
 long_int get_last_id_active_is_in_stru();
 
 void get_all_tokens();
-
 
 #endif //MPL_PARSER_H

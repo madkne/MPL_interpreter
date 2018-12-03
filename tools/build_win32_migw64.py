@@ -57,7 +57,7 @@ if os.path.exists(logfile):
 #for j in compfiles:
 #	print(compfiles)
 #----------------------
-print("\t~~~~~MPL Build Tool (BY Python3) V 2.5~~~~~");
+print("\t~~~~~MPL Build Tool (BY Python3) V 2.7~~~~~");
 print("=== Start Building win32 release of MPL Compiler using Mingw64....");
 #----------------------init dirs
 #-----create docs file
@@ -93,6 +93,7 @@ sources=[
 [scr_folder+"/mpl_help.c",scr_folder+"/mpl_help.c -o "+obj_folder+"/mpl_help.o"],
 [scr_folder+"/data_defined.c",scr_folder+"/data_defined.c -o "+obj_folder+"/data_defined.o"],
 [scr_folder+"/exceptions.c",scr_folder+"/exceptions.c -o "+obj_folder+"/exceptions.o"],
+[scr_folder+"/debugger.c",scr_folder+"/debugger.c -o "+obj_folder+"/debugger.o"],
 [scr_folder+"/built_in.c",scr_folder+"/built_in.c -o "+obj_folder+"/built_in.o"],
 [scr_folder+"/tools/common_funcs.c",scr_folder+"/tools/common_funcs.c -o "+obj_folder+"/common_funcs.o"],
 [scr_folder+"/tools/strings.c",scr_folder+"/tools/strings.c -o "+obj_folder+"/strings.o"],
@@ -104,6 +105,7 @@ sources=[
 [scr_folder+"/core/starter.c",scr_folder+"/core/starter.c -o "+obj_folder+"/starter.o"],
 [scr_folder+"/core/run_mgr.c",scr_folder+"/core/run_mgr.c -o "+obj_folder+"/run_mgr.o"],
 [scr_folder+"/core/virtual_memory.c",scr_folder+"/core/virtual_memory.c -o "+obj_folder+"/virtual_memory.o"],
+[scr_folder+"/core/magic_macro.c",scr_folder+"/core/magic_macro.c -o "+obj_folder+"/magic_macro.o"],
 [scr_folder+"/built_in/mpl_builtin.c",scr_folder+"/built_in/mpl_builtin.c -o "+obj_folder+"/mpl_builtin.o"],
 [scr_folder+"/built_in/os_builtin.c",scr_folder+"/built_in/os_builtin.c -o "+obj_folder+"/os_builtin.o"]
 ];

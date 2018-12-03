@@ -98,6 +98,7 @@ TODO
 * follow order of if,elif else **[OK]**
 * implement condition level for managing if,elif,else **[..]**
 * recursive functions **[..]**
+* access overhead vars **[..]**
 * define loop
 * start review_array_loop
 * implement next
@@ -106,6 +107,12 @@ TODO
 * **_complete main structure of mpl_**
 
 * start for developing 'mprog' program **[OK]**
+* init pre magic config,define entries **[OK]**
+* analyze __config values after parsing **[OK]**
+* implement mpl debugger (mdebug) **[OK]**
+* create new breakpoint in mdebug **[OK]**
+* complete print commands in mdebug **[..]**
+* complete mdebug commands **[..]**
 * support struct entries for constant and allocation
 * start offline documentation of mpl **[OK]**
 * complete structure of mpl-docs **[..]**
@@ -132,6 +139,9 @@ TODO
 * complete offline docs
 * complete 'mprog' program
 * complete sample codes
+* calculate order of all core functions
+* calculate order of all tools functions
+* calculate order of all built-in functions
 * optimizing huge numbers
 * optimizing RAM,CPU usage
 

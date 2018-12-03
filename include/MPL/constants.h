@@ -7,17 +7,17 @@
 
 //**************************************************define interpreter constants
 #define  APP_NAME                       "Mini Portable Language"
-#define  VERSION                        "0.3.11"    //1.10.100
+#define  VERSION                        "0.3.35"    //1.10.100
 #define  VERSION_NAME                   "BETA"
 #define  SLOGAN                         "The solution to common problems of programmers" //راه حل کارهای متداول برنامه نویسان
 
 #define  FIRST_BUILD                    "2018.9.19"
 #define  LICENCE                        "OPEN-MPL"
 #define  OFFICIAL_WEBSITE               "http://mpl-lang.ir"
-#define  C_CORE_CODE_LINES              10807       //0.2.90
-#define  H_CORE_CODE_LINES              947
+#define  C_CORE_CODE_LINES              10645       //0.3.35
+#define  H_CORE_CODE_LINES              1040        //+=11685
 #define  LANGUAGE_CREATOR               "Mohammad Amin Delavar Khalafi"
-#define  CONFIDENCE_LEVEL               15          //100%
+#define  CONFIDENCE_LEVEL               17          //100%
 #define  WINDOWS_COMPATIBLE             true
 #define  LINUX_COMPATIBLE               false
 //**************************************************define
@@ -59,6 +59,9 @@
 #define   PARAM_ARRAY_NAME              "__ArrayParam_"
 #define   WHITE_SPACES                  " \t\n\v\f\r"
 #define   BAD_CODE                      "@!BAD!@"
+#define   DEBUG_MODE                    "DebugMode"
+#define   DEBUG_QUESTION                "[mdebug]: "
+#define   DEBUG_ANSWER                  "[mdebug]$ "
 
 //------------------------------------------
 #define   ERROR_ID                     -2
@@ -95,6 +98,7 @@
 #define   TypeError                     11
 #define   FloatingPointError            12
 #define   CommandError                  13
+#define   DebuggerError                 14
 //------------------------------------------
 #define IMPORT_FILE                     1
 #define IMPORT_PACKAGE                  2

@@ -9,6 +9,15 @@ void init_exceptions_list_data() {
   //-----------------------------------------
   define_new_exception(0, FATAL_ID, 0, 0, 0);
   //\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/
+  //DebuggerError
+  define_new_exception(1, ERROR_ID, "not_enough_params", DebuggerError, "your input has not enough parameters");
+  define_new_exception(2, ERROR_ID, "not_exist_source", DebuggerError, "'!1@1!' source file is not a part of this program");
+  define_new_exception(3, ERROR_ID, "invalid_line_number", DebuggerError, "'!1@1!' is invalid as line number of a source file");
+  define_new_exception(4, ERROR_ID, "not_execute_line_code", DebuggerError, "in line number'!1@1!' in '!2@2!' file, not exist any executable instruction");
+  define_new_exception(5, ERROR_ID, "unknown_command", DebuggerError, "'!1@1!' is unknown command for mdebug");
+
+  define_new_exception(6, ERROR_ID, "not_find_breakpoint", DebuggerError, "not find any breakpoints in line'!1@1!' of '!2@2!' file");
+  //\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/
   //CommandError
   define_new_exception(1, FATAL_ID, "bad_exit", CommandError, "returned 1 exit status");
   define_new_exception(2, ERROR_ID, "unknown_opt", CommandError, "unknown option '!1@1!'");

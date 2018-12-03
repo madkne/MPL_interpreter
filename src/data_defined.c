@@ -65,7 +65,8 @@ String exceptions_group[] = {"ImportError",           //0
     "OverflowError",        //10
     "TypeError",            //11
     "FloatingPointError",   //12
-    "CommandError"          //13
+    "CommandError",         //13
+    "DebuggerError"         //14
 };
 
 String exceptions_type[4] = {"CANCEL", "FATAL", "ERROR", "WARNING"};
@@ -147,6 +148,11 @@ void init_database() {
   entry_table.stru_id = 0;
   entry_table.func_index = 1;
 
+  entry_table.parent_fin = 0;
+  entry_table.cur_sid = 0;
+  entry_table.cur_fin = 0;
+  entry_table.cur_fid = 0;
+
   entry_table.datas_start = 0;
   entry_table.datas_id = 1;
 
@@ -181,6 +187,12 @@ void init_database() {
   entry_table.is_stop_APP_CONTROLLER = false;
   entry_table.is_next_inst_running = false;
   entry_table.is_occur_error_exception = false;
+
+  entry_table.sources_list = 0;
+  entry_table.sources_list_len = 0;
+
+  entry_table.debr_start = 0;
+  entry_table.debr_len = 0;
 
   str_utf8 stdin_src;
   str_to_utf8(&stdin_src, "stdin");
@@ -585,6 +597,20 @@ instru get_instru_by_params(long_int fid, long_int sid, uint32 order) {
   return null;
 }
 //*************************************************************
+instru get_instru_by_source(String source_file, uint32 source_line) {
+  instru null = {0, 0, 0, 0, 0, 0, 0, 0};
+  instru *st = entry_table.instru_start;
+  if (st == 0) return null;
+  for (;;) {
+    if (st->line == source_line && str_equal(utf8_to_bytes_string(source_paths[st->source_id]), source_file)) {
+      return (*st);
+    }
+    st = st->next;
+    if (st == 0) break;
+  }
+  return null;
+}
+//*************************************************************
 //***************instructions_order functions******************
 //*************************************************************
 void append_inor(inor s) {
@@ -959,3 +985,53 @@ Boolean set_cole_complete(uint32 id) {
   }
   return false;
 }
+//*************************************************************
+//***************debug_breakpoints functions*******************
+//*************************************************************
+void append_debr(uint32 line, String path) {
+  debr *q;
+  q = (debr *) malloc(sizeof(debr));
+  if (q == 0) return;
+  q->line_number = line;
+  str_init(&q->source_path, path);
+  q->next = 0;
+  if (entry_table.debr_start == 0) {
+    entry_table.debr_start = entry_table.debr_end = q;
+  } else {
+    entry_table.debr_end->next = q;
+    entry_table.debr_end = q;
+  }
+  entry_table.debr_len++;
+}
+//*************************************************************
+Boolean is_find_debr(uint32 line, String path) {
+  debr null = {0, 0, 0};
+  debr *tmp1 = entry_table.debr_start;
+  if (tmp1 == 0) return false;
+  for (;;) {
+    if (tmp1->line_number == line && str_equal(path, tmp1->source_path)) {
+      return true;
+    }
+    tmp1 = tmp1->next;
+    if (tmp1 == 0) break;
+  }
+  return false;
+}
+//*************************************************************
+Boolean delete_debr(uint32 line, String path) {
+  debr *tmp1 = entry_table.debr_start;
+  if (tmp1 == 0) return false;
+  for (;;) {
+    if (tmp1->line_number == line && str_equal(path, tmp1->source_path)) {
+      tmp1->line_number = 0;
+      tmp1->source_path = 0;
+      return true;
+    }
+    tmp1 = tmp1->next;
+    if (tmp1 == 0) break;
+  }
+  return false;
+}
+
+
+

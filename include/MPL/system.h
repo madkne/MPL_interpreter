@@ -31,6 +31,7 @@
 #include "exceptions.h"
 #include "built_in.h"
 #include "mpl_help.h"
+#include "debugger.h"
 //---------------------------------core functions
 #include "core/importer.h"
 #include "core/parser.h"
@@ -39,6 +40,7 @@
 #include "core/vars_mgr.h"
 #include "core/run_mgr.h"
 #include "core/virtual_memory.h"
+#include "core/magic_macro.h"
 //---------------------------------tools functions
 #include "tools/common_funcs.h"
 #include "tools/strings.h"

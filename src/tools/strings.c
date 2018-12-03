@@ -283,11 +283,13 @@ long_int str_to_long_int(String s) {
 //******************************************
 Boolean str_is_int32(String s) {
   uint32 len = str_length(s);
+  if (len == 0)return false;
   for (uint32 i = 0; i < len; ++i) {
     if (i == 0 && (s[i] == '-' || s[i] == '+'))continue;
     if (s[i] >= '0' && s[i] <= '9')continue;
-    break;
+    return false;
   }
+  return true;
 }
 
 //******************************************
@@ -726,11 +728,11 @@ String char_backspace(String s) {
 }
 
 //******************************************
-uint8 char_to_uint8(uint8 c,Boolean *has_err) {
+uint8 char_to_uint8(uint8 c, Boolean *has_err) {
   if (c < '0' || c > '9') {
-    if(*has_err!=0)(*has_err)=true;
+    if (*has_err != 0)(*has_err) = true;
     return 0;
   }
-  if(*has_err!=0)(*has_err)=false;
+  if (*has_err != 0)(*has_err) = false;
   return c - '0';
 }

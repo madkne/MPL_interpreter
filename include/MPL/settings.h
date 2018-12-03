@@ -18,7 +18,7 @@
 #define  C_COMPILER_NAME                 "GCC"
 #define  BUILD_DATE                      __DATE__
 #define  BUILD_TIME                      __TIME__
-//------------------------------------------
+//------------------------------------------define __func__ constant
 #if __STDC_VERSION__ < 199901L
 #if __GNUC__ >= 2
 #define __func__ __FUNCTION__

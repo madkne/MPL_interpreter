@@ -13,25 +13,6 @@ String read_input() {
 }
 
 //******************************************
-String get_host_name() {
-  #if WINDOWS_PLATFORM == true
-  return getenv("COMPUTERNAME");
-  #elif LINUX_PLATFORM == true
-  return getenv("HOSTNAME");
-  #endif
-  return "<unknown>";
-}
-
-//******************************************
-long_int get_pid() {
-  #if WINDOWS_PLATFORM == true
-  return (long_int) GetCurrentProcessId();
-  #elif LINUX_PLATFORM == true
-  //TODO
-  #endif
-  return 0;
-}
-//******************************************
 String get_mpl_dir_path() {
   String out = 0;
   #if LINUX_PLATFORM == 1
@@ -51,25 +32,6 @@ String get_mpl_dir_path() {
   }
   #endif
   return out;
-}
-//******************************************
-String get_absolute_path(String path) {
-  //uint8 resolved_path[PATH_MAX+1];
-  #if LINUX_PLATFORM == 1
-  String abs_path=0;
-  abs_path=realpath(path, 0);
-  //printf("\n%s=>%s\n",path,abs_path);
-  return abs_path;
-  #elif WINDOWS_PLATFORM == 1
-  char tmp[BufferSize];
-  String abs_path = 0;
-  GetFullPathName(path, BufferSize, tmp, 0);
-  str_init(&abs_path, tmp);
-  if (INVALID_FILE_ATTRIBUTES == GetFileAttributes(abs_path) && GetLastError() == ERROR_FILE_NOT_FOUND) return 0;
-  //printf("\nSSS::%s=>%s\n",path,abs_path);
-  return abs_path;
-  #endif
-  return 0;
 }
 
 //******************************************
@@ -318,8 +280,15 @@ void print_struct(uint8 which) {
     if (tmp1 == 0) return;
     printf("=====Print instructions_struct :\n");
     for (;;) {
-      printf("(id:%li,fid:%li,sid:%li,order:%li,type:%i,line:%i),code:%s\n", tmp1->id, tmp1->func_id,
-             tmp1->stru_id, tmp1->order, tmp1->type, tmp1->line, tmp1->code);
+      printf("(id:%li,fid:%li,sid:%li,order:%li,type:%i,line:%i),code:%s\n\tfile:%s[%i]\n",
+             tmp1->id,
+             tmp1->func_id,
+             tmp1->stru_id,
+             tmp1->order,
+             tmp1->type,
+             tmp1->line,
+             tmp1->code,
+             utf8_to_bytes_string(source_paths[tmp1->source_id]), tmp1->line);
       tmp1 = tmp1->next;
       if (tmp1 == 0) break;
     }
@@ -417,7 +386,31 @@ uint32 source_paths_search(str_utf8 path) {
   }
   return 0;
 }
-
+//*************************************************************
+String validate_path(String s) {
+  #if WINDOWS_PLATFORM == true
+  String ret = 0;
+  for (uint32 i = 0; i < str_length(s); i++) {
+    if (s[i] == '/') {
+      ret = char_append(ret, '\\');
+      continue;
+    }
+    ret = char_append(ret, s[i]);
+  }
+  return ret;
+  #elif LINUX_PLATFORM == true
+  String ret = 0;
+  for (uint32 i = 0; i < str_length(s); i++) {
+    if (s[i] == '\\') {
+      ret = char_append(ret, '/');
+      continue;
+    }
+    ret = char_append(ret, s[i]);
+  }
+  return ret;
+  #endif
+  return s;
+}
 //*************************************************************
 utst return_utf8_string_value(String s) {
   utst nil = {0, 0, 0};
@@ -429,10 +422,11 @@ utst return_utf8_string_value(String s) {
     str_init(&val, s);
   }
   //------------
-  // printf("OOOOO:%s,%s,%i\n", s, val, str_is_int32(val));
+//   printf("OOOOO1:%s,%s,%i\n", s, val, str_is_int32(val));
   if (str_is_int32(val)) {
     int32 utst_id = str_to_int32(val);
-    //printf("OOOOOO:%i\n", utst_id);
+//    print_struct(PRINT_UTF8_ST);
+//    printf("OOOOOO2:%i\n", utst_id);
     utst ut = get_utst((long_int) utst_id);//TODO:
     return ut;
     //printf("UTT:%s=>%s,%i\n", s, utf8_to_unicode_str(ut.utf8_string), ut.max_bytes_per_char);

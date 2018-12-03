@@ -56,7 +56,7 @@ ERROR:num,FATAL:num,WARNING:num,OSType:str,OSArch:str,PathSeparator:str,EOF:num,
 -----------------------------
 built-in config:(by __config)
 - can use and just edited in global and outside of functions
-ErrorsState,WarningsState,ExportLogFile,MaxHugeDivideSteps,MaxHugeDecimalNumbers,TabSize,SafeMode,AppVersion,AppName,AppLicense,SessionMode,SaveSessionOnExit,HelpArgumentMode,OptimizeMode,ExportByteCode,RunOnlyOS,RunOnlyArch,AppCreator,NameSpace/*used for package files*/,SessionDatabasePath,OverwriteBuiltinMode,DebugMode
+ErrorsState,WarningsState,ExportLogFile,MaxHugeDivideSteps,MaxHugeDecimalNumbers,TabSize,AppVersion,AppName,AppLicense,AppCreator,SafeMode,SessionMode,HelpArgumentMode,OptimizeMode,OverwriteBuiltinMode,DebugMode,ExportByteCode,RunOnlyOS,RunOnlyArch,NameSpace/*used for package files*/,SessionDatabasePath
 -----------------------------
 Extensions:
 - mpl : mpl source files
@@ -65,9 +65,10 @@ Extensions:
 - mdo : mpl documentation files
 - mcf : mpl configuration files
 -----------------------------
-Application
-- mpl		: MPL Interpreter
-- mprog		: MPL Program Manager
+Applications:
+- mpl		: MPL Interpreter [OK]
+- mdebug	: MPL Debuggern [..]
+- mprog		: MPL Program Manager [..]
 - madoc		: MPL Advanced Documentation
 -----------------------------
 external modules:

@@ -18,9 +18,10 @@ uint8 labeled_instruction(String code) {
   uint8 last_sep = 0;
   uint32 len = str_length(code);
   //msg("&LABELED:", code)
+
+
   //----------------------analyzing code line
   for (uint32 i = 0; i < len; i++) {
-    is_ret = false;
     //------------------check is string
     if (code[i] == '\"' && (i == 0 || code[i - 1] != '\\')) {
       is_string = switch_bool(is_string);
@@ -41,6 +42,7 @@ uint8 labeled_instruction(String code) {
     //------------------is return keyword
     if (!is_string && (code[i] == ' ' || code[i] == '(' || i + 1 == len) && word != 0 &&
         str_equal(word, "return")) {
+//      printf("*lbl:return\n");
       state = RETURN_LBL_INST;
       is_ret = true;
       //break
@@ -64,10 +66,10 @@ uint8 labeled_instruction(String code) {
     }
     //------------------is define variables
     if (!is_string && !is_equal && code[i] == ' ' && word != 0 &&
-        !str_search(keywords_out, word, StrArraySize(keywords_out))) {
+        !str_search(keywords_out, word, StrArraySize(keywords_out)) && !is_ret) {
       //printf("Data type:%s,%i\n", word,search_datas(word, 0, 0, true).id);
-      if (search_datas(word, 0, true).id == 0 && !is_ret) {
-        //exception_handler("wrong_type_var", "labeled_instruction:89", word, "")
+      if (search_datas(word, 0, true).id == 0) {
+        exception_handler("wrong_type_var", __func__, word, 0);
         //TODO:
         return UNKNOWN_LBL_INST;
       } else {
@@ -96,7 +98,7 @@ uint8 labeled_instruction(String code) {
     //------------------is function call
     if (!is_string && code[i] == '(' && case_word != 0 && is_valid_name(case_word, false)) {
       state = FUNC_CALL_LBL_INST;
-      //printf("SSSSSSSS:%s\n", case_word);
+//      printf("SSSSSSSS:%s\n", case_word);
       last_pars = par - 1;
       //break
     } else if (last_pars > -1 && last_pars == par && state == FUNC_CALL_LBL_INST) {
@@ -299,7 +301,8 @@ String alloc_magic_macros(String exp) {
     //TODO:errors
     //printf("##define_magic:%s=>%s(%s,%s) : %s,%s,%c\n", exp, buf, mm_name, mm_index, value, type, subtype);
     if (subtype == 's')value = str_reomve_quotations(value, "s");
-    add_to_mama(mm_type, subtype, mm_index, value);
+    if (!edit_magic_macro(mm_type, mm_index, value))
+      add_to_mama(mm_type, subtype, mm_index, value);
     ret_exp = 0;
   }
   //---------------return
@@ -430,7 +433,8 @@ String function_call(String exp) {
     //msg("TTTT:", word)
   }
   //********************calling functions
-//  printf("&DDD:%s=>%s,%s,%s[[%i]],%s,%i,%i,%s=>%s\n", exp, pack_name, func_name, print_str_list(parameters, params_len),params_len,index, st_func, en_func, ret_exp, str_substring(exp, st_func, en_func));
+//  printf("***FUNC_CALL(%s):\nPname:%s,Fname:%s,Params:%s[%i],Index:%s,(start:%i,end:%i),Return:%s=>%s\n", exp, pack_name, func_name, print_str_list(parameters, params_len),params_len,index, st_func, en_func, ret_exp, str_substring(exp, st_func, en_func));
+//  show_memory(0);
 
   ret_vars = init_calling_function(pack_name, func_name, parameters, params_len, index);
   if (ret_vars == 0)str_init(&ret_vars, "null");
@@ -467,12 +471,11 @@ String init_calling_function(String pname, String fname, str_list params, uint32
   fust s = {entry_table.cur_fid, entry_table.cur_fin, entry_table.cur_sid, entry_table.cur_order,
       entry_table.parent_fin};
   append_fust(s);
-  //printf("STOP:%s\n",fname);
   //--------------------set new parent fin
   entry_table.parent_fin = entry_table.cur_fin;
-
   //--------------------init function parameters
   int32 ret0 = set_function_parameters(pname, fname, params, param_len);
+//    printf("STOP:%s\n",fname);
   //--------------------analyzing ret0
   Boolean is_return = false;
   if (ret0 == -1) {
@@ -551,7 +554,7 @@ void garbage_collector(uint8 type) {
       if (st.name == 0)continue;
       //---------------------delete all current structure variables
       if (type == 'A' && st.func_index == entry_table.cur_fin && st.stru_index == entry_table.cur_sid) {
-        //printf("####A:%s,%i,%i,%i\n", st.name, st.id, st.stru_index, i);
+//        printf("####A:%s,%i,%i,%i\n", st.name, st.id, st.stru_index, i);
         delete_full_memory_var(i, true);
         is_change = true;
         break;
@@ -668,6 +671,7 @@ int32 set_function_parameters(String pack_name, String func_name, str_list pars,
   Boolean is_user_func = false;
   str_list func_params = 0;
   uint32 func_params_len = 0;
+  long_int next_fin = 0;
   //-----------------------------determine parameters type
   str_list ret_pars = 0;
   uint32 ret_pars_len = determine_type_name_func_parameters(pars, pars_len, &ret_pars);
@@ -695,7 +699,8 @@ int32 set_function_parameters(String pack_name, String func_name, str_list pars,
   }
   //-----------------------------if is_user_func
   if (is_user_func) {
-    entry_table.cur_fin = ++entry_table.func_index;
+    next_fin = ++entry_table.func_index;
+//    entry_table.cur_fin = ++entry_table.func_index;
   }
     //-----------------------------maybe is a built-in function or not valid a function
   else {
@@ -710,6 +715,8 @@ int32 set_function_parameters(String pack_name, String func_name, str_list pars,
         return_builtin = str_append(return_builtin, returns_builtin[i]);
         if (i + 1 < returns_builtin_len)return_builtin = str_append(return_builtin, ",");
       }
+      //----go to next_fin
+      entry_table.cur_fin = next_fin;
       //printf("Built-in return:%s\n",return_builtin);
       //call function_return
       function_return(return_builtin);
@@ -761,7 +768,7 @@ int32 set_function_parameters(String pack_name, String func_name, str_list pars,
         String namei = 0;
         if (p1[3] == 0 || str_ch_equal(p1[3], '0'))str_init(&namei, p2[1]);
         else namei = str_multi_append(p2[1], "[", p1[3], "]", 0, 0);
-        set_memory_var(entry_table.cur_fin, 0, namei, pars[i], p2[0], true);
+        set_memory_var(next_fin, 0, namei, pars[i], p2[0], true);
       }
     }
       //====define var by var
@@ -772,21 +779,23 @@ int32 set_function_parameters(String pack_name, String func_name, str_list pars,
         if (vars_po_ids != 0)vars_po_ids = char_append(vars_po_ids, ';');
         vars_po_ids = str_append(vars_po_ids, po_id);
       } else {
-        copy_memory_var(str_to_long_int(p1[1]), p2[1], entry_table.cur_fin);
+        copy_memory_var(str_to_long_int(p1[1]), p2[1], next_fin);
       }
     }
       //====define var by reference var
     else if (str_ch_equal(p1[2], '2')) {
       Mvar ref_var = get_Mvar(str_to_long_int(p1[1]));
-      add_to_var_memory(ref_var.pointer_id, entry_table.cur_fin, 0, ref_var.type_var, p2[1], 0);
+      add_to_var_memory(ref_var.pointer_id, next_fin, 0, ref_var.type_var, p2[1], 0);
     }
   }
 
   if (is_vars) {
     long_int main_pointer_id = add_to_pointer_memory(vars_po_ids, 'p');
-    add_to_var_memory(main_pointer_id, entry_table.cur_fin, 0, search_datas("vars", 0, true).id, vars_name, 0);
+    add_to_var_memory(main_pointer_id, next_fin, 0, search_datas("vars", 0, true).id, vars_name, 0);
     //printf("$RRRRR:%i,%i,%i,%s\n", main_pointer_id, entry_table.cur_fin,search_datas("vars", 0, true).id,vars_name);
   }
+  //-----------------------------go to next_fin
+  entry_table.cur_fin = next_fin;
   //show_memory(0);
   return 1;
 }
@@ -1432,7 +1441,8 @@ Boolean structure_CONDITION(long_int st_id, uint8 type, String value) {
     return true;
   }
   //----------------check if value is true
-  Boolean bool_true = true;String bool_out=0;
+  Boolean bool_true = true;
+  String bool_out = 0;
   if (type == IF_STRU_ID || type == ELIF_STRU_ID) {
     uint8 sub = 0;
     bool_out = calculate_boolean_expression(value, &sub);
@@ -1444,6 +1454,7 @@ Boolean structure_CONDITION(long_int st_id, uint8 type, String value) {
     Boolean ret = set_cole_complete(entry_table.cole_len);
     if (!ret) {
       //TODO:error
+      printf("#ERR:%s\n", __func__);
       return false;
     }
     //--------------------record all registers

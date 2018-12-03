@@ -36,7 +36,7 @@ uint64 os_total_disk;
 long_int max_size_id;
 String logfile_path;
 //******************************
-String exceptions_group[14];
+String exceptions_group[15];
 String exceptions_type[4];
 String keywords[18];
 String keywords_out[13];
@@ -231,6 +231,12 @@ typedef struct condition_level_struct {
 
   struct condition_level_struct *next;
 } cole;
+//****************************debug_breakpoints struct
+typedef struct debug_breakpoints_struct {
+  uint32 line_number;
+  String source_path;
+  struct debug_breakpoints_struct *next;
+} debr;
 //****************************virtual memory
 //runtime
 typedef struct var_memory_struct {
@@ -371,8 +377,10 @@ struct entry_table_struct {
   cole *cole_start;
   cole *cole_end;
   uint32 cole_len;
-//  Boolean condition_level[MAX_COMPLEX_CONDITIONS];
-//  int32 condition_level_ind;
+
+  debr *debr_start;
+  debr *debr_end;
+  uint32 debr_len;
 
   long_int cur_fid, cur_fin, cur_sid, cur_order, parent_fin;
   uint32 in_loop, break_count, next_count;
@@ -380,6 +388,9 @@ struct entry_table_struct {
   long_int return_fin;
   uint32 Rorder, Rline;
   Boolean is_stop_APP_CONTROLLER, is_next_inst_running, is_occur_error_exception;
+
+  str_list sources_list;
+  uint32 sources_list_len;
 
   str_list post_short_alloc;
   uint32 post_short_alloc_len;
@@ -428,6 +439,7 @@ void append_instru(instru s);
 
 instru get_instru_by_id(long_int id);
 instru get_instru_by_params(long_int fid, long_int sid, uint32 order);
+instru get_instru_by_source(String source_file, uint32 source_line);
 //-------------------------inor funcs
 void append_inor(inor s);
 
@@ -474,5 +486,8 @@ void delete_last_stst();
 void append_cole(cole s);
 cole get_cole_by_id(uint32 id);
 Boolean set_cole_complete(uint32 id);
-
+//-------------------------debr funcs
+void append_debr(uint32 line, String path);
+Boolean is_find_debr(uint32 line, String path);
+Boolean delete_debr(uint32 line, String path);
 #endif //MPL_DATA_DEFINED_H

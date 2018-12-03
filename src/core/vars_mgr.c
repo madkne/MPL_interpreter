@@ -350,11 +350,16 @@ uint8 determine_sub_type_var(String *value, String main_type) {
 
 //*********************************************************
 long_int return_var_id(String var_name, String var_index) {
+  return __return_var_id(var_name, entry_table.cur_fin);
+}
+
+//*********************************************************
+long_int __return_var_id(String var_name, long_int fin) {
   //******************
   for (long_int i = 0; i < entry_table.var_mem_len; i++) {
     Mvar st = get_Mvar(i);
     //******************method1:search with cur_fin : function var
-    if (st.func_index == entry_table.cur_fin && str_equal(st.name, var_name)) {
+    if (st.func_index == fin && str_equal(st.name, var_name)) {
       return st.id;
     }
     //******************method2:search with cur_fin=0 : global var
@@ -1560,8 +1565,7 @@ String return_true_false(String exp) {
         if (float_1 == 0 && float_2 == 0) {
           nums_state = char_to_str(comparison_huge_numbers(int_1, int_2, 'i'));
 //          printf("^^^oprds:%s,%s=>%s\n", int_1, int_2, nums_state);
-        }
-        else {
+        } else {
           nums_state = char_to_str(comparison_huge_numbers(int_1, int_2, 'i'));
           uint8 ret2 = comparison_huge_numbers(float_1, float_2, 'f');
           //msg("&iii", int_1, int_2, nums_state, float_1, float_2, ret2)
@@ -1963,6 +1967,8 @@ void calculate_math_expression(String exp, uint8 target_type, String *retval, ui
         ty1 = set_type_of_math(&num1, 0);
       } else {
         Mpoint mpoint = return_var_memory_value(buf);
+//        printf("VAR_num:{%s}%s=>%i=>%s(fin:%i)\n", exp, buf, return_var_id(buf, 0), mpoint.data, entry_table.cur_fin);
+//        show_memory(0);
         if (mpoint.type_data == 'i' || mpoint.type_data == 'f' || mpoint.type_data == 'h') {
           str_init(&num1, mpoint.data);
           is_valid_val = true;
@@ -1972,6 +1978,7 @@ void calculate_math_expression(String exp, uint8 target_type, String *retval, ui
       }
       //*************
       if (!is_valid_val) {
+//        printf("ERR1\n");
         exception_handler("invalid_exp_val", __func__, buf, "num");
         str_init(&(*retval), "0");
         (*rettype) = '0';
@@ -2009,6 +2016,7 @@ void calculate_math_expression(String exp, uint8 target_type, String *retval, ui
       }
       //*************
       if (!is_valid_val) {
+//        printf("ERR2\n");
         exception_handler("invalid_exp_val", "calculate_math_expression", buf, "num");
         str_init(&(*retval), "0");
         (*rettype) = '0';

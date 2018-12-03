@@ -5,7 +5,7 @@
 #ifndef MPL_MPL_HELP_H
 #define MPL_MPL_HELP_H
 
-String help_groups[5];
+String help_groups[6];
 String help_get_started_subjects[4];
 String help_about_subjects[4];
 
