@@ -56,7 +56,7 @@ int main(int argc, char **argv) {
   //printf("Hello World:%s,%li\n",argv[1],str_length(""));
 //  print_struct(PRINT_CONDITION_LEVEL_ST);
 //	print_magic_macros(CONFIG_MAGIC_MACRO_TYPE);
-  print_struct(PRINT_UTF8_ST);
+//  print_struct(PRINT_UTF8_ST);
   //-------------------------time of end program
   __syscall_exit(EXIT_SUCCESS);
   return 0;

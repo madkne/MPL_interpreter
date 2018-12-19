@@ -440,8 +440,8 @@ String function_call(String exp) {
   if (ret_vars == 0)str_init(&ret_vars, "null");
   //********************return
 //  	printf("***return:%i,%i\n",equal_pos,st_func);
-  //is function call has with no assignment
-  if (equal_pos == -1 || equal_pos > st_func) {
+  //is function call is alone :) like sum(5)
+  if (st_func < 2) {
     return 0;
   }
   if (en_func > -1 && st_func > -1) {
@@ -529,6 +529,13 @@ String init_calling_function(String pname, String fname, str_list params, uint32
   //--------------------call garbage_collector(gc)
   if (is_return && lst.fin != entry_table.cur_fin) {
     garbage_collector('f');
+  }
+  //--------------------delete cole nodes
+  for (;;) {
+    if (entry_table.cole_end == 0)break;
+    if (entry_table.cole_end->fin == entry_table.cur_fid) {
+      pop_last_cole();
+    } else break;
   }
   //--------------------return to parent function
   //print_struct(PRINT_FUNCTIONS_STACK_ST);
@@ -1416,7 +1423,14 @@ Boolean structure_CONDITION(long_int st_id, uint8 type, String value) {
 		elif(pk1.xid()>=100)print("NUM3\n")
 		else print("NUM4\n")
 	*/
-  printf("##condition:%i,%i,%s,%i\n", st_id, type, value, get_cole_by_id(entry_table.cole_len).is_complete);
+  printf("##condition:id:%i,type:%i,fin:%i,sid:%i,/%s/,%s(%i)\n",
+         st_id,
+         type,
+         entry_table.cur_fin,
+         entry_table.cur_sid,
+         value,
+         str_from_bool(get_cole_by_id(entry_table.cole_len).is_complete),
+         entry_table.cole_len);
   //----------------check for elif , else that have if
   if ((type == ELSE_STRU_ID || type == ELIF_STRU_ID)) {
     Boolean failed = false;
@@ -1430,13 +1444,21 @@ Boolean structure_CONDITION(long_int st_id, uint8 type, String value) {
     }
     if (failed) {
       //TODO:error
+      printf("#ERR:failed elif,else\n");
       return false;
     }
   }
   //----------------
   if (type == IF_STRU_ID) {
-    cole s = {0, entry_table.cur_fin, entry_table.cur_sid, false};
-    append_cole(s);
+    //if exist last node same this,just do false its is_complete
+    if (entry_table.cole_end != 0 && entry_table.cole_end->fin == entry_table.cur_fin
+        && entry_table.cole_end->sid == entry_table.cur_sid)
+      entry_table.cole_end->is_complete = false;
+      //else then create new node
+    else {
+      cole s = {0, entry_table.cur_fin, entry_table.cur_sid, false, 0, 0};
+      append_cole(s);
+    }
   } else if (get_cole_by_id(entry_table.cole_len).is_complete) {
     return true;
   }
@@ -1448,7 +1470,9 @@ Boolean structure_CONDITION(long_int st_id, uint8 type, String value) {
     bool_out = calculate_boolean_expression(value, &sub);
     bool_true = str_to_bool(bool_out);
   }
-  printf("--Condition:%s=>%s\n", value, bool_out);
+  printf("--Condition:%s=>%s(%i)\n", value, bool_out, bool_true);
+  print_struct(PRINT_CONDITION_LEVEL_ST);
+  display_all_registers();
   //----------------if bool_true is true
   if (bool_true) {
     Boolean ret = set_cole_complete(entry_table.cole_len);
@@ -1461,7 +1485,6 @@ Boolean structure_CONDITION(long_int st_id, uint8 type, String value) {
     stst s =
         {IF_STRU_ID, entry_table.cur_fid, entry_table.cur_fin, st_id, entry_table.cur_sid, entry_table.cur_order, 0};
     append_stst(s);
-
 //--------------------set new registers
     entry_table.cur_order = 1;
     entry_table.cur_sid = st_id;

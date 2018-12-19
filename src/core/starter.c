@@ -14,6 +14,8 @@ Boolean start_runtime() {
   entry_table.cur_sid = 0;
   entry_table.parent_fin = 0;
   entry_table.cur_order = 1;
+  entry_table.Rsrc = 0;
+  entry_table.Rline = 0;
   //*************find main function
   blst main_func = search_lbl_func("main", 0, 0);
   if (main_func.id == 0) {
@@ -28,7 +30,6 @@ Boolean start_runtime() {
   if (str_to_bool(get_mama(CONFIG_MAGIC_MACRO_TYPE, DEBUG_MODE).value)) {
     start_debugger();
   }
-
   //*************start program from fid=2,fin=2,sid=0,order=1
   APP_CONTROLLER();
   //*************return
@@ -102,16 +103,21 @@ int8 INSTRUCTION_EXECUTOR(long_int index) {
   entry_table.Rline = st.line;
   entry_table.Rsrc = utf8_to_bytes_string(source_paths[st.source_id]);
   Boolean is_done = true;
-  //---------------------check breakpoints
-  if (is_find_debr(entry_table.Rline, entry_table.Rsrc)) {
-    on_breakpoint_interrupt(Rcode);
+  //---------------------check breakpoints1
+  if (is_find_debr(entry_table.Rline, entry_table.Rsrc) || entry_table.debug_is_next) {
+    on_breakpoint_interrupt(Rcode, true);
+  }
+  //---------------------show memory in programmer debug
+  if (is_programmer_debug >= 1 && str_equal(Rcode, "_@_")) {
+    show_memory(0);
+    return SUCCESS_EXECUTE_INSTRUCTION;
   }
   //---------------------
   if (str_equal(Rcode, "null")) return SUCCESS_EXECUTE_INSTRUCTION;
   while ((Rcode = str_trim_space(Rcode)) != 0) {
     //msg("&Rcode", Rcode)
     uint8 state = labeled_instruction(Rcode);
-    if (is_programmer_debug >= 0) {
+    if (is_programmer_debug >= 1) {
       printf("@###############INST(fid:%i,sid:%i,order:%i,state:%i,fin:%i,line:%i):\n%s\n", entry_table.cur_fid,
              entry_table.cur_sid, entry_table.Rorder, state, entry_table.cur_fin, entry_table.Rline, Rcode);
     }
@@ -186,6 +192,10 @@ int8 INSTRUCTION_EXECUTOR(long_int index) {
       printf("~~~~~~~~~~~~~~~~~~>BREAK :(\n\n");
     }
     //show_prev_fins_array()
+  }
+  //---------------------check breakpoints2
+  if (entry_table.debug_is_run) {
+    on_breakpoint_interrupt(st.code, false);
   }
   //show_memory(0)
   //printf("###QWER:%i\n",entry_table.is_stop_APP_CONTROLLER);

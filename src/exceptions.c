@@ -15,8 +15,9 @@ void init_exceptions_list_data() {
   define_new_exception(3, ERROR_ID, "invalid_line_number", DebuggerError, "'!1@1!' is invalid as line number of a source file");
   define_new_exception(4, ERROR_ID, "not_execute_line_code", DebuggerError, "in line number'!1@1!' in '!2@2!' file, not exist any executable instruction");
   define_new_exception(5, ERROR_ID, "unknown_command", DebuggerError, "'!1@1!' is unknown command for mdebug");
-
   define_new_exception(6, ERROR_ID, "not_find_breakpoint", DebuggerError, "not find any breakpoints in line'!1@1!' of '!2@2!' file");
+  define_new_exception(7, ERROR_ID, "undefined_var", DebuggerError, "'!1@1!' as a variable in current line is undefined");
+  define_new_exception(8, ERROR_ID, "can_not_run", DebuggerError, "line '!1@1!' completed and could not run again!");
   //\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/
   //CommandError
   define_new_exception(1, FATAL_ID, "bad_exit", CommandError, "returned 1 exit status");

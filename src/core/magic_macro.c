@@ -22,7 +22,7 @@ void print_magic_macros(uint8 wh) {
   mama *tmp1 = entry_table.mama_start;
   for (;;) {
     if ((wh == 0 || tmp1->type == wh)) {
-      printf("[%i:%i]- %s:%s(%c)\n", tmp1->id,tmp1->type, tmp1->key, tmp1->value, tmp1->sub_type);
+      printf("[%i:%i]- %s:%s(%c)\n", tmp1->id, tmp1->type, tmp1->key, tmp1->value, tmp1->sub_type);
     }
     tmp1 = tmp1->next;
     if (tmp1 == 0) break;
@@ -39,6 +39,7 @@ void init_magic_define() {
   add_to_mama(DEFINE_MAGIC_MACRO_TYPE, 's', "OSArch", OS_ARCH);
   add_to_mama(DEFINE_MAGIC_MACRO_TYPE, 's', "PathSeparator", char_to_str(OS_SEPARATOR));
   add_to_mama(DEFINE_MAGIC_MACRO_TYPE, 'i', "EOF", str_from_int32(EOF));
+  add_to_mama(DEFINE_MAGIC_MACRO_TYPE, 's', "EOL", new_line_char);
   add_to_mama(DEFINE_MAGIC_MACRO_TYPE, 'i', "IntSize", str_from_int32(MAX_INT_LEN));
   add_to_mama(DEFINE_MAGIC_MACRO_TYPE, 'i', "FloatSize", str_from_int32(MAX_FLOAT_LEN));
   add_to_mama(DEFINE_MAGIC_MACRO_TYPE, 's', "MplVersion", str_multi_append(VERSION_NAME, "-", VERSION, 0, 0, 0));
@@ -48,10 +49,6 @@ void init_magic_define() {
   add_to_mama(DEFINE_MAGIC_MACRO_TYPE, 'i', "BothDirect", BOTH_DIRECT);
   add_to_mama(DEFINE_MAGIC_MACRO_TYPE, 'i', "ReadChar", READ_CHAR_INPUT_TYPE);
   add_to_mama(DEFINE_MAGIC_MACRO_TYPE, 'i', "ReadLine", READ_LINE_INPUT_TYPE);
-  add_to_mama(DEFINE_MAGIC_MACRO_TYPE, 'i', "ReadAll", READ_ALL_INPUT_TYPE);
-  add_to_mama(DEFINE_MAGIC_MACRO_TYPE, 'i', "CpuInfo", "1");
-  add_to_mama(DEFINE_MAGIC_MACRO_TYPE, 'i', "MemoryInfo", "2");
-  add_to_mama(DEFINE_MAGIC_MACRO_TYPE, 'i', "OSInfo", "3");
   add_to_mama(DEFINE_MAGIC_MACRO_TYPE, 'i', "PID", str_from_long_int(__syscall_pid()));
   add_to_mama(DEFINE_MAGIC_MACRO_TYPE, 'i', "StartedTime", AppStartedTime);
   add_to_mama(DEFINE_MAGIC_MACRO_TYPE, 's', "HostName", __syscall_hostname());

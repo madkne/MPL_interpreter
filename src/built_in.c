@@ -166,22 +166,8 @@ void init_built_in_funcs() {
   add_to_bifs(21, DATA_BUILT_IN_TYPE, "base_convert", "num|num|bool", "str");
   //----------------------------------os built_in
   add_to_bifs(1, OS_BUILT_IN_TYPE, "exit", "num", "bool");
-  add_to_bifs(2, OS_BUILT_IN_TYPE, "mkdir", "str", "bool");
-  add_to_bifs(3, OS_BUILT_IN_TYPE, "sell", "str", "str");
-  add_to_bifs(4, OS_BUILT_IN_TYPE, "time", 0, "num");
-  add_to_bifs(5, OS_BUILT_IN_TYPE, "fopen", "str|str", "num");
-  add_to_bifs(6, OS_BUILT_IN_TYPE, "fclose", "num", "bool");
-  add_to_bifs(7, OS_BUILT_IN_TYPE, "fwrite", "num|str", "bool");
-  add_to_bifs(8, OS_BUILT_IN_TYPE, "fread", "num|str|num", "str");
-  add_to_bifs(9, OS_BUILT_IN_TYPE, "finfo", "str", "str;?");
-  add_to_bifs(10, OS_BUILT_IN_TYPE, "proc_start", "str|str;?", "bool");
-  add_to_bifs(11, OS_BUILT_IN_TYPE, "abspath", "str", "str");
-  add_to_bifs(12, OS_BUILT_IN_TYPE, "copy", "str|str", "bool");
-  add_to_bifs(13, OS_BUILT_IN_TYPE, "exist", "str", "bool");
-  add_to_bifs(14, OS_BUILT_IN_TYPE, "remove", "str", "bool");
-  add_to_bifs(15, OS_BUILT_IN_TYPE, "scandir", "str|num", "str;?");
-  add_to_bifs(16, OS_BUILT_IN_TYPE, "runtime_info", "num", "str;?");
-  add_to_bifs(17, OS_BUILT_IN_TYPE, "shutdown", "num", "bool");
-  add_to_bifs(18, OS_BUILT_IN_TYPE, "rand", "num|num", "num");
+  add_to_bifs(2, OS_BUILT_IN_TYPE, "sell", "str", "str");
+  add_to_bifs(3, OS_BUILT_IN_TYPE, "time", 0, "num");
+  add_to_bifs(4, OS_BUILT_IN_TYPE, "rand", "num|num", "num");
 }
 

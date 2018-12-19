@@ -229,6 +229,7 @@ typedef struct condition_level_struct {
   long_int sid;
   Boolean is_complete;
 
+  struct condition_level_struct *prev;
   struct condition_level_struct *next;
 } cole;
 //****************************debug_breakpoints struct
@@ -382,6 +383,9 @@ struct entry_table_struct {
   debr *debr_end;
   uint32 debr_len;
 
+  Boolean debug_is_run;
+  Boolean debug_is_next;
+
   long_int cur_fid, cur_fin, cur_sid, cur_order, parent_fin;
   uint32 in_loop, break_count, next_count;
   String Rsrc;
@@ -486,6 +490,7 @@ void delete_last_stst();
 void append_cole(cole s);
 cole get_cole_by_id(uint32 id);
 Boolean set_cole_complete(uint32 id);
+cole pop_last_cole();
 //-------------------------debr funcs
 void append_debr(uint32 line, String path);
 Boolean is_find_debr(uint32 line, String path);

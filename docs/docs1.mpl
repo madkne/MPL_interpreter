@@ -19,7 +19,20 @@ Operators:
 ==,<=,>=,!=,<,>
 +=,++,--,-=,*=,/=,%=,^=,:=,&=,|=,~=,!=
 !,&&,||,~~
- 
+-----------------------------
+Extensions:
+- mpl : mpl source files
+- mbc : mpl bytecode files
+- mdb : mpl database files
+- mdo : mpl documentation files
+- mcf : mpl configuration files
+-----------------------------
+Applications:
+- mpl		: MPL Interpreter [OK]
+- mdebug	: MPL Debugger [OK]
+- mprog		: MPL Program Manager [..]
+- madoc		: MPL Advanced Documentation
+-----------------------------
 -----:=
 work for values,arrays,structs
 change and replace pointer of two variables
@@ -40,39 +53,22 @@ len(var[..]),error_handle(num,str,str),config_all(),define_all(),define_isset(st
 -------DATA functions:
 --Completed:
 --Not Completed:
-str_split(str[..],str) ,str_replace(str,str,str),to_num(var,bool),to_bool(var),to_str(var),at(var,num),str_at(str,num,str),str_crop(str,num,num),str_indexof(str,str,num),str_uppercase(str),str_lowercase(str),str_trim(str,num),is_num(var),is_bool(var),is_str(var),str_contains(str,str),str_join(str,str),bool_switch(bool),str_reverse(str),to_chars(var),base_convert(num,num,bool),sqrt(num),factorial(num),bit_xor(num,num),bit_and(num,num),bit_or(num,num),not_not(num),bit_complement10(num),bit_complement2(num)
+str_split(str[..],str) ,str_replace(str,str,str),to_num(var,bool),to_bool(var),to_str(var),at(var,num),str_at(str,num,str),str_crop(str,num,num),str_indexof(str,str,num),str_uppercase(str),str_lowercase(str),str_trim(str,num),is_num(var),is_bool(var),is_str(var),str_contains(str,str),str_join(str,str),bool_switch(bool),str_reverse(str),to_chars(var),base_convert(num,num,bool),bit_xor(num,num),bit_and(num,num),bit_or(num,num),bit_not(num),bit_cmp(num)
 -------OS functions:
 --Completed:
 exit(num)
 --Not Completed:
-mkdir(str),shell(str),time(),fopen(str,str),fclose(num),fwrite(num,str),fread(num,str,num),finfo(str),proc_start(str,str[?]),abspath(str),copy(str,str),exist(str),remove(str),scandir(str,num),runtime_info(num),shutdown(num),rand(num,num)
+shell(str),time(),rand(num,num)
 -----------------------------
 built-in constants:(by __define)
 - not edited and just use
 --Completed:
-ERROR:num,FATAL:num,WARNING:num,OSType:str,OSArch:str,PathSeparator:str,EOF:num,IntSize:num,FloatSize:num,MplVersion:str,AppPath:str,LeftDirect:num,RightDirect:num,BothDirect:num,ReadChar:num,ReadLine:num,ReadAll:num,CpuInfo:num,MemoryInfo:num,OSInfo:num,PID:num,StartedTime:num,HostName:str
+ERROR:num,FATAL:num,WARNING:num,OSType:str,OSArch:str,PathSeparator:str,EOF:num,EOL:str,IntSize:num,FloatSize:num,MplVersion:str,AppPath:str,LeftDirect:num,RightDirect:num,BothDirect:num,ReadChar:num,ReadLine:num,ReadAll:num,PID:num,StartedTime:num,HostName:str
 --Not Completed:
-
 -----------------------------
 built-in config:(by __config)
 - can use and just edited in global and outside of functions
 ErrorsState,WarningsState,ExportLogFile,MaxHugeDivideSteps,MaxHugeDecimalNumbers,TabSize,AppVersion,AppName,AppLicense,AppCreator,SafeMode,SessionMode,HelpArgumentMode,OptimizeMode,OverwriteBuiltinMode,DebugMode,ExportByteCode,RunOnlyOS,RunOnlyArch,NameSpace/*used for package files*/,SessionDatabasePath
------------------------------
-Extensions:
-- mpl : mpl source files
-- mbc : mpl bytecode files
-- mdb : mpl database files
-- mdo : mpl documentation files
-- mcf : mpl configuration files
------------------------------
-Applications:
-- mpl		: MPL Interpreter [OK]
-- mdebug	: MPL Debuggern [..]
-- mprog		: MPL Program Manager [..]
-- madoc		: MPL Advanced Documentation
------------------------------
-external modules:
-sqlite,math,mgt,net
 -----------------------------
 ++,--:
 str:("Hello")
@@ -104,8 +100,8 @@ control characters:
 sample using keywords:
 -----import:
 import "file:$/data/data1.mpl" //import from project root($)
-import "mod:sqlite" //import from absolute path
-import "embed:c:/java/main.java"
+import "mod:$/sqlite" //without any extension .so or .dll
+//import "embed:c:/java/main.java"
 import "pack:$/libs/lib1.mpl"
 -----magic macros
 - just can get a value of str,num or bool and nothing else(no array,no struct)
@@ -120,13 +116,13 @@ num k1=__define["l1"]
 __session["gh"]=56.76
 -----loop:
 loop([section1];[section2];[section3])
-[section1] : just run in first time
-[section2] : run every time and decide that loop be continue
-[section3] : run every time except first time
+[section1] : just run in first time (for define vars)
+[section2] : run every time and decide that loop be continue (for check vars) [is required]
+[section3] : run every time except first time (for change vars)
 sample:
 - loop(num i=0,str u=null;i<10,u!="Hello";i++)
 - loop(str u,b=null,num i=0;u,b:uu;i+=5,u+=" ") //str uu[2,2]={{"x","v"},{"h","i"}} browse uu array
-- loop(;i<5)
+- loop(;i<5) or loop(;i<5;)
 - loop(num h=get1(),num k=0;h<get2(k);k++,h++)
 - loop(str u,b=null,num i=0;u!="Hi") //=>make an error Correct:loop(str u=null,str b=null,num i=0;u!="Hi") OR loop(str u,b,num i=null;u!="Hi")
 
@@ -205,6 +201,18 @@ if(len(e)>0){
 	loop(num i=0;i<len(e);i++){
 		printS(e[i])
 	}
+}
+-----switch:
+- switch is a parser instruction and not a real structure. it convert to if,elif,else in parser mode
+switch(n){
+	if(3):
+		print("hhhh\n")
+		n++
+	if(34||78):
+		print("bbbbb\n")
+		n--
+	else:
+		print("EEEEEE\n")
 }
 
 ------------------------------using external modules

@@ -96,13 +96,14 @@ TODO
 * define elif **[OK]**
 * define else **[OK]**
 * follow order of if,elif else **[OK]**
-* implement condition level for managing if,elif,else **[..]**
-* recursive functions **[..]**
-* access overhead vars **[..]**
-* define loop
+* implement condition level for managing if,elif,else **[OK]**
+* recursive functions **[OK]**
+* can use multiple 'if' one after another **[OK]**
+* define loop **[..]**
 * start review_array_loop
 * implement next
 * implement break
+* access overhead vars **[..]**
 
 * **_complete main structure of mpl_**
 
@@ -111,7 +112,9 @@ TODO
 * analyze __config values after parsing **[OK]**
 * implement mpl debugger (mdebug) **[OK]**
 * create new breakpoint in mdebug **[OK]**
-* complete print commands in mdebug **[..]**
+* complete print commands in mdebug **[OK]**
+* complete next,run commands in mdebug **[OK]**
+* complete symbols for commands in mdebug **[OK]**
 * complete mdebug commands **[..]**
 * support struct entries for constant and allocation
 * start offline documentation of mpl **[OK]**
@@ -186,22 +189,23 @@ MPL Language Features
 > support radix numbers **[OK]** <br>
 > has boolean XOR operand **[OK]** <br>
 > support data structures **[OK]** <br>
-> support magic macros <br>
+> support magic macros **[..]** <br>
 > support huge numbers **[OK]**<br>
 > support override functions **[OK]** <br>
 > has built-in functions **[OK]** <br>
 > manage exceptions **[OK]** <br>
 > support multi dimensions arrays **[OK]** <br>
-> has bit functions <br>
+> has bit functions **[..]** <br>
 > support unlimited function parameters **[OK]** <br>
 > support multi return values **[OK]** <br>
 > support call by refrence vars **[OK]** <br>
 > support short allocations for vars **[OK]** <br>
-> support browse arrays in loop <br>
-> support switch condition <br>
-> support built-in os syscalls <br>
-> has built-in garbage collector(gc) <br>
-> expandibility by c libraries <br>
+> support browse arrays in loop **[..]** <br>
+> support switch condition **[..]** <br>
+> support built-in os syscalls **[..]** <br>
+> has built-in garbage collector(gc) **[OK]** <br>
+> expandibility by c libraries **[..]** <br>
+> support built-in debugger **[OK]** <br>
 
 MPL Hello World Program
 --------
@@ -258,6 +262,8 @@ MPL Sample Program
     @params:
         ref(num) : can set sum of value by reference var
         nums(vars) : get unlimited numbers
+    @output:
+        return sum of integers
     @des:
         add up just integer numbers and return it
     @ver:
@@ -296,6 +302,7 @@ MPL is best choice FOR
 2. start to learning the programming world
 3. create small and common tools for programmers
 4. personal programming for spend timeend time
+5. create and test new algorithms
 
 
 <hr>

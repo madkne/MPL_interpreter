@@ -367,7 +367,10 @@ void print_struct(uint8 which) {
     printf("=====End printed\n");
   } else if (which == 0 || which == PRINT_CONDITION_LEVEL_ST) {
     cole *tmp1 = entry_table.cole_start;
-    if (tmp1 == 0) return;
+    if (tmp1 == 0) {
+      printf("(null) condition level\n");
+      return;
+    }
     printf("=====Print condition level :\n");
     for (;;) {
       printf("[id:%i,fin:%i,sid:%i]:%i\n", tmp1->id, tmp1->fin, tmp1->sid, tmp1->is_complete);
@@ -830,5 +833,13 @@ String format_int32_array(int32 s[], uint32 start, uint32 end) {
   return ret;
 }
 
-
+//*************************************************************
+String return_type_structure(uint8 t) {
+  if (t == IF_STRU_ID)return "if";
+  if (t == ELIF_STRU_ID)return "elif";
+  if (t == ELSE_STRU_ID)return "else";
+  if (t == LOOP_STRU_ID)return "loop";
+  if (t == MANAGE_STRU_ID)return "manage";
+  if (t == SWITCH_STRU_ID)return "switch";
+}
 

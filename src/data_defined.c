@@ -175,6 +175,7 @@ void init_database() {
   entry_table.stst_len = 0;
 
   entry_table.cole_start = 0;
+  entry_table.cole_end = 0;
   entry_table.cole_len = 0;
 
   entry_table.in_loop = 0;
@@ -194,6 +195,8 @@ void init_database() {
   entry_table.debr_start = 0;
   entry_table.debr_len = 0;
 
+  entry_table.debug_is_run = false;
+  entry_table.debug_is_next = false;
   str_utf8 stdin_src;
   str_to_utf8(&stdin_src, "stdin");
   utf8_str_list_append(&source_paths, stdin_src, entry_table.source_counter++);
@@ -904,6 +907,7 @@ void append_stst(stst s) {
   q->order = s.order;
   str_init(&q->extra, s.extra);
   q->next = 0;
+//  printf("####-----:%i\n",entry_table.stst_end);
   if (entry_table.stst_start == 0) {
     entry_table.stst_start = entry_table.stst_end = q;
   } else {
@@ -935,7 +939,7 @@ void delete_last_stst() {
   }
   free(entry_table.stst_end);
   entry_table.stst_end = tmp1;
-  if (entry_table.stst_end == 0)entry_table.stst_end = 0;
+  if (entry_table.stst_end == 0)entry_table.stst_start = 0;
   entry_table.stst_len--;
 }
 //*************************************************************
@@ -950,6 +954,8 @@ void append_cole(cole s) {
   q->sid = s.sid;
   q->is_complete = s.is_complete;
   q->next = 0;
+  q->prev = entry_table.cole_end;
+//  printf("$$$:%i,%i,%i\n", s.fin, s.sid,entry_table.cole_end!=0?entry_table.cole_end->fin:-1);
   if (entry_table.cole_start == 0) {
     entry_table.cole_start = entry_table.cole_end = q;
   } else {
@@ -959,7 +965,7 @@ void append_cole(cole s) {
 }
 //*************************************************************
 cole get_cole_by_id(uint32 id) {
-  cole null = {0, 0, 0, 0, 0};
+  cole null = {0, 0, 0, 0, 0, 0};
   cole *tmp1 = entry_table.cole_start;
   if (tmp1 == 0) return null;
   for (;;) {
@@ -984,6 +990,31 @@ Boolean set_cole_complete(uint32 id) {
     if (tmp1 == 0) break;
   }
   return false;
+}
+//*************************************************************
+cole pop_last_cole() {
+  cole ret = {0, 0, 0, 0, 0, 0};
+  cole *tmp1 = entry_table.cole_end;
+  if (tmp1 == 0) return ret;
+  ret.id = (*tmp1).id;
+  ret.fin = (*tmp1).fin;
+  ret.sid = (*tmp1).sid;
+  ret.is_complete = (*tmp1).is_complete;
+//  printf("#####:%i,%i,%i,%i\n", ret.fin, tmp1->prev, entry_table.cole_end, entry_table.cole_start);
+  entry_table.cole_len--;
+  //if exist just one item
+  if (entry_table.cole_start == tmp1 || tmp1->prev == 0) {
+    free(tmp1);
+    entry_table.cole_start = entry_table.cole_end = 0;
+  }
+    //else exist more items
+  else {
+    entry_table.cole_end = tmp1->prev;
+    entry_table.cole_end->next = 0;
+    free(tmp1);
+  }
+
+  return ret;
 }
 //*************************************************************
 //***************debug_breakpoints functions*******************

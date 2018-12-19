@@ -7,17 +7,18 @@
 
 //**************************************************define interpreter constants
 #define  APP_NAME                       "Mini Portable Language"
-#define  VERSION                        "0.3.35"    //1.10.100
+#define  VERSION                        "0.3.47"    //1.10.100
 #define  VERSION_NAME                   "BETA"
 #define  SLOGAN                         "The solution to common problems of programmers" //راه حل کارهای متداول برنامه نویسان
 
 #define  FIRST_BUILD                    "2018.9.19"
 #define  LICENCE                        "OPEN-MPL"
 #define  OFFICIAL_WEBSITE               "http://mpl-lang.ir"
-#define  C_CORE_CODE_LINES              10645       //0.3.35
-#define  H_CORE_CODE_LINES              1040        //+=11685
+#define  C_CORE_CODE_LINES              10876       //0.3.47
+#define  H_CORE_CODE_LINES              1051        //+=11927
 #define  LANGUAGE_CREATOR               "Mohammad Amin Delavar Khalafi"
-#define  CONFIDENCE_LEVEL               17          //100%
+#define  CREATOR_SIGNATURE              "603556816519829596"
+#define  CONFIDENCE_LEVEL               19          //100%
 #define  WINDOWS_COMPATIBLE             true
 #define  LINUX_COMPATIBLE               false
 //**************************************************define

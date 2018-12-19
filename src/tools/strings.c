@@ -736,3 +736,12 @@ uint8 char_to_uint8(uint8 c, Boolean *has_err) {
   if (*has_err != 0)(*has_err) = false;
   return c - '0';
 }
+//******************************************
+String str_join(str_list s, uint32 len, String delimiter) {
+  String ret = 0;
+  for (uint32 i = 0; i < len; i++) {
+    ret = str_append(ret, s[i]);
+    if (i + 1 < len)ret = str_append(ret, delimiter);
+  }
+  return ret;
+}
