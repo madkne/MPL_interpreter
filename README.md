@@ -105,15 +105,18 @@ TODO
 * check loop conditions every time **[OK]**
 * do loop part3 every time **[OK]**
 * delete local vars in end of loop **[OK]**
-* implement loop level for managing loop **[..]**
-* implement next **[..]**
-* implement break **[..]**
+* implement loop level for managing loop **[OK]**
+* implement next **[OK]**
+* implement break **[OK]**
+* using break instruction **[OK]**
+* using next instruction **[OK]**
 * delete header loop vars in finish **[..]**
-* start review_array_loop
-* access overhead vars **[..]**
+* start review_array_loop **[..]**
+* access overhead vars **[OK]**
 
-* **_complete main structure of mpl_**
+* **_complete main structure of mpl_** **[..]**
 
+* support for module libraries **[..]**
 * start for developing 'mprog' program **[OK]**
 * init pre magic config,define entries **[OK]**
 * analyze __config values after parsing **[OK]**
@@ -128,7 +131,6 @@ TODO
 * complete structure of mpl-docs **[..]**
 * start os built-in functions **[OK]**
 * start data built-in functions
-* support for modules files
 * comparison struct expressions
 * comparison huge numbers **[OK]**
 * set new __session
@@ -136,11 +138,14 @@ TODO
 * complete mpl built-in functions
 * support sqlite3 as a module
 * complete built-in constants
+* support for package libraries
 * complete data built-in functions
 * building MPL website
 * implement switch keyword
 * parsing and converting switch instruction
 * support for embedded files
+* alloc by bit operands
+* using short alias for magic macros
 * complete parse error_handling
 * complete os built-in functions
 * complete mean_run error_handling
@@ -152,29 +157,29 @@ TODO
 * calculate order of all core functions
 * calculate order of all tools functions
 * calculate order of all built-in functions
+* complete all functions describe
 * optimizing huge numbers
 * optimizing RAM,CPU usage
 
 ### ((:publish MPL-RC version of MPL (for windows):))
 
-* support package files
 * publish RC version for linux
 * add math module for advanced calculation
 * add net module
-* support for a debugger
-* add many built-in functions
-* start mgt built-in functions
+* start mgt module
 * support minimal gui for windows
 * add regex module
 * development vars usage for struct and array
 * support mpl repository
 * support mpl forum
-* alloc by bit operands
 
 ### ((:publish MPL-HELLO version of MPL (for windows,linux):))
 
 * support for multi threading
 * support minimal gui for gtk
+* serve web clients
+* support as a web service
+* support as a web scripting language under Apache
 * To be continued ...
 
 ### ((:publish MPL-HI version of MPL (for windows,linux):))
@@ -186,8 +191,19 @@ MPL Sample Codes
 
 * files lines counter
 * implement a linked-list
-* snack cmd animation
-* cmd advanced calculator
+* animation console snack
+* advanced console calculator
+* simple console editor
+
+MPL Modules
+--------
+
+* math module **[..]**
+* sqlite3 module
+* mgt module
+* net module
+* fs module **[..]**
+* os module
 
 MPL Language Features
 --------
@@ -209,7 +225,7 @@ MPL Language Features
 > support short allocations for vars **[OK]** <br>
 > support browse arrays in loop **[..]** <br>
 > support switch condition **[..]** <br>
-> support built-in os syscalls **[..]** <br>
+> support module os syscalls **[..]** <br>
 > has built-in garbage collector(gc) **[OK]** <br>
 > expandibility by c libraries **[..]** <br>
 > support built-in debugger **[OK]** <br>
@@ -230,6 +246,9 @@ Get Starterd
 > Now  you can run  a file by name 'main.mpl' through command 'mpl.exe main.mpl' and you can see the result! <br>
 > [Mpl is portable!] you can move 'mpl.exe' to any where. it's a static executable file and not need to any files.(It's not need any modules or packages or docs or anything... Their are just for easier programming by **mpl:))** ) <br>
 
+### [Linux] : Build Mpl
+
+> TODO...
 
 MPL Sample Program
 --------
@@ -310,6 +329,12 @@ MPL is best choice FOR
 3. create small and common tools for programmers
 4. personal programming for spend timeend time
 5. create and test new algorithms
+6. network testing and hacking
+
+MPL appreciates for your suggestions and the other :))
+--------
+
+> Contact with amindelavar[at]hotmail.com by **__mpl:))__** title
 
 
 <hr>

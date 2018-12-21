@@ -38,60 +38,44 @@ Boolean start_runtime() {
 
 //**********************************************************
 int8 APP_CONTROLLER() {
-  //*************browsing execute instructions
-  /*if (return_fin == cur_fin && return_fin > 0) {
-	  return 1;
-  } else if (return_fin > 0) {
-	  return_fin = 0;
-  }
-  if (break_count > 0 && !is_stop_APP_CONTROLLER) {
-	  //msg("&BREAKS:", break_count)
-	  break_count--;
-	  is_stop_APP_CONTROLLER = true;
-  }*/
-
-  //***************search for current instruction
+  //--------------search for current instruction
   instru *st = entry_table.instru_start;
   if (st == 0) return false;
   for (;;) {
-    //************is is_occur_error_exception is true
+    //-------is is_occur_error_exception is true
     if (entry_table.is_occur_error_exception) {
       //msg("&BREAKS:", break_count)
       entry_table.is_occur_error_exception = false;
       return STOP_RETURN_APP_CONTROLLER;
     }
     //printf("XSSSS:%i<>%i,%i<>%i,%i<>%i\n", st->func_id, cur_fid , st->stru_id, cur_sid , st->order, cur_order);
+    //-------get current instruction for executing
     if (st->func_id == entry_table.cur_fid
         && st->stru_id == entry_table.cur_sid
         && st->order == entry_table.cur_order) {
-      //printf("IIIII:%s\n", st->code);
+      //-------set global vars
       entry_table.Rorder = st->order;
-      //************show instruction line by line
-//      if (is_programmer_debug >= 2) {
-//        //printf("---------INSTRUCTION(i:%i,f:%i,S:%i,Order:%i)\n%s$$$\n", st->id, st->func_id, st->stru_id,st->order, st->code);
-//      }
-      //************run instruction
+      //-------run instruction
       int8 ret0 = INSTRUCTION_EXECUTOR(st->id);
-      //msg("&UUUU")
-      //msg("&Inst", st.text, ret0, cur_fin)
-      if (ret0 == FAILED_EXECUTE_INSTRUCTION) {
-        return BAD_RETURN_APP_CONTROLLER;
-      } else if (ret0 == SUCCESS_EXECUTE_INSTRUCTION) {
-
+      if (ret0 == FAILED_EXECUTE_INSTRUCTION)return BAD_RETURN_APP_CONTROLLER;
+      //-------if is next instruction
+      if (entry_table.next_break_inst == NEXT_INST) {
+        entry_table.next_break_inst = 0;
+        return STOP_RETURN_APP_CONTROLLER;
       }
-      /*if (is_next_inst_running//for next inst) {
-          return 13;
-      }*/
-      //msg("&YGGGG",ret0)
+        //-------if is break instruction
+      else if (entry_table.next_break_inst == BREAK_INST) {
+        entry_table.break_count--;
+        if (entry_table.break_count == 0) entry_table.next_break_inst = 0;
+        return BREAK_RETURN_APP_CONTROLLER;
+      }
+      //-------increase cur_order
       entry_table.cur_order++;
     }
     st = st->next;
     if (st == 0) break;
   }
 
-  //}
-  //show_memory(0)
-  //msg("&nnnnnnnnnn", rt)
   return NORMAL_RETURN_APP_CONTROLLER;
 }
 
@@ -149,18 +133,10 @@ int8 INSTRUCTION_EXECUTOR(long_int index) {
       Boolean ret = init_structures(Rcode);
       Rcode = 0;
       if (!ret)is_done = false;
-    }
-      //		  case NEXT_BREAK_LBL_INST:
-      //			{
-      //			  is_done = false;
-      //			  /*Rcode = next_break_loop(Rcode)
-      //			  if Rcode == "-next"
-      //			  {
-      //				  return 13
-      //			  }*/
-      //			  break;
-      //			}
-    else {
+    } else if (state == NEXT_BREAK_LBL_INST) {
+      is_done = structure_loop_next_break(Rcode);
+      Rcode = 0;
+    } else {
       is_done = false;
       //exception_handler("unknown_instruction", "INSTRUCTION_EXECUTOR", Rcode, "")
     }

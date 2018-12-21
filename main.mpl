@@ -42,20 +42,27 @@ func fib(num n){
 		return 1;
 }
 
+func fgg(){
+	loop(num z=0;z<3;z++){
+		print("DDDD:%z%\n");
+		break 2;
+	}
+}
+
 func main(){
 	//num n[4,3],str s,s={{3,-8,9.78},{(24^3)/4+56.5,8f,null},{0x45,0o34+4,0b01011},{-3454,45h,12.4i}},"سلام"+" !"
-	num j,j1,j2[3]=5,3,{67,9.6787,-35}
+	num j,j1,j2[3]=10,3,{67,9.6787,-35}
 	//gg gh[?]={struct({{"A","B"},{"AA","BB"}},6),struct({{"D","E"},{"DD","EE"}},-56*9)}
 	//gg1 st1[?]={struct(struct({true,false},1000),"Hello"),struct(struct({false,false},9999),"Amin")}
-	//{{45,45},{45,78},{5756,0}}
+	num ll[3,2]={{45,45},{45,78},{5756,0}}
 		
 	//str jj="Hello"+"!"
 	//num jk=samp(5)
 	//num ns=fib(8)
-	loop(num h=0;j>0;j--) {
-		str g="Heill"
-		print("SSSS:%j%,%g%\n");
-		loop(num z=0;z<2;z++) print("WWWW:%z%\n")
+	loop(str s;j>0,s:ll;j--) {
+		print("SSSS:%j%,%s%\n");
+		
+		//loop(num z=0;z<3;z++) {print("WWWW:%z%\n");}
 	}
 	//print("j:%j% , j1:%j1%\n")
 	//num ns=push(gh,struct({{"Ac","Bc"},{"Ac","Bc"}},6000),2)//__define["LeftDirect"] push(jj,"uiuiuiuiui",2)

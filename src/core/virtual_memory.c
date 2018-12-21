@@ -586,9 +586,10 @@ long_int add_to_pointer_memory(String data, uint8 type_data) {
 void show_memory(uint8 wh) {
 //  if (wh == 40) {
 //    wh = 0;
-//  } else if (is_programmer_debug < 2) {
-//    return;
 //  }
+  if (is_programmer_debug == 0) {
+    return;
+  }
   //*************show var_memory
   printf("-------------------------\n");
   if (wh == 0 || wh == 1 || wh == 3) {

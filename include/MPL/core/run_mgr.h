@@ -37,4 +37,5 @@ Boolean structure_LOOP(long_int st_id, uint8 type, str_list params);
 int8 structure_loop_run_header(str_list insts, uint32 insts_len, uint8 part);
 uint32 structure_split_segments(String part, str_list *segments);
 uint8 labeled_loop_instruction(String code, uint8 part);
+Boolean structure_loop_next_break(String code);
 #endif //MPL_RUN_MGR_H

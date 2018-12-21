@@ -41,7 +41,7 @@ void init_exceptions_list_data() {
                        "remainder(%%) is not determined for '!1@1!' numbers and expressions");
   define_new_exception(3, ERROR_ID, "out_of_range_index", InterruptedError,
                        "'!1@1!' out of range for '!2@2!' variable");
-  define_new_exception(4, ERROR_ID, "out_of_range_break_next", InterruptedError, "'!1@1!' is not between 1 .. !2@2!");
+  define_new_exception(4, ERROR_ID, "out_of_range_break", InterruptedError, "'break' instruction parameter is not between 1 .. !1@1!");
   define_new_exception(5,
                        ERROR_ID,
                        "out_of_range_integer",
@@ -57,6 +57,7 @@ void init_exceptions_list_data() {
                        "array_index_out_of_range",
                        InterruptedError,
                        "Index Array '!1@1!' is out of range from '0' to '!2@2!'");
+  define_new_exception(8, ERROR_ID, "not_using_next_break", InterruptedError, "not using next and break instructions outside of a loop structure");
   define_new_exception(9, WARNING_ID, "array_index_underflow", InterruptedError, "Index Array '!1@1!' is underflow");
   define_new_exception(10,
                        ERROR_ID,
@@ -64,7 +65,7 @@ void init_exceptions_list_data() {
                        InterruptedError,
                        "Index Array '!1@1!' is overflow from '!2@2!'");
 
-  define_new_exception(5, ERROR_ID, "review_array_out_of_range", InterruptedError,
+  define_new_exception(11, ERROR_ID, "review_array_out_of_range", InterruptedError,
                        "review array can not assign '!1@1!' to more than '!2@2!' variables");
   //\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\
 	//SyntaxError
@@ -87,6 +88,7 @@ void init_exceptions_list_data() {
   define_new_exception(12, ERROR_ID, "wrong_def_var", SyntaxError,
                        "'!1@1!' is a wrong expression for variable declaration");
   define_new_exception(13, ERROR_ID, "invalid_name_var", SyntaxError, "'!1@1!' is not a valid name for a variable");
+  define_new_exception(14, ERROR_ID, "invalid_next_inst", SyntaxError, "'next' instruction not accept any parameters");
   //\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\
 	//ValueError
   define_new_exception(1, ERROR_ID, "val_def_var", ValueError,

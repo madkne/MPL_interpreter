@@ -7,7 +7,7 @@
 
 //**************************************************define interpreter constants
 #define  APP_NAME                       "Mini Portable Language"
-#define  VERSION                        "0.3.61"    //1.10.100
+#define  VERSION                        "0.3.73"    //1.10.100
 #define  VERSION_NAME                   "BETA"
 #define  SLOGAN                         "The solution to common problems of programmers" //راه حل کارهای متداول برنامه نویسان
 
@@ -122,6 +122,7 @@
 #define PRINT_FUNCTIONS_STACK_ST        12
 #define PRINT_STRUCTURES_STACK_ST       13
 #define PRINT_CONDITION_LEVEL_ST        14
+#define PRINT_LOOP_LEVEL_ST             15
 //------------------------------------------
 #define   BOOL_SUB_TYPE_ID              1
 #define   STR_SUB_TYPE_ID               2
@@ -154,6 +155,7 @@
 #define   BAD_RETURN_APP_CONTROLLER     0
 #define   NORMAL_RETURN_APP_CONTROLLER  1
 #define   STOP_RETURN_APP_CONTROLLER    2
+#define   BREAK_RETURN_APP_CONTROLLER   3
 //------------------------------------------used in built-in input,fread functions
 #define   READ_CHAR_INPUT_TYPE          "1"
 #define   READ_LINE_INPUT_TYPE          "2"
@@ -162,6 +164,9 @@
 #define   LEFT_DIRECT                   "1"
 #define   RIGHT_DIRECT                  "2"
 #define   BOTH_DIRECT                   "0"
+//------------------------------------------used for entry_table.next_break_inst
+#define   NEXT_INST                   1
+#define   BREAK_INST                  2
 //**************************************************typedef
 typedef char int8;
 typedef unsigned char uint8;

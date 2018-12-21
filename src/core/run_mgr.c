@@ -534,8 +534,15 @@ String init_calling_function(String pname, String fname, str_list params, uint32
   //--------------------delete cole nodes
   for (;;) {
     if (entry_table.cole_end == 0)break;
-    if (entry_table.cole_end->fin == entry_table.cur_fid) {
+    if (entry_table.cole_end->fin == entry_table.cur_fin) {
       pop_last_cole();
+    } else break;
+  }
+  //--------------------delete lole nodes
+  for (;;) {
+    if (entry_table.lole_end == 0)break;
+    if (entry_table.lole_end->fin == entry_table.cur_fin) {
+      pop_last_lole();
     } else break;
   }
   //--------------------return to parent function
@@ -605,13 +612,16 @@ is_exact_function(str_list func_params,
                   uint32 params_len,
                   Boolean is_built_in) {
   //printf ("##FUNCII:%s,%s\n", print_str_list (func_params, func_params_len), print_str_list (type_params, params_len));
-  if (func_params_len == 0 && params_len != 0) {
+  if (func_params_len == 0 && params_len == 0) {
+    return true;
+  } else if (func_params_len == 0 && params_len != 0) {
     //printf ("0####################\n");
     return false;
   } else {
     //if last parameter of func_params is vars
     Boolean is_last_vars = false;
-    if (str_indexof(func_params[func_params_len - 1], "vars;", 0) == 0
+//    printf("ZZZZZZZZZZZZZZZ:%s\n",func_params[func_params_len - 1]);
+    if (func_params_len > 0 && str_indexof(func_params[func_params_len - 1], "vars;", 0) == 0
         || (is_built_in && str_indexof(func_params[func_params_len - 1], "aa..;", 0) == 0))
       is_last_vars = true;
     //if call params is less than func params
@@ -661,7 +671,7 @@ is_exact_function(str_list func_params,
         return false;
       }
     }
-    //printf("FFFFFFFFFFFFFFFF\n");
+//    printf("FFFFFFFFFFFFFFFF\n");
   }
   //-------- if find function
   //printf("FUNC_PARS:%s,%s\n", func_name, print_str_list(func_params, func_params_len));
@@ -699,10 +709,10 @@ int32 set_function_parameters(String pack_name, String func_name, str_list pars,
   //------------------
   for (;;) {
     if (str_equal(tmp1->lbl, func_name)) {
-      // printf("##FUNC:%s,%s\n", tmp1->lbl, print_str_list(tmp1->params, tmp1->params_len));
+//       printf("##FUNC:%s;%s;%s\n", tmp1->lbl, print_str_list(tmp1->params, tmp1->params_len), print_str_list(ret_pars, ret_pars_len));
       //-------- if find function
       if (is_exact_function(tmp1->params, tmp1->params_len, ret_pars, ret_pars_len, false)) {
-        //printf("FUNC_PARS:%s,%s\n", func_name, print_str_list(tmp1->params, tmp1->params_len));
+//        printf("FUNC_PARS:%s,%s\n", func_name, print_str_list(tmp1->params, tmp1->params_len));
         entry_table.cur_fid = tmp1->id;
         func_params = tmp1->params;
         func_params_len = tmp1->params_len;
@@ -1535,18 +1545,21 @@ Boolean structure_CONDITION(long_int st_id, uint8 type, String value) {
 
 //****************************************************
 Boolean structure_LOOP(long_int st_id, uint8 type, str_list params) {
-  printf("LOOP[%i]:%s|%s|%s\n", st_id, params[0], params[1], params[2]);
+//  printf("LOOP[%i]:%s|%s|%s\n", st_id, params[0], params[1], params[2]);
   //--------------------init vars
   str_list init_vars = 0, conditions, do_more = 0;
   uint32 loop_number = 0;
   int8 status = 0;
   //--------------------record all registers
-  stst s =
+  stst s1 =
       {LOOP_STRU_ID, entry_table.cur_fid, entry_table.cur_fin, st_id, entry_table.cur_sid, entry_table.cur_order, 0};
-  append_stst(s);
+  append_stst(s1);
   //--------------------set new registers
   entry_table.cur_order = 1;
   entry_table.cur_sid = st_id;
+  //--------------------set new loop_level
+  lole s = {0, entry_table.cur_fin, entry_table.cur_sid, 0, 0};
+  append_lole(s);
   //----------------analyze part I (init vars)
   uint32 init_vars_len = structure_split_segments(params[0], &init_vars);
 //  printf("@@(%i):%s\n", all_inst_len, print_str_list(all_inst, all_inst_len));
@@ -1576,9 +1589,10 @@ Boolean structure_LOOP(long_int st_id, uint8 type, str_list params) {
     //-------execute loop block
     entry_table.cur_order = 1;
     status = APP_CONTROLLER();
-
     garbage_collector('A');
     loop_number++;
+    //-------if get break signal
+    if (status == BREAK_RETURN_APP_CONTROLLER || status == BAD_RETURN_APP_CONTROLLER) break;
     //-------do more!
     status = structure_loop_run_header(do_more, do_more_len, 3);
     if (status == -1) return false;
@@ -1586,6 +1600,12 @@ Boolean structure_LOOP(long_int st_id, uint8 type, str_list params) {
   }
   //--------------------delete header vars
   garbage_collector('S');
+  //--------------------pop from loop_level
+//  print_struct(PRINT_LOOP_LEVEL_ST);
+  for (;;) {
+    lole tmp = pop_last_lole();
+    if (tmp.id != 0 && tmp.fin == entry_table.cur_fin && tmp.sid == entry_table.cur_sid) break;
+  }
   //--------------------return to parent structure
   //print_struct(PRINT_FUNCTIONS_STACK_ST);
   stst lst = get_last_stst();
@@ -1621,12 +1641,12 @@ int8 structure_loop_run_header(str_list insts, uint32 insts_len, uint8 part) {
   for (uint32 i = 0; i < insts_len; i++) {
     if (is_finished) break;
     str_init(&parcode, insts[i]);
-    printf("check_cond[%i](%i):%s\n", i, part, parcode);
+//    printf("check_cond[%i](%i):%s\n", i, part, parcode);
     while ((parcode = str_trim_space(parcode)) != 0) {
       uint8 state = labeled_loop_instruction(parcode, part);
       //-------------analyzing normal states
       if (state == UNKNOWN_LBL_INST) {
-        exception_handler("unknown_instruction", __func__, parcode, "");
+        exception_handler("unknown_instruction", __func__, parcode, 0);
         is_error = true;
         break;
       } else if (state == ALLOC_MAGIC_MACROS_LBL_INST)parcode = alloc_magic_macros(parcode);
@@ -1716,8 +1736,6 @@ uint8 labeled_loop_instruction(String code, uint8 part) {
    * LOGIC_CALC_LBL_INST (p2)           [OK]
    * REVIEW_ARRAY_LBL_INST (p2)         [OK]
    */
-
-
   //----------------------analyzing code line
   for (uint32 i = 0; i < len; i++) {
     //------------------check is string
@@ -1768,7 +1786,7 @@ uint8 labeled_loop_instruction(String code, uint8 part) {
         (tmp_short_alloc > 0) ||
             (i + 1 < len && ((code[i] == '+' && code[i + 1] == '+') || (code[i] == '-' && code[i + 1] == '-')))
     )) {
-      printf("TTT:%s\n", com_word);
+//      printf("TTT:%s\n", com_word);
       tmp_short_alloc = 0;
       state = ALLOC_SHORT_LBL_INST;
       break;
@@ -1829,3 +1847,92 @@ uint8 labeled_loop_instruction(String code, uint8 part) {
   //********************return state
   return state;
 }
+//****************************************************
+Boolean structure_loop_next_break(String code) {
+/**
+	1- break || next
+	2- break 1 || next (1+2)/3
+	3- break 1 //break || next 1 //next
+	4- break(1) || next (2)
+	*/
+  //********************init variables
+  String inst = 0, counter = 0, word = 0;
+  Boolean is_string = false;
+  int32 par = 0, bra = 0;
+  int8 mode = 0;
+  uint32 len = str_length(code);
+  //********************start analyzing exp
+  for (uint32 i = 0; i < len; i++) {
+    //------------------check is string
+    if (code[i] == '\"' && (i == 0 || code[i - 1] != '\\'))is_string = switch_bool(is_string);
+    //------------------count parenthesis,brackets
+    if (!is_string) {
+      if (code[i] == '(')par++;
+      else if (code[i] == ')')par--;
+      else if (code[i] == '[')bra++;
+      else if (code[i] == ']')bra--;
+    }
+    //------------------find break or next
+    if (!is_string && inst == 0 && (code[i] == '(' || code[i] == ' ' || i + 1 == len)) {
+      if (i + 1 == len)word = char_append(word, code[i]);
+      word = str_trim_space(word);
+      if (str_equal(word, "break") || str_equal(word, "next")) {
+        if (str_equal(word, "break"))mode = BREAK_INST;
+        else mode = NEXT_INST;
+        str_init(&inst, word);
+        word = 0;
+        if (i + 1 == len) {
+          str_init(&counter, "1");
+          break;
+        }
+      }
+    }
+    //------------------find counter
+    if (!is_string && i + 1 == len) {
+      word = char_append(word, code[i]);
+      uint8 retsub = 0;
+      calculate_math_expression(word, 'i', &counter, &retsub);
+      break;
+    }
+    //------------------append to word
+    word = char_append(word, code[i]);
+  }
+  //----------------determine loop_count,max_loop
+  int32 loop_count = str_to_int32(counter);
+  uint32 max_loop = entry_table.lole_len;
+  //get loop count for cur_fin
+  if (max_loop > 1 && loop_count > 1) {
+    lole *tmp1 = entry_table.lole_end;
+    max_loop = 0;
+    for (;;) {
+      if (tmp1->fin == entry_table.cur_fin) {
+        max_loop++;
+      } else break;
+      tmp1 = tmp1->prev;
+      if (tmp1 == 0) break;
+    }
+  }
+//  print_struct(PRINT_LOOP_LEVEL_ST);
+//  printf("next_break:%s[%s]:{%i,%i[%i]}\n", inst, counter,loop_count,max_loop,entry_table.cur_fin);
+  //----------------check errors
+  if (entry_table.lole_len == 0) {
+    exception_handler("not_using_next_break", __func__, 0, 0);
+    return false;
+  }
+  if (mode == BREAK_INST && (loop_count > max_loop || loop_count < 1)) {
+    exception_handler("out_of_range_break", __func__, str_from_int32(max_loop), 0);
+    return false;
+  } else if (mode == NEXT_INST && loop_count != 1) {
+    exception_handler("invalid_next_inst", __func__, 0, 0);
+    return false;
+  }
+  //----------------set next_break_inst
+  entry_table.next_break_inst = mode;
+  //----------------if is break inst
+  if (mode == BREAK_INST) {
+    entry_table.break_count = loop_count;
+  }
+  //----------------return
+  return true;
+}
+

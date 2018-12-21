@@ -178,9 +178,12 @@ void init_database() {
   entry_table.cole_end = 0;
   entry_table.cole_len = 0;
 
-  entry_table.in_loop = 0;
+  entry_table.lole_start = 0;
+  entry_table.lole_end = 0;
+  entry_table.lole_len = 0;
+
+  entry_table.next_break_inst = 0;
   entry_table.break_count = 0;
-  entry_table.next_count = 0;
 
   entry_table.Rsrc = 0;
   entry_table.return_fin = 0;
@@ -1011,6 +1014,49 @@ cole pop_last_cole() {
   else {
     entry_table.cole_end = tmp1->prev;
     entry_table.cole_end->next = 0;
+    free(tmp1);
+  }
+
+  return ret;
+}
+//*************************************************************
+//********************loop_level functions*********************
+//*************************************************************
+void append_lole(lole s) {
+  lole *q;
+  q = (lole *) malloc(sizeof(lole));
+  if (q == 0) return;
+  q->id = ++entry_table.lole_len;
+  q->fin = s.fin;
+  q->sid = s.sid;
+  q->next = 0;
+  q->prev = entry_table.lole_end;
+//  printf("$$$:%i,%i,%i\n", s.fin, s.sid,entry_table.cole_end!=0?entry_table.cole_end->fin:-1);
+  if (entry_table.lole_start == 0) {
+    entry_table.lole_start = entry_table.lole_end = q;
+  } else {
+    entry_table.lole_end->next = q;
+    entry_table.lole_end = q;
+  }
+}
+//*************************************************************
+lole pop_last_lole() {
+  lole ret = {0, 0, 0, 0, 0};
+  lole *tmp1 = entry_table.lole_end;
+  if (tmp1 == 0) return ret;
+  ret.id = (*tmp1).id;
+  ret.fin = (*tmp1).fin;
+  ret.sid = (*tmp1).sid;
+  entry_table.lole_len--;
+  //if exist just one item
+  if (entry_table.lole_start == tmp1 || tmp1->prev == 0) {
+    free(tmp1);
+    entry_table.lole_start = entry_table.lole_end = 0;
+  }
+    //else exist more items
+  else {
+    entry_table.lole_end = tmp1->prev;
+    entry_table.lole_end->next = 0;
     free(tmp1);
   }
 

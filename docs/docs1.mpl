@@ -7,7 +7,7 @@ Influence by:
 C,PHP,Mahdi
 -----------------------------
 Keywords:
-__config,__define,__session
+__config($con),__define($def),__session($ses)
 true,false,null
 if,elif,else,loop,manage
 num,str,bool,struct,vars
@@ -49,7 +49,7 @@ built-in functions:
 --Completed:
 print(val|var[..])[OK],typeof(var)[OK],input(num)[OK],push(var[..],var[..],num)[OK]/*just for var[?]*/
 --Not Completed:
-len(var[..]),error_handle(num,str,str),config_all(),define_all(),define_isset(str),embed_run(str[?]),argvs(),session_all(),session_isset(str),crop(var[..],num,num),search(var[..],var),mpl_execute(str),trace_var(var[?,..]),trace_func(str,num),echo(var)/*just used in embed files*/,var_type(var[..]),pop(var[..],num)/*just for var[?]*/,del(var[..])
+printf(str,var[..]),len(var[..]),error_handle(num,str,str),config_all(),define_all(),define_isset(str),embed_run(str[?]),argvs(),session_all(),session_isset(str),crop(var[..],num,num),search(var[..],var),mpl_execute(str),trace_var(var[?,..]),trace_func(str,num),echo(var)/*just used in embed files*/,var_type(var[..]),pop(var[..],num)/*just for var[?]*/,del(var[..])
 -------DATA functions:
 --Completed:
 --Not Completed:
@@ -125,6 +125,16 @@ sample:
 - loop(;i<5) or loop(;i<5;)
 - loop(num h=get1(),num k=0;h<get2(k);k++,h++)
 - loop(str u,b=null,num i=0;u!="Hi") //=>make an error Correct:loop(str u=null,str b=null,num i=0;u!="Hi") OR loop(str u,str b,num i=null;u!="Hi")
+-----break,next
+- break instruction can give a number that determine how many break from multiple loops
+- next instruction can not gives any numbers!
+loop(..){
+	loop(..){
+		a=b;
+		break(2);
+	}
+	next;
+}
 -----review array in loop
 num v[2,3,4]
 loop(num i1,i2,i3;i1,i2,i3:v) //i1[4]=v[0,0],i2[4]=v[0,1],i3[4]=v[0,2]

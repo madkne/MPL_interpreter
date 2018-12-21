@@ -142,7 +142,7 @@ String str_replace(String s, String old_s, String new_s, int8 num) {
   uint32 new_len = str_length(new_s);
   for (uint32 i = 0; i < len; i++) {
     Boolean is_exist = true;
-    if (i + old_len < len) {
+    if (i + old_len <= len) {
       uint32 ind = 0;
       for (uint32 j = i; j < i + old_len; j++) {
         if (s[j] != old_s[ind++]) {

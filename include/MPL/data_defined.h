@@ -232,6 +232,15 @@ typedef struct condition_level_struct {
   struct condition_level_struct *prev;
   struct condition_level_struct *next;
 } cole;
+//****************************loop_level struct
+typedef struct loop_level_struct {
+  uint32 id;
+  long_int fin;
+  long_int sid;
+
+  struct loop_level_struct *prev;
+  struct loop_level_struct *next;
+} lole;
 //****************************debug_breakpoints struct
 typedef struct debug_breakpoints_struct {
   uint32 line_number;
@@ -366,6 +375,21 @@ struct entry_table_struct {
   stst *stst_end;
   uint32 stst_len;
 
+  cole *cole_start;
+  cole *cole_end;
+  uint32 cole_len;
+
+  lole *lole_start;
+  lole *lole_end;
+  uint32 lole_len;
+
+  debr *debr_start;
+  debr *debr_end;
+  uint32 debr_len;
+
+  Boolean debug_is_run;
+  Boolean debug_is_next;
+
   Mvar *var_memory_start;
   Mvar *var_memory_end;
   Mpoint *pointer_memory_start;
@@ -375,19 +399,15 @@ struct entry_table_struct {
   long_int pointer_mem_id;
   long_int pointer_mem_len;
 
-  cole *cole_start;
-  cole *cole_end;
-  uint32 cole_len;
+  int8 next_break_inst;
+  uint32 break_count;
 
-  debr *debr_start;
-  debr *debr_end;
-  uint32 debr_len;
+  long_int cur_fid;
+  long_int cur_fin;
+  long_int cur_sid;
+  long_int cur_order;
+  long_int parent_fin;
 
-  Boolean debug_is_run;
-  Boolean debug_is_next;
-
-  long_int cur_fid, cur_fin, cur_sid, cur_order, parent_fin;
-  uint32 in_loop, break_count, next_count;
   String Rsrc;
   long_int return_fin;
   uint32 Rorder, Rline;
@@ -491,6 +511,9 @@ void append_cole(cole s);
 cole get_cole_by_id(uint32 id);
 Boolean set_cole_complete(uint32 id);
 cole pop_last_cole();
+//-------------------------lole funcs
+void append_lole(lole s);
+lole pop_last_lole();
 //-------------------------debr funcs
 void append_debr(uint32 line, String path);
 Boolean is_find_debr(uint32 line, String path);

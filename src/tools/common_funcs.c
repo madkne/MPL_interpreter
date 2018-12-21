@@ -378,6 +378,19 @@ void print_struct(uint8 which) {
       if (tmp1 == 0) break;
     }
     printf("=====End printed\n");
+  } else if (which == 0 || which == PRINT_LOOP_LEVEL_ST) {
+    lole *tmp1 = entry_table.lole_start;
+    if (tmp1 == 0) {
+      printf("(null) loop level\n");
+      return;
+    }
+    printf("=====Print loop level :\n");
+    for (;;) {
+      printf("id:%i,fin:%i,sid:%i\n", tmp1->id, tmp1->fin, tmp1->sid);
+      tmp1 = tmp1->next;
+      if (tmp1 == 0) break;
+    }
+    printf("=====End printed\n");
   }
 }
 
