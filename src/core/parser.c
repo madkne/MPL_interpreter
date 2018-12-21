@@ -493,10 +493,12 @@ void manage_structures(uint32 *i, String lbl) {
         buf = char_append(buf, ' ');
       }
     }
-  //-----------
+  //-----------else type
   if (type == ELSE_STRU_ID) {
     str_list_append(&params, "null", params_len++);
-  } else {
+  }
+    //-----------other types
+  else {
     buf = trim_instruction_code(buf); //trim code
     str_list_append(&params, buf, params_len++);
   }
@@ -510,6 +512,34 @@ void manage_structures(uint32 *i, String lbl) {
   //printf("XXXXXX:%s=>%s,%s\n", lbl, get_soco(2, cur_ind + 1).code, get_soco(2, cur_ind + 2).code);
   //-----------------
 //  printf("OPPPP:lbl[%i]:%s,cur_sid:%i,params:%s,is_inline:%i(%s;%s)\n", type, lbl, cur_stru_id,print_str_list(params, params_len), is_inline_stru,get_soco(2, cur_ind + 1).code,get_soco(2, cur_ind + 2).code);
+
+  //-----------------analyze loop stru
+  if (type == LOOP_STRU_ID) {
+    String buffer = 0, tmp = 0;
+    str_init(&buffer, params[0]);
+    params_len = 0;
+    params = 0;
+    Boolean is_str = false;
+    uint32 blen = str_length(buffer);
+    for (uint32 j = 0; j <= blen; j++) {
+      if (j < blen && buffer[j] == '\"' && (j == 0 || buffer[j - 1] != '\\'))
+        is_str = switch_bool(is_str);
+      if (!is_str && (buffer[j] == ';' || j == blen)) {
+        str_list_append(&params, tmp, params_len++);
+        tmp = 0;
+        continue;
+      }
+      tmp = char_append(tmp, buffer[j]);
+    }
+    if (params_len < 3)while (params_len < 3)str_list_append(&params, 0, params_len++);
+    else if (params_len > 3) {
+      //TODO:error
+    }
+    if(params[1]==0){
+      //TODO:error
+    }
+//    printf("#WW:%i;;;%s;;;%s\n", params_len, print_str_list(params, params_len), buf);
+  }
   //-----------------append to blst
   if (type == SWITCH_STRU_ID) {
     //TODO:convert switch to if,elif,else

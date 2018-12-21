@@ -32,7 +32,7 @@ void append_Mvar(Mvar s) {
   q->stru_index = s.stru_index;
   q->type_var = s.type_var;
   str_init(&q->name, s.name);
-  str_init(&q->extra, s.extra);
+  q->flag, s.flag;
   q->next = 0;
   entry_table.var_mem_len++;
   if (entry_table.var_memory_start == 0)
@@ -160,6 +160,21 @@ void change_Mvar_pointer_id(long_int i, long_int new_po) {
     counter++;
     if (tmp1 == 0) break;
   }
+}
+//****************************************************
+Boolean change_Mvar_flag(long_int i, uint8 flag) {
+  long_int counter = 0;
+  Mvar *tmp1 = entry_table.var_memory_start;
+  for (;;) {
+    if (i == counter) {
+      (*tmp1).flag = flag;
+      return true;
+    }
+    tmp1 = tmp1->next;
+    counter++;
+    if (tmp1 == 0) break;
+  }
+  return false;
 }
 //****************************************************
 /**
@@ -545,11 +560,11 @@ set_parent_nodes_Mpoint(int32 max_indexes[], uint8 indexes_len, longint_list poi
 
 //****************************************************
 long_int
-add_to_var_memory(long_int pointer_id, long_int fin, long_int sid, long_int type_var, String name, String extra) {
+add_to_var_memory(long_int pointer_id, long_int fin, long_int sid, long_int type_var, String name, uint8 flag) {
   entry_table.var_mem_id++;
   Mvar var = {entry_table.var_mem_id, pointer_id, sid, fin, type_var, 0, 0};
   str_init(&var.name, name);
-  if (extra != 0)str_init(&var.extra, extra);
+  var.flag = flag;
   append_Mvar(var);
   return entry_table.var_mem_id;
 }
@@ -583,8 +598,8 @@ void show_memory(uint8 wh) {
       if (wh != 3 && st.name == 0) {
         continue;
       }
-      printf("%i:VAR(id:%i,fin:%i,sid:%i,pointer:%i,type:%i)\n\t%s,{extra:%s}\n=====================\n", i, st.id,
-             st.func_index, st.stru_index, st.pointer_id, st.type_var, st.name, st.extra);
+      printf("%i:VAR(id:%i,fin:%i,sid:%i,pointer:%i,type:%i)\n\t%s,{flag:%c}\n=====================\n", i, st.id,
+             st.func_index, st.stru_index, st.pointer_id, st.type_var, st.name, st.flag);
     }
   }
   //*************show pointer_memory

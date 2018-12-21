@@ -109,7 +109,8 @@ uint8 labeled_instruction(String code) {
         && ((code[i] == '+' && code[i + 1] == '+') || (code[i] == '-' && code[i + 1] == '-'))) {
       tmp_short_alloc = i + 1;
     }
-    if (!is_string && com_word != 0 && is_valid_name(com_word, true) && (
+    if (!is_string && com_word != 0 && (is_valid_name(com_word, true)
+        || (com_word == 0 && is_valid_name(char_to_str(code[i]), true))) && (
         (tmp_short_alloc > 0) ||
             (i + 1 < len && ((code[i] == '+' && code[i + 1] == '+') || (code[i] == '-' && code[i + 1] == '-')))
     )) {
@@ -560,8 +561,17 @@ void garbage_collector(uint8 type) {
       Mvar st = get_Mvar(i);
       if (st.name == 0)continue;
       //---------------------delete all current structure variables
-      if (type == 'A' && st.func_index == entry_table.cur_fin && st.stru_index == entry_table.cur_sid) {
+      if (type == 'A' && st.func_index == entry_table.cur_fin && st.stru_index == entry_table.cur_sid
+          && st.flag != 'l') {
 //        printf("####A:%s,%i,%i,%i\n", st.name, st.id, st.stru_index, i);
+        delete_full_memory_var(i, true);
+        is_change = true;
+        break;
+      }
+      //---------------------delete all current structure variables header
+      if (type == 'S' && st.func_index == entry_table.cur_fin && st.stru_index == entry_table.cur_sid
+          && st.flag == 'l') {
+//        printf("####S:%s,%i,%i,%i\n", st.name, st.id, st.stru_index, i);
         delete_full_memory_var(i, true);
         is_change = true;
         break;
@@ -1308,7 +1318,20 @@ String vars_allocation_short(String exp) {
 //  printf("***alloc_short***:%s;%s,%i(%i,%i)[%s,%s]\n", exp, var_name, is_plusplus, start, end, tmp1, tmp2);
   return exp;
 }
-
+//****************************************************
+Boolean check_post_short_alloc() {
+  if (entry_table.post_short_alloc_len > 0) {
+    for (uint32 i = 0; i < entry_table.post_short_alloc_len; i++) {
+      str_list tokens = 0;
+      //printf("ER#%s\n",entry_table.post_short_alloc[i]);
+      char_split(entry_table.post_short_alloc[i], ';', &tokens, true);
+      Boolean ret = do_show_allocation(tokens[0], str_to_bool(tokens[1]));
+      if (!ret)return false;
+    }
+    entry_table.post_short_alloc_len = 0;
+  }
+  return true;
+}
 //****************************************************
 Boolean do_show_allocation(String var_name, Boolean is_plusplus) {
 
@@ -1354,7 +1377,7 @@ Boolean init_structures(String exp) {
         //print_struct(PRINT_STRU_ST);
         return structure_CONDITION(rec->id, rec->type, rec->params[0]);
       } else if (rec->type == LOOP_STRU_ID) {
-//TODO
+        return structure_LOOP(rec->id, rec->type, rec->params);
       }
       return true;
     }
@@ -1419,18 +1442,18 @@ Boolean structure_CONDITION(long_int st_id, uint8 type, String value) {
 	3- else ---OK---
 	-------Samples:
 	if (pk1.xid()>=10000)print("NUM1\n")
-		elif(pk1.xid()>=1000)print("NUM2\n")
-		elif(pk1.xid()>=100)print("NUM3\n")
-		else print("NUM4\n")
+    elif(pk1.xid()>=1000)print("NUM2\n")
+	elif(pk1.xid()>=100)print("NUM3\n")
+	else print("NUM4\n")
 	*/
-  printf("##condition:id:%i,type:%i,fin:%i,sid:%i,/%s/,%s(%i)\n",
-         st_id,
-         type,
-         entry_table.cur_fin,
-         entry_table.cur_sid,
-         value,
-         str_from_bool(get_cole_by_id(entry_table.cole_len).is_complete),
-         entry_table.cole_len);
+//  printf("##condition:id:%i,type:%i,fin:%i,sid:%i,/%s/,%s(%i)\n",
+//         st_id,
+//         type,
+//         entry_table.cur_fin,
+//         entry_table.cur_sid,
+//         value,
+//         str_from_bool(get_cole_by_id(entry_table.cole_len).is_complete),
+//         entry_table.cole_len);
   //----------------check for elif , else that have if
   if ((type == ELSE_STRU_ID || type == ELIF_STRU_ID)) {
     Boolean failed = false;
@@ -1470,9 +1493,9 @@ Boolean structure_CONDITION(long_int st_id, uint8 type, String value) {
     bool_out = calculate_boolean_expression(value, &sub);
     bool_true = str_to_bool(bool_out);
   }
-  printf("--Condition:%s=>%s(%i)\n", value, bool_out, bool_true);
-  print_struct(PRINT_CONDITION_LEVEL_ST);
-  display_all_registers();
+//  printf("--Condition:%s=>%s(%i)\n", value, bool_out, bool_true);
+//  print_struct(PRINT_CONDITION_LEVEL_ST);
+//  display_all_registers();
   //----------------if bool_true is true
   if (bool_true) {
     Boolean ret = set_cole_complete(entry_table.cole_len);
@@ -1485,7 +1508,7 @@ Boolean structure_CONDITION(long_int st_id, uint8 type, String value) {
     stst s =
         {IF_STRU_ID, entry_table.cur_fid, entry_table.cur_fin, st_id, entry_table.cur_sid, entry_table.cur_order, 0};
     append_stst(s);
-//--------------------set new registers
+    //--------------------set new registers
     entry_table.cur_order = 1;
     entry_table.cur_sid = st_id;
     //--------------------start point
@@ -1508,4 +1531,301 @@ Boolean structure_CONDITION(long_int st_id, uint8 type, String value) {
     delete_last_stst();
   }
   return true;
+}
+
+//****************************************************
+Boolean structure_LOOP(long_int st_id, uint8 type, str_list params) {
+  printf("LOOP[%i]:%s|%s|%s\n", st_id, params[0], params[1], params[2]);
+  //--------------------init vars
+  str_list init_vars = 0, conditions, do_more = 0;
+  uint32 loop_number = 0;
+  int8 status = 0;
+  //--------------------record all registers
+  stst s =
+      {LOOP_STRU_ID, entry_table.cur_fid, entry_table.cur_fin, st_id, entry_table.cur_sid, entry_table.cur_order, 0};
+  append_stst(s);
+  //--------------------set new registers
+  entry_table.cur_order = 1;
+  entry_table.cur_sid = st_id;
+  //----------------analyze part I (init vars)
+  uint32 init_vars_len = structure_split_segments(params[0], &init_vars);
+//  printf("@@(%i):%s\n", all_inst_len, print_str_list(all_inst, all_inst_len));
+  for (uint32 i = 0; i < init_vars_len; i++) {
+    //-------add to memory
+    def_var_s vars_store[MAX_VAR_ALLOC_INSTRUCTIONS];
+    uint8 vars_counter = define_vars_analyzing(init_vars[i], vars_store);
+    for (uint8 j = 0; j < vars_counter; j++) {
+      if (vars_store[j].value_var == 0) str_init(&vars_store[j].value_var, "null");
+      vars_store[j].name_var = str_multi_append(vars_store[j].name_var, "[", vars_store[j].index_var, "]", 0, 0);
+      long_int ret1 = set_memory_var(entry_table.cur_fin, entry_table.cur_sid, vars_store[j].name_var, vars_store[j]
+          .value_var, vars_store[j].main_type, true);
+      if (ret1 == 0) return false;
+      //change flag field
+      change_Mvar_flag(find_index_var_memory(ret1), 'l'/*loop header*/);
+    }
+  }
+  //----------------short analyze part II,III (check conditions,do more!)
+  uint32 conditions_len = structure_split_segments(params[1], &conditions);
+  uint32 do_more_len = structure_split_segments(params[2], &do_more);
+  //----------------start point
+  for (;;) {
+    //-------check conditions
+    status = structure_loop_run_header(conditions, conditions_len, 2);
+    if (status) break;
+    else if (status == -1) return false;
+    //-------execute loop block
+    entry_table.cur_order = 1;
+    status = APP_CONTROLLER();
+
+    garbage_collector('A');
+    loop_number++;
+    //-------do more!
+    status = structure_loop_run_header(do_more, do_more_len, 3);
+    if (status == -1) return false;
+//    show_memory(0);
+  }
+  //--------------------delete header vars
+  garbage_collector('S');
+  //--------------------return to parent structure
+  //print_struct(PRINT_FUNCTIONS_STACK_ST);
+  stst lst = get_last_stst();
+  entry_table.cur_sid = lst.parent_sid;
+  entry_table.cur_order = lst.order;
+  delete_last_stst();
+
+  return true;
+}
+//****************************************************
+/**
+ * get list of loop header instructions for part2 or part3 and analyze their then if finished loop return true
+ * @param insts
+ * @param insts_len
+ * @param part
+ * @return Boolean
+ */
+int8 structure_loop_run_header(str_list insts, uint32 insts_len, uint8 part) {
+  /**
+ * instruction types:
+ * ALLOC_MAGIC_MACROS_LBL_INST (p2,3) [OK]
+ * ALLOC_VARS_LBL_INST (p3)           [OK]
+ * FUNC_CALL_LBL_INST (p2,3)          [OK]
+ * ALLOC_SHORT_LBL_INST (p3)          [OK]
+ * LOGIC_CALC_LBL_INST (p2)           [OK]
+ * REVIEW_ARRAY_LBL_INST (p2)         [..]
+ */
+  //init vars
+  Boolean is_finished = false;
+  String parcode = 0;
+  Boolean is_error = false;
+  //start analyzing
+  for (uint32 i = 0; i < insts_len; i++) {
+    if (is_finished) break;
+    str_init(&parcode, insts[i]);
+    printf("check_cond[%i](%i):%s\n", i, part, parcode);
+    while ((parcode = str_trim_space(parcode)) != 0) {
+      uint8 state = labeled_loop_instruction(parcode, part);
+      //-------------analyzing normal states
+      if (state == UNKNOWN_LBL_INST) {
+        exception_handler("unknown_instruction", __func__, parcode, "");
+        is_error = true;
+        break;
+      } else if (state == ALLOC_MAGIC_MACROS_LBL_INST)parcode = alloc_magic_macros(parcode);
+      else if (state == FUNC_CALL_LBL_INST)parcode = function_call(parcode);
+      else if (state == ALLOC_VARS_LBL_INST) {
+        int8 status = vars_allocation(parcode);
+        parcode = 0;
+        if (status == -1)is_error = true;
+      } else if (state == ALLOC_SHORT_LBL_INST) parcode = vars_allocation_short(parcode);
+        //-------------analyzing finish states
+      else if (part == 2 && state == LOGIC_CALC_LBL_INST) {
+        uint8 sub = 0;
+        String tmp1 = calculate_boolean_expression(parcode, &sub);
+        if (sub == 0) is_error = true;
+//        printf("&TERMINAL(logic):%s=>%s\n", parcode,tmp1);
+        if (str_equal(tmp1, "false")) is_finished = true;
+        parcode = 0;
+      } else if (part == 2 && state == REVIEW_ARRAY_LBL_INST) {
+        //TODO
+        parcode = 0;
+      }
+    }
+    if (is_error) return -1;
+  }
+  if (part == 3) {
+    Boolean ret = check_post_short_alloc();
+    if (!ret)return -1;
+  }
+  return is_finished;
+}
+//****************************************************
+/**
+ * get a part of code that include multiple instructions and split by ','. this function return all instructions from a part codes of a structure
+ * @param part
+ * @param segments
+ * @return uint32
+ */
+uint32 structure_split_segments(String part, str_list *segments) {
+  //-------------init vars
+  uint32 len = str_length(part);
+  uint32 slen = 0, pars = 0, acos = 0, bras = 0;
+  if (len == 0) return 0;
+  Boolean is_str = false;
+  String buf = 0;
+  //-------------start analyzing
+  for (uint32 i = 0; i <= len; i++) {
+    if (i < len && part[i] == '\"' && (i == 0 || part[i - 1] != '\\')) is_str = switch_bool(is_str);
+    if (!is_str) {
+      if (part[i] == '(')pars++;
+      else if (part[i] == ')')pars--;
+      else if (part[i] == '[')bras++;
+      else if (part[i] == ']')bras--;
+      else if (part[i] == '{')acos++;
+      else if (part[i] == '}')acos--;
+    }
+    if (!is_str && pars == 0 && bras == 0 && acos == 0 && (part[i] == ',' || i == len)) {
+      //printf("init_var:%s\n", buf);
+      str_list_append(&(*segments), buf, slen++);
+      buf = 0;
+      continue;
+    }
+    buf = char_append(buf, part[i]);
+  }
+  return slen;
+}
+
+//****************************************************
+uint8 labeled_loop_instruction(String code, uint8 part) {
+  //----------------------init variables
+  uint8 state = UNKNOWN_LBL_INST;
+  Boolean is_string = false, is_equal = false, is_ret = false;
+  uint16 par = 0/*count of parenthesis */, bra = 0/*count of brackets*/, aco = 0/*count of acolads*/, store_counter = 0,
+      tmp_short_alloc = 0;
+  String word = 0/*just create by words_splitter*/, case_word = 0/*create by words_splitter,single_operators*/,
+      com_word = 0/*create by words_splitter,single_operators and skip brackets*/, buffer = 0;
+  int16 last_pars = -1;
+  String word_store[10];
+  uint8 last_sep = 0;
+  uint32 len = str_length(code);
+  //msg("&LABELED:", code)
+  /**
+   * instruction types:
+   * ALLOC_MAGIC_MACROS_LBL_INST (p2,3) [OK]
+   * ALLOC_VARS_LBL_INST (p3)           [OK]
+   * FUNC_CALL_LBL_INST (p2,3)          [OK]
+   * ALLOC_SHORT_LBL_INST (p3)          [OK]
+   * LOGIC_CALC_LBL_INST (p2)           [OK]
+   * REVIEW_ARRAY_LBL_INST (p2)         [OK]
+   */
+
+
+  //----------------------analyzing code line
+  for (uint32 i = 0; i < len; i++) {
+    //------------------check is string
+    if (code[i] == '\"' && (i == 0 || code[i - 1] != '\\')) {
+      is_string = switch_bool(is_string);
+    }
+    //------------------count parenthesis,brackets,acolads
+    if (!is_string) {
+      if (i + 1 < len && code[i] == ' ' && code[i + 1] == '(') continue;
+        //count parenthesis
+      else if (code[i] == '(') par++;
+      else if (code[i] == ')') par--;
+        //count brackets
+      else if (code[i] == '[')bra++;
+      else if (code[i] == ']')bra--;
+        //count acolads
+      else if (code[i] == '{')aco++;
+      else if (code[i] == '}')aco--;
+    }
+    //------------------is '='
+    if (!is_string && code[i] == '=') {
+      is_equal = true;
+    }
+    //------------------is alloc magic macros
+    if (!is_string && code[i] == '=', com_word != 0) {
+      //printf("DDDD:%s,%s'n",com_word,buffer);
+      String name, index;
+      return_name_index_var(com_word, true, &name, &index);
+      if (str_search(magic_macros, name, StrArraySize(magic_macros)))
+        return ALLOC_MAGIC_MACROS_LBL_INST;
+    }
+    //------------------is function call
+    if (!is_string && code[i] == '(' && case_word != 0 && is_valid_name(case_word, false)) {
+      state = FUNC_CALL_LBL_INST;
+//      printf("SSSSSSSS:%s\n", case_word);
+      last_pars = par - 1;
+      //break
+    } else if (last_pars > -1 && last_pars == par && state == FUNC_CALL_LBL_INST) {
+      break;
+    }
+    //------------------is ++ or --
+    if (part == 3 && !is_string && i + 1 < len
+        && ((code[i] == '+' && code[i + 1] == '+') || (code[i] == '-' && code[i + 1] == '-'))) {
+      tmp_short_alloc = i + 1;
+    }
+    if (part == 3 && !is_string && (is_valid_name(com_word, true)
+        || (com_word == 0 && is_valid_name(char_to_str(code[i]), true))) && (
+        (tmp_short_alloc > 0) ||
+            (i + 1 < len && ((code[i] == '+' && code[i + 1] == '+') || (code[i] == '-' && code[i + 1] == '-')))
+    )) {
+      printf("TTT:%s\n", com_word);
+      tmp_short_alloc = 0;
+      state = ALLOC_SHORT_LBL_INST;
+      break;
+    }
+    //------------------is review_array
+    if (part == 2 && !is_string && code[i] == ':' && i + 1 < len) {
+      state = REVIEW_ARRAY_LBL_INST;
+    }
+    //------------------is logic_calc
+    String tmp1 = 0;
+    if (!is_string && (code[i] == '=' || code[i] == '>' || code[i] == '<' || code[i] == '!')) {
+      tmp1 = char_append(tmp1, code[i]);
+      if (i + 1 < len && code[i + 1] == '=')tmp1 = char_append(tmp1, code[i + 1]);
+    }
+    if (part == 2 && !is_string && state == UNKNOWN_LBL_INST
+        && str_search(comparative_operators, tmp1, StrArraySize(comparative_operators))) {
+      state = LOGIC_CALC_LBL_INST;
+    }
+    //------------------
+    //------------------append to buffer & word & case_word & com_word
+    buffer = char_append(buffer, code[i]);
+    //--------------
+    if (!is_string && char_search(words_splitter, code[i])) {
+      word_store[store_counter++] = str_trim_space(word);
+      last_sep = code[i];
+      if (store_counter >= 10) {
+        store_counter = 0;
+      }
+      //msg("WORD:", word)
+      word = 0;
+    } else {
+      word = char_append(word, code[i]);
+      //msg("WORD_C", word)
+    }
+    //--------------
+    if (!is_string && (char_search(words_splitter, code[i]) || char_search(single_operators, code[i]))) {
+      case_word = 0;
+    } else {
+      case_word = char_append(case_word, code[i]);
+    }
+    //--------------
+    if (!is_string && (char_search(words_splitter, code[i]) || char_search(single_operators, code[i])) &&
+        bra == 0 && code[i] != '[' && code[i] != ']') {
+      //msg("COM_WORD:", com_word)
+      com_word = 0;
+    } else {
+      com_word = char_append(com_word, code[i]);
+    }
+
+  }
+  //------------------final switch
+  //msg("&&&&", state)
+  if (state == UNKNOWN_LBL_INST) {
+    if (part == 2)state = LOGIC_CALC_LBL_INST;
+    else if (part == 3 && is_equal) state = ALLOC_VARS_LBL_INST;
+  }
+
+  //********************return state
+  return state;
 }

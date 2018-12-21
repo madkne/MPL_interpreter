@@ -121,11 +121,15 @@ loop([section1];[section2];[section3])
 [section3] : run every time except first time (for change vars)
 sample:
 - loop(num i=0,str u=null;i<10,u!="Hello";i++)
-- loop(str u,b=null,num i=0;u,b:uu;i+=5,u+=" ") //str uu[2,2]={{"x","v"},{"h","i"}} browse uu array
+- loop(str u,str b=null,num i=0;u,b:uu;i+=5,u+=" ") //str uu[2,2]={{"x","v"},{"h","i"}} browse uu array
 - loop(;i<5) or loop(;i<5;)
 - loop(num h=get1(),num k=0;h<get2(k);k++,h++)
-- loop(str u,b=null,num i=0;u!="Hi") //=>make an error Correct:loop(str u=null,str b=null,num i=0;u!="Hi") OR loop(str u,b,num i=null;u!="Hi")
-
+- loop(str u,b=null,num i=0;u!="Hi") //=>make an error Correct:loop(str u=null,str b=null,num i=0;u!="Hi") OR loop(str u,str b,num i=null;u!="Hi")
+-----review array in loop
+num v[2,3,4]
+loop(num i1,i2,i3;i1,i2,i3:v) //i1[4]=v[0,0],i2[4]=v[0,1],i3[4]=v[0,2]
+num b=[5]
+loop(num i;i:b) //i=b[0]
 -----func headers:
 - define func headers
 func f(str s,s1,num n,vars others)

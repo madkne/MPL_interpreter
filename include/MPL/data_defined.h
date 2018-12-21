@@ -247,7 +247,7 @@ typedef struct var_memory_struct {
   long_int func_index; //0:just global vars
   long_int type_var;
   String name;
-  String extra;
+  uint8 flag; //'l' : loop header var
   struct var_memory_struct *next;
 } Mvar;
 typedef struct pointer_memory_struct {

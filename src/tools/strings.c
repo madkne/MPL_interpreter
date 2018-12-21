@@ -173,6 +173,7 @@ String str_replace(String s, String old_s, String new_s, int8 num) {
 
 //******************************************
 Boolean str_search(str_list list, String s, uint32 size) {
+  if (s == 0)return false;
   for (uint32 i = 0; i < size; i++) {
     if (str_equal(s, list[i]))
       return true;

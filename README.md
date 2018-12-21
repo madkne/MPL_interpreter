@@ -99,10 +99,17 @@ TODO
 * implement condition level for managing if,elif,else **[OK]**
 * recursive functions **[OK]**
 * can use multiple 'if' one after another **[OK]**
-* define loop **[..]**
+* define loop **[OK]**
+* define header defined vars **[OK]**
+* labeled loop instructions **[OK]**
+* check loop conditions every time **[OK]**
+* do loop part3 every time **[OK]**
+* delete local vars in end of loop **[OK]**
+* implement loop level for managing loop **[..]**
+* implement next **[..]**
+* implement break **[..]**
+* delete header loop vars in finish **[..]**
 * start review_array_loop
-* implement next
-* implement break
 * access overhead vars **[..]**
 
 * **_complete main structure of mpl_**

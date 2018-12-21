@@ -52,7 +52,12 @@ func main(){
 	//str jj="Hello"+"!"
 	//num jk=samp(5)
 	//num ns=fib(8)
-	print("j:%j% , j1:%j1%\n")
+	loop(num h=0;j>0;j--) {
+		str g="Heill"
+		print("SSSS:%j%,%g%\n");
+		loop(num z=0;z<2;z++) print("WWWW:%z%\n")
+	}
+	//print("j:%j% , j1:%j1%\n")
 	//num ns=push(gh,struct({{"Ac","Bc"},{"Ac","Bc"}},6000),2)//__define["LeftDirect"] push(jj,"uiuiuiuiui",2)
 	//print(gh,"\n")
 	/*if(jj=="Hello!") {

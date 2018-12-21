@@ -177,16 +177,7 @@ int8 INSTRUCTION_EXECUTOR(long_int index) {
     if (is_done) {
       printf("~~~~~~~~~~~~~~~~~~>DONE :)\n\n");
       //check post short alloc
-      if (entry_table.post_short_alloc_len > 0) {
-        for (uint32 i = 0; i < entry_table.post_short_alloc_len; i++) {
-          str_list tokens = 0;
-          //printf("ER#%s\n",entry_table.post_short_alloc[i]);
-          char_split(entry_table.post_short_alloc[i], ';', &tokens, true);
-          is_done = do_show_allocation(tokens[0], str_to_bool(tokens[1]));
-          if (!is_done) break;
-        }
-        entry_table.post_short_alloc_len = 0;
-      }
+      is_done = check_post_short_alloc();
     }
     if (!is_done) {
       printf("~~~~~~~~~~~~~~~~~~>BREAK :(\n\n");

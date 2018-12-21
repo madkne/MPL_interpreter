@@ -28,8 +28,13 @@ uint32 determine_type_name_func_parameters(str_list params, uint32 params_len, s
 Boolean function_return(String exp);
 int8 vars_allocation(String exp);
 String vars_allocation_short(String exp);
+Boolean check_post_short_alloc();
 Boolean do_show_allocation(String var_name, Boolean is_plusplus);
 Boolean init_structures(String exp);
 Boolean structure_MANAGE(long_int st_id, String value);
-Boolean structure_CONDITION(long_int st_id,uint8 type, String value);
+Boolean structure_CONDITION(long_int st_id, uint8 type, String value);
+Boolean structure_LOOP(long_int st_id, uint8 type, str_list params);
+int8 structure_loop_run_header(str_list insts, uint32 insts_len, uint8 part);
+uint32 structure_split_segments(String part, str_list *segments);
+uint8 labeled_loop_instruction(String code, uint8 part);
 #endif //MPL_RUN_MGR_H
