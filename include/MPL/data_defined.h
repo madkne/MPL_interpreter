@@ -35,7 +35,13 @@ uint64 os_total_memory;
 uint64 os_total_disk;
 long_int max_size_id;
 String logfile_path;
+uint32 max_mpl_modules_instance_len;
 //******************************
+#if WINDOWS_PLATFORM == true
+HINSTANCE mpl_modules_instance[100];
+#elif LINUX_PLATFORM == true
+//TODO
+#endif
 String exceptions_group[15];
 String exceptions_type[4];
 String keywords[18];
@@ -184,6 +190,18 @@ typedef struct built_in_funcs_struct {
 
   struct built_in_funcs_struct *next;
 } bifs;
+//****************************modules_funcs struct
+typedef struct modules_funcs_struct {
+  uint32 id;
+  uint8 mod_id;
+  String func_name;
+  String params;
+  uint8 params_len;
+  String returns;
+  uint8 returns_len;
+
+  struct modules_funcs_struct *next;
+} mofu;
 //****************************magic_macros struct
 typedef struct magic_macros_struct {
   uint32 id;
@@ -445,7 +463,7 @@ soco get_soco(uint8 type, uint32 ind);
 void append_utst(utst s);
 
 utst get_utst(long_int id);
-
+utst get_utst_by_string(String s);
 //-------------------------blst funcs
 void append_blst(blst s);
 
@@ -478,7 +496,8 @@ void empty_stoi(stoi s[], uint32 size);
 void append_bifs(bifs s);
 
 void add_to_bifs(long_int id, uint8 type, String func_name, String params, String returns);
-
+//-------------------------mofu funcs
+//void append_mofu(mofu s, mofu *start, mofu *end);
 //-------------------------mama funcs
 void append_mama(mama s);
 
@@ -488,8 +507,6 @@ mama get_mama(uint8 type, String key);
 
 //-------------------------vaar funcs
 void append_vaar(vaar s, vaar_en *s1);
-
-void print_vaar(vaar_en s);
 
 //-------------------------stde funcs
 void append_stde(stde s);

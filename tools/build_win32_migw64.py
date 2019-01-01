@@ -10,7 +10,7 @@ import shutil
 #python3 build_win32_migw64.py
 #-----------------------------
 #-------------------------------functions------------------------------------
-def copy_dir(src,dst,folder):
+def copy_dir(src,dst,folder,just_contents):
 	dirs=[folder];
 	i=0;
 	line_counter=0
@@ -22,10 +22,15 @@ def copy_dir(src,dst,folder):
 		with os.scandir(src+"/"+item) as it:
 			for entry in it:
 				if entry.is_file():
-					#print("Cfile:",dst+"/"+item+"/"+entry.name);
-					if os.path.exists(dst+"/"+item+"/"+entry.name):
-						os.remove(dst+"/"+item+"/"+entry.name);
-						shutil.copyfile(src+"/"+item+"/"+entry.name,dst+"/"+item+"/"+entry.name)  
+					new_dst=dst+"/"+item+"/"+entry.name
+					if just_contents and item==folder: 
+						new_dst=dst+"/"+entry.name
+					#print("Cfile:",src+"/"+item+"/"+entry.name,new_dst);
+					if os.path.exists(new_dst):
+						os.remove(new_dst);
+						ret=shutil.copyfile(src+"/"+item+"/"+entry.name,new_dst);
+						#print("\nCOpy",ret)
+						#if len(ret)<2 : print("Not copy :(");
 				elif entry.is_dir():
 					#print("Cdir:",dst+"/"+item+"/"+entry.name);
 					if not os.path.exists(dst+"/"+item+"/"+entry.name):
@@ -57,13 +62,13 @@ if os.path.exists(logfile):
 #for j in compfiles:
 #	print(compfiles)
 #----------------------
-print("\t~~~~~MPL Build Tool (BY Python3) V 2.7~~~~~");
+print("\t~~~~~MPL Build Tool (BY Python3) V 2.8~~~~~");
 print("=== Start Building win32 release of MPL Compiler using Mingw64....");
 #----------------------init dirs
 #-----create docs file
 if not os.path.exists(build_folder+"\\docs"):
     os.makedirs(build_folder+"\\docs");
-copy_dir("../", build_folder,"docs");
+copy_dir("../", build_folder,"docs",False);
 #-----create modules file
 if not os.path.exists(build_folder+"\\modules"):
     os.makedirs(build_folder+"\\modules");
@@ -91,6 +96,7 @@ print("=== Start compiling source files [mpl.exe]...");
 sources=[
 [scr_folder+"/main.c",scr_folder+"/main.c -o "+obj_folder+"/main.o"],
 [scr_folder+"/mpl_help.c",scr_folder+"/mpl_help.c -o "+obj_folder+"/mpl_help.o"],
+[scr_folder+"/module.c",scr_folder+"/module.c -o "+obj_folder+"/module.o"],
 [scr_folder+"/data_defined.c",scr_folder+"/data_defined.c -o "+obj_folder+"/data_defined.o"],
 [scr_folder+"/exceptions.c",scr_folder+"/exceptions.c -o "+obj_folder+"/exceptions.o"],
 [scr_folder+"/debugger.c",scr_folder+"/debugger.c -o "+obj_folder+"/debugger.o"],
@@ -107,7 +113,8 @@ sources=[
 [scr_folder+"/core/virtual_memory.c",scr_folder+"/core/virtual_memory.c -o "+obj_folder+"/virtual_memory.o"],
 [scr_folder+"/core/magic_macro.c",scr_folder+"/core/magic_macro.c -o "+obj_folder+"/magic_macro.o"],
 [scr_folder+"/built_in/mpl_builtin.c",scr_folder+"/built_in/mpl_builtin.c -o "+obj_folder+"/mpl_builtin.o"],
-[scr_folder+"/built_in/os_builtin.c",scr_folder+"/built_in/os_builtin.c -o "+obj_folder+"/os_builtin.o"]
+[scr_folder+"/built_in/os_builtin.c",scr_folder+"/built_in/os_builtin.c -o "+obj_folder+"/os_builtin.o"],
+[scr_folder+"/modules/fs_interface.c",scr_folder+"/modules/fs_interface.c -o "+obj_folder+"/fs_interface.o"],
 ];
 for i in range(0,len(sources),1):
 	ind=sources[i];

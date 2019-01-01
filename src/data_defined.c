@@ -51,8 +51,10 @@ uint64 os_total_disk = 0; //in kilo-bytes
 long_int max_size_id = 0;
 
 String logfile_path = 0;
-
-String exceptions_group[] = {"ImportError",           //0
+uint32 max_mpl_modules_instance_len = 100;
+//-------------------------------------------------------
+String exceptions_group[] = {
+    "ImportError",          //0
     "MahlibError",          //1
     "SyntaxError",          //2
     "InterruptedError",     //3
@@ -77,7 +79,7 @@ String keywords[18] = {"func", "true", "false", "null", "if", "elif", "else", "l
 String keywords_out[13] = {"func", "true", "false", "null", "if", "elif", "else", "loop", "manage", "next", "break",
     "return", "import"};
 
-String magic_macros[3] = {"__config", "__define", "__session"};
+String magic_macros[3] = {"$con", "$def", "$ses"};
 
 String block_instructions[5] = {"loop", "if", "elif", "else", "manage"};
 
@@ -128,7 +130,11 @@ void init_database() {
   MAX_FLOAT_LEN = (FLOAT_USED_BYTES * 2) - 2;
 
   //---------------
-  interpreter_path = 0;
+  interpreter_path = get_mpl_dir_path();
+  //---------------init mpl_modules_instance
+  for (uint32 i = 0; i < max_mpl_modules_instance_len; i++) {
+    mpl_modules_instance[i] = 0;
+  }
   //---------------init entry_table
   entry_table.import_start = 0;
   entry_table.import_id = 1;
@@ -422,6 +428,30 @@ utst get_utst(long_int id) {
     if (tmp1 == 0) break;
   }
   return ret;
+}
+//*************************************************************
+utst get_utst_by_string(String s) {
+  utst nil = {0, 0, 0};
+  uint32 len = str_length(s);
+  String val = 0;
+  if (len > 2 && s[0] == '\"' && s[len - 1] == '\"') {
+    val = str_substring(s, 1, len - 1);
+  } else {
+    str_init(&val, s);
+  }
+  //------------
+//   printf("OOOOO1:%s,%s,%i\n", s, val, str_is_int32(val));
+  if (str_is_int32(val)) {
+    int32 utst_id = str_to_int32(val);
+//    print_struct(PRINT_UTF8_ST);
+//    printf("OOOOOO2:%i\n", utst_id);
+    utst ut = get_utst((long_int) utst_id);//TODO:
+    return ut;
+    //printf("UTT:%s=>%s,%i\n", s, utf8_to_unicode_str(ut.utf8_string), ut.max_bytes_per_char);
+    //utf8_str_print("UTF8", ut.utf8_string, false);
+  } else
+    return nil;
+
 }
 
 //*************************************************************
@@ -730,9 +760,35 @@ void add_to_bifs(long_int id, uint8 type, String func_name, String params, Strin
   bifs tmp = {id, type, func_name, params, par_len, returns, ret_len};
   append_bifs(tmp);
 }
+//*************************************************************
+//*****************modules_funcs functions*********************
+//*************************************************************
+//void append_mofu(mofu s, mofu *start, mofu *end) {
+//  mofu *q;
+//  q = (mofu *) malloc(sizeof(mofu));
+//  if (q == 0) return;
+//  q->id = s.id;
+//  q->mod_id = s.mod_id;
+//  q->params_len = s.params_len;
+//  q->returns_len = s.returns_len;
+//  str_init(&q->func_name, s.func_name);
+//  str_init(&q->params, s.params);
+//  str_init(&q->returns, s.returns);
+//  q->next = 0;
+//  if (start == 0 /*|| (*start) == 0*/) {
+//    //*(&start) = *(&end) = &q;
+//    start = end = q;
+//  } else {
+////    (*end)->next = q;
+////    (*end) = q;
+//    end->next = q;
+//    end = q;
+//  }
+////  printf("mod_func:%i,%s,%i,%i\n", s.id, s.func_name, (*start), (*end));
+//}
 
 //*************************************************************
-//****************built_in_funcs functions*********************
+//******************magic_macros functions*********************
 //*************************************************************
 void append_mama(mama s) {
   mama *q;
@@ -794,23 +850,6 @@ void append_vaar(vaar s, vaar_en *s1) {
   }
 }
 
-//*************************************************************
-void print_vaar(vaar_en s) {
-  vaar *tmp1 = s.start;
-  if (tmp1 == 0) {
-    printf("--NULL-- Vars_Array_struct\n");
-    return;
-  }
-  printf("=====Print Vars_Array_struct :\n");
-  if (tmp1 != 0) {
-    for (;;) {
-      printf("id:%i,%type:%c,index:%s,value:%s\n", tmp1->data_id, tmp1->sub_type, tmp1->index, tmp1->value);
-      tmp1 = tmp1->next;
-      if (tmp1 == 0) break;
-    }
-  }
-  printf("=====End printed\n");
-}
 
 //*************************************************************
 //***************struct_descriptor functions*******************

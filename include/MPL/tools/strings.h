@@ -45,7 +45,7 @@ void str_swap(String *s1, String *s2);
 String str_substring(String s, uint32 start, uint32 end);
 
 int32 str_indexof(String s, String s1, uint32 start);
-
+int32 char_last_indexof(String s,uint8 ch);
 String str_to_upper_case(String text);
 
 String str_to_lower_case(String text);

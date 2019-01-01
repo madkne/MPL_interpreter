@@ -7,21 +7,24 @@
 
 //**************************************************define interpreter constants
 #define  APP_NAME                       "Mini Portable Language"
-#define  VERSION                        "0.3.73"    //1.10.100
+#define  VERSION                        "0.4.00"    //1.10.100
 #define  VERSION_NAME                   "BETA"
 #define  SLOGAN                         "The solution to common problems of programmers" //راه حل کارهای متداول برنامه نویسان
 
 #define  FIRST_BUILD                    "2018.9.19"
+#define  BETA_LBUILD                    "undefined"
+#define  RC_LBUILD                      "undefined"
 #define  LICENCE                        "OPEN-MPL"
 #define  OFFICIAL_WEBSITE               "http://mpl-lang.ir"
-#define  C_CORE_CODE_LINES              10876       //0.3.47
-#define  H_CORE_CODE_LINES              1051        //+=11927
+#define  C_CORE_CODE_LINES              11808       //0.4.00
+#define  H_CORE_CODE_LINES              1192
+#define  MODUDLES_CODE_LINES            7           //+=13007
 #define  LANGUAGE_CREATOR               "Mohammad Amin Delavar Khalafi"
 #define  CREATOR_SIGNATURE              "603556816519829596"
-#define  CONFIDENCE_LEVEL               19          //100%
+#define  CONFIDENCE_LEVEL               20          //100%
 #define  WINDOWS_COMPATIBLE             true
 #define  LINUX_COMPATIBLE               false
-//**************************************************define
+//**************************************************define other constants
 #if x64_OS == true
 #define OS_ARCH                         "x64"
 #elif x86_OS == true
@@ -60,16 +63,17 @@
 #define   PARAM_ARRAY_NAME              "__ArrayParam_"
 #define   WHITE_SPACES                  " \t\n\v\f\r"
 #define   BAD_CODE                      "@!BAD!@"
+//------------------------------------------
 #define   DEBUG_MODE                    "DebugMode"
 #define   DEBUG_QUESTION                "[mdebug]: "
 #define   DEBUG_ANSWER                  "[mdebug]$ "
 
-//------------------------------------------
+//------------------------------------------used as exception status
 #define   ERROR_ID                     -2
 #define   WARNING_ID                   -3
 #define   FATAL_ID                     -1
 #define   CANCEL_ID                     0
-//------------------------------------------
+//------------------------------------------used as instruction types
 #define   UNKNOWN_LBL_INST              0
 #define   STRUCTURE_LBL_INST            1
 #define   DEF_VARS_LBL_INST             2
@@ -84,7 +88,7 @@
 
 #define   LOGIC_CALC_LBL_INST           20
 #define   REVIEW_ARRAY_LBL_INST         21
-//------------------------------------------
+//------------------------------------------used as exception types (groups)
 #define   ImportError                   0
 #define   MahlibError                   1
 #define   SyntaxError                   2
@@ -165,8 +169,26 @@
 #define   RIGHT_DIRECT                  "2"
 #define   BOTH_DIRECT                   "0"
 //------------------------------------------used for entry_table.next_break_inst
-#define   NEXT_INST                   1
-#define   BREAK_INST                  2
+#define   NEXT_INST                     1
+#define   BREAK_INST                    2
+//------------------------------------------used for mpl_modules_instance array
+#define   FS_MODULE_ID                  1
+#define   OS_MODULE_ID                  2
+#define   SQLITE3_MODULE_ID             3
+#define   MATH_MODULE_ID                4
+#define   MGT_MODULE_ID                 5
+#define   STRS_MODULE_ID                6
+//------------------------------------------used for function call
+#define   FUNC_TYPE_NORMAL              1
+#define   FUNC_TYPE_MODULE              2
+#define   FUNC_TYPE_PACKAGE             3
+//------------------------------------------used for run_package_module_function,set_function_parameters
+#define   FUNC_RET_BAD                  -1
+#define   FUNC_RET_NORMAL               1
+#define   FUNC_RET_BUILTIN              2
+#define   FUNC_RET_MODULE               3
+#define   FUNC_RET_PACKAGE              4
+
 //**************************************************typedef
 typedef char int8;
 typedef unsigned char uint8;

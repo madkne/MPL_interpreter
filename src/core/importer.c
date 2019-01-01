@@ -26,12 +26,13 @@ Boolean import_all_files() {
     clear_soco(1);
     imin ret = get_first_active_imin(); //get first active import instruction imin struct
     Boolean ret1 = false;
+//    printf("path:[%i]%s,%i\n", ret.type, utf8_to_bytes_string(ret.path), entry_table.sources_list_len);
     if (ret.type == IMPORT_FILE) {
-//      printf("path:%s,%i\n",utf8_to_bytes_string(ret.path),entry_table.sources_list_len);
       str_list_append(&entry_table.sources_list, utf8_to_bytes_string(ret.path), entry_table.sources_list_len++);
       ret1 = open_mpl_file(ret);
-    } else if (ret.type == IMPORT_EMBEDDED) {
-      //TODO:
+    } else if (ret.type == IMPORT_MODULE) {
+      ret1 =
+          load_module_file(utf8_to_bytes_string(ret.path), ret.line, utf8_to_bytes_string(source_paths[ret.source_id]));
     }
     entry_table.cur_source_path = ret.path;
     //utf8_str_print("XXXXX",ret.path,false);

@@ -17,7 +17,7 @@ int main(int argc, char **argv) {
   //--------------------------get Argvs,analyze it
   if (argc > 1) {
     if (str_equal(argv[1], "-v")) {
-      printf("MPL Interpreter %s|%s - %s(%s)\n", VERSION_NAME, VERSION, APP_NAME, OS_ARCH);
+      printf("MPL Interpreinterpreter_pathter %s|%s - %s(%s)\n", VERSION_NAME, VERSION, APP_NAME, OS_ARCH);
       interpreter_mode = 1;
     } else if (str_equal(argv[1], "-h")) {
       str_list help_argvs = 0;
@@ -57,6 +57,23 @@ int main(int argc, char **argv) {
 //  print_struct(PRINT_CONDITION_LEVEL_ST);
 //	print_magic_macros(CONFIG_MAGIC_MACRO_TYPE);
 //  print_struct(PRINT_UTF8_ST);
+//  typedef int (WINAPI *MYPROC)(void);
+
+//  if (hinstLib != NULL)
+//  {
+//    MYPROC ProcAdd = (MYPROC) GetProcAddress(hinstLib, "fs_version");
+//
+//    // If the function address is valid, call the function.
+//    printf("ProcAdd:%i\n",ProcAdd);
+//    if (NULL != ProcAdd)
+//    {
+//     String h= (String)ProcAdd();
+//      printf("@@@WWWW:%s\n", h);
+//    }else{
+//      printf("FAILED1:(\n");
+//    }
+//  }else printf("FAILED2:(\n");
+//  printf("@@@WWWW:%s\n", fs_version());
   //-------------------------time of end program
   __syscall_exit(EXIT_SUCCESS);
   return 0;

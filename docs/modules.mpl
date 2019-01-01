@@ -1,10 +1,37 @@
 -----------------------------
 external modules:
-sqlite,math,mgt,net,hack,fs,os
+sqlite3,math,fs[..],os,strs,mhl,mgl
+
+------------------module:mgl (mpl graphics library)
+- str version()
+
+------------------module:strs
+- str version()
+
+- str str_crop(str,num,num)
+
+- str str_indexof(str,str,num)
+
+- str str_uppercase(str)
+
+- str str_lowercase(str)
+
+- str str_trim(str,num)
+
+- str str_replace(str,str,str)
+
+- str str_split(str[..],str) 
+
+- str str_contains(str,str)
+
+- str str_join(str,str)
+
+- str str_reverse(str)
 
 ------------------module:math
-. PI
-. E
+- num PI()
+- num E()
+- str version()
 
 - num sqrt(num) : calculate root 2 of a num
 
@@ -42,7 +69,12 @@ sqlite,math,mgt,net,hack,fs,os
 
 - num radians(num)
 
+- num base_convert(num,num,bool)
+
 ------------------module:os
+- str version()
+
+
 
 - str homedir()
 
@@ -59,6 +91,12 @@ sqlite,math,mgt,net,hack,fs,os
 - bool pstart(str,str[?])
 
 ------------------module:fs
+- str version()
+
+
+
+- str abspath(str)
+
 - bool mkdir(str)
 
 - num fopen(str,str)
@@ -77,8 +115,6 @@ sqlite,math,mgt,net,hack,fs,os
 
 - str[?] finfo(str)
 
-- str abspath(str)
-
 - bool copy(str,str)
 
 - bool move(str,str)
@@ -94,3 +130,15 @@ sqlite,math,mgt,net,hack,fs,os
 - bool isfile(str)
 
 - str parentpath(str)
+
+
+------------------module:mhl (mpl hacking library)
+- str Version()
+
+- dns_mapping()
+
+- dns_tracing()
+
+- whois_info()
+
+- gathering_data(num type)

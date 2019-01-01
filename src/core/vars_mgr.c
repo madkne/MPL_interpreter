@@ -3331,4 +3331,18 @@ Boolean alloc_struct_var(datas type_datas, long_int pointer_index, vaar_en struc
 //*********************************************************
 //*********************************************************
 
+//*********************************************************
+String generate_return_var_name(String name, uint32 *co) {
+  if (name == 0) {
+    str_init(&name, RETURN_TMP_NAME);
+  }
+  for (;;) {
+    String tmp1 = str_multi_append(name, "__", str_from_int32(*co), 0, 0, 0);
+    if (return_var_id(tmp1, "0") == 0) {
+      return tmp1;
+    }
+    (*co)++;
+  }
+  //return "", counter
+}
 

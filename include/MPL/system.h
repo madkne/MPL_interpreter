@@ -49,4 +49,7 @@
 //---------------------------------built-in functions
 #include "built_in/mpl_builtin.h"
 #include "built_in/os_builtin.h"
+//---------------------------------modules
+#include "module.h"
+#include "modules/fs_interface.h"
 #endif //MPL_SYSTEM_H

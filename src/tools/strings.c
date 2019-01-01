@@ -447,7 +447,16 @@ int32 str_indexof(String s, String s1, uint32 start) {
   }
   return -1;
 }
-
+//******************************************
+int32 char_last_indexof(String s, uint8 ch) {
+  uint32 len = str_length(s);
+  if (len < 1)return -1;
+  for (uint32 i = len - 1; i >= 0; i--) {
+    if(i==-1)break;
+    if (s[i] == ch) return i;
+  }
+  return -1;
+}
 //******************************************
 String str_to_upper_case(String text) {
   String s = 0;

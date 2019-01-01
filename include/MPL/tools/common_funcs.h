@@ -26,10 +26,10 @@ String get_current_datetime(uint8 type);
 String print_str_list(str_list s, uint32 len);
 
 void print_struct(uint8 which);
-
+void print_vaar(vaar_en s);
 uint32 source_paths_search(str_utf8 path);
+
 String validate_path(String s);
-utst return_utf8_string_value(String s);
 
 void str_list_append(str_list *s, String s1, uint32 len);
 
@@ -56,7 +56,6 @@ String limit_decimal_huge_numbers(String s);
 Boolean is_equal_arrays_indexes(String s1, String s2);
 
 Boolean has_two_limiting(String s, uint8 l1, uint8 l2, Boolean ignore_space);
-String generate_return_var_name(String name, uint32 *co);
 String replace_control_chars(String val);
 Boolean is_equal_data_types(uint8 t1, uint8 t2);
 int32 search_int32_array(int32 a[], uint32 al, int32 n);
@@ -66,4 +65,5 @@ int32 read_lines_from_file(String path, str_list *lines, Boolean skip_empty_line
 String find_first_var_name(String exp, uint32 start, Boolean is_inverse, uint32 *endpoint);
 String format_int32_array(int32 s[], uint32 start, uint32 end);
 String return_type_structure(uint8 t);
+String return_file_name_extension_path(String path, String *ext);
 #endif /*__COMMON_FUNCS_H*/

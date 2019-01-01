@@ -27,7 +27,7 @@ String get_mpl_dir_path() {
     uint32 size = char_split(ownPth, OS_SEPARATOR, &entries, true);
     for (uint32 i = 0; i < size - 1; i++) {
       out = str_append(out, entries[i]);
-      if (i + 1 < size)out = char_append(out, OS_SEPARATOR);
+      if (i + 1 < size - 1)out = char_append(out, OS_SEPARATOR);
     }
   }
   #endif
@@ -393,7 +393,23 @@ void print_struct(uint8 which) {
     printf("=====End printed\n");
   }
 }
-
+//*************************************************************
+void print_vaar(vaar_en s) {
+  vaar *tmp1 = s.start;
+  if (tmp1 == 0) {
+    printf("--NULL-- Vars_Array_struct\n");
+    return;
+  }
+  printf("=====Print Vars_Array_struct :\n");
+  if (tmp1 != 0) {
+    for (;;) {
+      printf("id:%i,%type:%c,index:%s,value:%s\n", tmp1->data_id, tmp1->sub_type, tmp1->index, tmp1->value);
+      tmp1 = tmp1->next;
+      if (tmp1 == 0) break;
+    }
+  }
+  printf("=====End printed\n");
+}
 //*************************************************************
 uint32 source_paths_search(str_utf8 path) {
   for (uint32 i = 0; i < entry_table.source_counter; i++) {
@@ -426,30 +442,6 @@ String validate_path(String s) {
   return ret;
   #endif
   return s;
-}
-//*************************************************************
-utst return_utf8_string_value(String s) {
-  utst nil = {0, 0, 0};
-  uint32 len = str_length(s);
-  String val = 0;
-  if (len > 2 && s[0] == '\"' && s[len - 1] == '\"') {
-    val = str_substring(s, 1, len - 1);
-  } else {
-    str_init(&val, s);
-  }
-  //------------
-//   printf("OOOOO1:%s,%s,%i\n", s, val, str_is_int32(val));
-  if (str_is_int32(val)) {
-    int32 utst_id = str_to_int32(val);
-//    print_struct(PRINT_UTF8_ST);
-//    printf("OOOOOO2:%i\n", utst_id);
-    utst ut = get_utst((long_int) utst_id);//TODO:
-    return ut;
-    //printf("UTT:%s=>%s,%i\n", s, utf8_to_unicode_str(ut.utf8_string), ut.max_bytes_per_char);
-    //utf8_str_print("UTF8", ut.utf8_string, false);
-  } else
-    return nil;
-
 }
 
 //*************************************************************
@@ -661,20 +653,7 @@ Boolean has_two_limiting(String s, uint8 l1, uint8 l2, Boolean ignore_space) {
   if (s[0] == l1 && s[len - 1] == l2)return true;
   return false;
 }
-//*************************************************************
-String generate_return_var_name(String name, uint32 *co) {
-  if (name == 0) {
-    str_init(&name, RETURN_TMP_NAME);
-  }
-  for (;;) {
-    String tmp1 = str_multi_append(name, "__", str_from_int32(*co), 0, 0, 0);
-    if (return_var_id(tmp1, "0") == 0) {
-      return tmp1;
-    }
-    (*co)++;
-  }
-  //return "", counter
-}
+
 //*************************************************************
 String replace_control_chars(String val) {
   uint32 len = str_length(val);
@@ -855,4 +834,23 @@ String return_type_structure(uint8 t) {
   if (t == MANAGE_STRU_ID)return "manage";
   if (t == SWITCH_STRU_ID)return "switch";
 }
-
+//*************************************************************
+/**
+ * get a valid path (relative or absolute) and return filename if exist and if ext not zero return file extension
+ * @param path
+ * @param ext
+ * @return String
+ */
+String return_file_name_extension_path(String path, String *ext) {
+  int32 pos = char_last_indexof(path, OS_SEPARATOR);
+  if (pos == -1) return 0;
+  String sub = str_substring(path, pos+1, 0);
+  str_list ret = 0;
+  uint32 len = char_split(sub, '.', &ret, true);
+  if (len < 2)return 0;
+  if (ext != 0) {
+    str_list_delete_first(&ret, len--);
+    (*ext) = char_join(ret, '.', len, true);
+  }
+  return ret[0];
+}

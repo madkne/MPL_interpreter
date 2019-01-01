@@ -110,13 +110,18 @@ TODO
 * implement break **[OK]**
 * using break instruction **[OK]**
 * using next instruction **[OK]**
-* delete header loop vars in finish **[..]**
-* start review_array_loop **[..]**
+* delete header loop vars in finish **[OK]**
 * access overhead vars **[OK]**
 
-* **_complete main structure of mpl_** **[..]**
+* **_complete main structure of mpl_** **[OK]**
 
-* support for module libraries **[..]**
+* start compiling fs module **[OK]**
+* init import modules to main program **[OK]**
+* call module functions **[OK]**
+* support for module libraries **[OK]**
+* start fs module **[OK]**
+* define fs functions header **[OK]**
+* search for fs function and call it **[OK]**
 * start for developing 'mprog' program **[OK]**
 * init pre magic config,define entries **[OK]**
 * analyze __config values after parsing **[OK]**
@@ -124,9 +129,8 @@ TODO
 * create new breakpoint in mdebug **[OK]**
 * complete print commands in mdebug **[OK]**
 * complete next,run commands in mdebug **[OK]**
-* complete symbols for commands in mdebug **[OK]**
-* complete mdebug commands **[..]**
-* support struct entries for constant and allocation
+* complete symbols for commands in mdebug **[OK]** 
+* support struct entries for constant and allocation **[..]**
 * start offline documentation of mpl **[OK]**
 * complete structure of mpl-docs **[..]**
 * start os built-in functions **[OK]**
@@ -134,18 +138,24 @@ TODO
 * comparison struct expressions
 * comparison huge numbers **[OK]**
 * set new __session
-* complete import error_handling
-* complete mpl built-in functions
 * support sqlite3 as a module
-* complete built-in constants
 * support for package libraries
-* complete data built-in functions
 * building MPL website
 * implement switch keyword
 * parsing and converting switch instruction
 * support for embedded files
 * alloc by bit operands
 * using short alias for magic macros
+* start review_array_loop **[OK]**
+* alloc review array every time
+
+* **_complete full structure of mpl_** **[..]**
+
+* complete mdebug commands
+* complete import error_handling
+* complete mpl built-in functions
+* complete built-in constants
+* complete data built-in functions
 * complete parse error_handling
 * complete os built-in functions
 * complete mean_run error_handling

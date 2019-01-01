@@ -4,6 +4,50 @@
 #include <MPL/system.h>
 
 //***********************************
+Boolean check_built_in_module_function(String S_params, str_list partypes, uint32 params_len) {
+  //convert func_params to std
+  str_list func_params = 0;
+  uint32 func_params_len = char_split(S_params, '|', &func_params, true);
+  for (uint32 i = 0; i < func_params_len; i++) {
+    str_list seg = 0;
+    uint32 seg_len = char_split(func_params[i], ';', &seg, true);
+    if (seg_len > 1)func_params[i] = str_multi_append(seg[0], ";var;", seg[1], 0, 0, 0);
+    else func_params[i] = str_multi_append(seg[0], ";var;0", 0, 0, 0, 0);
+  }
+//		  printf("#####@@:%s,%s,[%i,%i]\n",print_str_list (func_params, func_params_len),print_str_list ( partypes, params_len),func_params_len,params_len);
+  if (is_exact_function(func_params, func_params_len, partypes, params_len, true)) {
+    //printf("-----------@@@\n");
+    return true;
+  }
+  return false;
+}
+//***********************************
+void convert_built_in_module_vars_to_values(str_list partypes,str_list params,uint32 params_len,str_list *argvs,long_int *var0_ind){
+  for (uint32 i = 0; i < params_len; i++) {
+    str_list p1 = 0;
+    char_split(partypes[i], ';', &p1, false);
+    //is var
+    if (str_ch_equal(p1[2], '1') || str_ch_equal(p1[2], '2')) {
+//      printf("###argv%i:(VAR)%s\n", i, partypes[i]);
+      String var_val = return_value_var_complete(str_to_long_int(p1[1]));
+      if (p1[3] == 0 || str_ch_equal(p1[3], '0') || str_ch_equal(p1[3], '1') && var_val != 0 && var_val[0] != '{')
+        var_val = str_reomve_quotations(var_val, p1[0]);
+      str_list_append(&(*argvs), var_val, i);
+      //if param[0] is var, store its index
+      if (i == 0) (*var0_ind) = str_to_long_int(p1[1]);
+    }
+      //is value
+    else {
+      String ret1 = 0;
+      uint8 ret2 = 0;
+      calculate_value_of_var(params[i], p1[0], &ret1, &ret2);
+      ret1 = str_reomve_quotations(ret1, p1[0]);
+//        printf("###argv%i:%s(%s)=>%s\n",i,params[i],p1[0],ret1);
+      str_list_append(&(*argvs), ret1, i);
+    }
+  }
+}
+//***********************************
 uint32 call_built_in_funcs(String func_name, str_list params, str_list partypes, uint32 params_len, str_list *returns) {
   //-----------------init vars
   uint32 func_id = 0, returns_len = 0;
@@ -15,20 +59,10 @@ uint32 call_built_in_funcs(String func_name, str_list params, str_list partypes,
   for (;;) {
     //if func_name is true
     if (str_equal(st->func_name, func_name)) {
-      //convert func_params to std
-      str_list func_params = 0;
-      uint32 func_params_len = char_split(st->params, '|', &func_params, true);
-      for (uint32 i = 0; i < func_params_len; i++) {
-        str_list seg = 0;
-        uint32 seg_len = char_split(func_params[i], ';', &seg, true);
-        if (seg_len > 1)func_params[i] = str_multi_append(seg[0], ";var;", seg[1], 0, 0, 0);
-        else func_params[i] = str_multi_append(seg[0], ";var;0", 0, 0, 0, 0);
-      }
-//		  printf("#####@@:%s,%s,[%i,%i]\n",print_str_list (func_params, func_params_len),print_str_list ( partypes, params_len),func_params_len,params_len);
-      if (is_exact_function(func_params, func_params_len, partypes, params_len, true)) {
+      Boolean is_exist = check_built_in_module_function(st->params, partypes, params_len);
+      if (is_exist) {
         func_id = st->id;
         func_type = st->type;
-        //printf("-----------@@@\n");
         break;
       }
     }
@@ -40,34 +74,14 @@ uint32 call_built_in_funcs(String func_name, str_list params, str_list partypes,
 //  printf ("WWW@@WWW:%s,%s,%s[%i,%i]\n", func_name, print_str_list (params, params_len), print_str_list (partypes, params_len), func_id, func_type);
   if (func_id == 0 || func_type == 0)return 0;
   //convert vars to values
-  for (uint32 i = 0; i < params_len; i++) {
-    str_list p1 = 0;
-    char_split(partypes[i], ';', &p1, false);
-    //is var
-    if (str_ch_equal(p1[2], '1') || str_ch_equal(p1[2], '2')) {
-//      printf("###argv%i:(VAR)%s\n", i, partypes[i]);
-      String var_val = return_value_var_complete(str_to_long_int(p1[1]));
-      if (p1[3] == 0 || str_ch_equal(p1[3], '0') || str_ch_equal(p1[3], '1') && var_val != 0 && var_val[0] != '{')
-        var_val = str_reomve_quotations(var_val, p1[0]);
-      str_list_append(&argvs, var_val, i);
-      //if param[0] is var, store its index
-      if (i == 0) var0_ind = str_to_long_int(p1[1]);
-    }
-      //is value
-    else {
-      String ret1 = 0;
-      uint8 ret2 = 0;
-      calculate_value_of_var(params[i], p1[0], &ret1, &ret2);
-      ret1 = str_reomve_quotations(ret1, p1[0]);
-//        printf("###argv%i:%s(%s)=>%s\n",i,params[i],p1[0],ret1);
-      str_list_append(&argvs, ret1, i);
-    }
-  }
+  convert_built_in_module_vars_to_values(partypes,params,params_len,&argvs,&var0_ind);
 //print_struct(PRINT_STRUCT_DES_ST);
 //  printf ("@BUILT-IN:%s@%i@;%s\n", print_str_list (params, params_len),params_len, print_str_list (argvs, params_len));
   //---------------------MPL Function Calls----------------------
   if (func_type == MPL_BUILT_IN_TYPE) {
-    if (func_id == 1/*len*/) {}
+    if (func_id == 1/*len*/) {
+      //TODO:
+    }
     else if (func_id == 2/*print*/) {
       Boolean ret = _MPL_TYPE__print(argvs, params_len);
       str_list_append(&(*returns), str_from_bool(ret), returns_len++);

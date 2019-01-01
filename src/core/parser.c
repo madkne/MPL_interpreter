@@ -182,7 +182,7 @@ void manage_import_keywords(uint32 *i) {
       } else {
 
         //analyze type of import
-        utst ret = return_utf8_string_value(path);
+        utst ret = get_utst_by_string(path);
         if (ret.id == 0) {
           path = str_reomve_quotations(path, "s");
           ret.id = ++entry_table.utf8_strings_id;
@@ -200,18 +200,33 @@ void manage_import_keywords(uint32 *i) {
         if (str_indexof(tmp1, "file:", 0) == 0) {
           import_type = IMPORT_FILE;
           ret.utf8_string = utf8_str_simple_replace(ret.utf8_string, "file:", 0, 1);
-        }
-// else if (str_indexof(tmp1, "embed:", 0) == 0) {
-//          import_type = IMPORT_EMBEDDED;
-//          ret.utf8_string = utf8_str_simple_replace(ret.utf8_string, "embed:", 0, 1);
-//        }
-        else {
+        } else if (str_indexof(tmp1, "mod:", 0) == 0) {
+          import_type = IMPORT_MODULE;
+          ret.utf8_string = utf8_str_simple_replace(ret.utf8_string, "mod:", 0, 1);
+          #if WINDOWS_PLATFORM == 1
+          if (!str_has_suffix(tmp1, ".dll"))
+            ret.utf8_string = utf8_str_append(ret.utf8_string, utf8_encode_bytes(".dll"));
+          #elif LINUX_PLATFORM == 1
+          //TODO
+          #endif
+        } else {
           print_error(Aline, "import_not_support_protocol", entry_table.cur_ascii_source_path, tmp1, "",
                       "manage_import_keywords");
           return;
         }
+        String StrSep = char_to_str(OS_SEPARATOR);
         //replace project_root by $ sign
         ret.utf8_string = utf8_str_simple_replace(ret.utf8_string, "$", project_root, 1);
+        //replace mpl_root by $$ sign
+        ret.utf8_string = utf8_str_simple_replace(ret.utf8_string, "$$", interpreter_path, 1);
+        //replace mpl_modules by @ sign
+        ret.utf8_string = utf8_str_simple_replace(ret.utf8_string,
+                                                  "@",
+                                                  str_multi_append(interpreter_path, StrSep, "modules", 0, 0, 0),
+                                                  1);
+        //replace mpl_packs by @@ sign
+        ret.utf8_string = utf8_str_simple_replace(ret.utf8_string,
+                                                  "@", str_multi_append(interpreter_path, StrSep, "packs", 0, 0, 0), 1);
         imin tmp2 = {entry_table.import_id++, import_type, true, ret.utf8_string, ret.max_bytes_per_char, 0,
             Aline, Apath};
         append_imin(tmp2);
@@ -535,7 +550,7 @@ void manage_structures(uint32 *i, String lbl) {
     else if (params_len > 3) {
       //TODO:error
     }
-    if(params[1]==0){
+    if (params[1] == 0) {
       //TODO:error
     }
 //    printf("#WW:%i;;;%s;;;%s\n", params_len, print_str_list(params, params_len), buf);

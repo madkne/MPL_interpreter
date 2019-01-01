@@ -34,6 +34,8 @@ void init_exceptions_list_data() {
                        "A syntax error occurs for '!1@1!' import instruction");
   define_new_exception(5, ERROR_ID, "import_not_support_protocol", ImportError,
                        "not support the protocol in this path '!1@1!' import instruction");
+  define_new_exception(6, ERROR_ID, "can_not_load_module", ImportError, "can not load a module in '!1@1!' path");
+  define_new_exception(7, ERROR_ID, "not_support_module", ImportError, "mpl not support '!1@1!' as a module");
   //\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\
 	//InterruptedError
   define_new_exception(1, ERROR_ID, "zero_division", InterruptedError, "division by zero in '!1@1!' expression");
@@ -131,6 +133,10 @@ void init_exceptions_list_data() {
                        "not_exist_func_param",
                        NotExistError,
                        "Not exist '!1@1!' as a parameter for '!2@2!' function");
+  define_new_exception(8, ERROR_ID, "not_exist_mod_func", NotExistError,
+                       "not found '!1@1!' function in '!2@2!' module");
+  define_new_exception(9, ERROR_ID, "not_load_module", NotExistError,
+                       "'!1@1!' module not load in memory and not available for using");
   //\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\
 	//RuntimeError
   define_new_exception(1, ERROR_ID, "unknown_instruction", RuntimeError, "'!1@1!' is not a valid instruction");
