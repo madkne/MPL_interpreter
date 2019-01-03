@@ -69,4 +69,7 @@ String create_null_array(String type, int32 indexes[], uint8 indexes_len);
 Boolean alloc_array_var(long_int var_ind, String array_val, String type);
 Boolean alloc_struct_var(datas type_datas, long_int pointer_index, vaar_en struct_id);
 String generate_return_var_name(String name, uint32 *co);
+Boolean is_valid_struct_entry(String s);
+Boolean is_valid_math_expression(String s);
+long_int return_struct_entry_pointer_index(String st);
 #endif //MPL_VARS_MGR_H

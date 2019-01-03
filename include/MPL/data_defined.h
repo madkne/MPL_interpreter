@@ -48,7 +48,7 @@ String keywords[18];
 String keywords_out[13];
 String magic_macros[3];
 String block_instructions[5];
-uint8 single_operators[9];
+uint8 single_operators[6];
 String comparative_operators[6];
 String alloc_operators[11];
 String boolean_operators[3];
@@ -273,6 +273,7 @@ typedef struct var_memory_struct {
   long_int stru_index;
   long_int func_index; //0:just global vars
   long_int type_var;
+  long_int pack_id; //0:main program
   String name;
   uint8 flag; //'l' : loop header var
   struct var_memory_struct *next;

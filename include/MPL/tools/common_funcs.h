@@ -66,4 +66,5 @@ String find_first_var_name(String exp, uint32 start, Boolean is_inverse, uint32 
 String format_int32_array(int32 s[], uint32 start, uint32 end);
 String return_type_structure(uint8 t);
 String return_file_name_extension_path(String path, String *ext);
+String convert_sub_type_to_type(uint8 sub_type);
 #endif /*__COMMON_FUNCS_H*/

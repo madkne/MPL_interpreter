@@ -202,7 +202,7 @@ Mpoint return_var_memory_value(String var_name) {
   return_name_index_var(var_name, false, &var_name, &var_index);
   //**************************get value of var
   //----------------search for variable
-  long_int tmpx = return_var_id(var_name, var_index);
+  long_int tmpx = return_var_id(var_name, 0);
   long_int real_id = find_index_var_memory(tmpx);
   //msg("&XXXXX:", var_name, var_index, real_id)
   //show_memory(0)
@@ -213,13 +213,16 @@ Mpoint return_var_memory_value(String var_name) {
 
   pointer_id = get_Mvar(real_id).pointer_id;
   //msg("III:", pointer_id)
+  //----------------simplification var_index
+  var_index=simplification_var_index(var_index);
   //----------------search for data in index
   long_int data_ind = get_data_memory_index(pointer_id, var_index);
   //**************************return
-  //msg("CXCXC:", var_name, "=>", value_var)
+//  printf("CXCXC:%s[%s]=>(%i)%s\n", var_name,var_index,data_ind, get_Mpoint(data_ind).data);
   return get_Mpoint(data_ind);
 }
 //****************************************************
+
 /**
  * get a pointer_id of var and index of var and return an index of Mpoint
  * @param pointer_id
@@ -233,6 +236,7 @@ long_int get_data_memory_index(long_int pointer_id, String index_var) {
   //**************************start analyzing
   //msg("&III:", pointer_id, index_var)
   //show_memory(40)
+  //NOTE:do not simplification index here!!!
   //----------------search for data in index
   str_list tmp1 = 0;
   uint32 tmp1_len = char_split(index_var, ',', &tmp1, true);
@@ -292,12 +296,12 @@ set_memory_var(long_int fin, long_int sid, String name, String value_var, String
   4- str u="RT"*2 ---OK---
   5- num j=j1 //num j1=56d => j=56d
   */
-  //printf("&@@@:%s,%i,%s\n", name, return_var_id(name, "0"), value_var);
+//  printf("&@@@:%s,%i,%s\n", name, return_var_id(name, "0"), value_var);
   //*******************************************if value is a variable
   if (is_valid_name(value_var, true)) {
     String al_name = 0, al_index = 0;
     return_name_index_var(value_var, true, &al_name, &al_index);
-    //msg("&!!!", value_var, al_index)
+//    printf("&!!!:%s,%s\n", value_var, al_index);
     //----------if is a variable
     if (al_index == 0) {
       //msg("&NNNN", value_var, return_var_id(value_var, "0"), cur_fin)
@@ -319,6 +323,8 @@ set_memory_var(long_int fin, long_int sid, String name, String value_var, String
       if (point.type_data == 's') {
         value_var = convert_to_string(value_var);
       } else if (point.type_data == 'p' || point.type_data == '0') {
+        //TODO:error
+        printf("#ERR9877\n");
         return 0;
       }
     }
@@ -340,7 +346,7 @@ set_memory_var(long_int fin, long_int sid, String name, String value_var, String
   //*******************************************analyzing name of variable
   String tmp_name = 0, tmp_ind = 0;
   return_name_index_var(name, true, &tmp_name, &tmp_ind);
-  //printf("CCCCCCC:%s=>%s,%s\n",name,tmp_name, tmp_ind);
+//  printf("CCCCCCC:%s=>%s,%s\n",name,tmp_name, tmp_ind);
   //is_multi array
   if (tmp_ind != 0 && !str_equal(tmp_ind, "0")) {
     Boolean has_unknown_index = false;
@@ -349,6 +355,7 @@ set_memory_var(long_int fin, long_int sid, String name, String value_var, String
     indexes_len = (uint8) char_split(tmp_ind, ',', &indexes, true);
     if (indexes_len > MAX_ARRAY_DIMENSIONS) {
       //TODO:error
+      printf("#ERR32\n");
       return 0;
     }
     //******************add indexes to max_indexes
@@ -362,11 +369,13 @@ set_memory_var(long_int fin, long_int sid, String name, String value_var, String
     if (has_unknown_index) {
       if (value_var == 0) {
         //TODO:error
+        printf("#ERR52\n");
       }
       int32 tmp_indexes[MAX_ARRAY_DIMENSIONS];
       uint8 tmp_len = return_size_value_dimensions(value_var, tmp_indexes, 0);
       if (tmp_len != indexes_len) {
         //TODO:error
+        printf("#ERR53\n");
       }
       for (uint32 i = 0; i < indexes_len; i++) {
         if (max_indexes[i] == -10)max_indexes[i] = tmp_indexes[i];
@@ -374,7 +383,7 @@ set_memory_var(long_int fin, long_int sid, String name, String value_var, String
     }
   }
   str_init(&name, tmp_name);
-  //printf("CCCCCCCC:%s,%i,%s\n",name,return_var_id(name, 0),value_var);
+//  printf("CCCCCCCC:%s,%i,%s\n",name,return_var_id(name, 0),value_var);
   //show_memory(1);
   if (__return_var_id(name, fin) > 0) {
     //printf("ERR:%s(fin:%i,Rfin:%i,sid:%i)\n",name,fin,entry_table.cur_fin,sid);
@@ -383,8 +392,8 @@ set_memory_var(long_int fin, long_int sid, String name, String value_var, String
   }
   //*******************************************analyzing values of variable
   //if value is null
-  if (value_var == 0
-      || str_equal(value_var, "null")) {//printf("fgjfjff:%s,%i[%i]\n",type_var,max_indexes[0],indexes_len);
+  if (value_var == 0 || str_equal(value_var, "null")) {
+    //printf("fgjfjff:%s,%i[%i]\n",type_var,max_indexes[0],indexes_len);
     if (str_search(basic_types, type_var, StrArraySize (basic_types)))
       value_var = return_default_value(type_var);
     else
@@ -393,11 +402,14 @@ set_memory_var(long_int fin, long_int sid, String name, String value_var, String
   }
   //is multi array
   if (is_multi_array) {
+//    printf("fffffffff....:%s=>%s\n",type_var,value_var);
     vals_array = return_value_dimensions(value_var, type_var, max_indexes, indexes_len);
-    //print_vaar (vals_array);
+
+//    print_vaar (vals_array);
     if (vals_array.start == 0) {
       //printf ("###########failed1\n");
       //TODO:error
+      printf("#ERR54\n");
       return 0;
     }
   }
@@ -415,6 +427,7 @@ set_memory_var(long_int fin, long_int sid, String name, String value_var, String
     if (sub_type == '0' && !str_equal(type_var, "vars")) {
       //printf("###########failed2\n");
       //TODO:error
+      printf("#ERR55\n");
       return 0;
     }
     //printf("----SSSSW:%s[%s]=>%s[%c]\n", value_var, type_var, main_value, sub_type);
@@ -428,7 +441,7 @@ set_memory_var(long_int fin, long_int sid, String name, String value_var, String
   //  print_vaar(vals_array);
   //*******************************************determine type of var
   datas data_type = search_datas(type_var, entry_table.cur_fid, false);
-  //printf("#$EEEE:%s,%i,%i\n",type_var,data_type.id,is_struct);
+//  printf("#$EEEE:%s,%i,%i\n",type_var,data_type.id,is_struct);
   //*******************************************add to memory
   //******************add to pointer_memory
   longint_list pointers_id = 0;

@@ -76,7 +76,9 @@ ERROR:num,FATAL:num,WARNING:num,OSType:str,OSArch:str,PathSeparator:str,EOF:num,
 -----------------------------
 built-in config:(by $con)
 - can use and just edited in global and outside of functions
-ErrorsState,WarningsState,ExportLogFile,MaxHugeDivideSteps,MaxHugeDecimalNumbers,TabSize,AppVersion,AppName,AppLicense,AppCreator,SafeMode,SessionMode,HelpArgumentMode,OptimizeMode,OverwriteBuiltinMode,DebugMode,ExportByteCode,RunOnlyOS,RunOnlyArch,PackageMode,NameSpace/*used for package files*/,SessionDatabasePath
+ErrorsState,WarningsState,ExportLogFile,MaxHugeDivideSteps,MaxHugeDecimalNumbers,TabSize,AppVersion,AppName,AppLicense,AppCreator,SafeMode,SessionMode,HelpArgumentMode,OptimizeMode,OverwriteBuiltinMode,DebugMode,RunOnlyOS,RunOnlyArch,SessionDatabasePath
+just used for package files:
+PackageMode,AccessVariablesMode,NameSpace,ExportByteCode
 -----------------------------
 ++,--:
 str:("Hello")

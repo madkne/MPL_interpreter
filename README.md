@@ -1,4 +1,4 @@
-**mpl:))** Mini Portable Language - MPL (BETA-0.3)
+**mpl:))** Mini Portable Language - MPL (BETA-0.4)
 ============================================
 
 _This is a small,fast and simple interpreter also best solution to common problems of programmers._
@@ -130,7 +130,13 @@ TODO
 * complete print commands in mdebug **[OK]**
 * complete next,run commands in mdebug **[OK]**
 * complete symbols for commands in mdebug **[OK]** 
-* support struct entries for constant and allocation **[..]**
+* validate struct entries as a variable **[OK]**
+* support struct entries as a data **[OK]**
+* participate struct entries in math calculation **[OK]**
+* participate struct entries in str calculation **[..]**
+* participate struct entries in bool calculation **[..]**
+* support struct entries as a struct **[..]**
+* alloc struct entries **[..]**
 * start offline documentation of mpl **[OK]**
 * complete structure of mpl-docs **[..]**
 * start os built-in functions **[OK]**
@@ -208,12 +214,14 @@ MPL Sample Codes
 MPL Modules
 --------
 
-* math module **[..]**
+* math module
 * sqlite3 module
-* mgt module
+* mgl module
 * net module
 * fs module **[..]**
 * os module
+* strs module
+* mhl module
 
 MPL Language Features
 --------
@@ -237,7 +245,7 @@ MPL Language Features
 > support switch condition **[..]** <br>
 > support module os syscalls **[..]** <br>
 > has built-in garbage collector(gc) **[OK]** <br>
-> expandibility by c libraries **[..]** <br>
+> expandibility by c libraries **[OK]** <br>
 > support built-in debugger **[OK]** <br>
 
 MPL Hello World Program

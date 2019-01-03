@@ -18,7 +18,7 @@ Boolean is_valid_name(String name, Boolean is_array) {
   //******************************split index , name
   String name_v = 0, index = 0, buf = 0, extra = 0;
   Boolean is_string = false, is_end = false;
-  uint32 pars = 0;
+  int32 bras = 0;
   if (is_array) {
     for (uint32 i = 0; i < name_len; i++) {
       //------------------check is string
@@ -26,19 +26,19 @@ Boolean is_valid_name(String name, Boolean is_array) {
         is_string = switch_bool(is_string);
       }
       //------------------count pars
-      if (!is_string && name[i] == '[')
-        pars++;
-      else if (!is_string && name[i] == ']')
-        pars--;
+      if (!is_string) {
+        if (name[i] == '[')bras++;
+        else if (name[i] == ']')bras--;
+      }
 
       //------------------set name_v
-      if (!is_string && name[i] == '[' && name_v == 0 && pars == 1) {
+      if (!is_string && name[i] == '[' && name_v == 0 && bras == 1) {
         name_v = str_trim_space(buf);
         buf = 0;
         continue;
       }
       //------------------set index
-      if (!is_string && name[i] == ']' && name_v != 0 && pars == 0) {
+      if (!is_string && index == 0 && name[i] == ']' && name_v != 0 && bras == 0) {
         index = str_trim_space(buf);
         buf = 0;
         is_end = true;
@@ -59,7 +59,7 @@ Boolean is_valid_name(String name, Boolean is_array) {
   } else {
     str_init(&name_v, name);
   }
-  //msg("&%%%", name, name_v, index, extra)
+//  printf("&%%%:%s;%s;%s;%s\n", name, name_v, index, extra);
   //******************************check for extra
   if (extra != 0) {
     return false;
@@ -132,6 +132,7 @@ String simplification_var_index(String index) {
     String tmp2 = 0;
     uint8 tmp3 = 0;
     calculate_math_expression(tmp1[i], '_', &tmp2, &tmp3);
+//    printf("$$$:%s=>%s(%c)\n",tmp1[i],tmp2,tmp3);
     //check errors
     int32 real_ind = str_to_int32(tmp2);
     if (tmp3 == 'f' || tmp3 == 'h') {
@@ -721,18 +722,20 @@ vaar_en return_value_dimensions(String value, String type_var, int32 indexes[], 
   uint32 indexes_list_len = 0;
   uint32 child_count = 0;
   int32 cur_ind[indexes_len];
-  uint32 total_rooms = 1;
+  uint32 total_rooms = 1;/*all rooms that needs this array*/
   if (indexes_len == 0)return vals_array;
   //--------------------get total rooms
   for (uint8 j = 0; j < indexes_len; ++j) {
     total_rooms *= indexes[j]; //calc total_rooms
     cur_ind[j] = 0; //reset cur_ind
   }
+//  printf("DIM:%s,%s,(%i)%i=%i\n",type_var,value,indexes_len,indexes[0],total_rooms);
   //--------------------create all indexes
   for (uint32 k = 0; k < total_rooms; ++k) {
     String index = 0;
     if (k > 0)
       for (int16 j = indexes_len - 1; j >= 0; j--) {
+        if (j == -1)break;
         cur_ind[j]++;
         if (cur_ind[j] >= indexes[j])cur_ind[j] = 0;
         else break;
@@ -742,8 +745,9 @@ vaar_en return_value_dimensions(String value, String type_var, int32 indexes[], 
       if (r + 1 < indexes_len)index = char_append(index, ',');
     }
     str_list_append(&indexes_list, index, indexes_list_len++);
-    //	  printf("index[%i]:%s\n", k, index);
+//    	  printf("index[%i]:%s,%i,%i,%i,%i\n", k, index,indexes_len,total_rooms,entries_len,indexes_list_len);
   }
+//  printf("@WWW:%s\n",print_str_list(indexes_list,indexes_list_len));
   //--------------------search for values
   str_list_append(&entries, value, entries_len++);
   //--------
@@ -757,6 +761,7 @@ vaar_en return_value_dimensions(String value, String type_var, int32 indexes[], 
         str_init(&entries[b], str_substring(entries[b], 1, ent_len - 1));
       } else {
         //TODO:error
+        printf("#ERR67\n");
         //printf("ERROR:%s\n",entries[b]);
         return null;
       }
@@ -789,11 +794,13 @@ vaar_en return_value_dimensions(String value, String type_var, int32 indexes[], 
         //========split segments
         if (!is_string && !is_struct && pars == 0 && bras == 0 && acos == 0 &&
             (entries[b][c] == ',' || c + 1 == ent_len)) {
+//          printf("E$RR:%s\n", buf);
           str_list_append(&tmp_entries, buf, tmp_entries_len++);
-          //printf("E$RR:%s\n", buf);
           //----last step:register in vals_array
           if (i + 1 == indexes_len) {
+//            printf("WWWWWW.....\n");
             String sec_type = determine_value_type(buf);
+//            printf ("###:%s,%s\n", sec_type, buf);
             if (!str_equal(sec_type, type_var) && !str_equal(sec_type, "null")
                 && !str_search(basic_types, sec_type, StrArraySize(basic_types))) {
               //printf ("###:%s,%s\n", sec_type, buf);
@@ -818,7 +825,7 @@ vaar_en return_value_dimensions(String value, String type_var, int32 indexes[], 
         buf = char_append(buf, entries[b][c]);
       }
     }
-    //printf("QQQQQQQ:%i,%s\n", i, print_str_list(tmp_entries, tmp_entries_len));
+//    printf("QQQQQQQ:%i,%s\n", i, print_str_list(tmp_entries, tmp_entries_len));
     //------
     str_list_init(&entries, tmp_entries, tmp_entries_len);
     entries_len = tmp_entries_len;
@@ -854,6 +861,7 @@ String determine_value_type(String val) {
   //------------------if is a struct
   if (str_indexof(str_trim_space(val), "struct", 0) == 0) {
     String stname = 0;
+//    printf("EWWWW:%s\n",val);
     determine_struct_type(val, entry_table.cur_fid, &stname);
 //	  printf("&struct&:%s=>%s\n",val,stname);
     return stname;
@@ -903,9 +911,10 @@ String determine_value_type(String val) {
  * @return long_int
  */
 long_int determine_struct_type(String s, long_int struct_fid, String *struct_name) {
+//  printf("EWWWW:[%i]:%s\n",struct_fid,s);
   //-------------------init vars
   String buf = 0;
-  str_list st_values = 0;
+  str_list st_values = 0/*store struct entries*/;
   uint32 st_values_len = 0;
   Boolean is_string = false, is_struct = false;
   uint32 s_len = str_length(s);
@@ -935,7 +944,7 @@ long_int determine_struct_type(String s, long_int struct_fid, String *struct_nam
     //========get a value
     if (!is_string && is_struct && bras == 0 && acos == 0 &&
         ((pars == 1 && s[i] == ',') || (s[i] == ')' && pars == 0))) {
-      //printf("$$#$#:%s\n", buf);
+//      printf("$$#$#:%s\n", buf);
       str_list_append(&st_values, str_trim_space(buf), st_values_len++);
       buf = 0;
       if (s[i] == ')')is_struct = false;
@@ -945,12 +954,16 @@ long_int determine_struct_type(String s, long_int struct_fid, String *struct_nam
     buf = char_append(buf, s[i]);
   }
   //-------------------replace values by its types
-  //printf("##DDDDD[1]:%s\n", print_str_list(st_values, st_values_len));
+//  printf("##DDDDD[1]:%s\n", print_str_list(st_values, st_values_len));
   for (uint32 i = 0; i < st_values_len; i++) {
     //========if is a struct
     if (str_indexof(st_values[i], "struct", 0) == 0) {
       String stname = 0;
       determine_struct_type(st_values[i], struct_fid, &stname);
+      if (stname == 0) {
+        //TODO:Error
+        printf("#ERR789\n");
+      }
       str_init(&st_values[i], stname);
     }
       //========if is an array
@@ -984,7 +997,7 @@ long_int determine_struct_type(String s, long_int struct_fid, String *struct_nam
         char_split(st->params[i], ';', &sec1, false);
         uint8 sec2_len = (uint8) char_split(st_values[i], ';', &sec2, false);
         if (sec2_len == 1)str_list_append(&sec2, "0", sec2_len++);
-        //printf("#SSSAAA:%s@%s\n",st->params[i],st_values[i]);
+//        printf("#SSSAAA:%s@%s\n",st->params[i],st_values[i]);
         //check data type
         if (!str_equal(sec1[0], sec2[0])) {
           is_valid = false;
@@ -1030,12 +1043,32 @@ void calculate_value_of_var(String value, String type, String *ret_value, uint8 
   if (is_valid_name(value, true)) {
     Mpoint m = return_var_memory_value(value);
     if (m.id > 0) {
+      if (!str_equal(convert_sub_type_to_type(m.type_data), type)) {
+        //TODO:error
+        printf("#ERR3567\n");
+        return;
+      }
       (*ret_value) = str_reomve_quotations(m.data, type);
       (*ret_subtype) = m.type_data;
       return;
     }
   }
-  //printf("&YYYY:%s,%s,%i\n", value, type,m.id);
+  //----------------if is a struct entry variable
+//  printf("##is_valid_st:%s=>%i\n", value, is_valid_struct_entry(value));
+  if (is_valid_struct_entry(value)) {
+    long_int po_index = return_struct_entry_pointer_index(value);
+    Mpoint po = get_Mpoint(po_index);
+    if (!str_equal(convert_sub_type_to_type(po.type_data), type)) {
+      //TODO:error
+      printf("#ERR3568\n");
+      return;
+    }
+    (*ret_value) = po.data;
+    (*ret_subtype) = po.type_data;
+//    printf("QQQQ:%s=>%s,%i\n", value, po.data, po_index);
+    return;
+  }
+//  printf("&YYYY:%s,%s\n", value, type);
   //----------------
   if (str_equal(type, "num")) {
     calculate_math_expression(value, '_', &(*ret_value), &(*ret_subtype));
@@ -1966,15 +1999,23 @@ void calculate_math_expression(String exp, uint8 target_type, String *retval, ui
         is_valid_val = true;
         ty1 = set_type_of_math(&num1, 0);
       } else {
-        Mpoint mpoint = return_var_memory_value(buf);
-//        printf("VAR_num:{%s}%s=>%i=>%s(fin:%i)\n", exp, buf, return_var_id(buf, 0), mpoint.data, entry_table.cur_fin);
+        Mpoint mpoint;
+        if (is_valid_struct_entry(buf))
+          mpoint = get_Mpoint(return_struct_entry_pointer_index(buf));
+        else
+          mpoint = return_var_memory_value(buf);
+//        printf("VAR_num1:{%s}%s=>%i=>%s(fin:%i)\n", exp, buf, return_var_id(buf, 0), mpoint.data, entry_table.cur_fin);
 //        show_memory(0);
-        if (mpoint.type_data == 'i' || mpoint.type_data == 'f' || mpoint.type_data == 'h') {
-          str_init(&num1, mpoint.data);
-          is_valid_val = true;
-          type_exp = priority_math_type(type_exp, mpoint.type_data);
-          ty1 = type_exp;
+        if (!str_equal(convert_sub_type_to_type(mpoint.type_data), "num")) {
+          //TODO:error
+          printf("#ERR:6789:%i,%c;%s\n", mpoint.id, mpoint.type_data, mpoint.data);
+          (*rettype) = '0';
+          return;
         }
+        str_init(&num1, mpoint.data);
+        is_valid_val = true;
+        type_exp = priority_math_type(type_exp, mpoint.type_data);
+        ty1 = type_exp;
       }
       //*************
       if (!is_valid_val) {
@@ -2004,14 +2045,21 @@ void calculate_math_expression(String exp, uint8 target_type, String *retval, ui
         is_valid_val = true;
         ty2 = set_type_of_math(&num2, 0);
       } else {
-        Mpoint mpoint = return_var_memory_value(buf);
-
-        if (mpoint.type_data == 'i' || mpoint.type_data == 'f' || mpoint.type_data == 'h') {
-          str_init(&num2, mpoint.data);
-          is_valid_val = true;
-          type_exp = priority_math_type(type_exp, mpoint.type_data);
-          ty2 = type_exp;
+        Mpoint mpoint;
+        if (is_valid_struct_entry(buf))
+          mpoint = get_Mpoint(return_struct_entry_pointer_index(buf));
+        else
+          mpoint = return_var_memory_value(buf);
+        if (!str_equal(convert_sub_type_to_type(mpoint.type_data), "num")) {
+          //TODO:error
+          printf("#ERR:6799\n");
+          (*rettype) = '0';
+          return;
         }
+        str_init(&num2, mpoint.data);
+        is_valid_val = true;
+        type_exp = priority_math_type(type_exp, mpoint.type_data);
+        ty2 = type_exp;
         //msg("##NUM2:", num2, buf, cur_fin)
       }
       //*************
@@ -2077,25 +2125,35 @@ void calculate_math_expression(String exp, uint8 target_type, String *retval, ui
     //---------------end of calculation
     if (buf != 0 && num1 == 0 && num2 == 0 && op == 0 && exp[i] == '=') {
       Boolean is_valid_val = false;
-      //printf("&www:%s=>%s\n",exp, buf);
-      //*************detrmine type_exp
+//      printf("&www:%s=>%s\n",exp, buf);
+      //----check if buf is num
       if (type_exp == '_' && !is_valid_name(buf, true)) {
         type_exp = set_type_of_math(&buf, 0);
         if (type_exp != '0') {
           is_valid_val = true;
         }
-        //msg("&UUUUU", buf, string(type_exp), is_valid_val)
       }
       //msg("&&BBB",buf)
-      if (is_valid_name(buf, true)) {
-        str_init(&buf, return_var_memory_value(buf).data);
-        //msg("&%%%%:", buf)
-      }
-      if (str_indexof(buf, "0x", 0) > -1 || str_indexof(buf, "0b", 0) > -1 || str_indexof(buf, "0o", 0) > -1) {
+      //----check if buf is var or struct entry
+      Mpoint mpoint = {0, 0, 0};
+      if (is_valid_name(buf, true))
+        mpoint = return_var_memory_value(buf);
+      else if (is_valid_struct_entry(buf))
+        mpoint = get_Mpoint(return_struct_entry_pointer_index(buf));
+      if (mpoint.id != 0) {
+        if (!str_equal(convert_sub_type_to_type(mpoint.type_data), "num")) {
+          //TODO:error
+          printf("#ERR:6809\n");
+          (*rettype) = '0';
+          return;
+        }
+        buf = mpoint.data;
+        if (type_exp == '_') type_exp = mpoint.type_data;
+        is_valid_val = true;
+      } else if (str_indexof(buf, "0x", 0) > -1 || str_indexof(buf, "0b", 0) > -1 || str_indexof(buf, "0o", 0) > -1) {
         buf = is_radix_need_convert(buf, type_exp);
       }
-
-      //msg("&NNN",buf,is_ok,string(type_exp))
+      //----
       if (str_is_num(buf)) {
         is_valid_val = true;
       } else if (str_equal(buf, "null")) {
@@ -3345,4 +3403,157 @@ String generate_return_var_name(String name, uint32 *co) {
   }
   //return "", counter
 }
+//*********************************************************
+Boolean is_valid_struct_entry(String s) {
+/**
+ * s[w[0,1].lib.fg[u]].sd.sd1.sd2
+ */
+  //--------------------init vars
+  uint32 len = str_length(s);
+  uint32 bras = 0, points = 0;
+  String buf = 0;
+  //--------------------analyzing
+  for (uint32 i = 0; i < len; i++) {
+//    printf("QQ:%i,%c\n",i,s[i]);
+    //----check points
+    if (s[i] == '[' || s[i] == ']' || s[i] == '.' || (bras > 0 && s[i] == ',')) {
+//      printf("BUF:%s,%i,%i,%c\n", buf, bras, is_valid_math_expression(buf), s[i]);
+      if (s[i] == '.' && i - 1 >= 0 && s[i - 1] == ']') {}
+      else if (bras > 0 && !is_valid_math_expression(buf)) return false;
+      else if (bras == 0 && !is_valid_name(buf, false))return false;
+      buf = 0;
+      //----count bras
+      if (s[i] == '[')bras++;
+      else if (s[i] == ']')bras--;
+      //----count points
+      if (s[i] == '.')points++;
+      continue;
+    }
+    //----append to buf
+//    printf("FF:%s[%c]\n",buf,s[i]);
+    buf = char_append(buf, s[i]);
+  }
+  //--------------------return
+//  printf("Valid:\n");
+  if (points == 0 || bras != 0)return false;
+  return true;
+}
+//*********************************************************
+Boolean is_valid_math_expression(String s) {
+  String buf = 0;
+  uint32 bras = 0;
+  for (uint32 i = 0; i < str_length(s); i++) {
+    if (s[i] == '[')bras++;
+    else if (s[i] == ']')bras--;
+    if (s[i] == '(' || s[i] == ')') continue;
+    if (bras == 0 && char_search(single_operators, s[i])) {
+//      printf("PO:%s\n", buf);
+      if (!str_is_num(buf) && !is_valid_name(buf, true))return false;
+      buf = 0;
+      continue;
+    }
+    buf = char_append(buf, s[i]);
+  }
+  return true;
+}
+//*********************************************************
+/**
+ * get a valid struct entry expression (like:st2[0].vb.net[3,4]) and return its pointer index of final data
+ * @param st
+ * @return long_int
+ */
+long_int return_struct_entry_pointer_index(String st) {
+//----------------init vars
+  long_int var_id = 0/*main struct var id*/, final_poind = 0/*last pointer index of last value*/,
+      st_type = 0/*main struct type id*/;
+  uint32 len = str_length(st);
+  uint32 bras = 0, seg_len = 0, st_room_index = 0/*which index of pointer ids should selected*/;
+  str_list segments;
+  String buf = 0, st_type_name = 0/*next entry is for which struct types*/;
+  Mvar var;
+  datas st_datas;
+//----------------
+  for (uint32 i = 0; i < len; i++) {
+    //count bras
+    if (st[i] == '[')bras++;
+    else if (st[i] == ']')bras--;
+    //split segmemnts
+    if ((st[i] == '.' || i + 1 == len) && bras == 0) {
+      if (i + 1 == len)buf = char_append(buf, st[i]);
+      if (buf != 0)str_list_append(&segments, buf, seg_len++);
+      buf = 0;
+      continue;
+    }
+    //append to buf
+    buf = char_append(buf, st[i]);
+  }
+  //----------------split name,index
+//  printf("EEEEE:%s=>%s\n",st, print_str_list(segments, seg_len));
+  for (uint32 i = 0; i < seg_len; i++) {
+    //every time,must change final_poind,st_type_name
+    String name = 0, index = 0;
+    return_name_index_var(segments[i], false, &name, &index);
+    index = simplification_var_index(index);
+//    printf("***:%s,%s\n", name, index);
+    //if first segment
+    if (i == 0) {
+      var_id = return_var_id(name, 0);
+      if (var_id == 0) {
+        //TODO:error
+        printf("#ERR239\n");
+        return 0;
+      }
+      var = get_Mvar(find_index_var_memory(var_id));
+      st_type = var.type_var;
+      final_poind = get_data_memory_index(var.pointer_id, index);
+      datas s = get_datas(st_type);
+      st_type_name = s.name;
+//      printf("@VAR:%s=>%i,%i\n", name, final_poind, var.pointer_id);
+      continue;
+    }
+    //continue as normal
+    if (st_type_name == 0) {
+      //TODO:error
+      printf("#ERR230\n");
+      return 0;
+    }
+    st_datas = search_datas(st_type_name, entry_table.cur_fid, false);
+    st_type_name = 0;
+    if (st_datas.id == 0) {
+      //TODO:error
+      printf("#ERR231\n");
+      return 0;
+    }
+    Boolean is_exist = false;
+    //foreach all params
+    for (uint32 j = 0; j < st_datas.params_len; j++) {
+      str_list ret = 0;
+      char_split(st_datas.params[j], ';', &ret, false);
+      //if is valid entry name
+      if (str_equal(ret[1], name)) {
+        is_exist = true;
+//        printf("!ZZZZ:%i/%i\n",i,seg_len-1);
+        st_room_index = j;
+        str_init(&st_type_name, ret[0]);
+        //update final_poind
+        Mpoint pp = get_Mpoint(final_poind);
+        char_split(pp.data, ';', &ret, true);
+        final_poind = find_index_pointer_memory(str_to_long_int(ret[st_room_index]));
+        //use index to update again final_poind
+        Mpoint pp1 = get_Mpoint(final_poind);
+        uint32 cc1 = char_split(pp1.data, ';', &ret, true);
+        final_poind = get_data_memory_index(pp1.id, index);
+//          printf("@XXXXY:%s,%c,%i,%i\n",pp1.data,pp1.type_data,final_poind,st_room_index);
+        break;
+      }
+    }
+    if (!is_exist) {
+      //TODO:error
+      printf("#ERR239:%s\n", print_str_list(st_datas.params, st_datas.params_len));
+      return 0;
+    }
 
+  }
+//----------------return
+  return final_poind;
+}

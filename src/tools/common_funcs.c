@@ -844,7 +844,7 @@ String return_type_structure(uint8 t) {
 String return_file_name_extension_path(String path, String *ext) {
   int32 pos = char_last_indexof(path, OS_SEPARATOR);
   if (pos == -1) return 0;
-  String sub = str_substring(path, pos+1, 0);
+  String sub = str_substring(path, pos + 1, 0);
   str_list ret = 0;
   uint32 len = char_split(sub, '.', &ret, true);
   if (len < 2)return 0;
@@ -854,3 +854,11 @@ String return_file_name_extension_path(String path, String *ext) {
   }
   return ret[0];
 }
+//*************************************************************
+String convert_sub_type_to_type(uint8 sub_type){
+  if(sub_type=='i'||sub_type=='f'||sub_type=='h')return "num";
+  if(sub_type=='s'||sub_type=='u')return "str";
+  if(sub_type=='b')return "bool";
+  return 0;
+}
+

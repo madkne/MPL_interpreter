@@ -84,7 +84,7 @@ String magic_macros[3] = {"$con", "$def", "$ses"};
 String block_instructions[5] = {"loop", "if", "elif", "else", "manage"};
 
 //uint8 keywords_splitter[5] = {':', ' ', '{', '=', '('};
-uint8 single_operators[] = {'+', '-', '*', '/', '%', '^', '|', '&', '~'};
+uint8 single_operators[] = {'+', '-', '*', '/', '%', '^'};
 
 String comparative_operators[] = {"==", ">=", "<=", ">", "<", "!="};
 
