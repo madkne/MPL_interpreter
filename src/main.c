@@ -57,23 +57,10 @@ int main(int argc, char **argv) {
 //  print_struct(PRINT_CONDITION_LEVEL_ST);
 //	print_magic_macros(CONFIG_MAGIC_MACRO_TYPE);
 //  print_struct(PRINT_UTF8_ST);
-//  typedef int (WINAPI *MYPROC)(void);
+//String sss=0;uint8 hhhh;
+//  str_init(&sss,"(true&&((45-1)<=45))||!(!false||true)");
+//printf("@@###:%s>>>%s\n",sss,calculate_boolean_expression(sss,&hhhh));
 
-//  if (hinstLib != NULL)
-//  {
-//    MYPROC ProcAdd = (MYPROC) GetProcAddress(hinstLib, "fs_version");
-//
-//    // If the function address is valid, call the function.
-//    printf("ProcAdd:%i\n",ProcAdd);
-//    if (NULL != ProcAdd)
-//    {
-//     String h= (String)ProcAdd();
-//      printf("@@@WWWW:%s\n", h);
-//    }else{
-//      printf("FAILED1:(\n");
-//    }
-//  }else printf("FAILED2:(\n");
-//  printf("@@@WWWW:%s\n", fs_version());
   //-------------------------time of end program
   __syscall_exit(EXIT_SUCCESS);
   return 0;

@@ -48,12 +48,12 @@ TODO
 * calculate boolean expressions **[OK]**
 * define struct expressions **[OK]**
 * define complex struct expressions **[OK]**
-* set built-in __define variables **[OK]**
-* set built-in __config variables **[OK]**
+* set built-in $def variables **[OK]**
+* set built-in $con variables **[OK]**
 * using magic macros **[OK]**
-* set new __define **[OK]**
+* set new $def **[OK]**
 * define global vars **[OK]**
-* edit __config **[OK]**
+* edit $con **[OK]**
 * calculate sum huge numbers **[OK]**
 * calculate multiplication huge numbers **[OK]**
 * calculate division huge numbers **[OK]**
@@ -124,26 +124,25 @@ TODO
 * search for fs function and call it **[OK]**
 * start for developing 'mprog' program **[OK]**
 * init pre magic config,define entries **[OK]**
-* analyze __config values after parsing **[OK]**
+* analyze $con values after parsing **[OK]**
 * implement mpl debugger (mdebug) **[OK]**
 * create new breakpoint in mdebug **[OK]**
 * complete print commands in mdebug **[OK]**
 * complete next,run commands in mdebug **[OK]**
-* complete symbols for commands in mdebug **[OK]** 
+* complete symbols for commands in mdebug **[OK]**
 * validate struct entries as a variable **[OK]**
 * support struct entries as a data **[OK]**
 * participate struct entries in math calculation **[OK]**
-* participate struct entries in str calculation **[..]**
-* participate struct entries in bool calculation **[..]**
+* participate struct entries in str calculation **[OK]**
+* participate struct entries in bool calculation **[OK]**
 * support struct entries as a struct **[..]**
 * alloc struct entries **[..]**
 * start offline documentation of mpl **[OK]**
 * complete structure of mpl-docs **[..]**
-* start os built-in functions **[OK]**
+* start os built-in functions **[..]**
 * start data built-in functions
-* comparison struct expressions
 * comparison huge numbers **[OK]**
-* set new __session
+* set new $ses
 * support sqlite3 as a module
 * support for package libraries
 * building MPL website
@@ -183,9 +182,10 @@ TODO
 * add math module for advanced calculation
 * add net module
 * start mgt module
+* comparison struct expressions
 * support minimal gui for windows
 * add regex module
-* development vars usage for struct and array
+* development 'vars' type usage for struct and array
 * support mpl repository
 * support mpl forum
 
@@ -230,23 +230,25 @@ MPL Language Features
 > support radix numbers **[OK]** <br>
 > has boolean XOR operand **[OK]** <br>
 > support data structures **[OK]** <br>
-> support magic macros **[..]** <br>
+> support magic macros **[OK]** <br>
 > support huge numbers **[OK]**<br>
 > support override functions **[OK]** <br>
 > has built-in functions **[OK]** <br>
 > manage exceptions **[OK]** <br>
 > support multi dimensions arrays **[OK]** <br>
-> has bit functions **[..]** <br>
+> has built-in garbage collector(gc) **[OK]** <br>
+> expandibility by c libraries **[OK]** <br>
+> support built-in debugger **[OK]** <br>
 > support unlimited function parameters **[OK]** <br>
 > support multi return values **[OK]** <br>
 > support call by refrence vars **[OK]** <br>
 > support short allocations for vars **[OK]** <br>
+> has bit functions **[..]** <br>
+> support session storage **[..]** <br>
+> support package libraries **[..]** <br>
 > support browse arrays in loop **[..]** <br>
 > support switch condition **[..]** <br>
 > support module os syscalls **[..]** <br>
-> has built-in garbage collector(gc) **[OK]** <br>
-> expandibility by c libraries **[OK]** <br>
-> support built-in debugger **[OK]** <br>
 
 MPL Hello World Program
 --------
@@ -272,10 +274,10 @@ MPL Sample Program
 --------
      //=>import an external file
     import "file:$/data/sam.mpl"
-    //=>edit __config values
-    __config["AppName"]="MyProgram"
-    //=>edit __session values. it is store in a built-in database
-    __session["AppName"]="MyProgram"
+    //=>edit $con values
+    $con["AppName"]="MyProgram"
+    //=>edit $ses values. it is store in a built-in database
+    $ses["AppName"]="MyProgram"
     //------------
     //=>define main function,start point of any program
     func main(){
@@ -284,7 +286,9 @@ MPL Sample Program
         print("سلام بر دنیا!\n"); 
         str uu[2,2]={{"x","v"},{"h","i"}}
         //=> browse an array
-        loop(str u,b;u,b:uu){
+        loop(str u,b,num i=0;i<len(uu);i++){
+			u=uu[i][0]
+			b=uu[i][1]
             //=>print a calculated string
             print("u is: %u%,and b is: %b%\n");
         }

@@ -31,7 +31,7 @@ Applications:
 - mpl		: MPL Interpreter [OK]
 - mdebug	: MPL Debugger [OK]
 - mprog		: MPL Program Manager [..]
-- madoc		: MPL Advanced Documentation
+- mdoc		: MPL Documentation
 - mmod		: MPL Module Executer
 -----------------------------
 -----mmod example:

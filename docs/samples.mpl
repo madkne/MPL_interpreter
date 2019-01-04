@@ -22,3 +22,4 @@ gg[9].cv++
 $def[vb.net.ver]=45
 st st1=st2.f.st1
 num io=(st1[1].g.n*33)+1000
+bool io=st1[1].g.bb[0]~~st3[0].vb[0].bb[1]

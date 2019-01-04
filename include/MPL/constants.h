@@ -7,7 +7,7 @@
 
 //**************************************************define interpreter constants
 #define  APP_NAME                       "Mini Portable Language"
-#define  VERSION                        "0.4.14"    //1.10.100
+#define  VERSION                        "0.4.24"    //1.10.100
 #define  VERSION_NAME                   "BETA"
 #define  SLOGAN                         "The solution to common problems of programmers" //راه حل کارهای متداول برنامه نویسان
 
@@ -16,9 +16,9 @@
 #define  RC_LBUILD                      "undefined"
 #define  LICENCE                        "OPEN-MPL"
 #define  OFFICIAL_WEBSITE               "http://mpl-lang.ir"
-#define  C_CORE_CODE_LINES              11808       //0.4.00
-#define  H_CORE_CODE_LINES              1192
-#define  MODULES_CODE_LINES             7           //+=13007
+#define  C_CORE_CODE_LINES              12008       //0.4.24
+#define  H_CORE_CODE_LINES              1189
+#define  MODULES_CODE_LINES             16           //+=13213
 #define  LANGUAGE_CREATOR               "Mohammad Amin Delavar Khalafi"
 #define  CREATOR_SIGNATURE              "603556816519829596"
 #define  CONFIDENCE_LEVEL               21          //100%

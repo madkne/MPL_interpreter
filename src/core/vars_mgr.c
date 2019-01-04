@@ -1060,7 +1060,7 @@ void calculate_value_of_var(String value, String type, String *ret_value, uint8 
     Mpoint po = get_Mpoint(po_index);
     if (!str_equal(convert_sub_type_to_type(po.type_data), type)) {
       //TODO:error
-      printf("#ERR3568\n");
+      printf("#ERR3568:%s>>%c,%s,%s\n", value, po.type_data, type, po.data);
       return;
     }
     (*ret_value) = po.data;
@@ -1111,6 +1111,7 @@ String calculate_boolean_expression(String exp, uint8 *sub_type) {
 	5- true~~false ---OK---
 	6- (buf!=""&&exp=="tr")~~!(exp=="DF") ---OK---
 	7- (true~~((45-1)<=45))||false ---OK---
+    8- (true&&g(true||false))~~(45-1)>12 ---OK---
 	*/
   //msg("&BOOL11:", exp)
   //***********************define variables
@@ -1118,10 +1119,14 @@ String calculate_boolean_expression(String exp, uint8 *sub_type) {
   str_init(&EXP, exp);
   String final_exp = 0;
   str_init(&final_exp, "false");
-  int32 pars = 0, bra = 0, starting = -1, ending = -1;
-  String op = 0, bool1 = 0, bool2 = 0, buf = 0, word_f = "";
-  Boolean is_string = false, is_break = false, is_func = false, is_change = false;
+  int32 pars = 0, bras = 0, starting = -1, ending = -1;
+  String op = 0, bool1 = 0, bool2 = 0, buf = 0;
+  Boolean is_string = false, is_change = false;
   (*sub_type) = 'b';
+  String origin_exp = 0, word_f = 0/*store function name*/;
+  str_list expressions = 0;
+  uint32 expressions_len = 0, open_p = 0, close_p = 0/*count close pars for each expression*/;
+  int32 func_st = -1/*pars number that start func*/;
   //***********************start analyzing
   if (str_equal(exp, "true") || str_equal(exp, "false")) {
     return exp;
@@ -1131,281 +1136,236 @@ String calculate_boolean_expression(String exp, uint8 *sub_type) {
   }
   exp = remove_unused_parenthesis(exp);
   exp = str_multi_append("(", exp, ")", 0, 0, 0);
+  uint32 len = str_length(exp);
   //***********************Level 1 : analyzing and convert expressions to true,false
-  for (;;) {
-    is_change = false;
-    for (uint32 i = 0; i < str_length(exp); i++) {
-      uint32 exp_len = str_length(exp);
-      is_break = false;
-      //---------------check is string
-      if (exp[i] == '\"' && (i == 0 || exp[i - 1] != '\\')) {
-        is_string = switch_bool(is_string);
-      }
-      //---------------count bra,pras
-      if (!is_string) {
-        switch (exp[i]) {
-          case ' ': continue;
-            break;
-          case '(': {
-            pars++;
-            word_f = str_trim_space(word_f);
-            if (is_valid_name(word_f, false)) is_func = true;
-            break;
-          }
-          case ')': pars--;
-            break;
-          case '[': bra++;
-            break;
-          case ']': bra--;
-            break;
-        }
-      }
-      //---------------get &&,||,~~
-      String tmp1 = 0;
-      if (!is_string && i + 1 < exp_len) {
-        tmp1 = char_append(tmp1, exp[i]);
-        tmp1 = char_append(tmp1, exp[i + 1]);
-        //fmt.Println("ZZZZ:", tmp1, search_in_slice(boolean_operators, tmp1))
-
-      }
-      //---------------get an expression
-      if (!is_string && ((exp[i] == ')' && pars == 0) ||
-          (tmp1 != 0 && str_search(boolean_operators, tmp1, StrArraySize(boolean_operators))) ||
-          i + 1 == exp_len) && bra == 0) {
-        if (str_length(buf) > 2 && buf[0] == '!' && buf[1] == '(') {
-          starting += 1;
-          buf = str_substring(buf, 1, 0);
-        }
-        if (is_func && exp[i] == ')' && pars == 0) {
-          buf = char_append(buf, exp[i]);
-          is_func = false;
-        }
-        if (buf != 0 && (i + 1 == exp_len || (buf[0] == '(' && exp[i] == ')'))) {
-          buf = char_append(buf, exp[i]);
-        }
-
-        if (buf != 0 && (str_search(boolean_operators, tmp1, StrArraySize(boolean_operators)) ||
-            (buf[0] != '(' && exp[i] == ')' && pars == 0))) {
-          //msg("&$$$:", tmp1, buf)
-          ending = i;
-        } else {
-          ending = i + 1;
-        }
-        buf = str_trim_space(buf);
-        //msg("&&&&&&&:", buf, trim_sep_string(buf), starting, ending)
-        //search for true_false
-        if (!str_equal(str_trim_optimized_boolean(buf), "true") &&
-            !str_equal(str_trim_optimized_boolean(buf), "false") && buf != 0) {
-          int32 invalid_pars = 0;
-          buf = remove_incorrect_pars(buf, &invalid_pars);
-          starting += invalid_pars;
-          if (starting < 0) {
-            starting = 0;
-          }
-          String ret0 = return_true_false(buf);
-//          printf("POP:***%s***%s=>%s\n", exp, buf, ret0);
-          //*************replace the result
-          if (starting > 0 && (exp[starting] == '&' || exp[starting] == '|' || exp[starting] == '~')) {
-            starting++;
-          }
-          exp = replace_in_expression(exp, ret0, starting, ending, true, true);
-          //*************end
-          i = -1;
-          //msg("&FFF:", s1, s2, exp)
-          pars = 0;
-          is_change = true;
-        }
-        //search for true,false
-        if (str_search(boolean_operators, tmp1, StrArraySize(boolean_operators)) && i > -1) {
-          i += 1;
-        }
-        if (i > -1 && buf != 0) {
-          //msg("&@@@:", tmp1, buf)
-          if (str_equal(buf, "!true"))
-            str_init(&buf, "false");
-          else if (str_equal(buf, "!false"))
-            str_init(&buf, "true");
-
-          is_change = true;
-          if (starting == 0 && ending > exp_len - 2) {
-            is_change = false;
-          }
-          exp = replace_in_expression(exp, buf, starting, ending, true, true);
-        }
-        buf = 0;
-        is_break = true;
-        starting = -1, ending = -1;
-        break;
-      }
-      //---------------append to buf
-      if (!is_break) {
-        buf = char_append(buf, exp[i]);
-
-        if (starting == -1) {
-          starting = i;
-        }
-      }
-      //---------------append to word_f
-      if (!is_break && !is_string && char_search_index(words_splitter, exp[i]) && exp[i] != ' ') {
-        word_f = 0;
-      } else {
-        word_f = char_append(word_f, exp[i]);
-      }
-      //fg++
-      /*if (fg == 10) {
-				break;
-			}*/
-
-    }
-    if (!is_change) {
-      break;
-    }
-  }
-  //msg("&BOOLEAN:", exp)
-  //***********************Level 2 : analyzing and calculate true/false expression
-//  printf("#EEEE:%s,%s\n", EXP, exp);
-  if (str_equal(exp, "true") || str_equal(exp, "false")) {
-    return exp;
-  }
-  //---------------init vars
-  buf = 0;
-  starting = -1, ending = -1;
-  is_string = false;
-  exp = char_append(exp, '=');
-  pars = 0, bra = 0;
-  //---------------start analyzing
-  for (uint32 i = 0; i < str_length(exp); i++) {
-    uint32 buf_len = str_length(buf);
+  //......................level 1.1 : extract expressions from string
+  for (uint32 i = 0; i < len; i++) {
     //---------------check is string
     if (exp[i] == '\"' && (i == 0 || exp[i - 1] != '\\')) {
       is_string = switch_bool(is_string);
     }
+    //---------------count bra,pras
     if (!is_string) {
-      if (exp[i] == ' ')continue;
-      else if (exp[i] == '(' && bra == 0) {
+      if (exp[i] == '(') {
         pars++;
-        op = 0, bool1 = 0, bool2 = 0, buf = 0;
-        starting = -1;
-        //msg("PPPPPPPPPP")
-        continue;
-      } else if (exp[i] == ')')pars--;
-      else if (exp[i] == '[')bra++;
-      else if (exp[i] == ']')bra--;
+//        printf("OOO:%s\n",word_f);
+        if (word_f != 0 && is_valid_name(str_trim_space(word_f), false)) {
+          func_st = pars - 1;
+          word_f = 0;
+        }
+        if (func_st == -1)open_p++;
+      } else if (exp[i] == ')') {
+        pars--;
+        if (func_st == -1)close_p++;
+        if (func_st > -1 && func_st == pars)func_st = -1;
+      } else if (exp[i] == '[')bras++;
+      else if (exp[i] == ']')bras--;
     }
-
-    //msg("DDD:", buf, i, string(exp[i]))
-    //---------------allocate bool1
-    if (!is_string && buf != 0 &&
-        (str_has_suffix(buf, "&&") || str_has_suffix(buf, "||") || str_has_suffix(buf, "~~") ||
-            (exp[i] == ')' && pars == 0)) && bool1 == 0 && op == 0 && bra == 0) {
-      String tmp = 0;
-      //printf("#EW:%s,%s\n",buf,tmp);
-      if (str_has_suffix(buf, "&&") || str_has_suffix(buf, "||") || str_has_suffix(buf, "~~")) {
-        op = str_substring(buf, buf_len - 2, 0);
-        tmp = str_substring(buf, 0, buf_len - 2);
-        ending = i - 3;
-      } else {
-        ending = i;
-        str_init(&tmp, buf);
+    //---------------find &&,||,~~
+    String tmp1 = 0;
+    if (!is_string && i + 1 < len) {
+      tmp1 = char_append(tmp1, exp[i]);
+      tmp1 = char_append(tmp1, exp[i + 1]);
+    }
+    //---------------get an expression
+    if (!is_string && func_st == -1
+        && (i + 1 == len || str_search(boolean_operators, tmp1, StrArraySize(boolean_operators)))) {
+      //if last char
+      if (i + 1 == len) buf = char_append(buf, exp[i]);
+      //init vars
+      uint32 buf_len = str_length(buf);
+      String close_pars = 0;
+//      printf("FFR:%s\n",buf);
+      //append open pars
+      if (open_p > close_p && open_p - close_p < buf_len) {
+        if (buf[0] == '!') {
+          buf = str_substring(buf, open_p - close_p + 1, 0);
+          origin_exp = char_append(origin_exp, '!');
+        } else buf = str_substring(buf, open_p - close_p, 0);
+        for (uint32 j = 0; j < open_p - close_p; j++)
+          origin_exp = char_append(origin_exp, '(');
       }
-
-      if (str_equal(tmp, "!true"))
-        str_init(&tmp, "false");
-      else if (str_equal(tmp, "!false"))
-        str_init(&tmp, "true");
-
-      if (str_equal(tmp, "true") || str_equal(tmp, "false")) {
-        str_init(&bool1, tmp);
+      buf_len = str_length(buf);
+      //append close pars(1)
+      if (open_p < close_p && close_p - open_p < buf_len) {
+        buf = str_substring(buf, 0, buf_len - (close_p - open_p));
+        for (uint32 j = 0; j < close_p - open_p; j++)
+          close_pars = char_append(close_pars, ')');
       }
-      //*************
-      //fmt.Printf("QQQQ:%s[%s];%s\n", bool1, op, buf, tmp)
-      //msg(ending)
+      //append to origin_exp
+      origin_exp = str_append(origin_exp, str_from_int32(expressions_len));
+//      printf("WWWW:%s;%i,%i\n", buf, open_p, close_p);
+      str_list_append(&expressions, buf, expressions_len++);
+      //append close pars(2)
+      if (close_pars != 0)origin_exp = str_append(origin_exp, close_pars);
+      //append boolean operator
+      if (i + 1 < len)origin_exp = str_append(origin_exp, tmp1);
+      //reset all
+      open_p = 0;
+      close_p = 0;
+      word_f = 0;
       buf = 0;
-      ending = -1;
-      //continue
-    }
-    //---------------end of calculation
-    if (!is_string && buf != 0 && (str_equal(buf, "true") || str_equal(buf, "false") || is_valid_name(buf, true))
-        &&
-            bool1 == 0 && bool2 == 0 && op == 0 && (exp[i] == '=' && i + 1 == str_length(exp))) {
-      if (is_valid_name(buf, true))
-        buf = return_var_memory_value(buf).data;
-      str_init(&final_exp, buf);
-      break;
-    }
-    //---------------allocate bool2
-    if (!is_string && buf != 0 &&
-        (str_has_suffix(buf, "&&") || str_has_suffix(buf, "||") || str_has_suffix(buf, "~~") ||
-            (exp[i] == '=' && i + 1 == str_length(exp)) || (exp[i] == ')' && pars == 0)) && bool2 == 0 &&
-        ((exp[i] == '=' && bool1 == 0 && op == 0) || (bool1 != 0 && op != 0)) && bra == 0) {
-      String tmp = 0;
-      if (str_has_suffix(buf, "&&") || str_has_suffix(buf, "||") || str_has_suffix(buf, "~~")) {
-        //op = buf[len(buf)-2:]
-        tmp = str_substring(buf, 0, buf_len - 2);
-        ending = i - 3;
-      } else {
-        str_init(&tmp, buf);
-        ending = i;
-      }
-      if (str_equal(tmp, "!true"))
-        str_init(&tmp, "false");
-      else if (str_equal(tmp, "!false"))
-        str_init(&tmp, "true");
-
-      if (str_equal(tmp, "true") || str_equal(tmp, "false")) {
-        str_init(&bool2, tmp);
-      }
-      //fmt.Printf("EEEE:%s[%s]%s{%s}\n\t%s;%s\n", bool1, op, bool2, tmp, buf, exp)
-      //**************analyze bool1&bool2
-
-      //*************calculate bool1&bool2
-      String result = 0;
-      str_init(&result, "false");
-      if (str_equal(op, "&&") && str_equal(bool1, "true") && str_equal(bool2, "true"))
-        str_init(&result, "true");
-      else if (str_equal(op, "||") && (str_equal(bool1, "true") || str_equal(bool2, "true")))
-        str_init(&result, "true");
-      else if (str_equal(op, "~~") && ((str_equal(bool1, "true") && str_equal(bool2, "false")) ||
-          (str_equal(bool1, "false") && str_equal(bool2, "true"))))
-        str_init(&result, "true");
-      else if (op == 0 && bool1 == 0 && (str_equal(bool2, "true") || str_equal(bool2, "false")))
-        str_init(&result, bool2);
-      //*************replace the result
-      String s1 = 0, s2 = 0, expression = 0;
-      s1 = str_trim_space(str_substring(exp, 0, starting));
-      s2 = str_trim_space(str_substring(exp, ending, 0));
-      uint32 s1_len = str_length(s1);
-      if (s1_len > 0 && s1[s1_len - 1] == '(' && s2[0] == ')') {
-        s1 = str_substring(s1, 0, s1_len - 1);
-        s2 = str_substring(s2, 1, 0);
-      }
-      expression = str_multi_append(s1, result, s2, 0, 0, 0);
-      str_init(&exp, expression);
-      //*************end calculate
-      //msg("DDDD:", starting, ending)
-      //fmt.Printf("CALC2~%s:%s:%s=%s\n\t%s\n", bool1, op, bool2, result, exp)
-      op = 0, bool1 = 0, bool2 = 0, buf = 0;
-      starting = -1, pars = 0;
-      i = -1;
+      i++;
       continue;
     }
-
     //---------------append to buf
     buf = char_append(buf, exp[i]);
-    if (starting == -1) {
-      starting = i;
+    //---------------append to word_f
+    if (!is_string && char_search(words_splitter, exp[i]) && exp[i] != ' ') {
+//      printf("UUU:%s\n",word_f);
+      word_f = 0;
+    } else {
+      word_f = char_append(word_f, exp[i]);
     }
-    /*if (!is_string && exp[i] == '!' && (i + 1 >= str_length(exp) || exp[i + 1] != '='))
-		{
-		}*/
-
   }
-  //printf("#EEEE12:%s,%s,%s\n", EXP, exp, final_exp);
-  //***********************return final_exp
-  //fmt.Printf("RESULT:%s=>%s\n", exp, final_exp)
-  return final_exp;
+  //......................level 1.2 : analyze each expressions and set results in main expression
+  for (uint32 i = 0; i < expressions_len; i++) {
+    //init vars
+    String ex = expressions[i];
+    Boolean NOT = false;
+    String res = 0;
+    String istr = str_from_int32(i);
+    //if exist 'not'
+    if (ex[0] == '!') {
+      NOT = true;
+      ex = str_substring(ex, 1, 0);
+    }
+    //analyze expression
+    if (ex[0] == '(')ex = remove_unused_parenthesis(ex);
+    if (str_equal(ex, "true") || str_equal(ex, "false"))res = ex;
+    else res = return_true_false(ex);
+    //if was NOT
+//    printf("NOT:(%i)%s=>%s=>%s\n",NOT,expressions[i],ex,res);
+    if (NOT) {
+      if (res[0] == 't'/*true*/) str_init(&res, "false");
+      else if (res[0] == 'f'/*false*/) str_init(&res, "true");
+    }
+    //replace in origin_exp
+    expressions[i] = res;
+//    int32 start = str_indexof(origin_exp, istr, 0);
+//    if (start == -1) continue;
+//    origin_exp = replace_in_expression(origin_exp, res, start, start + str_length(istr), false, false);
+//    printf("EXP:%s>>>%s>>>%s\n\t%s\n", expressions[i], ex, res, origin_exp);
+  }
+
+//***********************Level 2 : analyzing and calculate true/false expression
+//  printf("#EEEE:%s>>>%s##%s\n", EXP, origin_exp, print_str_list(expressions, expressions_len));
+  //if exist just one expression
+  if (expressions_len == 1) return expressions[0];
+  //origin_exp:(1&&(2||3~~4))=
+  exp = origin_exp;
+  exp = char_append(exp, '=');
+  for (;;) {
+    //---------------init vars
+    buf = 0, op = 0, bool1 = 0, bool2 = 0;
+    starting = -1, ending = -1;
+    is_string = false,is_change=false;
+    pars = 0, bras = 0;
+    //---------------start analyzing
+    len = str_length(exp);
+    for (uint32 i = 0; i < len; i++) {
+      //---------------check is string
+      if (exp[i] == '\"' && (i == 0 || exp[i - 1] != '\\'))
+        is_string = switch_bool(is_string);
+
+      if (!is_string) {
+        if (exp[i] == ' ')continue;
+        else if (exp[i] == '(' && bras == 0) {
+          pars++;
+          op = 0, bool1 = 0, bool2 = 0, buf = 0;
+          starting = -1;
+          continue;
+        } else if (exp[i] == ')')pars--;
+        else if (exp[i] == '[')bras++;
+        else if (exp[i] == ']')bras--;
+      }
+
+//      printf("DDD:%s,%i,%c\n", buf, i, exp[i]);
+      //---------------allocate bool1
+      if (!is_string && buf != 0 && bool1 == 0 &&
+          ((exp[i] == '&' || exp[i] == '|' || exp[i] == '~')
+              || (exp[i] == ')')) && op == 0 && bras == 0) {
+//printf("#EW:%s,%s\n",buf,tmp);
+        if (str_is_num(buf))
+          bool1 = expressions[str_to_int32(buf)];
+        else
+          bool1 = buf;
+        //store op
+        op = char_append(op, exp[i]);
+        op = char_append(op, exp[i + 1]);
+//        printf("QQQQ:%s[%s];%s\n", bool1, op, buf);
+        buf = 0;
+        i++;
+        ending = -1;
+        continue;
+      }
+      //---------------end of calculation
+      if (!is_string && buf != 0
+          && bool1 == 0 && bool2 == 0 && op == 0
+          && (exp[i] == '=' && i + 1 == len)) {
+//        printf("III:%s\n",buf);
+        if (str_is_num(buf)) return expressions[str_to_int32(buf)];
+        return buf;
+      }
+      //---------------allocate bool2
+      if (!is_string && buf != 0 && bool2 == 0 &&
+          ((exp[i] == '&' || exp[i] == '|' || exp[i] == '~')
+              || (exp[i] == '=' && i + 1 == len)
+              || (exp[i] == ')'))
+          && bool1 != 0 && op != 0 && bras == 0) {
+        ending = i;
+        if (str_is_num(buf))
+          bool2 = expressions[str_to_int32(buf)];
+        else
+          bool2 = buf;
+//        printf("VVVVV:%s[%s]%s{%s}\n\t%s\n", bool1, op, bool2, buf, exp);
+        //**************analyze bool1&bool2
+        if (bool1[0] == '!') {
+          if (bool1[1] == 't')str_init(&bool1, "false");
+          else str_init(&bool1, "true");
+        }
+        if (bool2[0] == '!') {
+          if (bool2[1] == 't')str_init(&bool2, "false");
+          else str_init(&bool2, "true");
+        }
+        //*************calculate bool1&bool2
+        String result = 0;
+        str_init(&result, "false");
+        if (op[0] == '&' && bool1[0] == 't' && bool2[0] == 't')
+          str_init(&result, "true");
+        else if (op[0] == '|' && (bool1[0] == 't' || bool2[0] == 't'))
+          str_init(&result, "true");
+        else if (op[0] == '~' && bool1[0] != bool2[0])
+          str_init(&result, "true");
+        else if (op == 0 && bool1 == 0 && bool2 != 0)result = bool2;
+//*************replace the result
+        exp = replace_in_expression(exp, result, starting, ending, true, true);
+//*************end calculate
+//        printf("CALC2~%s:%s:%s=%s\n\t%s\n", bool1, op, bool2, result, exp);
+        is_change = true;
+        break;
+      }
+
+//---------------append to buf
+      buf = char_append(buf, exp[i]);
+      if (starting == -1) {
+        starting = i;
+      }
+    }
+    if (!is_change)break;
+  }
+//printf("#EEEE12:%s,%s,%s\n", EXP, exp, final_exp);
+//***********************return final_exp
+//fmt.Printf("RESULT:%s=>%s\n", exp, final_exp)
+  return
+      final_exp;
 }
 //*********************************************************
+/**
+ * get a boolean expression like "foo()" or "2>6", then analyze it and return true of false string as output of expression
+ * @param exp
+ * @return String
+ */
 String return_true_false(String exp) {
   /**
 	1- c_name=="AliReza" 		---OK---
@@ -1428,7 +1388,7 @@ String return_true_false(String exp) {
   int32 pars = 0, bra = 0, stop_buf = 0;
   //***********************start analyzing
   exp = remove_unused_parenthesis(exp);
-  //msg("&TRUE_FALSE:", exp)
+//  printf("&TRUE_FALSE:", exp);
   if (str_length(exp) > 1 && exp[0] == '!') {
     exp = str_substring(exp, 1, 0);
     is_not = true;
@@ -1507,26 +1467,23 @@ String return_true_false(String exp) {
         }
         //msg("&FFGG1:", operand1)
 
-      }
-        //............variable
-      else if (is_valid_name(oprd, true)) {
-        Mpoint po = return_var_memory_value(oprd);
-//        printf("&VVV1:%s,%s\n", operand1, po.data);
-        if (po.type_data == '0') {
-          exception_handler("not_exist_var", __func__, oprd, 0);
-          return "false";
-        }
-        str_init(&final_res, po.data);
-        tyy = po.type_data;
-        oprd = 0;
-        //............value
       } else {
-        uint8 typ = '0';
-        String value = determine_unknown_value(oprd, &typ);
-        final_res = str_reomve_quotations(value, char_to_str(typ));
-        //msg("&QQQ1:", operand1, value)
-        tyy = typ;
-        oprd = 0;
+        //............variable
+        Mpoint mpoint = return_var_data_from_name(oprd, "bool", false);
+        if (mpoint.id != 0) {
+          str_init(&final_res, mpoint.data);
+          tyy = mpoint.type_data;
+          oprd = 0;
+        }
+          //............value
+        else {
+          uint8 typ = '0';
+          String value = determine_unknown_value(oprd, &typ);
+          final_res = str_reomve_quotations(value, char_to_str(typ));
+          //msg("&QQQ1:", operand1, value)
+          tyy = typ;
+          oprd = 0;
+        }
       }
     }
     //---------------
@@ -1538,10 +1495,10 @@ String return_true_false(String exp) {
       type2 = tyy;
     }
   }
-//  printf("&&:%s,%s\n", operand1, operand2);
+//  printf("&&:%s=>%s,%s;%c,%c\n", exp, operand1, operand2, type1, type2);
   //---------------calculate operand1,operand2 with op
   if (op == 0 && operand2 == 0 && (str_equal(operand1, "true") || str_equal(operand1, "false"))) {
-    str_init(&operand1, final_exp);
+    return operand1;
   } else {
     String nums_state = 0;
     if (str_equal(op, ">=") || str_equal(op, "<=") || str_equal(op, ">") || str_equal(op, "<")) {
@@ -1631,7 +1588,7 @@ String return_true_false(String exp) {
 
   }
   //***********************return final_exp
-  //msg("&TRUE_FALSE_FINAL", operand1, operand2, op, final_exp)
+//  printf("&TRUE_FALSE_FINAL:%s,%s,%s=>%s\n", operand1, operand2, op, final_exp);
   if (is_not && str_equal(final_exp, "true")) {
     str_init(&final_exp, "false");
   } else if (is_not && str_equal(final_exp, "false")) {
@@ -1707,6 +1664,7 @@ void calculate_string_expression(String exp, String *value, uint8 *sub_type) {
 	1- "Ind: %i[0]%\n" ---OK---
 	2- "Hello "+sd[0,1] ---OK---
 	3- ""+"Hi" ---OK---
+    4- st1[1].name+"..."
 	*/
   //**************************define variables
   String final_exp = 0, buf = 0, str1 = 0, str2 = 0;
@@ -1760,11 +1718,14 @@ void calculate_string_expression(String exp, String *value, uint8 *sub_type) {
           //utf8_str_print("aaaaaa",ustr,true);
         }
       } else {
-        Mpoint point = return_var_memory_value(buf);
-        str_init(&str1, point.data);
-        if (point.type_data == 's' || point.type_data == 'u') {
-          is_valid_val = true;
+        Mpoint point = return_var_data_from_name(buf, "str", true);
+        if (point.id == 0) {
+          str_init(&(*value), 0);
+          (*sub_type) = '0';
+          return;
         }
+        str_init(&str1, point.data);
+        is_valid_val = true;
         if (point.type_data == 'u') {
           type = 'u';
           long_int uid = str_to_long_int(str_substring(str1, UTF8_ID_LBL_LEN, 0));
@@ -1809,11 +1770,14 @@ void calculate_string_expression(String exp, String *value, uint8 *sub_type) {
           //utf8_str_print("aaaaaa",ustr,true);
         }
       } else {
-        Mpoint point = return_var_memory_value(buf);
-        str_init(&str2, point.data);
-        if (point.type_data == 's') {
-          is_valid_val = true;
+        Mpoint point = return_var_data_from_name(buf, "str", true);
+        if (point.id == 0) {
+          str_init(&(*value), 0);
+          (*sub_type) = '0';
+          return;
         }
+        str_init(&str2, point.data);
+        is_valid_val = true;
         if (point.type_data == 'u') {
           type = 'u';
           long_int uid = str_to_long_int(str_substring(str2, UTF8_ID_LBL_LEN, 0));
@@ -1877,18 +1841,16 @@ void calculate_string_expression(String exp, String *value, uint8 *sub_type) {
           buf = utf8_to_bytes_string(get_utst(uid).utf8_string);
           //utf8_str_print("aaaaaa",ustr,true);
         }
-      } else if (is_valid_name(buf, true)) {
-        String buf1 = 0;
-        str_init(&buf1, buf);
-        Mpoint point = return_var_memory_value(buf);
+      } else {
+        Mpoint point = return_var_data_from_name(buf, "str", true);
+        if (point.id == 0) {
+          (*value) = 0;
+          (*sub_type) = '0';
+          return;
+        }
         str_init(&buf, point.data);
         is_str_style = false;
-        if (point.type_data == 's' || point.type_data == 'n' || point.type_data == 'u') {
-          is_valid_val = true;
-        } else {
-          //msg("&Str", buf, string(tmp1), is_valid_val)
-          str_init(&buf, buf1);
-        }
+        is_valid_val = true;
         if (point.type_data == 'u') {
           type = 'u';
           long_int uid = str_to_long_int(str_substring(buf, UTF8_ID_LBL_LEN, 0));
@@ -1999,16 +1961,8 @@ void calculate_math_expression(String exp, uint8 target_type, String *retval, ui
         is_valid_val = true;
         ty1 = set_type_of_math(&num1, 0);
       } else {
-        Mpoint mpoint;
-        if (is_valid_struct_entry(buf))
-          mpoint = get_Mpoint(return_struct_entry_pointer_index(buf));
-        else
-          mpoint = return_var_memory_value(buf);
-//        printf("VAR_num1:{%s}%s=>%i=>%s(fin:%i)\n", exp, buf, return_var_id(buf, 0), mpoint.data, entry_table.cur_fin);
-//        show_memory(0);
-        if (!str_equal(convert_sub_type_to_type(mpoint.type_data), "num")) {
-          //TODO:error
-          printf("#ERR:6789:%i,%c;%s\n", mpoint.id, mpoint.type_data, mpoint.data);
+        Mpoint mpoint = return_var_data_from_name(buf, "num", true);
+        if (mpoint.id == 0) {
           (*rettype) = '0';
           return;
         }
@@ -2045,14 +1999,8 @@ void calculate_math_expression(String exp, uint8 target_type, String *retval, ui
         is_valid_val = true;
         ty2 = set_type_of_math(&num2, 0);
       } else {
-        Mpoint mpoint;
-        if (is_valid_struct_entry(buf))
-          mpoint = get_Mpoint(return_struct_entry_pointer_index(buf));
-        else
-          mpoint = return_var_memory_value(buf);
-        if (!str_equal(convert_sub_type_to_type(mpoint.type_data), "num")) {
-          //TODO:error
-          printf("#ERR:6799\n");
+        Mpoint mpoint = return_var_data_from_name(buf, "num", true);
+        if (mpoint.id == 0) {
           (*rettype) = '0';
           return;
         }
@@ -2135,18 +2083,8 @@ void calculate_math_expression(String exp, uint8 target_type, String *retval, ui
       }
       //msg("&&BBB",buf)
       //----check if buf is var or struct entry
-      Mpoint mpoint = {0, 0, 0};
-      if (is_valid_name(buf, true))
-        mpoint = return_var_memory_value(buf);
-      else if (is_valid_struct_entry(buf))
-        mpoint = get_Mpoint(return_struct_entry_pointer_index(buf));
+      Mpoint mpoint = return_var_data_from_name(buf, "num", true);
       if (mpoint.id != 0) {
-        if (!str_equal(convert_sub_type_to_type(mpoint.type_data), "num")) {
-          //TODO:error
-          printf("#ERR:6809\n");
-          (*rettype) = '0';
-          return;
-        }
         buf = mpoint.data;
         if (type_exp == '_') type_exp = mpoint.type_data;
         is_valid_val = true;
@@ -3556,4 +3494,35 @@ long_int return_struct_entry_pointer_index(String st) {
   }
 //----------------return
   return final_poind;
+}
+//*********************************************************
+/**
+ * get a var name or a struct entry like "io[2]" or "st1[1].vb" and return its Mpoint if data types are equal
+ * @param name
+ * @param type
+ * @param checkings
+ * @return Mpoint
+ */
+Mpoint return_var_data_from_name(String name, String type, Boolean checkings) {
+  //-------------init vars
+  Mpoint ret = {0, 0, 0};
+  Mpoint null = {0, 0, 0};
+  //-------------get Mpoint
+  if (is_valid_struct_entry(name))
+    ret = get_Mpoint(return_struct_entry_pointer_index(name));
+  else
+    ret = return_var_memory_value(name);
+  //-------------check for data type
+  if (ret.id == 0)return ret;
+  if (checkings) {
+    if (!str_equal(convert_sub_type_to_type(ret.type_data), type)) {
+      //TODO:error
+      printf("#ERR:6789:%s(%s)=>%i,%c;%s\n", name, type, ret.id, ret.type_data, ret.data);
+      return null;
+    }
+  }
+
+  //-------------return
+  return ret;
+
 }

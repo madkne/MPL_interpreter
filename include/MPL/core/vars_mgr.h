@@ -72,4 +72,5 @@ String generate_return_var_name(String name, uint32 *co);
 Boolean is_valid_struct_entry(String s);
 Boolean is_valid_math_expression(String s);
 long_int return_struct_entry_pointer_index(String st);
+Mpoint return_var_data_from_name(String name,String type,Boolean checkings);
 #endif //MPL_VARS_MGR_H

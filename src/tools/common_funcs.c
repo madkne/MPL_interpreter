@@ -855,10 +855,18 @@ String return_file_name_extension_path(String path, String *ext) {
   return ret[0];
 }
 //*************************************************************
-String convert_sub_type_to_type(uint8 sub_type){
-  if(sub_type=='i'||sub_type=='f'||sub_type=='h')return "num";
-  if(sub_type=='s'||sub_type=='u')return "str";
-  if(sub_type=='b')return "bool";
+String convert_sub_type_to_type(uint8 sub_type) {
+  if (sub_type == 0)return 0;
+  if (sub_type == 'i' || sub_type == 'f' || sub_type == 'h')return "num";
+  if (sub_type == 's' || sub_type == 'u')return "str";
+  if (sub_type == 'b')return "bool";
   return 0;
+}
+//*************************************************************
+Boolean has_suffix_for_array(String s, str_list ar, uint32 ar_len) {
+  for (uint32 i = 0; i < ar_len; i++) {
+    if (str_has_suffix(s, ar[i]))return true;
+  }
+  return false;
 }
 
