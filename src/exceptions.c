@@ -153,7 +153,7 @@ void init_exceptions_list_data() {
 }
 
 int8 exception_handler(String lbl_err, const char func_occur[], String rep1, String rep2) {
-  //printf("FFFFFFFFFF:%s\n",lbl_err);
+//  printf("FFFFFFFFFF:%s\n",lbl_err);
   //---------------------init vars
   int8 ret_num = WARNING_ID;
   long_int excep_id = 0;

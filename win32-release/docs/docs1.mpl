@@ -31,8 +31,9 @@ Applications:
 - mpl		: MPL Interpreter [OK]
 - mdebug	: MPL Debugger [OK]
 - mprog		: MPL Program Manager [..]
-- madoc		: MPL Advanced Documentation
+- mdoc		: MPL Documentation
 - mmod		: MPL Module Executer
+- mclang	: MPL Codes Converter To Clang
 -----------------------------
 -----mmod example:
 > mmod strs str_split "Hi,hey,hello" ","
@@ -42,12 +43,13 @@ Applications:
 > mmod fs abspath ./hey.txt
 : E:\sam\hey.txt
 -----:=
-work for values,arrays,structs
-change and replace pointer of two variables
-and for values change their no its pointers
+- work for values,arrays,structs
+- change and replace pointer of two variables
+- and for values change their no its pointers
 num k1={4,8,9} //var_memory.pointer_id=4
 num k2={41,81,91} //var_memory.pointer_id=7
 k1:=k2  //k1.pointer_id=7;k2.pointer_id=4;
+k1[0]:=k2[2]
 -----------------------------
 built-in structs :
 exception
@@ -207,7 +209,7 @@ num j[4,7]
 - you can define an array by '?' dimension but you must assign it by a value like : num k[?]={5,7,8,8} //k[4]
 
 -----vars:
-- vars just include struct and num,bool,str values and not arrays
+- vars just include num,bool,str values and not arrays
 - vars just implement in function headers
 - vars is not different between two override functions
 - vars items can not a refrence variable

@@ -67,10 +67,11 @@ Boolean is_array_var(long_int id, Boolean is_id);
 String return_default_value(String type);
 String create_null_array(String type, int32 indexes[], uint8 indexes_len);
 Boolean alloc_array_var(long_int var_ind, String array_val, String type);
-Boolean alloc_struct_var(datas type_datas, long_int pointer_index, vaar_en struct_id);
+Boolean alloc_struct_var(datas type_datas, long_int pointer_id, vaar_en struct_id);
 String generate_return_var_name(String name, uint32 *co);
 Boolean is_valid_struct_entry(String s);
 Boolean is_valid_math_expression(String s);
-long_int return_struct_entry_pointer_index(String st);
+long_int return_struct_entry_pointer_id(String st);
 Mpoint return_var_data_from_name(String name,String type,Boolean checkings);
+int8 recursive_alloc_vars_pointers_data(long_int origin_po_id,long_int alloc_po_id);
 #endif //MPL_VARS_MGR_H

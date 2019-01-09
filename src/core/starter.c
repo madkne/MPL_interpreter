@@ -48,7 +48,7 @@ int8 APP_CONTROLLER() {
       entry_table.is_occur_error_exception = false;
       return STOP_RETURN_APP_CONTROLLER;
     }
-    //printf("XSSSS:%i<>%i,%i<>%i,%i<>%i\n", st->func_id, cur_fid , st->stru_id, cur_sid , st->order, cur_order);
+    // printf("XSSSS:%s>>%i<>%i,%i<>%i,%i<>%i\n",st->code, st->func_id, entry_table.cur_fid , st->stru_id, entry_table.cur_sid , st->order, entry_table.cur_order);
     //-------get current instruction for executing
     if (st->func_id == entry_table.cur_fid
         && st->stru_id == entry_table.cur_sid
@@ -57,6 +57,7 @@ int8 APP_CONTROLLER() {
       entry_table.Rorder = st->order;
       //-------run instruction
       int8 ret0 = INSTRUCTION_EXECUTOR(st->id);
+      // printf("RUN_inst:\n",st->code);
       if (ret0 == FAILED_EXECUTE_INSTRUCTION)return BAD_RETURN_APP_CONTROLLER;
       //-------if is next instruction
       if (entry_table.next_break_inst == NEXT_INST) {
@@ -114,9 +115,8 @@ int8 INSTRUCTION_EXECUTOR(long_int index) {
     else if (state == ALLOC_MAGIC_MACROS_LBL_INST)Rcode = alloc_magic_macros(Rcode);
     else if (state == FUNC_CALL_LBL_INST)Rcode = function_call(Rcode);
     else if (state == ALLOC_VARS_LBL_INST) {
-      int8 status = vars_allocation(Rcode);
+      is_done = vars_allocation(Rcode);
       Rcode = 0;
-      if (status == -1)is_done = false;
     } else if (state == RETURN_LBL_INST) {
       Boolean ret = function_return(Rcode);
       Rcode = 0;
@@ -152,8 +152,10 @@ int8 INSTRUCTION_EXECUTOR(long_int index) {
   if (is_programmer_debug >= 2) {
     if (is_done) {
       printf("~~~~~~~~~~~~~~~~~~>DONE :)\n\n");
+       printf("---------------:%i,%s\n",entry_table.post_short_alloc_len,entry_table.post_short_alloc[0]);
       //check post short alloc
       is_done = check_post_short_alloc();
+     
     }
     if (!is_done) {
       printf("~~~~~~~~~~~~~~~~~~>BREAK :(\n\n");

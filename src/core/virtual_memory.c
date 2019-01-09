@@ -6,9 +6,9 @@
 
 void init_memory() {
   entry_table.var_memory_start = 0;
-  entry_table.pointer_memory_start = 0;
+//  entry_table.pointer_memory_start = 0;
   entry_table.var_mem_id = 1;
-  entry_table.pointer_mem_id = 4;
+  entry_table.pointer_mem_id = 5;
   entry_table.var_mem_len = 0;
   entry_table.pointer_mem_len = 0;
   //----------------------------
@@ -20,7 +20,10 @@ void init_memory() {
   Mpoint tmp3 = {RETURN_TMP_POINTER_ID, 0, 'v'};
   append_Mpoint(tmp3);
 }
-
+//****************************************************
+uint32 return_Mpoint_hash_index(long_int id) {
+  return (uint32) (id % HASH_MEM_SIZE);
+}
 //****************************************************
 void append_Mvar(Mvar s) {
   Mvar *q;
@@ -67,6 +70,7 @@ void delete_Mvar(long_int i) {
 
 //****************************************************
 void append_Mpoint(Mpoint s) {
+  //create Mpoint struct
   Mpoint *q;
   q = (Mpoint *) malloc(sizeof(Mpoint));
   if (q == 0) return;
@@ -74,27 +78,31 @@ void append_Mpoint(Mpoint s) {
   q->type_data = s.type_data;
   str_init(&q->data, s.data);
   q->next = 0;
+  //get hash_pointers index
+  uint32 hash_index = return_Mpoint_hash_index(s.id);
+  //append to hash_pointers entry
   entry_table.pointer_mem_len++;
-  if (entry_table.pointer_memory_start == 0)
-    entry_table.pointer_memory_start = entry_table.pointer_memory_end = q;
+  if (hash_pointers[hash_index] == 0)
+    hash_pointers[hash_index] = hash_pointers_end[hash_index] = q;
   else {
-    entry_table.pointer_memory_end->next = q;
-    entry_table.pointer_memory_end = q;
+    hash_pointers_end[hash_index]->next = q;
+    hash_pointers_end[hash_index] = q;
   }
 }
 
 //****************************************************
-void delete_Mpoint(long_int i) {
-  long_int counter = 0;
+void delete_Mpoint(long_int id) {
   Mpoint *first = 0;
-  Mpoint *last = entry_table.pointer_memory_start;
+  uint32 hash_index = return_Mpoint_hash_index(id);
+  Mpoint *last = hash_pointers[hash_index];
+  uint32 counter = 0;
   for (;;) {
-    if (counter == i) {
+    if (last->id == id) {
       Mpoint *next = last->next;
       free(last);
-      if (i == 0) entry_table.pointer_memory_start = next; //if was first node
+      if (counter == 0 || first == 0) hash_pointers[hash_index] = next; //if was first node
       else first->next = next;
-      if (next == 0)entry_table.pointer_memory_end = first; //if was last node
+      if (next == 0)hash_pointers_end[hash_index] = first; //if was last node
       break;
     }
     first = last;
@@ -120,32 +128,45 @@ Mvar get_Mvar(long_int i) {
 }
 
 //****************************************************
-Mpoint get_Mpoint(long_int i) {
+Mpoint get_Mpoint(long_int id) {
   Mpoint null = {0, 0, 0, 0};
-  long_int counter = 0;
-  Mpoint *tmp1 = entry_table.pointer_memory_start;
+  uint32 hash_index = return_Mpoint_hash_index(id);
+  Mpoint *tmp1 = hash_pointers[hash_index];
+  //printf("!!!!!!:%i,%i,%i\n",id,hash_index,hash_pointers[hash_index]);
+  if (tmp1 == 0)return null;
   for (;;) {
-    if (i == counter) return (*tmp1);
+    if (id == tmp1->id) return (*tmp1);
     tmp1 = tmp1->next;
-    counter++;
     if (tmp1 == 0) break;
   }
   return null;
 }
 //****************************************************
-void edit_Mpoint(long_int i, String data, uint8 subtype, Boolean set_data, Boolean set_type) {
-  long_int counter = 0;
-  Mpoint *tmp1 = entry_table.pointer_memory_start;
+void edit_Mpoint(long_int id, String data, uint8 subtype, Boolean set_data, Boolean set_type) {
+  uint32 hash_index = return_Mpoint_hash_index(id);
+  Mpoint *tmp1 = hash_pointers[hash_index];
   for (;;) {
-    if (i == counter) {
+    if (id == tmp1->id) {
       if (set_data) str_init(&(*tmp1).data, data);
       if (set_type)(*tmp1).type_data = subtype;
       return;
     }
     tmp1 = tmp1->next;
-    counter++;
     if (tmp1 == 0) break;
   }
+}
+//****************************************************
+Boolean append_Mpoint_pointer(long_int id, long_int new_pointer) {
+  Mpoint pointers = get_Mpoint(id);
+  if (pointers.type_data != 'p' && pointers.type_data != 'l')return false;
+  String new_po = str_from_long_int(new_pointer);
+  if (pointers.data == 0)pointers.data = new_po;
+  else {
+    pointers.data = char_append(pointers.data, ';');
+    pointers.data = str_append(pointers.data, new_po);
+  }
+  edit_Mpoint(id, pointers.data, pointers.type_data, true, false);
+  return true;
 }
 //****************************************************
 void change_Mvar_pointer_id(long_int i, long_int new_po) {
@@ -214,22 +235,22 @@ Mpoint return_var_memory_value(String var_name) {
   pointer_id = get_Mvar(real_id).pointer_id;
   //msg("III:", pointer_id)
   //----------------simplification var_index
-  var_index=simplification_var_index(var_index);
+  var_index = simplification_var_index(var_index);
   //----------------search for data in index
-  long_int data_ind = get_data_memory_index(pointer_id, var_index);
+  long_int data_id = get_data_memory_id(pointer_id, var_index);
   //**************************return
 //  printf("CXCXC:%s[%s]=>(%i)%s\n", var_name,var_index,data_ind, get_Mpoint(data_ind).data);
-  return get_Mpoint(data_ind);
+  return get_Mpoint(data_id);
 }
 //****************************************************
 
 /**
- * get a pointer_id of var and index of var and return an index of Mpoint
+ * get a pointer_id of var and index of var and return an id of Mpoint
  * @param pointer_id
- * @param index_var
+ * @param index_var (advanced index numbers)
  * @return long_int
  */
-long_int get_data_memory_index(long_int pointer_id, String index_var) {
+long_int get_data_memory_id(long_int pointer_id, String index_var) {
   //**************************define variables
   long_int ret_index = 0;
   long_int basic_pointer = pointer_id;
@@ -237,27 +258,30 @@ long_int get_data_memory_index(long_int pointer_id, String index_var) {
   //msg("&III:", pointer_id, index_var)
   //show_memory(40)
   //NOTE:do not simplification index here!!!
+  //----------------if not even index
+  if (index_var == 0) return pointer_id;
+  //----------------if pointer_id is zero
+  if(pointer_id==0)return 0;
   //----------------search for data in index
   str_list tmp1 = 0;
   uint32 tmp1_len = char_split(index_var, ',', &tmp1, true);
   for (uint32 i = 0; i < tmp1_len + 1; i++) {
-    long_int po_ind = find_index_pointer_memory(pointer_id);
-    if (po_ind == 0) {
+    if (pointer_id == 0) {
       return ret_index;
     }
     //msg("RTE:", pointer_memory[po_ind], po_ind)
     uint32 user_ind = 0;
     if (i < tmp1_len) {
-      user_ind = str_to_int32(tmp1[i]);
+      user_ind = str_to_int32(simplification_var_index(tmp1[i]));
     }
-    Mpoint mpoint = get_Mpoint(po_ind);
+    Mpoint mpoint = get_Mpoint(pointer_id);
     if (mpoint.type_data == 'p') {
       str_list tmp2 = 0;
       uint32 tmp2_len = char_split(mpoint.data, ';', &tmp2, true);
       if (user_ind >= tmp2_len || user_ind < 0) {
-        String var_name = 0;
-        str_init(&var_name, get_Mvar(return_var_ind_pointer_id(basic_pointer)).name);
-        exception_handler("out_of_range_index", "get_data_memory_index", index_var, var_name);
+        String var_name= get_Mvar(return_var_ind_pointer_id(basic_pointer)).name;
+        exception_handler("out_of_range_index", __func__, index_var, var_name);
+//        printf("##EEEE:%i,%s,%s\n",basic_pointer,get_Mvar(return_var_ind_pointer_id(basic_pointer)).name,index_var);
         return 0;
       }
       pointer_id = str_to_long_int(tmp2[user_ind]);
@@ -266,10 +290,10 @@ long_int get_data_memory_index(long_int pointer_id, String index_var) {
       if (i < tmp1_len) {
         String var_name = 0;
         str_init(&var_name, get_Mvar(return_var_ind_pointer_id(basic_pointer)).name);
-        exception_handler("out_of_range_index", "get_data_memory_index", index_var, var_name);
+        exception_handler("out_of_range_index", __func__, index_var, var_name);
         return 0;
       }
-      return po_ind;
+      return pointer_id;
       //msg("CCXXXX:", user_ind, pointer_memory[po_ind].data_ids, data_ind)
     }
   }
@@ -296,8 +320,8 @@ set_memory_var(long_int fin, long_int sid, String name, String value_var, String
   4- str u="RT"*2 ---OK---
   5- num j=j1 //num j1=56d => j=56d
   */
-//  printf("&@@@:%s,%i,%s\n", name, return_var_id(name, "0"), value_var);
-  //*******************************************if value is a variable
+//  printf("&@@@:%s,%i,%s(%i)\n", name, return_var_id(name, "0"), value_var,str_length(value_var));
+//  *******************************************if value is a variable
   if (is_valid_name(value_var, true)) {
     String al_name = 0, al_index = 0;
     return_name_index_var(value_var, true, &al_name, &al_index);
@@ -348,7 +372,7 @@ set_memory_var(long_int fin, long_int sid, String name, String value_var, String
   return_name_index_var(name, true, &tmp_name, &tmp_ind);
 //  printf("CCCCCCC:%s=>%s,%s\n",name,tmp_name, tmp_ind);
   //is_multi array
-  if (tmp_ind != 0 && !str_equal(tmp_ind, "0")) {
+  if (tmp_ind != 0 && !str_ch_equal(tmp_ind, '0')) {
     Boolean has_unknown_index = false;
     is_multi_array = true;
     str_list indexes;
@@ -369,13 +393,13 @@ set_memory_var(long_int fin, long_int sid, String name, String value_var, String
     if (has_unknown_index) {
       if (value_var == 0) {
         //TODO:error
-        printf("#ERR52\n");
+        printf("VM#ERR52\n");
       }
       int32 tmp_indexes[MAX_ARRAY_DIMENSIONS];
       uint8 tmp_len = return_size_value_dimensions(value_var, tmp_indexes, 0);
       if (tmp_len != indexes_len) {
         //TODO:error
-        printf("#ERR53\n");
+        printf("VM#ERR53\n");
       }
       for (uint32 i = 0; i < indexes_len; i++) {
         if (max_indexes[i] == -10)max_indexes[i] = tmp_indexes[i];
@@ -394,11 +418,11 @@ set_memory_var(long_int fin, long_int sid, String name, String value_var, String
   //if value is null
   if (value_var == 0 || str_equal(value_var, "null")) {
     //printf("fgjfjff:%s,%i[%i]\n",type_var,max_indexes[0],indexes_len);
-    if (str_search(basic_types, type_var, StrArraySize (basic_types)))
+    if (!is_multi_array && str_search(basic_types, type_var, StrArraySize (basic_types)))
       value_var = return_default_value(type_var);
     else
       value_var = create_null_array(type_var, max_indexes, indexes_len);
-    //printf ("####EmptyVal:%s,%s\n", type_var, value_var);
+//    printf ("####EmptyVal:%s,%s\n", type_var, value_var);
   }
   //is multi array
   if (is_multi_array) {
@@ -619,9 +643,14 @@ void show_memory(uint8 wh) {
   //*************show pointer_memory
   if (wh == 0 || wh == 2) {
     printf("*****pointer_memory*****\n");
-    for (long_int i = 0; i < entry_table.pointer_mem_len; i++) {
-      Mpoint st = get_Mpoint(i);
-      printf("%i:POINTER(id:%i,Type:%c)%s;\n", i, st.id, st.type_data, st.data);
+    for (uint32 i = 0; i < HASH_MEM_SIZE; i++) {
+      if (hash_pointers[i] == 0)continue;
+      Mpoint *tmp1 = hash_pointers[i];
+      for (;;) {
+        printf("%i::POINTER(id:%i,Type:%c)%s;\n", i, (*tmp1).id, (*tmp1).type_data, (*tmp1).data);
+        tmp1 = tmp1->next;
+        if (tmp1 == 0) break;
+      }
     }
   }
   printf("-------------------------\n");
@@ -646,8 +675,7 @@ Boolean delete_full_memory_var(long_int var_ind, Boolean is_del_var) {
       break;
     }
     //-----------------
-    long_int real_id = find_index_pointer_memory(del_ids[0]);
-    Mpoint st = get_Mpoint(real_id);
+    Mpoint st = get_Mpoint(del_ids[0]);
     if (st.type_data == 'p') {
       str_list tmp1 = 0;
       uint32 tmp1_len = char_split(st.data, ';', &tmp1, true);
@@ -682,21 +710,6 @@ Boolean delete_pointer_memory(long_int id) {
   return true;
 }
 
-//**************************************************************
-/**
- * get an id and search for index it in Mpoint
- * @param id
- * @return long_int
- */
-long_int find_index_pointer_memory(long_int id) {
-  if (id == 0)return 0;
-  for (long_int i = 0; i < entry_table.pointer_mem_len; i++) {
-    if (get_Mpoint(i).id == id) {
-      return i;
-    }
-  }
-  return 0;
-}
 
 //**************************************************************
 /**
@@ -745,25 +758,25 @@ long_int return_var_ind_pointer_id(long_int pointer_id) {
 }
 //****************************************************
 /**
- * get a var index a return count of its dimensions like: f[1,2];=>1,2
+ * get a pointer id of a array and return count of its dimensions like: f[1,2];=>1,2
  * @param var_ind
  * @param ret
  * @return uint32
  */
-uint32 return_var_dimensions(long_int var_ind, str_list *ret) {
+uint32 return_array_dimensions(long_int pointer_id, str_list *ret) {
   //-------------init vars
   uint32 ret_len = 0;
   //-------------get pointer_id
-  long_int po_id = get_Mvar(var_ind).pointer_id;
+  long_int po_id = pointer_id;
   //-------------start analyzing
   for (;;) {
-    long_int ind = find_index_pointer_memory(po_id);
-    if (get_Mpoint(ind).type_data != 'p') {
+    Mpoint mpoint = get_Mpoint(po_id);
+    if (mpoint.type_data != 'p') {
       break;
     }
     str_list pointers = 0;
-    uint32 po_len = char_split(get_Mpoint(ind).data, ';', &pointers, true);
-    //printf("QQQ:%s,%i\n", get_Mpoint(ind).data, po_len);
+    uint32 po_len = char_split(mpoint.data, ';', &pointers, true);
+    //printf("QQQ:%s,%i\n", mpoint.data, po_len);
     str_list_append(&(*ret), str_from_long_int((long_int) po_len), ret_len++);
     if (po_len > 0) po_id = str_to_long_int(pointers[0]);
     else break;
@@ -802,7 +815,7 @@ uint32 recursive_list_pointer_ids(long_int pointer_id, longint_list *ret) {
   for (;;) {
     if (tmp_len == 0)break;
     long_int po_id = longint_list_delete_first(&tmp, tmp_len--);
-    Mpoint p = get_Mpoint(find_index_pointer_memory(po_id));
+    Mpoint p = get_Mpoint(po_id);
     if (p.type_data == 'p') {
       str_list tmp1 = 0;
       uint32 tmp1_len = char_split(p.data, ';', &tmp1, true);
@@ -825,8 +838,7 @@ uint32 delete_array_Mpoints(long_int pointer_id, Boolean is_delete_root) {
   for (;;) {
     if (tmp_len == 0)break;
     long_int po_id = longint_list_delete_first(&tmp, tmp_len--);
-    long_int po_ind = find_index_pointer_memory(po_id);
-    Mpoint p = get_Mpoint(po_ind);
+    Mpoint p = get_Mpoint(po_id);
     if (p.type_data == 'p' || p.type_data == 'l') {
       str_list tmp1 = 0;
       uint32 tmp1_len = char_split(p.data, ';', &tmp1, true);
@@ -835,21 +847,14 @@ uint32 delete_array_Mpoints(long_int pointer_id, Boolean is_delete_root) {
       }
     }
     if (po_id == pointer_id)continue;
-    delete_Mpoint(po_ind);
+    delete_Mpoint(po_id);
     co++;
   }
   if (is_delete_root) {
-    //printf ("Root:%i,%i\n", pointer_id, find_index_pointer_memory (pointer_id));
-    delete_Mpoint(find_index_pointer_memory(pointer_id));
+    //printf ("Root:%i,%i\n", pointer_id,  pointer_id);
+    delete_Mpoint(pointer_id);
     co++;
   }
 
   return co;
 }
-//func review_create_array_from(po_id long_int) (string,byte,bool)
-//func get_data_memory_index(pointer_id long_int, index_var string) (long_int, string)
-//****************************************************
-//func edit_index_room_var(new_value, index_var string, real_id long_int, new_type byte) bool
-//****************************************************
-//func copy_memory_var(var_index long_int, new_name string, pid, fin long_int) long_int
-//****************************************************

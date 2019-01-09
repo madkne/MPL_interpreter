@@ -7,7 +7,7 @@
 
 //**************************************************define interpreter constants
 #define  APP_NAME                       "Mini Portable Language"
-#define  VERSION                        "0.4.24"    //1.10.100
+#define  VERSION                        "0.4.43"    //1.10.100
 #define  VERSION_NAME                   "BETA"
 #define  SLOGAN                         "The solution to common problems of programmers" //راه حل کارهای متداول برنامه نویسان
 
@@ -27,8 +27,10 @@
 //**************************************************define other constants
 #if x64_OS == true
 #define OS_ARCH                         "x64"
+#define HASH_MEM_SIZE                   (250000/2)+1
 #elif x86_OS == true
 #define OS_ARCH                         "x86"
+#define HASH_MEM_SIZE                   (500000/2)+1
 #endif
 //------------------------------------------
 #if LINUX_PLATFORM == true
@@ -43,6 +45,8 @@
 #define   MAX_FLOAT_NUMBER              DBL_MAX
 #endif
 //------------------------------------------
+#define   HASH_VCACHE_SIZE              10001 //must be first number
+#define   HASH_PCACHE_SIZE              50001
 #define   EXIT_SUCCESS                  0
 #define   EXIT_FAILURE                  1
 #define   INT_USED_BYTES                sizeof(MAX_INT_NUMBER)
@@ -55,7 +59,7 @@
 #define   END_OF_FILE                  -10
 #define   SYSTEM_STRING_DEFINE          "SYS__STR_"
 #define   RETURN_TMP_NAME               "@ret"
-#define   RETURN_TMP_POINTER_ID         1
+#define   RETURN_TMP_POINTER_ID         2
 #define   STRUCTURES_LABEL              "@@@STRU_"
 #define   SWITCH_LABEL                  "@@@SWITCH_"
 #define   UTF8_ID_LABEL                 "-!U8!_"

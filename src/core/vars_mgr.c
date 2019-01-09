@@ -414,11 +414,9 @@ String return_value_var_complete(long_int var_index) {
         str_list_delete_first(&store_po, store_po_len--);
       }
     }
-    if (po_id == 0 && store_po_len == 0) break;
-    long_int po_ind = find_index_pointer_memory(po_id);
-    if (po_ind == 0) break;
+    if (po_id == 0) break;
     //msg("RTE:", pointer_memory[po_ind])
-    Mpoint mpoint = get_Mpoint(po_ind);
+    Mpoint mpoint = get_Mpoint(po_id);
     //if type is a pointer or a struct
     if (mpoint.type_data == 'p' || mpoint.type_data == 'l') {
       str_list st;
@@ -450,7 +448,7 @@ String return_value_var_complete(long_int var_index) {
         mpoint.data = char_append(mpoint.data, mpoint.type_data);
       }
       final_value = str_append(final_value, mpoint.data);
-      if (store_po_len > 0 && !str_equal(store_po[0], "p") && !str_equal(store_po[0], "l")) {
+      if (store_po_len > 0 && !str_ch_equal(store_po[0], 'p') && !str_ch_equal(store_po[0], 'l')) {
         final_value = char_append(final_value, ',');
         //items_count++;
       }
@@ -494,7 +492,7 @@ String calculate_struct_expression(String value, String type_var, uint8 *sub_typ
 	 */
   (*sub_type) = 'l';
   stde struct_node = {++entry_table.stde_id, type_var, {0, 0, 0}};
-  //printf("####:%s,%s\n",value,type_var);
+//  printf("####:%s,%s\n", value, type_var);
   uint32 val_len = str_length(value);
   String buf = 0;
   Boolean is_string = false, is_struct = false;
@@ -761,7 +759,7 @@ vaar_en return_value_dimensions(String value, String type_var, int32 indexes[], 
         str_init(&entries[b], str_substring(entries[b], 1, ent_len - 1));
       } else {
         //TODO:error
-        printf("#ERR67\n");
+        printf("V#ERR67\n");
         //printf("ERROR:%s\n",entries[b]);
         return null;
       }
@@ -1039,34 +1037,37 @@ void calculate_value_of_var(String value, String type, String *ret_value, uint8 
     (*ret_subtype) = sub_type;
     return;
   }
-  //----------------if is a variable
-  if (is_valid_name(value, true)) {
-    Mpoint m = return_var_memory_value(value);
-    if (m.id > 0) {
-      if (!str_equal(convert_sub_type_to_type(m.type_data), type)) {
-        //TODO:error
-        printf("#ERR3567\n");
+  //----------------if a num,str,bool type
+  if (str_search(basic_types, type, StrArraySize(basic_types))) {
+    //----------------if is a variable
+    if (is_valid_name(value, true)) {
+      Mpoint m = return_var_memory_value(value);
+      if (m.id > 0) {
+        if (!str_equal(convert_sub_type_to_type(m.type_data), type)) {
+          //TODO:error
+          printf("#ERR3567:%s,%c,%s\n", value, m.type_data, type);
+          return;
+        }
+        (*ret_value) = str_reomve_quotations(m.data, type);
+        (*ret_subtype) = m.type_data;
         return;
       }
-      (*ret_value) = str_reomve_quotations(m.data, type);
-      (*ret_subtype) = m.type_data;
-      return;
     }
-  }
-  //----------------if is a struct entry variable
+    //----------------if is a struct entry variable
 //  printf("##is_valid_st:%s=>%i\n", value, is_valid_struct_entry(value));
-  if (is_valid_struct_entry(value)) {
-    long_int po_index = return_struct_entry_pointer_index(value);
-    Mpoint po = get_Mpoint(po_index);
-    if (!str_equal(convert_sub_type_to_type(po.type_data), type)) {
-      //TODO:error
-      printf("#ERR3568:%s>>%c,%s,%s\n", value, po.type_data, type, po.data);
+    if (is_valid_struct_entry(value)) {
+      long_int po_id = return_struct_entry_pointer_id(value);
+      Mpoint po = get_Mpoint(po_id);
+      if (!str_equal(convert_sub_type_to_type(po.type_data), type)) {
+        //TODO:error
+        printf("V#ERR3568:%s>>%c,%s,%s\n", value, po.type_data, type, po.data);
+        return;
+      }
+      (*ret_value) = po.data;
+      (*ret_subtype) = po.type_data;
+//    printf("QQQQ:%s=>%s,%i\n", value, po.data, po_index);
       return;
     }
-    (*ret_value) = po.data;
-    (*ret_subtype) = po.type_data;
-//    printf("QQQQ:%s=>%s,%i\n", value, po.data, po_index);
-    return;
   }
 //  printf("&YYYY:%s,%s\n", value, type);
   //----------------
@@ -1259,7 +1260,7 @@ String calculate_boolean_expression(String exp, uint8 *sub_type) {
     //---------------init vars
     buf = 0, op = 0, bool1 = 0, bool2 = 0;
     starting = -1, ending = -1;
-    is_string = false,is_change=false;
+    is_string = false, is_change = false;
     pars = 0, bras = 0;
     //---------------start analyzing
     len = str_length(exp);
@@ -3139,7 +3140,7 @@ Boolean is_array_var(long_int id, Boolean is_id) {
     id = get_Mvar(find_index_var_memory(id)).pointer_id;
   }
   if (id == 0)return false;
-  Mpoint p = get_Mpoint(find_index_pointer_memory(id));
+  Mpoint p = get_Mpoint(id);
 
   if (p.type_data == 'p' && str_indexof(p.data, ";", 0) > 0)return true;
 
@@ -3252,26 +3253,27 @@ Boolean alloc_array_var(long_int var_ind, String array_val, String type) {
   //get alloc datas
   uint8 indexes_len = return_size_value_dimensions(array_val, max_indexes, 0);
   vaar_en vals_array = return_value_dimensions(array_val, type, max_indexes, indexes_len);
-  print_vaar(vals_array);
+//  print_vaar(vals_array);
   Mvar v = get_Mvar(var_ind);
 
   longint_list_append(&po_ids, po_ids_len++, v.pointer_id);
   //find data pointer ids
   for (;;) {
     if (po_ids_len == 0)break;
-    long_int po_ind = find_index_pointer_memory(longint_list_delete_first(&po_ids, po_ids_len--));
-    Mpoint mpoint = get_Mpoint(po_ind);
+    long_int po_id = longint_list_delete_first(&po_ids, po_ids_len--);
+    Mpoint mpoint = get_Mpoint(po_id);
     //printf("@@:%i:%s\n",mpoint.id,mpoint.data);
     if (mpoint.type_data == 'p') {
       str_list ret1 = 0;
       uint32 ret1_len = char_split(mpoint.data, ';', &ret1, true);
       for (uint32 i = 0; i < ret1_len; i++) longint_list_append(&po_ids, po_ids_len++, str_to_long_int(ret1[i]));
-    } else longint_list_append(&data_ids, data_ids_len++, po_ind);
+    } else longint_list_append(&data_ids, data_ids_len++, po_id);
   }
   //  printf ("####:%s\n%s(%i,%i)\n", longint_list_print (po_ids, po_ids_len), longint_list_print (data_ids, data_ids_len),vals_array.count , data_ids_len);
   //alloc datas in by stored pointer indexes
   if (vals_array.count != data_ids_len) {
     //TODO:error
+    printf("V#ERR4567893\n");
     return false;
   }
   vaar *st = vals_array.start;
@@ -3290,37 +3292,39 @@ Boolean alloc_array_var(long_int var_ind, String array_val, String type) {
 }
 //*********************************************************
 /**
- * get type of struct as datas, a pointer index of struct that its sub type is 'l' and a vaar_en of 'get_stde(id).st'. then alloc all struct rooms and then return true if success
+ * get type of struct as datas, a pointer id of struct that its sub type is 'l' and a vaar_en of 'get_stde(id).st'. then alloc all struct rooms and then return true if success
  * @param type_datas
  * @param pointer_index
  * @param struct_id
  * @return Boolean
  */
-Boolean alloc_struct_var(datas type_datas, long_int pointer_index, vaar_en struct_id) {
+Boolean alloc_struct_var(datas type_datas, long_int pointer_id, vaar_en struct_id) {
   //init vars
   longint_list po_inds;
   uint32 po_inds_len = 0;
   str_list ret1 = 0;
   //add first pointers
-  Mpoint mp = get_Mpoint(pointer_index);
+  Mpoint mp = get_Mpoint(pointer_id);
   if (mp.type_data != 'l') {
     //TODO:error
+    printf("#ERR10111101001\n");
     return false;
   }
   uint32 ret1_len = char_split(mp.data, ';', &ret1, true);
   if (type_datas.params_len != ret1_len) {
     //TODO:error
+    printf("#ERR10101101001\n");
     return false;
   }
   for (uint32 i = 0; i < ret1_len; i++)
-    longint_list_append(&po_inds, po_inds_len++, find_index_pointer_memory(str_to_long_int(ret1[i])));
+    longint_list_append(&po_inds, po_inds_len++, str_to_long_int(ret1[i]));
   //printf("QQQQQ:%s\n",longint_list_print (po_inds,po_inds_len));
   long_int po_idd = set_struct_node_Mpoint(struct_id);
-  Mpoint mp_new = get_Mpoint(find_index_pointer_memory(po_idd));
+  Mpoint mp_new = get_Mpoint(po_idd);
   //delete unusable pointers of old struct
   uint32 count = delete_array_Mpoints(mp.id, false);
-  printf("!!!!!:[%i,%i,%i],%s,%s\n", po_idd, mp.id, count, mp.data, mp_new.data);
-  edit_Mpoint(pointer_index, mp_new.data, 0, true, false);
+//  printf("!!!!!:[%i,%i,%i],%s,%s\n", po_idd, mp.id, count, mp.data, mp_new.data);
+  edit_Mpoint(pointer_id, mp_new.data, 0, true, false);
 
   return true;
 }
@@ -3396,13 +3400,13 @@ Boolean is_valid_math_expression(String s) {
 }
 //*********************************************************
 /**
- * get a valid struct entry expression (like:st2[0].vb.net[3,4]) and return its pointer index of final data
+ * get a valid struct entry expression (like:st2[0].vb.net[3,4]) and return its pointer id of final data
  * @param st
  * @return long_int
  */
-long_int return_struct_entry_pointer_index(String st) {
-//----------------init vars
-  long_int var_id = 0/*main struct var id*/, final_poind = 0/*last pointer index of last value*/,
+long_int return_struct_entry_pointer_id(String st) {
+  //init vars
+  long_int var_id = 0/*main struct var id*/, final_poid = 0/*last pointer id of last value*/,
       st_type = 0/*main struct type id*/;
   uint32 len = str_length(st);
   uint32 bras = 0, seg_len = 0, st_room_index = 0/*which index of pointer ids should selected*/;
@@ -3410,7 +3414,8 @@ long_int return_struct_entry_pointer_index(String st) {
   String buf = 0, st_type_name = 0/*next entry is for which struct types*/;
   Mvar var;
   datas st_datas;
-//----------------
+  //------------------------------
+  //=>split segments(struct entries)
   for (uint32 i = 0; i < len; i++) {
     //count bras
     if (st[i] == '[')bras++;
@@ -3425,28 +3430,37 @@ long_int return_struct_entry_pointer_index(String st) {
     //append to buf
     buf = char_append(buf, st[i]);
   }
-  //----------------split name,index
 //  printf("EEEEE:%s=>%s\n",st, print_str_list(segments, seg_len));
+  //=>browse all segments
   for (uint32 i = 0; i < seg_len; i++) {
-    //every time,must change final_poind,st_type_name
+    //=>every time,must change final_poind and st_type_name
+    //=>split name and index of each segments
     String name = 0, index = 0;
-    return_name_index_var(segments[i], false, &name, &index);
+    return_name_index_var(segments[i], true, &name, &index);
+    //=>simplification index of struct entry
     index = simplification_var_index(index);
 //    printf("***:%s,%s\n", name, index);
-    //if first segment
+    //=>if is first segment
     if (i == 0) {
       var_id = return_var_id(name, 0);
+      //=>check if main var is exist
       if (var_id == 0) {
         //TODO:error
-        printf("#ERR239\n");
+        printf("V#ERR239\n");
         return 0;
       }
       var = get_Mvar(find_index_var_memory(var_id));
       st_type = var.type_var;
-      final_poind = get_data_memory_index(var.pointer_id, index);
+      final_poid = get_data_memory_id(var.pointer_id, index);
+      //=>check if var with its index is exist
+      if(final_poid==0){
+        //TODO:error
+        printf("V#ERR2392456\n");
+        return 0;
+      }
       datas s = get_datas(st_type);
       st_type_name = s.name;
-//      printf("@VAR:%s=>%i,%i\n", name, final_poind, var.pointer_id);
+//      printf("@VAR:%s=>%i,%i\n", name, final_poid, var.pointer_id);
       continue;
     }
     //continue as normal
@@ -3459,7 +3473,7 @@ long_int return_struct_entry_pointer_index(String st) {
     st_type_name = 0;
     if (st_datas.id == 0) {
       //TODO:error
-      printf("#ERR231\n");
+      printf("V#ERR231\n");
       return 0;
     }
     Boolean is_exist = false;
@@ -3467,33 +3481,36 @@ long_int return_struct_entry_pointer_index(String st) {
     for (uint32 j = 0; j < st_datas.params_len; j++) {
       str_list ret = 0;
       char_split(st_datas.params[j], ';', &ret, false);
-      //if is valid entry name
+      //=>if is valid entry name
       if (str_equal(ret[1], name)) {
         is_exist = true;
 //        printf("!ZZZZ:%i/%i\n",i,seg_len-1);
+        //=>set j in st_room_index as which entry of current struct must selected
         st_room_index = j;
-        str_init(&st_type_name, ret[0]);
+        st_type_name= ret[0];
         //update final_poind
-        Mpoint pp = get_Mpoint(final_poind);
+        Mpoint pp = get_Mpoint(final_poid);
         char_split(pp.data, ';', &ret, true);
-        final_poind = find_index_pointer_memory(str_to_long_int(ret[st_room_index]));
-        //use index to update again final_poind
-        Mpoint pp1 = get_Mpoint(final_poind);
+        final_poid = str_to_long_int(ret[st_room_index]);
+        //=>if index not exist then zero it!
+        if(index==0&&i+1==seg_len)str_init(&index,"0");
+        //=>use index to update again final_poind
+        Mpoint pp1 = get_Mpoint(final_poid);
         uint32 cc1 = char_split(pp1.data, ';', &ret, true);
-        final_poind = get_data_memory_index(pp1.id, index);
-//          printf("@XXXXY:%s,%c,%i,%i\n",pp1.data,pp1.type_data,final_poind,st_room_index);
+        final_poid = get_data_memory_id(pp1.id, index);
+//          printf("@XXXXY:%s,%s(%c),%i,%i;%s\n",ret[st_room_index],pp1.data,pp1.type_data,final_poid,st_room_index,segments[i]);
         break;
       }
     }
     if (!is_exist) {
       //TODO:error
-      printf("#ERR239:%s\n", print_str_list(st_datas.params, st_datas.params_len));
+      printf("V#ERR239:%s\n", print_str_list(st_datas.params, st_datas.params_len));
       return 0;
     }
 
   }
 //----------------return
-  return final_poind;
+  return final_poid;
 }
 //*********************************************************
 /**
@@ -3509,7 +3526,7 @@ Mpoint return_var_data_from_name(String name, String type, Boolean checkings) {
   Mpoint null = {0, 0, 0};
   //-------------get Mpoint
   if (is_valid_struct_entry(name))
-    ret = get_Mpoint(return_struct_entry_pointer_index(name));
+    ret = get_Mpoint(return_struct_entry_pointer_id(name));
   else
     ret = return_var_memory_value(name);
   //-------------check for data type
@@ -3525,4 +3542,77 @@ Mpoint return_var_data_from_name(String name, String type, Boolean checkings) {
   //-------------return
   return ret;
 
+}
+//*********************************************************
+/**
+ * get two pointer ids from two variables and assign its data from every pointer ids in alloc into origin and if not exist a Mpoint node in origin, create it.
+ * @param origin_po_id
+ * @param alloc_po_id
+ * @return int8
+ */
+int8 recursive_alloc_vars_pointers_data(long_int origin_po_id, long_int alloc_po_id) {
+  //init vars
+  longint_list origin_pointer_ids = 0; //=>store origin pointer ids
+  longint_list alloc_pointer_ids = 0; //=>store alloc pointer ids
+  uint32 origin_pointer_ids_len = 0, alloc_pointer_ids_len = 0;
+  str_list aret = 0; //=>store pointers of alloc Mpoint
+  str_list oret = 0; //=>store pointers of origin Mpoint
+//  printf("##WWW:%i,%i\n", origin_po_id, alloc_po_id);
+  //---------------------------------
+  //=>add first entries to origin_pointer_ids,alloc_pointer_ids
+  longint_list_append(&origin_pointer_ids, origin_pointer_ids_len++, origin_po_id);
+  longint_list_append(&alloc_pointer_ids, alloc_pointer_ids_len++, alloc_po_id);
+  //=>while alloc_pointer_ids not empty
+  while (alloc_pointer_ids_len > 0) {
+    //=>get Mpoin origin from last origin_pointer_ids
+    Mpoint origin_point = get_Mpoint(origin_pointer_ids[--origin_pointer_ids_len]);
+    //=>get Mpoin alloc from last alloc_pointer_ids
+    Mpoint alloc_point = get_Mpoint(alloc_pointer_ids[--alloc_pointer_ids_len]);
+    //check if exist Mpoints
+    if (alloc_point.id == 0 || origin_point.id == 0)return false;
+    //=>if alloc sub type is pointer(p) or struct(l)
+    if (alloc_point.type_data == 'p' || alloc_point.type_data == 'l') {
+      //=>check if alloc sub type is equal with origin sub type
+      if (alloc_point.type_data != origin_point.type_data)return false;
+      //=>split origin,alloc pointers
+      uint32 olen = char_split(origin_point.data, ';', &oret, true);
+      uint32 alen = char_split(alloc_point.data, ';', &aret, true);
+      //=>append to alloc_pointer_ids new pointer ids
+      for (int32 i = alen - 1; i >= 0; i--)
+        longint_list_append(&alloc_pointer_ids, alloc_pointer_ids_len++, str_to_long_int(aret[i]));
+//        printf("AAAAA:%i,%s\n",alen,longint_list_print(alloc_pointer_ids,alloc_pointer_ids_len));
+      //=>if origin pointers count less than alloc pointers so add it!
+      if (olen < alen) {
+        longint_list tmp=0;
+        uint32 tmp_len=0;
+        //=>append all pointers of origin to a longint_list named 'tmp'
+        for(uint32 i=0;i<olen;i++) longint_list_append(&tmp,tmp_len++,str_to_long_int(oret[i]));
+        //=>determine aret node sub type for new pointers
+        uint8 new_sub_types=get_Mpoint(str_to_long_int(aret[0])).type_data;
+        for (uint32 i = 0; i < alen - olen; i++) {
+          long_int new_po = add_to_pointer_memory(0, new_sub_types);
+          append_Mpoint_pointer(origin_point.id, new_po);
+          longint_list_append(&tmp, tmp_len++, new_po);
+        }
+        for (int32 i = tmp_len - 1; i >= 0; --i)
+          longint_list_append(&origin_pointer_ids, origin_pointer_ids_len++, tmp[i]);
+      }
+        //=>else if origin pointers count greater than or equal alloc pointers
+      else {
+        if (olen > alen)olen = alen;
+        for (int32 i = olen - 1; i >= 0; --i)
+          longint_list_append(&origin_pointer_ids, origin_pointer_ids_len++, str_to_long_int(oret[i]));
+      }
+    }
+      //=>check if alloc_point,origin_point is valid
+    else if (alloc_point.type_data == '0' || alloc_point.type_data == 0 || origin_point.type_data == 0
+        || origin_point.type_data == '0')
+      return false;
+      //=>else if alloc is a data
+    else {
+      edit_Mpoint(origin_point.id, alloc_point.data, alloc_point.type_data, true, true);
+    }
+  }
+
+  return true;
 }

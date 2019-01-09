@@ -527,15 +527,15 @@ String init_calling_function(uint8 func_type,
   //TODO:
   //--------------------if returned values
   if (is_return) {
-    long_int ret_po_ind = find_index_pointer_memory(RETURN_TMP_POINTER_ID);
+    long_int ret_po_id = RETURN_TMP_POINTER_ID;
     str_list rets = 0;
     longint_list rets_ind = 0;
     uint32 rets_ind_len = 0;
-    uint32 rets_len = char_split(get_Mpoint(ret_po_ind).data, ';', &rets, true);
+    uint32 rets_len = char_split(get_Mpoint(ret_po_id).data, ';', &rets, true);
     for (uint32 i = 0; i < rets_len; ++i) {
       longint_list_append(&rets_ind, rets_ind_len++, find_index_var_memory(str_to_long_int(rets[i])));
     }
-    edit_Mpoint(ret_po_ind, 0, 0, true, false);
+    edit_Mpoint(ret_po_id, 0, 0, true, false);
 
     //--------------------analyzing call function index
     if (index != 0) {
@@ -734,7 +734,7 @@ int8 run_package_module_function(uint8 func_type, String pack_name, String func_
       return FUNC_RET_MODULE;
     }
     //if not a module function
-    if(returns_module_len==0)
+    if (returns_module_len == 0)
       exception_handler("not_exist_mod_func", __func__, func_name, pack_name);
     return FUNC_RET_BAD;
   }
@@ -867,7 +867,7 @@ int8 set_function_parameters(String func_name, str_list pars, uint32 pars_len) {
       //====define var by var
     else if (str_ch_equal(p1[2], '1')) {
       if (is_vars) {
-        Mpoint v = get_Mpoint(get_data_memory_index(get_Mvar(str_to_long_int(p1[1])).pointer_id, "0"));
+        Mpoint v = get_Mpoint(get_data_memory_id(get_Mvar(str_to_long_int(p1[1])).pointer_id, "0"));
         String po_id = str_from_long_int(add_to_pointer_memory(v.data, v.type_data));
         if (vars_po_ids != 0)vars_po_ids = char_append(vars_po_ids, ';');
         vars_po_ids = str_append(vars_po_ids, po_id);
@@ -924,7 +924,7 @@ uint32 determine_type_name_func_parameters(str_list params, uint32 params_len, s
         //if is complete var
         if (index == 0) {
           str_list tmp1;
-          uint32 tmp1_len = return_var_dimensions(real_id, &tmp1);
+          uint32 tmp1_len = return_array_dimensions(var.pointer_id, &tmp1);
           String var_dim = char_join(tmp1, ',', tmp1_len, true);
           //printf("^^^FF:%s=>%i,%s\n",params[i],tmp1_len,tmp1[0]);
           if (str_ch_equal(var_dim, '1') || str_ch_equal(var_dim, '0'))var_dim = 0;
@@ -1041,24 +1041,33 @@ Boolean function_return(String exp) {
     }
   }
   //****************set in RETURN_TMP_POINTER_ID
-  edit_Mpoint(find_index_pointer_memory(RETURN_TMP_POINTER_ID), return_ids, 0, true, false);
+  edit_Mpoint(RETURN_TMP_POINTER_ID, return_ids, 0, true, false);
   //****************return
   //show_memory(40)
   return true;
 }
 
 //****************************************************
-int8 vars_allocation(String exp) {
+Boolean vars_allocation(String exp) {
   /**
 	* value operators:
 	* = , += , -= , *= , /= , %= , ^= , :=
     * ---- bool operators: =,:=
     * ---- str operators: =,+=,:=
     * ---- num operators: =, += , -= , *= , /= , %= , ^= , :=
-	* array operators:
-	* =,:=
-    * struct operators:
-    * =,:=
+	* ---- array operators: =,:=
+    * ---- struct operators: =,:=
+    *
+    * ******* =
+    * 1- st1=st2 //structs
+    * 2- st1.gg=gg1 //structs
+    * 3- st1=struct(45,"gh") //structs
+    * 4- n1=n2 //arrays
+    * 5- n1={{5,8},{6,9}} //arrays
+    * 6- st1.n=n2 //arrays,structs
+    * 7- s1="gh" //values
+    * 8- s1=s2[0] //values
+    *
 	* 1- nu1[0]+=45 || st1*=2 ---..---
 	* 2- st1[0,1],st1="Amin"*3,"Reza" ---..---
 	* 3- st1[0,8]=st2[9,4] ---..---
@@ -1079,16 +1088,10 @@ int8 vars_allocation(String exp) {
   String word = 0, equal_type = 0;
   Boolean is_string = false, is_equal = false, is_empty = false, is_struct = false;
   int32 vars_counter = 0, vals_counter = 0, pars = 0, bras = 0, acos = 0;
-  struct alloc_var_struct {
-    String type;
-    String name;
-    String alloc;
-    String index;
-  };
   struct alloc_var_struct alloc_var[MAX_VAR_ALLOC_INSTRUCTIONS];
   String public_ops[6] = {"+=", "-=", "*=", "/=", "%=", "^="};
   //printf("ALLOC_EXP:%s\n",exp);
-  //--------------parsing alloc expression
+  //***********************************parsing alloc expression
   for (uint32 i = 0; i < len; i++) {
     is_empty = false;
     //----check is string
@@ -1178,148 +1181,119 @@ int8 vars_allocation(String exp) {
   //	  printf ("%i=>%s %s[%s]= %s\n", j, alloc_var[j]
   //		  .type, alloc_var[j].name, alloc_var[j].index, alloc_var[j].alloc);
   //	}
-  //--------------allocation vars with new values
+  //***********************************allocation vars with new values
   for (uint32 i = 0; i < vars_counter; i++) {
     struct alloc_var_struct st = alloc_var[i];
     //init1
-    String origin_val = 0;
-    String origin_type = 0;
-    String ret_val = 0;
-    uint8 ret_sub = 0;
-    uint8 origin_sub_type = 0;
-    long_int value_pointer_ind = 0;
-    Boolean is_origin_array = false;
+    String origin_type = 0; //=>type of original variable like num,st1
+    uint8 origin_sub_type = 0; //=>sub type of original value(just main sub types)
+    long_int origin_pointer_id = 0; //pointer id of original var with its index
+    Boolean is_origin_array = false; //=>is original var in its index is an array or no!
+    Boolean is_origin_struct = false; //=>is original var in its index is a struct or no!
+    //-----------------------------
     //init2
-    long_int var_id = return_var_id(st.name, "0");
-    long_int Tid = find_index_var_memory(var_id);
-    Mvar main_var = get_Mvar(Tid);
-    str_init(&origin_type, get_datas(main_var.type_var).name);
-    calculate_value_of_var(st.alloc, st.type, &ret_val, &ret_sub);
-    if (ret_sub == '0') {
-      //TODO:error
-      // return -1;
-    } else if (!str_equal(origin_type, st.type)) {
-      //TODO:error
-      return -1;
+    long_int var_id = return_var_id(st.name, 0);
+    long_int Tid = find_index_var_memory(var_id); //=>get index of original variable
+    Mvar origin_var = get_Mvar(Tid); //=>get Mvar of original variable
+    Mpoint origin_po_val; //=>get Mpoint of original variable in its index
+    str_init(&origin_type, get_datas(origin_var.type_var).name); //=>set origin_type
+    //-----------------------------
+    //=>get original var pointer id in its index and get Mpoint from it
+    origin_pointer_id = get_data_memory_id(origin_var.pointer_id, st.index);
+    origin_po_val = get_Mpoint(origin_pointer_id);
+    //=>if not index and just exist one pointer, then select it
+    if (st.index == 0 && char_last_indexof(origin_po_val.data, ';') == -1) {
+      origin_pointer_id = get_data_memory_id(origin_var.pointer_id, "0");
+      origin_po_val = get_Mpoint(origin_pointer_id);
     }
-
-    if (st.index == 0) {
-      origin_val = return_value_var_complete(Tid);
-      if (origin_val != 0 && origin_val[0] == '{')is_origin_array = true;
-      else {
-        if (str_equal(origin_type, "str"))origin_sub_type = 's';
-        else if (str_equal(origin_type, "bool"))origin_sub_type = 'b';
-        else if (str_equal(origin_type, "num"))origin_sub_type = determine_type_num(origin_val);
-        value_pointer_ind = get_data_memory_index(main_var.pointer_id, "0");
-      }
-    } else {
-      long_int data_ind = get_data_memory_index(main_var.pointer_id, st.index);
-      Mpoint main_val = get_Mpoint(data_ind);
-      value_pointer_ind = data_ind;
-      str_init(&origin_val, main_val.data);
-      origin_sub_type = main_val.type_data;
-      if (origin_sub_type == 's')origin_val = str_reomve_quotations(origin_val, "s");
-      //TODO:errors,warnings
+//    printf("@WWW:%s=>%i,%s,%i\n",st.name,origin_var.pointer_id, st.index,origin_pointer_id);
+    //=>check if exist this var with its index
+    if (origin_po_val.id == 0) {
+      //TODO:error
+      printf("#ERR1345889\n");
+      return false;
     }
+    //=>check if original var with its index is array or no!
+    if (origin_po_val.type_data == 'p')is_origin_array = true;
+      //=>check if original var with its index is struct or no!
+    else if (origin_po_val.type_data == 'l')is_origin_struct = true;
+    //=>so original var with its index now is an atomic value!
+    origin_sub_type = origin_po_val.type_data;
+    //TODO:errors,warnings
     //init3
     String final_res = 0;
-    //operator '='
-    if (str_equal(equal_type, "=")) {
-      String final_res = 0;
+    //.......................................operator '='
+    if (str_ch_equal(equal_type, '=')) {
       //init vars
-      //printf("WWWWWWWW:%s=>%s\n", st.name, origin_val);
-      //array
+      str_list tmp = 0;
+      uint32 tmp_len = 0;
+      Boolean valid_var = false;
+      //------------------------------------
+      //=>get original var indexes like '2,4'
+      tmp_len = return_array_dimensions(origin_var.pointer_id, &tmp);
+      String origin_indexes = char_join(tmp, ',', tmp_len, true);
+//      printf("WWWWWWWW:%s;%s=>%s,%i(%i,%i)\n",
+//             st.name,
+//             st.alloc,
+//             origin_val,
+//             origin_po_val.id,
+//             is_origin_array,
+//             is_origin_struct);
+      //-----------------------------------------------
+      //=>(Type1-array)if original var with its index is an array
       if (is_origin_array) {
-        //if array alloc is a var
-        if (is_valid_name(st.alloc, true)) {
-          String al_name = 0, al_index = 0;
-          return_name_index_var(st.alloc, true, &al_name, &al_index);
-          long_int alloc_ind = find_index_var_memory(return_var_id(al_name, "0"));
-          if (alloc_ind == 0) {
-            //TODO:error
-            return -1;
-          }
-
-          final_res = return_value_var_complete(alloc_ind);
+        //=>(Type1.1-var)if array alloc is a var
+        if ((valid_var = is_valid_name(st.alloc, true)) || is_valid_struct_entry(st.alloc)) {
+          if (!vars_assign_allocation(valid_var, true, st.alloc, origin_indexes, origin_pointer_id))return false;
         }
-//        printf("is array :=%s\n", final_res);
-        //continue by array value like {45,89.7}
-        if (!alloc_array_var(Tid, final_res, origin_type)) return -1;
-
+          //=>(Type1.2-value)if array alloc is a var
+        else {
+          if (!alloc_array_var(Tid, st.alloc, origin_type)) return false;
+        }
       }
-        //value
-      else {
-        Mpoint p = get_Mpoint(value_pointer_ind);
-        if (p.type_data == 'l'/*if is a struct value*/) {
-          origin_val = get_Mpoint(value_pointer_ind).data;
+        //-----------------------------------------------
+        //=>(Type2-struct)else if array alloc is a struct
+      else if (is_origin_struct) {
+        //=>(Type1.1-var)if struct alloc is a var
+        if ((valid_var = is_valid_name(st.alloc, true)) || is_valid_struct_entry(st.alloc)) {
+//          printf("EEEEE:%s\n", st.alloc);
+          if (!vars_assign_allocation(valid_var, false, st.alloc, 0, origin_pointer_id))return false;
+        }
+          //=>(Type1.2-value)if struct alloc is a var
+        else {
+//          printf("EEEEE:%s\n", st.alloc);
           String struct_id = calculate_struct_expression(st.alloc, origin_type, &origin_sub_type);
-          //print_struct (PRINT_STRUCT_DES_ST);
-//          printf("is struct =:%s,%s,%i\n", st.alloc, struct_id, value_pointer_ind);
-          if (origin_sub_type == '0'
-              || !alloc_struct_var(search_datas(origin_type, 0, true),
-                                   value_pointer_ind,
-                                   get_stde(str_to_long_int(struct_id))
-                                       .st)) {
-//            printf("@@@@@@@@@@@@@@@failed....\n");
-            return -1;
-          }
-        } else {
-          if (p.type_data == 'i' || p.type_data == 'f' || p.type_data == 'h'/*if is num value*/)
-            calculate_math_expression(st.alloc, p.type_data, &final_res, &p.type_data);
-          else if (p.type_data == 's') {
-            calculate_string_expression(st.alloc, &final_res, &p.type_data);
-            final_res = str_reomve_quotations(final_res, "s");
-          } else if (p.type_data == 'b')final_res = calculate_boolean_expression(st.alloc, &p.type_data);
-          edit_Mpoint(value_pointer_ind, final_res, 0, true, false);
+          if (origin_sub_type == '0' || !alloc_struct_var(
+              search_datas(origin_type, 0, true),
+              origin_po_val.id,
+              get_stde(str_to_long_int(struct_id)).st))
+            return false;
         }
-        //printf ("is value :=:%i(%s),%s=>%s\n", value_pointer_ind, origin_val, st.alloc, final_res);
-
-
       }
-    }
-      //operator ':='
-    else if (str_equal(equal_type, ":=")) {
-      //init vars
-      String al_name = 0, al_index = 0;
-      Boolean not_index = false, is_alloc_array = false;
-      return_name_index_var(st.alloc, true, &al_name, &al_index);
-      if (al_index == 0/*check if alloc var has index*/) {
-        not_index = true;
-        str_init(&al_index, "0");
-      }
-      long_int alloc_id = find_index_var_memory(return_var_id(al_name, 0));
-      if (alloc_id == 0/*check if exist alloc var*/) {
-        //TODO:error
-        return -1;
-      }
-      Mvar v = get_Mvar(alloc_id);
-      if (is_array_var(v.pointer_id, false))is_alloc_array = true;
-      Mpoint al_value = get_Mpoint(get_data_memory_index(v.pointer_id, al_index));
-      if (v.type_var != main_var.type_var) {
-        //TODO:error
-        return -1;
-      }
-      //var
-      if ((is_origin_array || is_alloc_array) && not_index) {
-        long_int tmp = main_var.pointer_id;
-        change_Mvar_pointer_id(Tid, v.pointer_id);
-        change_Mvar_pointer_id(alloc_id, tmp);
-        //printf ("is array :=:%i,%i\n",Tid,alloc_id);
-      }
-        //value
+        //-----------------------------------------------
+        //=>(Type3-value)else if array alloc is an atomic data
       else {
-        if (al_value.type_data == 'l'/*if is a struct value*/) {
-          origin_val = get_Mpoint(value_pointer_ind).data;
-          origin_sub_type = 'l';
-        }
-
-        edit_Mpoint(find_index_pointer_memory(al_value.id), origin_val, origin_sub_type, true, true);
-        edit_Mpoint(value_pointer_ind, al_value.data, al_value.type_data, true, true);
-        //printf ("is value :=:%i(%s),%i(%s)\n", value_pointer_ind, origin_val, find_index_pointer_memory (al_value.id) , al_value.data);
+//          printf("EEEEE2:%s\n", st.alloc);
+          String ret_val = 0;
+          uint8 ret_subtype = 0;
+          //=>calculate alloc value like var or struct entry or atomic data!
+          calculate_value_of_var(st.alloc, origin_type, &ret_val, &ret_subtype);
+          ret_val = str_reomve_quotations(ret_val, origin_type);
+          //=>check if sub types of original var and alloc data is equal
+          if (origin_sub_type != ret_subtype) {
+            //TODO:error
+            printf("R#ERRR3456754g89\n");
+            return false;
+          }
+          edit_Mpoint(origin_pointer_id, ret_val, 0, true, false);
       }
     }
-      //operator +=,-=,*=,/=,%=,^=
-    else if (str_search(public_ops, equal_type, 6)) {
+      //.......................................operator ':='
+    else if (str_equal(equal_type, ":=")) {
+      if (!vars_swap_allocation(origin_var, st.alloc, origin_pointer_id)) return false;
+    }
+      //.......................................operator +=,-=,*=,/=,%=,^=
+    else if (origin_sub_type != 0 && str_search(public_ops, equal_type, 6)) {
       uint8 rettype = 0;
       if (str_equal(origin_type, "num")) {
         if (origin_sub_type == 0)origin_sub_type = '_';
@@ -1333,15 +1307,125 @@ int8 vars_allocation(String exp) {
       //printf ("@##DDDD:%i-%s(%c):%s,%s=>%s\n", value_pointer_ind, origin_type, origin_sub_type, origin_val, st.alloc, final_res);
       if (rettype == '_' || rettype == '0' || rettype == 0) {
         //TODO:error
-        return -1;
+        printf("#ERRR3456789\n");
+        return false;
       }
-      edit_Mpoint(value_pointer_ind, final_res, rettype, true, false);
+      edit_Mpoint(origin_pointer_id, final_res, rettype, true, false);
     }
   }
   //--------------return
-  return status;
+  return true;
 }
-
+//****************************************************
+Boolean vars_assign_allocation(Boolean valid_var,
+                               Boolean is_array,
+                               String alloc,
+                               String origin_indexes,
+                               long_int origin_pointer_id) {
+  //init vars
+  long_int alloc_pointer_id = 0;
+  str_list tmp = 0;
+  //---------------------------
+  //=>if is a var name
+  if (valid_var) {
+    //=>split alloc var name and index
+    String al_name = 0, al_index = 0;
+    return_name_index_var(alloc, true, &al_name, &al_index);
+    //=>get alloc var index and then get Mvar of alloc var
+    long_int alloc_ind = find_index_var_memory(return_var_id(al_name, 0));
+    Mvar alloc_var = get_Mvar(alloc_ind);
+    //=>get alloc pointer id in its index
+    alloc_pointer_id = get_data_memory_id(alloc_var.pointer_id, al_index);
+    //=>if not index and just exist one pointer, then select it
+    if (al_index == 0 && char_last_indexof(get_Mpoint(alloc_pointer_id).data, ';') == -1)
+      alloc_pointer_id = get_data_memory_id(alloc_var.pointer_id, "0");
+  }
+    //=>else if is a struct entry var
+  else {
+    alloc_pointer_id = return_struct_entry_pointer_id(alloc);
+  }
+  //=>check if exist alloc var
+  if (alloc_pointer_id == 0) {
+    //TODO:error
+    printf("#ERR1345845:%s\n", alloc);
+    return false;
+  }
+  if (is_array) {
+    //=>check if indexes of origin and alloc is same
+    uint32 tmp_len = return_array_dimensions(alloc_pointer_id, &tmp);
+    String alloc_indexes = char_join(tmp, ',', tmp_len, true);
+    if (!is_equal_arrays_indexes(origin_indexes, alloc_indexes)) {
+      //TODO:error
+      printf("R#ERR34567890:%s;%s(%i)%s\n", origin_indexes, alloc_indexes);
+      return false;
+    }
+  }
+  if (!recursive_alloc_vars_pointers_data(origin_pointer_id, alloc_pointer_id))
+    return false;
+  //---------------------------
+  return true;
+}
+//****************************************************
+Boolean vars_swap_allocation(Mvar origin, String alloc, long_int origin_po_val) {
+  //init vars
+  String al_name = 0, al_index = 0;
+  long_int alloc_id = 0;
+  Mpoint alloc_point, origin_point;
+  Mvar alloc_var;
+  //------------------------------
+  //=>get var_index of original var
+  long_int origin_index = find_index_var_memory(origin.id);
+  //=>split alloc var name and index
+  Boolean not_index = false, is_alloc_array = false;
+  return_name_index_var(alloc, true, &al_name, &al_index);
+  //=>check if alloc var not have index
+  if (al_index == 0) {
+    not_index = true;
+    str_init(&al_index, "0");
+  }
+  //=>get alloc_id from alloc var name
+  alloc_id = find_index_var_memory(return_var_id(al_name, 0));
+  //=>check if exist alloc var
+  if (alloc_id == 0) {
+    //TODO:error
+    printf("#ERR134582\n");
+    return -1;
+  }
+  //=>get Mvar of alloc var by alloc_id
+  alloc_var = get_Mvar(alloc_id);
+  //=>get Mpoint of alloc var with its index
+  alloc_point = get_Mpoint(get_data_memory_id(alloc_var.pointer_id, al_index));
+  //=>get Mpoint of original var with its index
+  origin_point = get_Mpoint(origin_po_val);
+  //=>check if original var type is equal alloc var type
+  if (alloc_var.type_var != origin.type_var) {
+    //TODO:error
+    printf("R#ERR134567\n");
+    return false;
+  }
+  //=>if alloc point sub type is equal with original point sub type and is not one of main sub types so swap just pointers!
+  if (alloc_point.type_data == origin_point.type_data
+      && (alloc_point.type_data == 'p' || alloc_point.type_data == 'l')) {
+    //=>change original pointer data in its index
+    edit_Mpoint(origin_po_val, alloc_point.data, 0, true, false);
+    //=>change alloc pointer data in its index
+    edit_Mpoint(alloc_point.id, origin_point.data, 0, true, false);
+  }
+    //=>else if alloc var and origin var have atomic data
+  else {
+    //=>check if original data type is equal with alloc data type
+    if (!is_equal_data_types(origin_point.type_data, alloc_point.type_data)) {
+      //TODO:error
+      printf("R#ERR13456847\n");
+      return false;
+    }
+    //=>change original var data in its index
+    edit_Mpoint(origin_po_val, alloc_point.data, alloc_point.type_data, true, true);
+    //=>change alloc var data in its index
+    edit_Mpoint(alloc_point.id, origin_point.data, origin_point.type_data, true, true);
+  }
+  return true;
+}
 //****************************************************
 String vars_allocation_short(String exp) {
   /**
@@ -1401,7 +1485,13 @@ Boolean check_post_short_alloc() {
     for (uint32 i = 0; i < entry_table.post_short_alloc_len; i++) {
       str_list tokens = 0;
       //printf("ER#%s\n",entry_table.post_short_alloc[i]);
-      char_split(entry_table.post_short_alloc[i], ';', &tokens, true);
+      uint32 cc = char_split(entry_table.post_short_alloc[i], ';', &tokens, true);
+      if (cc < 2) {
+        //TODO:error
+        printf("#ERR34567\n");
+        entry_table.post_short_alloc_len = 0;
+        return false;
+      }
       Boolean ret = do_show_allocation(tokens[0], str_to_bool(tokens[1]));
       if (!ret)return false;
     }
@@ -1411,10 +1501,8 @@ Boolean check_post_short_alloc() {
 }
 //****************************************************
 Boolean do_show_allocation(String var_name, Boolean is_plusplus) {
-
   //init
   Mpoint val = return_var_memory_value(var_name);
-  long_int ret_ind = find_index_pointer_memory(val.id);
   String result = 0;
   //determine result
   if (val.type_data == 's'/*is string*/) {
@@ -1431,7 +1519,7 @@ Boolean do_show_allocation(String var_name, Boolean is_plusplus) {
   }
   //set result
 //  printf("++--:%s=>((%s))%s;\n",var_name,val.data,result);
-  edit_Mpoint(ret_ind, result, 0, true, false);
+  edit_Mpoint(val.id, result, 0, true, false);
   return true;
 }
 
@@ -1719,9 +1807,9 @@ int8 structure_loop_run_header(str_list insts, uint32 insts_len, uint8 part, uin
       } else if (state == ALLOC_MAGIC_MACROS_LBL_INST)parcode = alloc_magic_macros(parcode);
       else if (state == FUNC_CALL_LBL_INST)parcode = function_call(parcode);
       else if (state == ALLOC_VARS_LBL_INST) {
-        int8 status = vars_allocation(parcode);
+        Boolean status = vars_allocation(parcode);
         parcode = 0;
-        if (status == -1)is_error = true;
+        if (!status)is_error = true;
       } else if (state == ALLOC_SHORT_LBL_INST) parcode = vars_allocation_short(parcode);
         //-------------analyzing finish states
       else if (part == 2 && state == LOGIC_CALC_LBL_INST) {

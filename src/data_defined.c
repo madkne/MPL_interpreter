@@ -104,6 +104,8 @@ String sub_types[5] = {"s", "b", "i", "f", "h"};
 
 String control_chars[5] = {"\\n", "\\t", "\\", "\\\\", "\\b"};
 
+Mpoint *hash_pointers[HASH_MEM_SIZE] = {0};
+
 utf8_str_list source_paths;
 
 str_list program_argvs;
@@ -114,6 +116,7 @@ uint32 argvs_len = 0;
 //*********************public functions************************
 //*************************************************************
 void init_database() {
+
   //---------------init project_root
   str_list entries, filename;
   uint32 size = char_split(stdin_source_path, OS_SEPARATOR, &entries, true);
@@ -849,7 +852,6 @@ void append_vaar(vaar s, vaar_en *s1) {
     (*s1).end = q;
   }
 }
-
 
 //*************************************************************
 //***************struct_descriptor functions*******************

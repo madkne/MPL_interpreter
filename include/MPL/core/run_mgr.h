@@ -31,7 +31,14 @@ int8 set_function_parameters(String func_name, str_list pars, uint32 pars_len);
 
 uint32 determine_type_name_func_parameters(str_list params, uint32 params_len, str_list *ret);
 Boolean function_return(String exp);
-int8 vars_allocation(String exp);
+Boolean vars_allocation(String exp);
+Boolean vars_assign_allocation(Boolean valid_var,
+                               Boolean is_array,
+                               String alloc,
+                               String origin_indexes,
+                               long_int origin_pointer_id);
+Boolean vars_swap_allocation(Mvar origin,String alloc, long_int origin_po_val);
+
 String vars_allocation_short(String exp);
 Boolean check_post_short_alloc();
 Boolean do_show_allocation(String var_name, Boolean is_plusplus);

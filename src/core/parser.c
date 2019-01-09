@@ -222,8 +222,7 @@ void manage_import_keywords(uint32 *i) {
         //replace mpl_modules by @ sign
         ret.utf8_string = utf8_str_simple_replace(ret.utf8_string,
                                                   "@",
-                                                  str_multi_append(interpreter_path, StrSep, "modules", 0, 0, 0),
-                                                  1);
+                                                  str_multi_append(interpreter_path, StrSep, "modules", 0, 0, 0),1);
         //replace mpl_packs by @@ sign
         ret.utf8_string = utf8_str_simple_replace(ret.utf8_string,
                                                   "@", str_multi_append(interpreter_path, StrSep, "packs", 0, 0, 0), 1);

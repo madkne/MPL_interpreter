@@ -265,6 +265,13 @@ typedef struct debug_breakpoints_struct {
   String source_path;
   struct debug_breakpoints_struct *next;
 } debr;
+//****************************alloc_var struct
+struct alloc_var_struct {
+  String type;
+  String name;
+  String alloc;
+  String index;
+};
 //****************************virtual memory
 //runtime
 typedef struct var_memory_struct {
@@ -285,7 +292,10 @@ typedef struct pointer_memory_struct {
       type_data; //'0':null , 'i':int , 'f':float , 'h':huge , 's':string , 'u':utf8 , 'b':boolean , 'p':Pointer To Mpoint , 'v':Pointer To Mvar , 'l': struct list
   struct pointer_memory_struct *next;
 } Mpoint;
-
+//static
+Mpoint *hash_pointers[HASH_MEM_SIZE];
+Mpoint *hash_pointers_end[HASH_MEM_SIZE];
+//long_int hash_pointers_len[HASH_MEM_SIZE];
 
 
 //****************************call_func struct
@@ -411,8 +421,8 @@ struct entry_table_struct {
 
   Mvar *var_memory_start;
   Mvar *var_memory_end;
-  Mpoint *pointer_memory_start;
-  Mpoint *pointer_memory_end;
+//  Mpoint *pointer_memory_start;
+//  Mpoint *pointer_memory_end;
   long_int var_mem_id;
   long_int var_mem_len;
   long_int pointer_mem_id;

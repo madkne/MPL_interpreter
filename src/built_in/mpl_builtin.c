@@ -54,7 +54,7 @@ uint32 _MPL_TYPE__push(long_int var_ind, String value, String val_type, String w
   Mvar var = get_Mvar(var_ind);
   //----------------------calculate index of var
   str_list c1 = 0;
-  uint32 c1_len = return_var_dimensions(var_ind, &c1);
+  uint32 c1_len = return_array_dimensions(var.pointer_id, &c1);
   uint32 var_len = (uint32) str_to_long_int(c1[0]);
   //check if var has one dimension
   if (c1_len > 1) {
@@ -67,9 +67,9 @@ uint32 _MPL_TYPE__push(long_int var_ind, String value, String val_type, String w
     //TODO:error
     return var_len;
   }
-  //----------------------get first room pointer index
-  long_int first_po_ind = find_index_pointer_memory(var.pointer_id);
-  String first_room = get_Mpoint(first_po_ind).data;
+  //----------------------get first room pointer id
+  long_int first_po_id = var.pointer_id;
+  String first_room = get_Mpoint(first_po_id).data;
   //determine if struct type
   Boolean is_struct = false;
   if (!str_search(basic_types, var_type, StrArraySize(basic_types))) is_struct = true;
@@ -87,7 +87,7 @@ uint32 _MPL_TYPE__push(long_int var_ind, String value, String val_type, String w
   }
   //----------------------start of pushing
   if (str_equal(wh, LEFT_DIRECT)) {
-    edit_Mpoint(first_po_ind,
+    edit_Mpoint(first_po_id,
                 str_multi_append(str_from_long_int(new_pointer_id), ";", first_room, 0, 0, 0),
                 0,
                 true,
@@ -95,7 +95,7 @@ uint32 _MPL_TYPE__push(long_int var_ind, String value, String val_type, String w
     var_len++;
   } else if (str_equal(wh, RIGHT_DIRECT)) {
     //printf("****%i,%s,%i\n\n", first_po_ind, first_room, new_pointer_id);
-    edit_Mpoint(first_po_ind,
+    edit_Mpoint(first_po_id,
                 str_multi_append(first_room, ";", str_from_long_int(new_pointer_id), 0, 0, 0),
                 0,
                 true,
@@ -110,11 +110,11 @@ uint32 _MPL_TYPE__push(long_int var_ind, String value, String val_type, String w
 //************************************************
 //************************************************
 /**
- * get a variable or value and return its main type like for a num value or variable return just 'num'
+ * get a variable or value and return its main type like for a num value or variable return 'num' and return its indexes as {"num","1"}
  * @param value
  * @param type
  * @return String
- * @samples var_type(45.78)=>'num'||var_type(s)=>'str'||var_type(struct(57.8,"rt"))=>'st1'
+ * @samples var_type(45.78)=>{"num","1"}||var_type(s)=>{"str",1}||var_type(struct(57.8,"rt"))=>{"st1","1"} ||var_type({{4,6},{6,9},{9,9}}=>{"num","3,2"}
  */
 String _MPL_TYPE__var_type(String value, String type) {
   return type;

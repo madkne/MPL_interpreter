@@ -20,11 +20,20 @@ main.mpl
 $$default_argvs
 $$created_date
 2018.24.11-11:38:20
+$$author
+mprog
 $$test_count
 0
 --------------main.mpl
+/**
+	@des:
+        start point of program
+    @params:
+    @output:
+        return status of program end
+    */
 func main(){
-	//=>Write your codes
+	//=>Write your code
 }
 ========================
 > mprog test (run test your codes on cmd)

@@ -135,8 +135,10 @@ TODO
 * participate struct entries in math calculation **[OK]**
 * participate struct entries in str calculation **[OK]**
 * participate struct entries in bool calculation **[OK]**
-* support struct entries as a struct **[..]**
-* alloc struct entries **[..]**
+* support struct entries as a struct **[OK]**
+* alloc struct entries **[OK]**
+* change virtual memory as hash for optimizing speed **[OK]**
+* reform memory functions **[OK]**
 * start offline documentation of mpl **[OK]**
 * complete structure of mpl-docs **[..]**
 * start os built-in functions **[..]**
@@ -146,13 +148,13 @@ TODO
 * support sqlite3 as a module
 * support for package libraries
 * building MPL website
-* implement switch keyword
 * parsing and converting switch instruction
 * support for embedded files
 * alloc by bit operands
 * using short alias for magic macros
 * start review_array_loop **[OK]**
 * alloc review array every time
+* convert '' to "" as a string
 
 * **_complete full structure of mpl_** **[..]**
 
@@ -169,6 +171,7 @@ TODO
 * complete offline docs
 * complete 'mprog' program
 * complete sample codes
+* implement 'Vcache'(10000),'Pcache'(50000) hashing for optimizing speed
 * calculate order of all core functions
 * calculate order of all tools functions
 * calculate order of all built-in functions
@@ -179,6 +182,8 @@ TODO
 ### ((:publish MPL-RC version of MPL (for windows):))
 
 * publish RC version for linux
+* implement switch keyword
+* implement callback keyword
 * add math module for advanced calculation
 * add net module
 * start mgt module
