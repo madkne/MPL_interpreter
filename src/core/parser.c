@@ -17,6 +17,7 @@ stoi is_in_stru[MAX_INTO_IN_STRUCTURES];
 
 //**********************************
 Boolean analyze_source_code() {
+  convert_single_quotations_to_std();
   //-------------------reset all
   clear_soco(2);
   empty_stoi(is_in_stru, MAX_INTO_IN_STRUCTURES);

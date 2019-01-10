@@ -11,12 +11,32 @@ void init_exceptions_list_data() {
   //\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/
   //DebuggerError
   define_new_exception(1, ERROR_ID, "not_enough_params", DebuggerError, "your input has not enough parameters");
-  define_new_exception(2, ERROR_ID, "not_exist_source", DebuggerError, "'!1@1!' source file is not a part of this program");
-  define_new_exception(3, ERROR_ID, "invalid_line_number", DebuggerError, "'!1@1!' is invalid as line number of a source file");
-  define_new_exception(4, ERROR_ID, "not_execute_line_code", DebuggerError, "in line number'!1@1!' in '!2@2!' file, not exist any executable instruction");
+  define_new_exception(2,
+                       ERROR_ID,
+                       "not_exist_source",
+                       DebuggerError,
+                       "'!1@1!' source file is not a part of this program");
+  define_new_exception(3,
+                       ERROR_ID,
+                       "invalid_line_number",
+                       DebuggerError,
+                       "'!1@1!' is invalid as line number of a source file");
+  define_new_exception(4,
+                       ERROR_ID,
+                       "not_execute_line_code",
+                       DebuggerError,
+                       "in line number'!1@1!' in '!2@2!' file, not exist any executable instruction");
   define_new_exception(5, ERROR_ID, "unknown_command", DebuggerError, "'!1@1!' is unknown command for mdebug");
-  define_new_exception(6, ERROR_ID, "not_find_breakpoint", DebuggerError, "not find any breakpoints in line'!1@1!' of '!2@2!' file");
-  define_new_exception(7, ERROR_ID, "undefined_var", DebuggerError, "'!1@1!' as a variable in current line is undefined");
+  define_new_exception(6,
+                       ERROR_ID,
+                       "not_find_breakpoint",
+                       DebuggerError,
+                       "not find any breakpoints in line'!1@1!' of '!2@2!' file");
+  define_new_exception(7,
+                       ERROR_ID,
+                       "undefined_var",
+                       DebuggerError,
+                       "'!1@1!' as a variable in current line is undefined");
   define_new_exception(8, ERROR_ID, "can_not_run", DebuggerError, "line '!1@1!' completed and could not run again!");
   //\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/
   //CommandError
@@ -43,7 +63,11 @@ void init_exceptions_list_data() {
                        "remainder(%%) is not determined for '!1@1!' numbers and expressions");
   define_new_exception(3, ERROR_ID, "out_of_range_index", InterruptedError,
                        "'!1@1!' out of range for '!2@2!' variable");
-  define_new_exception(4, ERROR_ID, "out_of_range_break", InterruptedError, "'break' instruction parameter is not between 1 .. !1@1!");
+  define_new_exception(4,
+                       ERROR_ID,
+                       "out_of_range_break",
+                       InterruptedError,
+                       "'break' instruction parameter is not between 1 .. !1@1!");
   define_new_exception(5,
                        ERROR_ID,
                        "out_of_range_integer",
@@ -59,7 +83,11 @@ void init_exceptions_list_data() {
                        "array_index_out_of_range",
                        InterruptedError,
                        "Index Array '!1@1!' is out of range from '0' to '!2@2!'");
-  define_new_exception(8, ERROR_ID, "not_using_next_break", InterruptedError, "not using next and break instructions outside of a loop structure");
+  define_new_exception(8,
+                       ERROR_ID,
+                       "not_using_next_break",
+                       InterruptedError,
+                       "not using next and break instructions outside of a loop structure");
   define_new_exception(9, WARNING_ID, "array_index_underflow", InterruptedError, "Index Array '!1@1!' is underflow");
   define_new_exception(10,
                        ERROR_ID,
@@ -158,17 +186,30 @@ int8 exception_handler(String lbl_err, const char func_occur[], String rep1, Str
   int8 ret_num = WARNING_ID;
   long_int excep_id = 0;
   String func_occur_err = str_from_const_char(func_occur);
+  Boolean is_user_defined = false;
+  if (lbl_err[0] == '#')is_user_defined = true;
   //---------------------search in exceptions_list
-  for (long_int i = 0; i < entry_table.exceptions_count; i++) {
-    exli st = get_exli(i);
-    if (str_equal(lbl_err, st.lbl)) {
-      //fmt.Println("SSSSS:", st)
-      ret_num = st.type;
-      excep_id = i;
-      break;
+  if (!is_user_defined)
+    for (long_int i = 0; i < entry_table.exceptions_count; i++) {
+      exli st = get_exli(i);
+      if (str_equal(lbl_err, st.lbl)) {
+        //fmt.Println("SSSSS:", st)
+        ret_num = st.type;
+        excep_id = i;
+        break;
+      }
     }
-  }
   exli st = get_exli(excep_id);
+  //---------------------if exception is user-defined
+  if (is_user_defined) {
+    ret_num = (int8) str_to_int32(rep1);
+    excep_id = 1;
+    st.type = (int8) str_to_int32(rep1);
+    st.group = UserDefinedError;
+    st.text = rep2;
+    st.lbl = lbl_err;
+//    printf("EEWWW:%s;%s\n",lbl_err,rep2);
+  }
   //---------------------search for manage structure
   String manage_exception_store = 0;
   stst *tmp1 = entry_table.stst_start;
@@ -190,6 +231,11 @@ int8 exception_handler(String lbl_err, const char func_occur[], String rep1, Str
   }
     //---------------------manage structure
   else if (manage_exception_store != 0 && excep_id > 0) {
+    //---------clear rep1,rep2 if is_user_defined
+    if (is_user_defined) {
+      rep1 = 0;
+      rep2 = 0;
+    }
     //---------modes
     switch (ret_num) {
       case ERROR_ID: ret_num = errors_mode;
@@ -306,12 +352,24 @@ int8 print_error(long_int line_err, String name_err, String file_err, String rep
   int8 type_err = ERROR_ID;
   String text_err = 0;
   long_int id_err = 0;
+  exli search;
+  Boolean is_user_defined = false;
+  if (name_err[0] == '#')is_user_defined = true;
   //---------------------search in exceptions_list
-  exli search = search_lbl_exli(name_err);
-  id_err = search.id;
-  text_err = search.text;
-  type_err = search.type;
-  group_err = search.group;
+  if (!is_user_defined) search = search_lbl_exli(name_err);
+  //---------------------
+  if (is_user_defined) {
+    type_err = (int8) str_to_int32(rep1);
+    text_err = rep2;
+    group_err = UserDefinedError;
+    rep1 = 0;
+    rep2 = 0;
+  } else {
+    id_err = search.id;
+    text_err = search.text;
+    type_err = search.type;
+    group_err = search.group;
+  }
 
   //----------------------modes
   switch (type_err) {
@@ -325,18 +383,37 @@ int8 print_error(long_int line_err, String name_err, String file_err, String rep
   }
   //printf("%s,%s,%i,\n%s\n",rep1,rep2,group_err,print_str_list(exceptions_group,14));
   //----------------------replace items
-  text_err = str_replace(text_err, "!1@1!", rep1, -1);
-  text_err = str_replace(text_err, "!2@2!", rep2, -1);
+  if (rep1 != 0)text_err = str_replace(text_err, "!1@1!", rep1, -1);
+  if (rep2 != 0)text_err = str_replace(text_err, "!2@2!", rep2, -1);
   //-----------------------print exception
   String exception_msg = malloc(7 + str_length(file_err) + (2 * sizeof(long_int)) + str_length(text_err) +
       str_length(exceptions_group[group_err]) + 1);
   if (line_err == 0)
-    sprintf(exception_msg, "%s : %s (%s::Errno%li)", exceptions_type[-type_err], text_err,
-            exceptions_group[group_err], id_err);
+    sprintf(exception_msg,
+            "%s : %s (%s::Errno%li)",
+            exceptions_type[-type_err],
+            text_err,
+            exceptions_group[group_err],
+            id_err);
+  else if (is_user_defined)
+    sprintf(exception_msg,
+            "%s[%s:%li] %s (%s::%s)",
+            exceptions_type[-type_err],
+            file_err,
+            line_err,
+            text_err,
+            occur_func,
+            name_err);
   else
-    sprintf(exception_msg, "%s[%s:%li] %s (%s::Errno%li)", exceptions_type[-type_err], file_err, line_err, text_err,
-            exceptions_group[group_err], id_err);
-  if (is_programmer_debug >= 1) {
+    sprintf(exception_msg,
+            "%s[%s:%li] %s (%s::Errno%li)",
+            exceptions_type[-type_err],
+            file_err,
+            line_err,
+            text_err,
+            exceptions_group[group_err],
+            id_err);
+  if (is_programmer_debug >= 1 && !is_user_defined) {
     //y, mo, d := time.Now().Date()
     // h, mi, s := time.Now().Clock()
     //time_now := fmt.Sprintf("%v:%v:%v - %v.%v.%v", h, mi, s, y, mo, d)
@@ -356,4 +433,9 @@ int8 print_error(long_int line_err, String name_err, String file_err, String rep
   }
   return type_err;
 }
-
+//**************************************************************
+Boolean exception_user_handler(int8 err_type, String err_name, String err_des, String err_func) {
+  if (err_type != ERROR_ID && err_type != WARNING_ID)return false;
+  exception_handler(str_append("#", err_name), err_func, str_from_int32((int32) err_type), err_des);
+  return true;
+}

@@ -152,10 +152,10 @@ int8 INSTRUCTION_EXECUTOR(long_int index) {
   if (is_programmer_debug >= 2) {
     if (is_done) {
       printf("~~~~~~~~~~~~~~~~~~>DONE :)\n\n");
-       printf("---------------:%i,%s\n",entry_table.post_short_alloc_len,entry_table.post_short_alloc[0]);
+//       printf("---------------:%i,%s\n",entry_table.post_short_alloc_len,entry_table.post_short_alloc[0]);
       //check post short alloc
       is_done = check_post_short_alloc();
-     
+
     }
     if (!is_done) {
       printf("~~~~~~~~~~~~~~~~~~>BREAK :(\n\n");

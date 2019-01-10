@@ -202,3 +202,34 @@ Boolean open_mpl_file(imin s) {
   //printf("ENDDDDD:%s\n",ascii_path);
   return true;
 }
+//******************************************************
+void convert_single_quotations_to_std() {
+  //init vars
+  Boolean is_string = false, is_qu = false, is_change = false;
+  String inst = 0;
+
+  //-------------------
+  for (uint32 ii = 0; ii < entry_table.soco_main_count; ii++) {
+    is_change = false;
+    soco line = get_soco(1, ii);
+    inst = line.code;
+    for (uint32 i = 0; i < str_length(inst); i++) {
+      //----------------check is str
+      if (!is_qu && inst[i] == '\"' && (i == 0 || inst[i - 1] != '\\')) {
+        is_string = switch_bool(is_string);
+      }
+      //----------------check is \'
+      if (!is_string && inst[i] == '\'' && (i == 0 || inst[i - 1] != '\\')) {
+        inst[i] = '\"';
+        is_change = true;
+        is_qu = switch_bool(is_qu);
+      }
+    }
+    //----------------if is change
+    if (is_change) {
+//      printf("#%i:%s\n", line.line, inst);
+      edit_soco(1, line.line, inst);
+    }
+
+  }
+}

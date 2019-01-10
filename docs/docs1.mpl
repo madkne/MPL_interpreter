@@ -57,23 +57,28 @@ exception
 built-in functions:
 -------MPL functions:
 --Completed:
-push(var[..],var[..],num)/*just for var[?]*/
+typeof(var),push(var[..],var[..],num)/*just for var[?]*/
 --Not Completed:
-len(var[..]),error_handle(num,str,str),config_all(),define_all(),define_isset(str),embed_run(str[?]),session_all(),session_isset(str),crop(var[..],num,num),search(var[..],var),mpl_execute(str),trace_var(var[?,..]),trace_func(str,num),echo(var)/*just used in embed files*/,var_type(var[..]),pop(var[..],num)/*just for var[?]*/,del(var[..])
+len(var[..]),var_type(var[..]),pop(var[..],num)/*just for var[?]*/,del(var[..]),crop(var[..],num,num),error_handle(num,str,str),config_all(),define_all(),define_isset(str),session_all(),session_isset(str),embed_run(str[?]),mpl_execute(str),echo(var)/*just used in embed files*/
+--TMP
+trace_var(var[?,..]),trace_func(str,num)
 -------DATA functions:
 --Completed:
+and(num,num),xor(num,num),or(num,num),not(num),rshift(num,num),lshift(num,num)
 --Not Completed:
-tnum(var,bool),tbool(var),tstr(var),tchars(var),at(var,num),into(var,num,str),inum(var),ibool(var),istr(var),xor(num,num),and(num,num),or(num,num),not(num),cmp(num)
+tnum(var,bool),tbool(var),tstr(var),tchars(var),at(var,num),into(var,num,str),inum(var),ibool(var),istr(var)
 -------OS functions:
 --Completed:
-exit(num),print(val|var[..]),input(num),typeof(var)
+exit(num),print(val|var[..]),input(num),shell(str),time()
 --Not Completed:
-shell(str),time(),rand(num,num),free_module(str),argvs(),printf(str,var[..])
+rand(num,num),argvs(),printf(str,var[..])
+--TMP
+free_module(str)
 -----------------------------
 built-in constants:(by $def)
 - not edited and just use
 --Completed:
-ERROR:num,FATAL:num,WARNING:num,OSType:str,OSArch:str,PathSeparator:str,EOF:num,EOL:str,IntSize:num,FloatSize:num,MplVersion:str,AppPath:str,LeftDirect:num,RightDirect:num,BothDirect:num,ReadChar:num,ReadLine:num,ReadAll:num,PID:num,StartedTime:num,HostName:str
+ERROR:num,WARNING:num,OSType:str,OSArch:str,PathSeparator:str,EOF:num,EOL:str,IntSize:num,FloatSize:num,MplVersion:str,AppPath:str,LeftDirect:num,RightDirect:num,BothDirect:num,ReadChar:num,ReadLine:num,ReadAll:num,PID:num,StartedTime:num,HostName:str
 --Not Completed:
 -----------------------------
 built-in config:(by $con)

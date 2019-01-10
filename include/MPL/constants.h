@@ -7,7 +7,7 @@
 
 //**************************************************define interpreter constants
 #define  APP_NAME                       "Mini Portable Language"
-#define  VERSION                        "0.4.43"    //1.10.100
+#define  VERSION                        "0.4.58"    //1.10.100
 #define  VERSION_NAME                   "BETA"
 #define  SLOGAN                         "The solution to common problems of programmers" //راه حل کارهای متداول برنامه نویسان
 
@@ -16,12 +16,12 @@
 #define  RC_LBUILD                      "undefined"
 #define  LICENCE                        "OPEN-MPL"
 #define  OFFICIAL_WEBSITE               "http://mpl-lang.ir"
-#define  C_CORE_CODE_LINES              12008       //0.4.24
-#define  H_CORE_CODE_LINES              1189
-#define  MODULES_CODE_LINES             16           //+=13213
+#define  C_CORE_CODE_LINES              12342       //0.4.56 - 0.5.0
+#define  H_CORE_CODE_LINES              1270
+#define  MODULES_CODE_LINES             16           //+=13628
 #define  LANGUAGE_CREATOR               "Mohammad Amin Delavar Khalafi"
 #define  CREATOR_SIGNATURE              "603556816519829596"
-#define  CONFIDENCE_LEVEL               21          //100%
+#define  CONFIDENCE_LEVEL               23          //100%
 #define  WINDOWS_COMPATIBLE             true
 #define  LINUX_COMPATIBLE               false
 //**************************************************define other constants
@@ -65,6 +65,7 @@
 #define   UTF8_ID_LABEL                 "-!U8!_"
 #define   UTF8_ID_LBL_LEN               6
 #define   PARAM_ARRAY_NAME              "__ArrayParam_"
+#define   USER_DEFINED_EXCEPTION        "user"
 #define   WHITE_SPACES                  " \t\n\v\f\r"
 #define   BAD_CODE                      "@!BAD!@"
 //------------------------------------------
@@ -107,6 +108,7 @@
 #define   FloatingPointError            12
 #define   CommandError                  13
 #define   DebuggerError                 14
+#define   UserDefinedError              100
 //------------------------------------------
 #define IMPORT_FILE                     1
 #define IMPORT_PACKAGE                  2

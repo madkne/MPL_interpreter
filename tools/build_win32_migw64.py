@@ -114,7 +114,8 @@ sources=[
 [scr_folder+"/core/magic_macro.c",scr_folder+"/core/magic_macro.c -o "+obj_folder+"/magic_macro.o"],
 [scr_folder+"/built_in/mpl_builtin.c",scr_folder+"/built_in/mpl_builtin.c -o "+obj_folder+"/mpl_builtin.o"],
 [scr_folder+"/built_in/os_builtin.c",scr_folder+"/built_in/os_builtin.c -o "+obj_folder+"/os_builtin.o"],
-[scr_folder+"/modules/fs_interface.c",scr_folder+"/modules/fs_interface.c -o "+obj_folder+"/fs_interface.o"],
+[scr_folder+"/built_in/data_builtin.c",scr_folder+"/built_in/data_builtin.c -o "+obj_folder+"/data_builtin.o"],
+[scr_folder+"/modules/fs_interface.c",scr_folder+"/modules/fs_interface.c -o "+obj_folder+"/fs_interface.o"]
 ];
 for i in range(0,len(sources),1):
 	ind=sources[i];
@@ -161,8 +162,8 @@ else:
 	#----------------------run mpl.exe
 	print("=== Running mpl.exe ...");
 	print("_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_");
-	os.system("..\\win32-release\\mpl.exe ..\\main.mpl");
-	#os.system("..\\win32-release\\mpl.exe -h keywords -l");
+	os.system("..\\win32-release\\mpl.exe ..\\main.mpl ");
+	#os.system("..\\win32-release\\mpl.exe -h keywords true");
 	#os.system("dir");
 	#os.system("pause");
 	

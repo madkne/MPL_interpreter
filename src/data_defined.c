@@ -398,7 +398,24 @@ soco get_soco(uint8 type, uint32 ind) {
 
   return ret;
 }
+//*************************************************************
+Boolean edit_soco(uint8 type, uint32 line, String new_data) {
+  soco *tmp1;
+  //soco_main
+  if (type == 1)tmp1 = entry_table.soco_main_start;
+    //soco_tokens
+  else if (type == 2)tmp1 = entry_table.soco_tokens_start;
+  for (;;) {
+    if (tmp1->line == line) {
+      (*tmp1).code = new_data;
+      return true;
+    }
+    tmp1 = tmp1->next;
+    if (tmp1 == 0) break;
+  }
 
+  return false;
+}
 //*************************************************************
 //******************utf8_strings functions*********************
 //*************************************************************
@@ -504,6 +521,21 @@ blst search_lbl_func(String lbl, str_list params, uint32 par_len) {
   for (;;) {
     if (par_len == tmp1->params_len && str_equal(tmp1->lbl, lbl) &&
         str_list_equal(tmp1->params, tmp1->params_len, params, par_len)) {
+      return (*tmp1);
+    }
+    tmp1 = tmp1->next;
+    if (tmp1 == 0) break;
+  }
+  return null;
+}
+//*************************************************************
+blst get_func_by_id(long_int id) {
+  blst null = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+  blst *tmp1;
+  tmp1 = entry_table.blst_func_start;
+  //------------------
+  for (;;) {
+    if (id == tmp1->id) {
       return (*tmp1);
     }
     tmp1 = tmp1->next;

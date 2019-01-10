@@ -22,7 +22,11 @@ Boolean check_built_in_module_function(String S_params, str_list partypes, uint3
   return false;
 }
 //***********************************
-void convert_built_in_module_vars_to_values(str_list partypes,str_list params,uint32 params_len,str_list *argvs,long_int *var0_ind){
+void convert_built_in_module_vars_to_values(str_list partypes,
+                                            str_list params,
+                                            uint32 params_len,
+                                            str_list *argvs,
+                                            long_int *var0_ind) {
   for (uint32 i = 0; i < params_len; i++) {
     str_list p1 = 0;
     char_split(partypes[i], ';', &p1, false);
@@ -74,51 +78,82 @@ uint32 call_built_in_funcs(String func_name, str_list params, str_list partypes,
 //  printf ("WWW@@WWW:%s,%s,%s[%i,%i]\n", func_name, print_str_list (params, params_len), print_str_list (partypes, params_len), func_id, func_type);
   if (func_id == 0 || func_type == 0)return 0;
   //convert vars to values
-  convert_built_in_module_vars_to_values(partypes,params,params_len,&argvs,&var0_ind);
+  convert_built_in_module_vars_to_values(partypes, params, params_len, &argvs, &var0_ind);
 //print_struct(PRINT_STRUCT_DES_ST);
 //  printf ("@BUILT-IN:%s@%i@;%s\n", print_str_list (params, params_len),params_len, print_str_list (argvs, params_len));
   //---------------------MPL Function Calls----------------------
   if (func_type == MPL_BUILT_IN_TYPE) {
-    if (func_id == 1/*len*/) {
+    if (func_id == _MPL_LEN) {
       //TODO:
-    }
-    else if (func_id == 2/*print*/) {
-      Boolean ret = _MPL_TYPE__print(argvs, params_len);
-      str_list_append(&(*returns), str_from_bool(ret), returns_len++);
-    } else if (func_id == 3/*typeof*/) {
+    } else if (func_id == _MPL_TYPEOF) {
       str_list p = 0;
       char_split(partypes[0], ';', &p, false);
       String ret = _MPL_TYPE__typeof(argvs[0], p[0]);
       str_list_append(&(*returns), convert_to_string(ret), returns_len++);
       // printf ("Result of \'typeof\':%s[%s]=>%s\n", argvs[0], p[0], ret);
-    } else if (func_id == 4/*input*/) {
-      String ret = _MPL_TYPE__input(argvs[0]);
-      str_list_append(&(*returns), convert_to_string(ret), returns_len++);
-      //printf ("Result of \'input\':%s=>%s\n", argvs[0], ret);
-    } else if (func_id == 15/*push*/) {
+    } else if (func_id == _MPL_PUSH) {
       str_list p = 0;
       char_split(partypes[1], ';', &p, false);
       uint32 ret = _MPL_TYPE__push(var0_ind, argvs[1], p[0], argvs[2]);
       str_list_append(&(*returns), str_from_long_int((long_int) ret), returns_len++);
       //printf ("Result of \'input\':%s=>%s\n", argvs[0], ret);
-    } else if (func_id == 21/*var_type*/) {
+    } else if (func_id == _MPL_VAR_TYPE) {
       str_list p = 0;
       char_split(partypes[0], ';', &p, false);
       String ret = p[0];
       str_list_append(&(*returns), convert_to_string(ret), returns_len++);
       // printf ("Result of \'var_type\':%s[%s]=>%s\n", argvs[0], p[0], ret);
+    } else if (func_id == _MPL_ERROR_HANDLE) {
+      Boolean ret = _MPL_TYPE__error_handle(str_to_int32(argvs[0]),
+                                            argvs[1], argvs[2]);
+      str_list_append(&(*returns), convert_to_string(str_from_bool(ret)), returns_len++);
     }
     //TODO:complete
   }
     //---------------------DATA Function Calls---------------------
   else if (func_type == DATA_BUILT_IN_TYPE) {
+    if (func_id == _DATA_TNUM) {
+      //TODO
+    } else if (func_id == _DATA_AND) {
+      String ret = _DATA_TYPE__bit_operations('a', argvs[0], argvs[1]);
+      str_list_append(&(*returns), ret, returns_len++);
+    } else if (func_id == _DATA_OR) {
+      String ret = _DATA_TYPE__bit_operations('o', argvs[0], argvs[1]);
+      str_list_append(&(*returns), ret, returns_len++);
+    } else if (func_id == _DATA_XOR) {
+      String ret = _DATA_TYPE__bit_operations('x', argvs[0], argvs[1]);
+      str_list_append(&(*returns), ret, returns_len++);
+    } else if (func_id == _DATA_NOT) {
+      String ret = _DATA_TYPE__bit_operations('n', argvs[0], 0);
+      str_list_append(&(*returns), ret, returns_len++);
+    } else if (func_id == _DATA_RSHIFT) {
+      String ret = _DATA_TYPE__bit_operations('r', argvs[0], argvs[1]);
+      str_list_append(&(*returns), ret, returns_len++);
+    } else if (func_id == _DATA_LSHIFT) {
+      String ret = _DATA_TYPE__bit_operations('l', argvs[0], argvs[1]);
+      str_list_append(&(*returns), ret, returns_len++);
+    }
     //TODO:complete
   }
     //---------------------OS Function Calls-----------------------
   else if (func_type == OS_BUILT_IN_TYPE) {
-    if (func_id == 1/*exit*/) {
+    if (func_id == _OS_EXIT) {
       _OS_TYPE__exit(str_to_int32(argvs[0]));
+    } else if (func_id == _OS_PRINT) {
+      Boolean ret = _OS_TYPE__print(argvs, params_len);
+      str_list_append(&(*returns), str_from_bool(ret), returns_len++);
+    } else if (func_id == _OS_INPUT) {
+      String ret = _OS_TYPE__input(argvs[0]);
+      str_list_append(&(*returns), convert_to_string(ret), returns_len++);
+      //printf ("Result of \'input\':%s=>%s\n", argvs[0], ret);
+    } else if (func_id == _OS_SHELL) {
+      String ret = _OS_TYPE__shell(argvs[0]);
+      str_list_append(&(*returns), convert_to_string(ret), returns_len++);
+    } else if (func_id == _OS_TIME) {
+      String ret = _OS_TYPE__time();
+      str_list_append(&(*returns), ret, returns_len++);
     }
+    //TODO:complete
   }
   //-----------------return
 
@@ -135,53 +170,46 @@ void init_built_in_funcs() {
    * aa..=bool[?,..]|str[?,..]|num[?,..]|struct[?,..] : var,var,..
    */
   //----------------------------------mpl built_in
-  add_to_bifs(1, MPL_BUILT_IN_TYPE, "len", "aa", "num;?");
-  add_to_bifs(2, MPL_BUILT_IN_TYPE, "print", "aa..", "bool"); //=>[OK]
-  add_to_bifs(3, MPL_BUILT_IN_TYPE, "typeof", "a", "str"); //=>[OK]
-  add_to_bifs(4, MPL_BUILT_IN_TYPE, "input", "num", "str"); //=>[OK]
-  add_to_bifs(5, MPL_BUILT_IN_TYPE, "error_handle", "num|str|str", "bool");
-  add_to_bifs(6, MPL_BUILT_IN_TYPE, "config_all", 0, "str;?,2");
-  add_to_bifs(7, MPL_BUILT_IN_TYPE, "define_all", 0, "str;?,2");
-  add_to_bifs(8, MPL_BUILT_IN_TYPE, "define_isset", "str", "bool");
-  add_to_bifs(9, MPL_BUILT_IN_TYPE, "embed_run", "str;?", "num");
-  add_to_bifs(10, MPL_BUILT_IN_TYPE, "argvs", 0, "str;?");
-  add_to_bifs(11, MPL_BUILT_IN_TYPE, "session_all", 0, "str;?,2");
-  add_to_bifs(12, MPL_BUILT_IN_TYPE, "session_isset", "str", "bool");
-  add_to_bifs(13, MPL_BUILT_IN_TYPE, "crop", "aa|num|num", "aa");
-  add_to_bifs(14, MPL_BUILT_IN_TYPE, "search", "aa|a|num", "num");
-  add_to_bifs(15, MPL_BUILT_IN_TYPE, "push", "aa|a|num", "num");
-  add_to_bifs(16, MPL_BUILT_IN_TYPE, "pop", "aa|num", "num");
-  add_to_bifs(17, MPL_BUILT_IN_TYPE, "del", "aa", "bool");
-  add_to_bifs(18, MPL_BUILT_IN_TYPE, "mpl_execute", "str", "str");
-  add_to_bifs(19, MPL_BUILT_IN_TYPE, "trace_var", "aa", "bool");
-  add_to_bifs(20, MPL_BUILT_IN_TYPE, "trace_func", "aa", "bool");
-  add_to_bifs(21, MPL_BUILT_IN_TYPE, "var_type", "aa", "str"); //=>[OK]
+  add_to_bifs(_MPL_LEN, MPL_BUILT_IN_TYPE, "len", "aa", "num;?");
+  add_to_bifs(_MPL_VAR_TYPE, MPL_BUILT_IN_TYPE, "var_type", "aa", "str"); //=>[OK]
+  add_to_bifs(_MPL_TYPEOF, MPL_BUILT_IN_TYPE, "typeof", "a", "str"); //=>[OK]
+  add_to_bifs(_MPL_ERROR_HANDLE, MPL_BUILT_IN_TYPE, "error_handle", "num|str|str", "bool");
+  add_to_bifs(_MPL_CONFIG_ALL, MPL_BUILT_IN_TYPE, "config_all", 0, "str;?,2");
+  add_to_bifs(_MPL_DEFINE_ALL, MPL_BUILT_IN_TYPE, "define_all", 0, "str;?,2");
+  add_to_bifs(_MPL_DEFINE_ISSET, MPL_BUILT_IN_TYPE, "define_isset", "str", "bool");
+  add_to_bifs(_MPL_EMBED_RUN, MPL_BUILT_IN_TYPE, "embed_run", "str;?", "num");
+  add_to_bifs(_MPL_SESSION_ALL, MPL_BUILT_IN_TYPE, "session_all", 0, "str;?,2");
+  add_to_bifs(_MPL_SESSION_ISSET, MPL_BUILT_IN_TYPE, "session_isset", "str", "bool");
+  add_to_bifs(_MPL_CROP, MPL_BUILT_IN_TYPE, "crop", "aa|num|num", "aa");
+  add_to_bifs(_MPL_PUSH, MPL_BUILT_IN_TYPE, "push", "aa|a|num", "num");//=>[OK]
+  add_to_bifs(_MPL_POP, MPL_BUILT_IN_TYPE, "pop", "aa|num", "num");
+  add_to_bifs(_MPL_DEL, MPL_BUILT_IN_TYPE, "del", "aa", "bool");
+  add_to_bifs(_MPL_MPL_EXECUTE, MPL_BUILT_IN_TYPE, "mpl_execute", "str", "str");
+  add_to_bifs(_MPL_ECHO, MPL_BUILT_IN_TYPE, "echo", "aa..", "bool");
   //----------------------------------data types built_in
-  add_to_bifs(1, DATA_BUILT_IN_TYPE, "str_split", "str|str", "str;?");
-  add_to_bifs(2, DATA_BUILT_IN_TYPE, "str_replace", "str|str|str", "bool");
-  add_to_bifs(3, DATA_BUILT_IN_TYPE, "to_num", "a|bool", "num");
-  add_to_bifs(4, DATA_BUILT_IN_TYPE, "to_bool", "a", "bool");
-  add_to_bifs(5, DATA_BUILT_IN_TYPE, "to_str", "a", "str");
-  add_to_bifs(6, DATA_BUILT_IN_TYPE, "at", "a|num", "a");
-  add_to_bifs(7, DATA_BUILT_IN_TYPE, "str_at", "str|num|str", "bool");
-  add_to_bifs(8, DATA_BUILT_IN_TYPE, "str_crop", "str|num|num", "str");
-  add_to_bifs(9, DATA_BUILT_IN_TYPE, "str_indexof", "str|str|num", "str");
-  add_to_bifs(10, DATA_BUILT_IN_TYPE, "str_uppercase", "str", "str");
-  add_to_bifs(11, DATA_BUILT_IN_TYPE, "str_lowercase", "str", "str");
-  add_to_bifs(12, DATA_BUILT_IN_TYPE, "str_trim", "str|num", "str");
-  add_to_bifs(13, DATA_BUILT_IN_TYPE, "is_num", "a", "bool");
-  add_to_bifs(14, DATA_BUILT_IN_TYPE, "is_bool", "a", "bool");
-  add_to_bifs(15, DATA_BUILT_IN_TYPE, "is_str", "a", "bool");
-  add_to_bifs(16, DATA_BUILT_IN_TYPE, "str_contains", "str|str", "bool");
-  add_to_bifs(17, DATA_BUILT_IN_TYPE, "str_join", "str|str", "str");
-  add_to_bifs(18, DATA_BUILT_IN_TYPE, "bool_switch", "bool", "bool");
-  add_to_bifs(19, DATA_BUILT_IN_TYPE, "str_reverse", "str", "str");
-  add_to_bifs(20, DATA_BUILT_IN_TYPE, "to_chars", "a", "str;?");
-  add_to_bifs(21, DATA_BUILT_IN_TYPE, "base_convert", "num|num|bool", "str");
+  add_to_bifs(_DATA_TNUM, DATA_BUILT_IN_TYPE, "tnum", "a|bool", "num");
+  add_to_bifs(_DATA_TBOOL, DATA_BUILT_IN_TYPE, "tbool", "a", "bool");
+  add_to_bifs(_DATA_TSTR, DATA_BUILT_IN_TYPE, "tstr", "a", "str");
+  add_to_bifs(_DATA_TCHARS, DATA_BUILT_IN_TYPE, "tchars", "a", "str;?");
+  add_to_bifs(_DATA_AT, DATA_BUILT_IN_TYPE, "at", "a|num", "a");
+  add_to_bifs(_DATA_INTO, DATA_BUILT_IN_TYPE, "into", "str|num|str", "bool");
+  add_to_bifs(_DATA_INUM, DATA_BUILT_IN_TYPE, "inum", "a", "bool");
+  add_to_bifs(_DATA_IBOOL, DATA_BUILT_IN_TYPE, "ibool", "a", "bool");
+  add_to_bifs(_DATA_ISTR, DATA_BUILT_IN_TYPE, "istr", "a", "bool");
+  add_to_bifs(_DATA_XOR, DATA_BUILT_IN_TYPE, "xor", "num|num", "num");//=>[OK]
+  add_to_bifs(_DATA_AND, DATA_BUILT_IN_TYPE, "and", "num|num", "num");//=>[OK]
+  add_to_bifs(_DATA_OR, DATA_BUILT_IN_TYPE, "or", "num|num", "num");//=>[OK]
+  add_to_bifs(_DATA_NOT, DATA_BUILT_IN_TYPE, "not", "num", "num");//=>[OK]
+  add_to_bifs(_DATA_RSHIFT, DATA_BUILT_IN_TYPE, "rshift", "num|num", "num");//=>[OK]
+  add_to_bifs(_DATA_LSHIFT, DATA_BUILT_IN_TYPE, "lshift", "num|num", "num");//=>[OK]
   //----------------------------------os built_in
-  add_to_bifs(1, OS_BUILT_IN_TYPE, "exit", "num", "bool");
-  add_to_bifs(2, OS_BUILT_IN_TYPE, "sell", "str", "str");
-  add_to_bifs(3, OS_BUILT_IN_TYPE, "time", 0, "num");
-  add_to_bifs(4, OS_BUILT_IN_TYPE, "rand", "num|num", "num");
+  add_to_bifs(_OS_EXIT, OS_BUILT_IN_TYPE, "exit", "num", "bool"); //=>[OK]
+  add_to_bifs(_OS_PRINT, OS_BUILT_IN_TYPE, "print", "aa..", "bool"); //=>[OK]
+  add_to_bifs(_OS_PRINTF, OS_BUILT_IN_TYPE, "printf", "str|aa..", "bool");
+  add_to_bifs(_OS_INPUT, OS_BUILT_IN_TYPE, "input", "num", "str"); //=>[OK]
+  add_to_bifs(_OS_SHELL, OS_BUILT_IN_TYPE, "shell", "str", "str"); //=>[OK]
+  add_to_bifs(_OS_TIME, OS_BUILT_IN_TYPE, "time", 0, "num"); //=>[OK]
+  add_to_bifs(_OS_RAND, OS_BUILT_IN_TYPE, "rand", "num|num", "num");
+  add_to_bifs(_OS_ARGVS, OS_BUILT_IN_TYPE, "argvs", 0, "str;?");
 }
 

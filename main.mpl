@@ -49,7 +49,7 @@ struct gg{
 func main(){
 	//num n[4,3],str s,s={{3,-8,9.78},{(24^3)/4+56.5,8f,null},{0x45,0o34+4,0b01011},{-3454,45h,12.4i}},"سلام"+" !"
 	num j,j1,j2[3]=10,29,{67,9.6787,-35}
-	num jj[?,?]={{0x45,0o34+4,0b01011},{-3454,45h,12.4i}}
+	//num jj[?,?]={{0x45,0o34+4,0b01011},{-3454,45h,12.4i}}
 	//gg gh[?]={struct({{"A","B"},{"AA","BB"}},6),struct({{"D","E"},{"DD","EE"}},-56*9)}
 	gg1 st1[?]={struct(struct({true,false},1000),"Hello"),struct(struct({true,false},20),"Amin")}
 	
@@ -64,6 +64,7 @@ func main(){
 	//gg cv=null;
 	//cv=st3[0].vb[0]
 	//str cv;
+	$def['df']=st3[0]
 	//cv=st1[1].u
 	//cv=struct(100,true);
 	//print(jj,"\n")
@@ -72,7 +73,11 @@ func main(){
 	//print(cv,"\n")
 	//bool io=st1[1].g.bb[0]~~st3[0].vb[0].bb[1] //true~~false=true
 	//j2[j1]//st1[st2.n].g.n;//st3[0].vb[1].n;//(st1[1].g.n*33)+1000//st1[1].g.n;//st1[st2.n].g.n; //st1[1].g.bb[1];
-
+	//error_handle(-2,"myerror","this is my error")
+	//num js=rshift(56,4)
+	print($def['df'])
+	//str s=shell("cls")
+	//print("Dirs:\n",s,"\n")
 	//loop(str s1="67",str s2;j>0;j--) {
 	//	print("====>%j%:%s1%,%s2%\n");
 		

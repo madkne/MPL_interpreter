@@ -647,7 +647,7 @@ void show_memory(uint8 wh) {
       if (hash_pointers[i] == 0)continue;
       Mpoint *tmp1 = hash_pointers[i];
       for (;;) {
-        printf("%i::POINTER(id:%i,Type:%c)%s;\n", i, (*tmp1).id, (*tmp1).type_data, (*tmp1).data);
+        printf("%i::POINTER(id:%i,Type:%c)%.50s;\n", i, (*tmp1).id, (*tmp1).type_data, (*tmp1).data);
         tmp1 = tmp1->next;
         if (tmp1 == 0) break;
       }

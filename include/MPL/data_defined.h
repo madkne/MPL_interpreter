@@ -469,7 +469,7 @@ void append_soco(uint8 type, soco s);
 void clear_soco(uint8 type);
 
 soco get_soco(uint8 type, uint32 ind);
-
+Boolean edit_soco(uint8 type, uint32 line, String new_data);
 //-------------------------utst funcs
 void append_utst(utst s);
 
@@ -479,6 +479,7 @@ utst get_utst_by_string(String s);
 void append_blst(blst s);
 
 blst search_lbl_func(String lbl, str_list params, uint32 par_len);
+blst get_func_by_id(long_int id);
 blst search_lbl_stru(String lbl);
 //-------------------------datas funcs
 void append_datas(datas s);

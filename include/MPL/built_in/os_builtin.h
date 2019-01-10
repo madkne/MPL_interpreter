@@ -6,5 +6,8 @@
 #define MPL_OS_BUILTIN_H
 
 void _OS_TYPE__exit(int32 i);
-
+Boolean _OS_TYPE__print(str_list items, uint32 len);
+String _OS_TYPE__input(String type);
+String _OS_TYPE__shell(String command);
+String _OS_TYPE__time();
 #endif //MPL_OS_BUILTIN_H

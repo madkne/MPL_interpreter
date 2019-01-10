@@ -8,7 +8,7 @@
 Boolean import_all_files();
 
 Boolean open_mpl_file(imin s);
-
+void convert_single_quotations_to_std();
 
 void config_compiler();
 

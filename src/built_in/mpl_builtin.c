@@ -3,22 +3,7 @@
 //
 #include <MPL/system.h>
 
-//************************************************
-/**
- * print any value or variable and return true if successful
- * @param items
- * @param len
- * @return Boolean
- * @samples print(s,"\n")||print({4,8.7},"er"+"AS",67.5};
- */
-Boolean _MPL_TYPE__print(str_list items, uint32 len) {
-//  printf("!!!!:%s(%i)\n",print_str_list(items,len),len);
-  for (uint32 i = 0; i < len; i++) {
-    printf(replace_control_chars(items[i]));
-  }
 
-  return true;
-}
 //************************************************
 /**
  * process just atomic values like: num,str,bool and for struct return null. in public it return 's' for str or 'b' for bool
@@ -33,15 +18,6 @@ String _MPL_TYPE__typeof(String value, String type) {
   } else if (str_equal(type, "str"))return "s";
   else if (str_equal(type, "bool")) return "b";
   return "null";
-}
-//************************************************
-String _MPL_TYPE__input(String type) {
-  if (str_equal(type, READ_CHAR_INPUT_TYPE)) {
-    return str_trim_space(char_to_str(fgetc(stdin)));
-  } else if (str_equal(type, READ_LINE_INPUT_TYPE)) {
-    return read_input();
-  }
-  return 0;
 }
 //************************************************
 uint32 _MPL_TYPE__push(long_int var_ind, String value, String val_type, String wh) {
@@ -88,18 +64,12 @@ uint32 _MPL_TYPE__push(long_int var_ind, String value, String val_type, String w
   //----------------------start of pushing
   if (str_equal(wh, LEFT_DIRECT)) {
     edit_Mpoint(first_po_id,
-                str_multi_append(str_from_long_int(new_pointer_id), ";", first_room, 0, 0, 0),
-                0,
-                true,
-                false);
+                str_multi_append(str_from_long_int(new_pointer_id), ";", first_room, 0, 0, 0), 0, true, false);
     var_len++;
   } else if (str_equal(wh, RIGHT_DIRECT)) {
     //printf("****%i,%s,%i\n\n", first_po_ind, first_room, new_pointer_id);
     edit_Mpoint(first_po_id,
-                str_multi_append(first_room, ";", str_from_long_int(new_pointer_id), 0, 0, 0),
-                0,
-                true,
-                false);
+                str_multi_append(first_room, ";", str_from_long_int(new_pointer_id), 0, 0, 0), 0, true, false);
     var_len++;
   } else {
     //TODO:warning
@@ -107,6 +77,9 @@ uint32 _MPL_TYPE__push(long_int var_ind, String value, String val_type, String w
   return var_len;
 }
 //************************************************
+Boolean _MPL_TYPE__error_handle(int8 err_type, String err_name, String err_des) {
+  return exception_user_handler(err_type, err_name, err_des, get_func_by_id(entry_table.cur_fid).lbl);
+}
 //************************************************
 //************************************************
 /**

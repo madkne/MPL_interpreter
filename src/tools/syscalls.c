@@ -63,3 +63,23 @@ String __syscall_abspath(String path) {
   #endif
   return 0;
 }
+//******************************************
+long_int __syscall_unix_time() {
+  return (long_int) time(NULL);
+}
+//******************************************
+String __syscall_datetime(uint8 type) {
+  time_t t = time(NULL);
+  struct tm tim = *localtime(&t);
+  //char s[64];
+  String ret = 0;
+  //date and time : 2018-6-23 3:45:12
+  if (type == 1) {
+    ret = malloc(6 * sizeof(int) + 5);
+    sprintf(ret, "%i-%i-%i %i:%i:%i", tim.tm_year + 1900, tim.tm_mon + 1, tim.tm_mday, tim.tm_hour, tim.tm_min,
+            tim.tm_sec);
+  }
+
+  //strftime(s, sizeof(s), "%c", tm);
+  return ret;
+}

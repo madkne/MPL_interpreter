@@ -140,11 +140,16 @@ TODO
 * change virtual memory as hash for optimizing speed **[OK]**
 * reform memory functions **[OK]**
 * start offline documentation of mpl **[OK]**
-* complete structure of mpl-docs **[..]**
-* start os built-in functions **[..]**
-* start data built-in functions
+* complete structure of mpl-docs **[OK]**
+* start OS built-in functions **[OK]**
+* implement error_handle function **[OK]**
+* implement shell,argvs functions **[OK]**
+* start data built-in functions **[OK]**
+* implement all bit-based functions **[OK]**
 * comparison huge numbers **[OK]**
-* set new $ses
+* convert '' to "" as a string **[OK]**
+* set new $ses **[..]**
+* development $def,$ses to accept all of data **[..]**
 * support sqlite3 as a module
 * support for package libraries
 * building MPL website
@@ -154,10 +159,10 @@ TODO
 * using short alias for magic macros
 * start review_array_loop **[OK]**
 * alloc review array every time
-* convert '' to "" as a string
 
 * **_complete full structure of mpl_** **[..]**
 
+* complete $con entries usage
 * complete mdebug commands
 * complete import error_handling
 * complete mpl built-in functions
@@ -171,6 +176,7 @@ TODO
 * complete offline docs
 * complete 'mprog' program
 * complete sample codes
+* remove unusable functions from main source
 * implement 'Vcache'(10000),'Pcache'(50000) hashing for optimizing speed
 * calculate order of all core functions
 * calculate order of all tools functions
@@ -178,6 +184,12 @@ TODO
 * complete all functions describe
 * optimizing huge numbers
 * optimizing RAM,CPU usage
+* find (1/100) bug and debug it!
+
+MPL BUG be reported
+--------
+* [B1] vars_allocation function messy [OK]
+* [B2] check_post_short_alloc bug
 
 ### ((:publish MPL-RC version of MPL (for windows):))
 

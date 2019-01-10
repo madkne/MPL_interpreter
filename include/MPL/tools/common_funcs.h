@@ -21,8 +21,6 @@ String longint_list_print(longint_list s, uint32 len);
 
 double int32_power(double base, int32 power);
 
-String get_current_datetime(uint8 type);
-
 String print_str_list(str_list s, uint32 len);
 
 void print_struct(uint8 which);

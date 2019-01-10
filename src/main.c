@@ -8,23 +8,18 @@ void init_interpreter();
 uint8 interpreter_mode = 0;
 
 //************************************************
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
   //-------------------------time of start program
   AppStartedClock = clock();
-  AppStartedTime = get_current_datetime(2);
+  AppStartedTime = str_from_long_int(__syscall_unix_time());
   //-------------------------init exceptions list
   init_exceptions_list_data();
   //--------------------------get Argvs,analyze it
-  if (argc > 1)
-  {
-    if (str_equal(argv[1], "-v"))
-    {
+  if (argc > 1) {
+    if (str_equal(argv[1], "-v")) {
       printf("MPL Interpreinterpreter_pathter %s|%s - %s(%s)\n", VERSION_NAME, VERSION, APP_NAME, OS_ARCH);
       interpreter_mode = 1;
-    }
-    else if (str_equal(argv[1], "-h"))
-    {
+    } else if (str_equal(argv[1], "-h")) {
       str_list help_argvs = 0;
       uint32 help_argvs_len = 0;
       for (uint32 i = 2; i < argc; i++)
@@ -35,20 +30,15 @@ int main(int argc, char **argv)
             start_run_script();
             interpreter_mode=3;
         }*/
-    else
-    {
-      if (str_length(argv[1]) > 0 && argv[1][0] == '-')
-      {
+    else {
+      if (str_length(argv[1]) > 0 && argv[1][0] == '-') {
 
         print_error(0, "unknown_opt", "stdin", argv[1], 0, "main");
         mpl_help_usage();
-      }
-      else
-      {
+      } else {
         //store arguments of program
         if (argc > 2)
-          for (int ii = 2; ii < argc; ++ii)
-          {
+          for (int ii = 2; ii < argc; ++ii) {
             str_list_append(&program_argvs, argv[ii], argvs_len++);
           }
         //printf("argv:%s",argv[4]);
@@ -57,8 +47,7 @@ int main(int argc, char **argv)
         // printf("####:%s,%s\n",argv[1],stdin_source_path);
         Boolean ret = start_interpreter();
         interpreter_mode = 4;
-        if (!ret)
-        {
+        if (!ret) {
           print_error(0, "bad_exit", "stdin", 0, 0, "main");
           return 1;
         }
@@ -82,8 +71,7 @@ int main(int argc, char **argv)
   return 0;
 }
 //************************************************
-Boolean start_interpreter()
-{
+Boolean start_interpreter() {
   //-----------------------init compiler
   init_interpreter();
   //getchar();
@@ -91,15 +79,13 @@ Boolean start_interpreter()
   interpreter_level = "parse";
   Boolean ret0 = import_all_files();
   //printf("VVVVVV:%i\n",ret0);
-  if (!ret0)
-  {
+  if (!ret0) {
     return false;
   }
   //-----------------------meaning&running instructions
   interpreter_level = "runtime";
   Boolean ret3 = start_runtime();
-  if (!ret3)
-  {
+  if (!ret3) {
     return false;
   }
   //show debug memory
@@ -109,8 +95,7 @@ Boolean start_interpreter()
 }
 
 //************************************************
-void init_interpreter()
-{
+void init_interpreter() {
   //********************
   init_database();
   //********************

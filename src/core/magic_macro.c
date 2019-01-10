@@ -34,7 +34,6 @@ void print_magic_macros(uint8 wh) {
 void init_magic_define() {
   add_to_mama(DEFINE_MAGIC_MACRO_TYPE, 'i', "ERROR", str_from_int32(ERROR_ID));
   add_to_mama(DEFINE_MAGIC_MACRO_TYPE, 'i', "WARNING", str_from_int32(WARNING_ID));
-  add_to_mama(DEFINE_MAGIC_MACRO_TYPE, 'i', "FATAL", str_from_int32(FATAL_ID));
   add_to_mama(DEFINE_MAGIC_MACRO_TYPE, 's', "OSType", OS_TYPE);
   add_to_mama(DEFINE_MAGIC_MACRO_TYPE, 's', "OSArch", OS_ARCH);
   add_to_mama(DEFINE_MAGIC_MACRO_TYPE, 's', "PathSeparator", char_to_str(OS_SEPARATOR));
@@ -77,4 +76,7 @@ void init_magic_config() {
   add_to_mama(CONFIG_MAGIC_MACRO_TYPE, 's', "RunOnlyArch", 0);//x86,x64
   add_to_mama(CONFIG_MAGIC_MACRO_TYPE, 's', "NameSpace", 0);
   add_to_mama(CONFIG_MAGIC_MACRO_TYPE, 's', "SessionDatabasePath", 0);
+  add_to_mama(CONFIG_MAGIC_MACRO_TYPE, 'b', "PackageMode", "false");
+  add_to_mama(CONFIG_MAGIC_MACRO_TYPE, 'b', "AccessVariablesMode", "false");
+  add_to_mama(CONFIG_MAGIC_MACRO_TYPE, 's', "NameSpace", 0);
 }

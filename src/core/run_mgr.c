@@ -1185,8 +1185,9 @@ Boolean vars_allocation(String exp) {
   for (uint32 i = 0; i < vars_counter; i++) {
     struct alloc_var_struct st = alloc_var[i];
     //init1
+    String origin_val = 0;//=>value of original variable (just atomic value)
     String origin_type = 0; //=>type of original variable like num,st1
-    uint8 origin_sub_type = 0; //=>sub type of original value(just main sub types)
+    uint8 origin_sub_type = 0; //=>sub type of origin_val(just main sub types)
     long_int origin_pointer_id = 0; //pointer id of original var with its index
     Boolean is_origin_array = false; //=>is original var in its index is an array or no!
     Boolean is_origin_struct = false; //=>is original var in its index is a struct or no!
@@ -1218,7 +1219,9 @@ Boolean vars_allocation(String exp) {
       //=>check if original var with its index is struct or no!
     else if (origin_po_val.type_data == 'l')is_origin_struct = true;
     //=>so original var with its index now is an atomic value!
+    str_init(&origin_val, origin_po_val.data);
     origin_sub_type = origin_po_val.type_data;
+    if (origin_sub_type == 's')origin_val = str_reomve_quotations(origin_val, "s");
     //TODO:errors,warnings
     //init3
     String final_res = 0;
