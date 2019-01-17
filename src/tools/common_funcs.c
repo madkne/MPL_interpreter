@@ -313,7 +313,7 @@ void print_struct(uint8 which) {
     if (tmp1 == 0) return;
     printf("=====Print magic macros :\n");
     for (;;) {
-      printf("[id:%i,type:%i]%c;%s:%s\n", tmp1->id, tmp1->type, tmp1->sub_type, tmp1->key, tmp1->value);
+      printf("[id:%i,type:%i]%s;%s:%s\n", tmp1->id, tmp1->type, tmp1->value_type, tmp1->key, tmp1->value);
       tmp1 = tmp1->next;
       if (tmp1 == 0) break;
     }
@@ -723,11 +723,14 @@ int32 read_lines_from_file(String path, str_list *lines, Boolean skip_empty_line
     String line = 0;
     for (;;) {
       int32 buf = fgetc(fp);
-      if (buf == EOF)goto ENDOFFILE;
+      if (buf == EOF) {
+        if (line[0] != 0)str_list_append(&(*lines), line, lines_co++);
+        goto ENDOFFILE;
+      }
       if (buf == 0)continue;
       if ('\n' == buf || '\r' == buf)break;
       line = char_append(line, buf);
-      //printf("-----%s\n",line);
+//      printf("-----%s\n", line);
     }
     if (skip_empty_lines) {
       line = str_trim_space(line);

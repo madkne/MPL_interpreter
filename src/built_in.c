@@ -171,21 +171,23 @@ void init_built_in_funcs() {
    */
   //----------------------------------mpl built_in
   add_to_bifs(_MPL_LEN, MPL_BUILT_IN_TYPE, "len", "aa", "num;?");
-  add_to_bifs(_MPL_VAR_TYPE, MPL_BUILT_IN_TYPE, "var_type", "aa", "str"); //=>[OK]
+  add_to_bifs(_MPL_VAR_TYPE, MPL_BUILT_IN_TYPE, "type", "aa", "str"); //=>[OK]
   add_to_bifs(_MPL_TYPEOF, MPL_BUILT_IN_TYPE, "typeof", "a", "str"); //=>[OK]
-  add_to_bifs(_MPL_ERROR_HANDLE, MPL_BUILT_IN_TYPE, "error_handle", "num|str|str", "bool");
-  add_to_bifs(_MPL_CONFIG_ALL, MPL_BUILT_IN_TYPE, "config_all", 0, "str;?,2");
-  add_to_bifs(_MPL_DEFINE_ALL, MPL_BUILT_IN_TYPE, "define_all", 0, "str;?,2");
-  add_to_bifs(_MPL_DEFINE_ISSET, MPL_BUILT_IN_TYPE, "define_isset", "str", "bool");
-  add_to_bifs(_MPL_EMBED_RUN, MPL_BUILT_IN_TYPE, "embed_run", "str;?", "num");
-  add_to_bifs(_MPL_SESSION_ALL, MPL_BUILT_IN_TYPE, "session_all", 0, "str;?,2");
-  add_to_bifs(_MPL_SESSION_ISSET, MPL_BUILT_IN_TYPE, "session_isset", "str", "bool");
+  add_to_bifs(_MPL_ERROR_HANDLE, MPL_BUILT_IN_TYPE, "errhandle", "num|str|str", "bool"); //=>[OK]
+  add_to_bifs(_MPL_CONFIG_ALL, MPL_BUILT_IN_TYPE, "conall", 0, "str;?,2");
+  add_to_bifs(_MPL_DEFINE_ALL, MPL_BUILT_IN_TYPE, "defall", 0, "str;?,2");
+  add_to_bifs(_MPL_DEFINE_ISSET, MPL_BUILT_IN_TYPE, "defisset", "str", "bool");
+  add_to_bifs(_MPL_EMBED_RUN, MPL_BUILT_IN_TYPE, "embedrun", "str;?", "num");
+  add_to_bifs(_MPL_SESSION_ALL, MPL_BUILT_IN_TYPE, "sesall", 0, "str;?,2");
+  add_to_bifs(_MPL_SESSION_ISSET, MPL_BUILT_IN_TYPE, "sesisset", "str", "bool");
   add_to_bifs(_MPL_CROP, MPL_BUILT_IN_TYPE, "crop", "aa|num|num", "aa");
   add_to_bifs(_MPL_PUSH, MPL_BUILT_IN_TYPE, "push", "aa|a|num", "num");//=>[OK]
   add_to_bifs(_MPL_POP, MPL_BUILT_IN_TYPE, "pop", "aa|num", "num");
   add_to_bifs(_MPL_DEL, MPL_BUILT_IN_TYPE, "del", "aa", "bool");
-  add_to_bifs(_MPL_MPL_EXECUTE, MPL_BUILT_IN_TYPE, "mpl_execute", "str", "str");
+  add_to_bifs(_MPL_MPL_EXECUTE, MPL_BUILT_IN_TYPE, "exec", "str", "str");
   add_to_bifs(_MPL_ECHO, MPL_BUILT_IN_TYPE, "echo", "aa..", "bool");
+  add_to_bifs(_MPL_DEFINE_UNSET, MPL_BUILT_IN_TYPE, "defunset", "str", "bool");
+  add_to_bifs(_MPL_SESSION_UNSET, MPL_BUILT_IN_TYPE, "sesunset", "str", "bool");
   //----------------------------------data types built_in
   add_to_bifs(_DATA_TNUM, DATA_BUILT_IN_TYPE, "tnum", "a|bool", "num");
   add_to_bifs(_DATA_TBOOL, DATA_BUILT_IN_TYPE, "tbool", "a", "bool");

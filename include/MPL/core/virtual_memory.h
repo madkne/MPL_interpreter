@@ -25,8 +25,9 @@ Boolean append_Mpoint_pointer(long_int id, long_int new_pointer);
 void change_Mvar_pointer_id(long_int i, long_int new_po);
 Boolean change_Mvar_flag(long_int i, uint8 flag);
 Mpoint return_var_memory_value(String var_name);
+Mpoint __return_var_memory_value(String var_name);
 
-long_int get_data_memory_id(long_int pointer_id, String index_var);
+    long_int get_data_memory_id(long_int pointer_id, String index_var);
 
 long_int
 set_memory_var(long_int fin, long_int sid, String name, String value_var, String type_var, Boolean is_create_var);

@@ -16,25 +16,10 @@ uint8 MAX_INT_LEN = 0;
 
 uint8 MAX_FLOAT_LEN = 0;
 
-int8 errors_mode = ERROR_ID;
-
-int8 warnings_mode = WARNING_ID;
-
-uint8 is_programmer_debug = 2;
-
-Boolean using_custom_tab = false;
-String tab_size = "      "; //6
-uint8 tab_size_int = 6;
-
 uint8 max_estimate_divide_huge = 8;
 
 uint8 max_float_estimate_huge_X0 = 4;
 
-uint8 max_steps_estimate_huge = 8;
-
-uint32 max_decimal_has_huge = 10;
-
-String set_logfile_path = 0;
 
 String new_line_char = "\n";
 
@@ -50,8 +35,31 @@ uint64 os_total_memory = 0; //in bytes
 uint64 os_total_disk = 0; //in kilo-bytes
 long_int max_size_id = 0;
 
-String logfile_path = 0;
 uint32 max_mpl_modules_instance_len = 100;
+
+
+//-------------------------------------------------------defualt for config entries
+int8 errors_mode = ERROR_ID;
+int8 warnings_mode = WARNING_ID;
+uint8 is_programmer_debug = 2;
+Boolean using_custom_tab = false;
+String tab_size = "      "; //6
+uint8 tab_size_int = 6;
+uint8 max_steps_estimate_huge = 8;
+uint32 max_decimal_has_huge = 10;
+Boolean safe_mode=true;
+Boolean session_mode=true;
+Boolean help_argv_mode=true;
+Boolean optimize_mode=false;
+Boolean overwrite_builtin_mode=false;
+Boolean debug_mode=false;
+Boolean package_mode=false;
+Boolean access_vars_mode=true;
+String logfile_path = 0;
+String namespace=0;
+String bytecode_path=0;
+String run_only_os=0;
+String run_only_arch=0;
 //-------------------------------------------------------
 String exceptions_group[] = {
     "ImportError",          //0
@@ -831,7 +839,7 @@ void append_mama(mama s) {
   if (q == 0) return;
   q->id = s.id;
   q->type = s.type;
-  q->sub_type = s.sub_type;
+  q->value_type = s.value_type;
   str_init(&q->key, s.key);
   str_init(&q->value, s.value);
   q->next = 0;
@@ -844,8 +852,8 @@ void append_mama(mama s) {
 }
 
 //*************************************************************
-void add_to_mama(uint8 type, uint8 sub_type, String key, String value) {
-  mama tmp = {++entry_table.mama_id, type, sub_type, key, value, 0};
+void add_to_mama(uint8 type, String value_type, String key, String value) {
+  mama tmp = {++entry_table.mama_id, type, value_type, key, value, 0};
   append_mama(tmp);
 }
 

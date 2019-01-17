@@ -8,7 +8,6 @@
 //******************************data values
 clock_t AppStartedClock;
 String AppStartedTime;
-uint8 is_programmer_debug;
 String project_root;
 String stdin_source_path;
 String main_source_name;
@@ -16,16 +15,8 @@ String interpreter_level;
 String interpreter_path;
 uint8 MAX_INT_LEN;
 uint8 MAX_FLOAT_LEN;
-int8 errors_mode;
-int8 warnings_mode;
-Boolean using_custom_tab;
-String tab_size;
-uint8 tab_size_int;
 uint8 max_estimate_divide_huge;
 uint8 max_float_estimate_huge_X0;
-uint8 max_steps_estimate_huge;
-uint32 max_decimal_has_huge;
-String set_logfile_path;
 String new_line_char;
 String os_tmp_dir;
 uint32 BufferSize;
@@ -34,8 +25,31 @@ String os_version;
 uint64 os_total_memory;
 uint64 os_total_disk;
 long_int max_size_id;
-String logfile_path;
 uint32 max_mpl_modules_instance_len;
+//******************************config values
+uint8 is_programmer_debug;
+String logfile_path;
+int8 errors_mode;
+int8 warnings_mode;
+uint8 max_steps_estimate_huge;
+uint32 max_decimal_has_huge;
+Boolean using_custom_tab;
+String tab_size;
+uint8 tab_size_int;
+Boolean safe_mode;
+Boolean session_mode;
+Boolean help_argv_mode;
+Boolean optimize_mode;
+Boolean overwrite_builtin_mode;
+Boolean debug_mode;
+Boolean package_mode;
+Boolean access_vars_mode;
+String namespace;
+String bytecode_path;
+String run_only_os;
+String run_only_arch;
+String sessiondb_path;
+
 //******************************
 #if WINDOWS_PLATFORM == true
 HINSTANCE mpl_modules_instance[100];
@@ -206,7 +220,7 @@ typedef struct modules_funcs_struct {
 typedef struct magic_macros_struct {
   uint32 id;
   uint8 type;
-  uint8 sub_type;
+  String value_type;
   String key;
   String value;
   struct magic_macros_struct *next;
@@ -513,7 +527,7 @@ void add_to_bifs(long_int id, uint8 type, String func_name, String params, Strin
 //-------------------------mama funcs
 void append_mama(mama s);
 
-void add_to_mama(uint8 type, uint8 sub_type, String key, String value);
+void add_to_mama(uint8 type, String value_type, String key, String value);
 
 mama get_mama(uint8 type, String key);
 

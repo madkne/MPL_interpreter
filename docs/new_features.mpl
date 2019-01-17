@@ -1,7 +1,7 @@
 
 ********************************************MPL-HELLO new Features
 ×××××××××××××××××××××××
-+++++++++++switch keyword [GOOD]
++++++++++++switch keyword [GOOD]++
 ×××××××××××××××××××××××
 num n=readme()
 switch(n){
@@ -25,7 +25,7 @@ switch(n){
 	
 }
 ×××××××××××××××××××××××
-+++++++++++callback keyword [GOOD]
++++++++++++callback keyword [GOOD]+ (instead of ?:)
 ×××××××××××××××××××××××
 num n=callback{
 	readline()=="hello" =>first(readline), 	//if(readline()=="hello") n=first(readline)
@@ -39,7 +39,7 @@ st1 s1={0,"56",78}
 st1 s2={7,"56",90}
 if(s1==s2) //do somethings...
 ×××××××××××××××××××××××
-+++++++++++development magic macros($def,$con,$ses) [GOOD]
++++++++++++development magic macros($def,$ses) [GOOD]+++ [DONE]
 ×××××××××××××××××××××××
 $def["er"]={{5,8},{3,7}}
 $ses["rt"]=struct(0,56,true)
@@ -52,7 +52,7 @@ $ses["rt"]=struct(0,56,true)
 import "wmod:dl.mpl-lang.ir/modules/fs" 
 import "wpack:dl.mpl-lang.ir/packages/xxx" 
 ×××××××××××××××××××××××
-+++++++++++magic keyword and data type [GOOD]
++++++++++++magic keyword and data type [GOOD]+
 ×××××××××××××××××××××××
 magic bn;
 $bn["k1"]="Hello"
@@ -61,7 +61,7 @@ $bn["k3"]=true;
 $bn["k4"]={6,8,5}
 num n=$bn["k2"]
 ×××××××××××××××××××××××
-+++++++++++call function by named parameters [GOOD]
++++++++++++call function by named parameters [GOOD]+
 ×××××××××××××××××××××××
 func fn(num x,y,z){return x+y+z;}
 num n=fn(x:45,z:12,y:7.89)
@@ -82,20 +82,20 @@ func main(){
 	vbst st=struct(56,"Hi");
 }
 ×××××××××××××××××××××××
-+++++++++++#predef keyword [GOOD]
++++++++++++#predef,#end keyword [GOOD]++
 ×××××××××××××××××××××××
-#predef def1(e1,e2){
+#predef def1(e1,e2)
 	loop(num i=0;i<#e1;i++){#e2}
-}
-#predef ret(r){
+#end
+#predef ret(r)
 	return (#r);
-}
+#end
 func main(){
 	#def1(32,print("%i%:good:)\n")); //(runtime)=>loop(num i=0;i<32;i++){print("%i%:good:)}
 	#ret(45) 						//(runtime)=>return (45);
 }
 ×××××××××××××××××××××××
-+++++++++++development vars keyword usage [GOOD]
++++++++++++development vars keyword usage [GOOD]+
 ×××××××××××××××××××××××
 func fg(num n,vars v) //v can only num,str,bool
 func fg1(num n,vars v?) //v can struct or array or num,str,bool
@@ -138,6 +138,10 @@ func main(){
 	
 }
 ×××××××××××××××××××××××
++++++++++++development SafeMode,OptimizeMode config
+×××××××××××××××××××××××
+
+×××××××××××××××××××××××
 +++++++++++development mmod program
 ×××××××××××××××××××××××
 
@@ -150,5 +154,5 @@ func main(){
 ×××××××××××××××××××××××
 
 ×××××××××××××××××××××××
-+++++++++++development mprog program [GOOD]
++++++++++++development mprog program [GOOD]++
 ×××××××××××××××××××××××

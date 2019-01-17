@@ -180,6 +180,15 @@ Boolean str_search(str_list list, String s, uint32 size) {
   }
   return false;
 }
+//******************************************
+int32 str_search_index(str_list list, String s, uint32 size) {
+  if (s == 0)return -1;
+  for (uint32 i = 0; i < size; i++) {
+    if (str_equal(s, list[i]))
+      return i;
+  }
+  return -1;
+}
 
 //******************************************
 Boolean str_ch_equal(String s1, uint8 s2) {

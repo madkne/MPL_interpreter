@@ -148,17 +148,28 @@ TODO
 * implement all bit-based functions **[OK]**
 * comparison huge numbers **[OK]**
 * convert '' to "" as a string **[OK]**
+* development $def,$ses to accept all of data **[OK]**
+* accept array values for magic macros **[OK]**
+* accept struct values for magic macros **[OK]**
+* add -i argument as info to mpl **[OK]**
+* set $con as standard **[OK]**
+* set ErrorsState, WarningsState, MaxHugeDivideSteps, MaxHugeDecimalNumbers, TabSize in $con **[OK]**
+* set SessionMode,HelpArgumentMode,OverwriteBuiltinMode,DEBUG_MODE in $con **[..]**
+* set ExportByteCode,ExportLogFile,SessionDatabasePath in $con **[..]**
 * set new $ses **[..]**
-* development $def,$ses to accept all of data **[..]**
+* using custom tab size
 * support sqlite3 as a module
 * support for package libraries
-* building MPL website
-* parsing and converting switch instruction
+* set PackageMode,AccessVariablesMode,NameSpace in $con
+* call magic macros as standard
+* set RunOnlyOS,RunOnlyArch in $con
+* building MPL website **[OK]**
+* set logo for mpl interpreter exe
 * support for embedded files
-* alloc by bit operands
-* using short alias for magic macros
+* implement bit functions
 * start review_array_loop **[OK]**
 * alloc review array every time
+* implement help argument for program
 
 * **_complete full structure of mpl_** **[..]**
 
@@ -184,16 +195,23 @@ TODO
 * complete all functions describe
 * optimizing huge numbers
 * optimizing RAM,CPU usage
-* find (1/100) bug and debug it!
+* find (3/100) bug and debug it!
 
 MPL BUG be reported
 --------
 * [B1] vars_allocation function messy [OK]
-* [B2] check_post_short_alloc bug
+* [B2] check_post_short_alloc bug [..]
+* [B3] not read last line in read_lines_from_file function [OK]
+* [B4] bug for complex structs in return_first_array_item [OK]
+* [B4] bug for complex structs in simplification_struct_value [OK]
+* [B4] bug for complex structs in simplification_array_value [OK]
+* [B5] bug in huge_num functions(like:3h/2) [..]
 
 ### ((:publish MPL-RC version of MPL (for windows):))
 
 * publish RC version for linux
+* implement SafeMode config
+* implement OptimizeMode config
 * implement switch keyword
 * implement callback keyword
 * add math module for advanced calculation

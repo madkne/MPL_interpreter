@@ -23,6 +23,8 @@
 #define _MPL_EMBED_RUN          14
 #define _MPL_MPL_EXECUTE        15
 #define _MPL_ECHO               16
+#define _MPL_DEFINE_UNSET       17
+#define _MPL_SESSION_UNSET      18
 //------------------data function defines
 #define _DATA_TNUM              1
 #define _DATA_TBOOL             2

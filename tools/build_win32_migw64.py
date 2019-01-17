@@ -23,12 +23,12 @@ def copy_dir(src,dst,folder,just_contents):
 			for entry in it:
 				if entry.is_file():
 					new_dst=dst+"/"+item+"/"+entry.name
-					if just_contents and item==folder: 
+					if item==folder: 
 						new_dst=dst+"/"+entry.name
 					#print("Cfile:",src+"/"+item+"/"+entry.name,new_dst);
 					if os.path.exists(new_dst):
 						os.remove(new_dst);
-						ret=shutil.copyfile(src+"/"+item+"/"+entry.name,new_dst);
+					ret=shutil.copyfile(src+"/"+item+"/"+entry.name,new_dst);
 						#print("\nCOpy",ret)
 						#if len(ret)<2 : print("Not copy :(");
 				elif entry.is_dir():
@@ -62,7 +62,7 @@ if os.path.exists(logfile):
 #for j in compfiles:
 #	print(compfiles)
 #----------------------
-print("\t~~~~~MPL Build Tool (BY Python3) V 2.8~~~~~");
+print("\t~~~~~MPL Build Tool (BY Python3) V 2.9~~~~~");
 print("=== Start Building win32 release of MPL Compiler using Mingw64....");
 #----------------------init dirs
 #-----create docs file
@@ -163,7 +163,7 @@ else:
 	print("=== Running mpl.exe ...");
 	print("_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_");
 	os.system("..\\win32-release\\mpl.exe ..\\main.mpl ");
-	#os.system("..\\win32-release\\mpl.exe -h keywords true");
+	#os.system("..\\win32-release\\mpl.exe -h keywords null");
 	#os.system("dir");
 	#os.system("pause");
 	

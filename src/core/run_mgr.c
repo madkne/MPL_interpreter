@@ -198,10 +198,10 @@ String define_vars(String inst) {
 //****************************************************
 String alloc_magic_macros(String exp) {
   /**
-   * __define["Hello"]=j
-   * num gh=__define["Hello"]+3
+   * $def["Hello"]=j
+   * num gh=$def["Hello"]+3
    */
-  //---------------init
+  //init vars
   //printf("@SSS:%s\n", exp);
   String ret_exp = 0, buf = 0, mm_name = 0, mm_index = 0;
   uint8 mm_type = 0;
@@ -209,13 +209,13 @@ String alloc_magic_macros(String exp) {
   Boolean is_string = false, is_buf = false, is_use_magic = true;
   uint8 pars = 0/*count of parenthesis*/, bras = 0/*count of brackets*/;
   uint32 exp_len = str_length(exp);
-  //---------------start analyzing
+  //-------------------------------------
   for (int32 i = 0; i < exp_len; i++) {
-    //=====check is string
+    //=>check if is string
     if (exp[i] == '\"' && (i == 0 || exp[i - 1] != '\\')) {
       is_string = switch_bool(is_string);
     }
-    //=====count pars
+    //=>count pars and bras for '()' and '[]'
     if (!is_string) {
       if (exp[i] == ' ') continue;
       else if (exp[i] == '(' && bras == 0)pars++;
@@ -223,13 +223,13 @@ String alloc_magic_macros(String exp) {
       else if (exp[i] == '[')bras++;
       else if (exp[i] == ']')bras--;
     }
-    //=====check if magic macro
-    if (!is_string && buf == 0 && i + 2 < exp_len && exp[i] == '_' && exp[i + 1] == '_') {
+    //=>check if is magic macro
+    if (!is_string && buf == 0 && i + 2 < exp_len && exp[i] == '$') {
       is_buf = true;
       start = i;
       bras_start = bras;
     }
-    //=====get a magic macro
+    //=>get a magic macro
     if (!is_string && buf != 0 && is_buf && bras_start == bras && exp[i] != ']' &&
         (char_search(single_operators, exp[i]) || char_search(words_splitter, exp[i]) || i + 1 == exp_len)) {
       is_buf = false;
@@ -237,7 +237,7 @@ String alloc_magic_macros(String exp) {
       bras_start = -1;
       //printf("OOOOO:%s$\n", buf);
     }
-    //=====is equal
+    //=>if is equal
     if (!is_string && exp[i] == '=') {
       equal_ind = i;
 //      printf("@@@@@@@@@@@@:%i,%i\n",i,end);
@@ -255,56 +255,69 @@ String alloc_magic_macros(String exp) {
   //---------------get name and index of magic macro
   return_name_index_var(buf, false, &mm_name, &mm_index);
   mm_index = str_reomve_quotations(mm_index, "s");
+//  printf("MM:%s*%s(%i,%i):%i\n",mm_name,mm_index,start,end,is_use_magic);
   //---------------determine type of magic macro
-  if (str_equal(mm_name, "__define"))mm_type = DEFINE_MAGIC_MACRO_TYPE;
-  else if (str_equal(mm_name, "__config"))mm_type = CONFIG_MAGIC_MACRO_TYPE;
-  else if (str_equal(mm_name, "__session"))mm_type = SESSION_MAGIC_MACRO_TYPE;
+  if (str_equal(mm_name, "$def"))mm_type = DEFINE_MAGIC_MACRO_TYPE;
+  else if (str_equal(mm_name, "$con"))mm_type = CONFIG_MAGIC_MACRO_TYPE;
+  else if (str_equal(mm_name, "$ses"))mm_type = SESSION_MAGIC_MACRO_TYPE;
   else {
     exception_handler("unknown_magic_macro", __func__, mm_name, 0);
     return BAD_CODE;
   }
   //---------------is use type
-  if (is_use_magic) {
-    //printf("##use_magic:%s=>%s(%s,%s)\n", exp, buf, mm_name, mm_index);
+  if (is_use_magic) {//TODO
+    printf("##use_magic:%s=>%s(%s,%s)\n", exp, buf, mm_name, mm_index);
     mama s = get_mama(mm_type, mm_index);
     if (s.id == 0) {
       exception_handler("not_defined_mm_key", __func__, mm_index, mm_name);
       return BAD_CODE;
     }
-    if (s.sub_type == 's') s.value = convert_to_string(s.value);
     ret_exp = replace_in_expression(exp, s.value, start, end, true, true);
   }
     //---------------is define type
   else {
     String value = str_substring(exp, equal_ind + 1, 0);
     //-------------analyzing vlaue
-    //check if has magic macro
+    //check if has another magic macros in value
     while (true) {
       String tmp1 = alloc_magic_macros(value);
       if (str_equal(tmp1, BAD_CODE))break;
       str_init(&value, tmp1);
     }
-    //calculate value
-    //printf("EEEEE:%s$\n",value);
-    String type = determine_value_type(value);
-    uint8 subtype = '0';
-    calculate_value_of_var(value, type, &value, &subtype);
-    if (mm_type == DEFINE_MAGIC_MACRO_TYPE && get_mama(mm_type, mm_index).id > 0) {
+    //=>if exist, get magic macro
+    mama mm_exist = get_mama(mm_type, mm_index);
+    //basic check
+    if (mm_type == DEFINE_MAGIC_MACRO_TYPE && mm_exist.id > 0) {
       exception_handler("reinitialized_in__define_mm", __func__, mm_index, mm_name);
       return BAD_CODE;
-    } else if (mm_type == CONFIG_MAGIC_MACRO_TYPE && get_mama(CONFIG_MAGIC_MACRO_TYPE, mm_index).id == 0) {
+    } else if (mm_type == CONFIG_MAGIC_MACRO_TYPE && mm_exist.id == 0) {
       exception_handler("not_exist__config_mm", __func__, mm_index, 0);
       return BAD_CODE;
     } else if (mm_type == CONFIG_MAGIC_MACRO_TYPE && entry_table.cur_fin != 0) {
       exception_handler("not_global__config_mm", __func__, 0, 0);
       return BAD_CODE;
     }
+    //calculate value
+    String type = determine_value_type(value);
+    value = return_value_from_expression(value, type);
+//    printf("EEEEE:%s=>%s;%s$\n", mm_name, value, type);
+
     //TODO:errors
-    //printf("##define_magic:%s=>%s(%s,%s) : %s,%s,%c\n", exp, buf, mm_name, mm_index, value, type, subtype);
-    if (subtype == 's')value = str_reomve_quotations(value, "s");
-    if (!edit_magic_macro(mm_type, mm_index, value))
-      add_to_mama(mm_type, subtype, mm_index, value);
+    if (mm_exist.id > 0 && !str_equal(type, mm_exist.value_type)) {
+      //TODO:error
+      printf("R#ERR5768768\n");
+      return BAD_CODE;
+    }
+//    printf("##define_magic:%s=>%s(%s,%s) : %s,%s,%i\n", exp, buf, mm_name, mm_index, value, type,edit_magic_macro(mm_type, mm_index, value));
+    //=>edit $con value in sepecial
+    if (mm_type == CONFIG_MAGIC_MACRO_TYPE && mm_exist.id > 0 && !edit_magic_config(mm_index, value, type)) {
+      return BAD_CODE;
+    } else {
+      if (!edit_magic_macro(mm_type, mm_index, value))
+        add_to_mama(mm_type, type, mm_index, value);
+    }
     ret_exp = 0;
+
   }
   //---------------return
   //printf("@EEEEEEEE:%s\n", ret_exp);
@@ -1277,18 +1290,18 @@ Boolean vars_allocation(String exp) {
         //=>(Type3-value)else if array alloc is an atomic data
       else {
 //          printf("EEEEE2:%s\n", st.alloc);
-          String ret_val = 0;
-          uint8 ret_subtype = 0;
-          //=>calculate alloc value like var or struct entry or atomic data!
-          calculate_value_of_var(st.alloc, origin_type, &ret_val, &ret_subtype);
-          ret_val = str_reomve_quotations(ret_val, origin_type);
-          //=>check if sub types of original var and alloc data is equal
-          if (origin_sub_type != ret_subtype) {
-            //TODO:error
-            printf("R#ERRR3456754g89\n");
-            return false;
-          }
-          edit_Mpoint(origin_pointer_id, ret_val, 0, true, false);
+        String ret_val = 0;
+        uint8 ret_subtype = 0;
+        //=>calculate alloc value like var or struct entry or atomic data!
+        calculate_value_of_var(st.alloc, origin_type, &ret_val, &ret_subtype);
+        ret_val = str_reomve_quotations(ret_val, origin_type);
+        //=>check if sub types of original var and alloc data is equal
+        if (origin_sub_type != ret_subtype) {
+          //TODO:error
+          printf("R#ERRR3456754g89\n");
+          return false;
+        }
+        edit_Mpoint(origin_pointer_id, ret_val, 0, true, false);
       }
     }
       //.......................................operator ':='

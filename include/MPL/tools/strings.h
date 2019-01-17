@@ -19,7 +19,7 @@ void str_init(String *s, String val);
 String str_replace(String s, String old_s, String new_s, int8 num);
 
 Boolean str_search(str_list list, String s, uint32 size);
-
+int32 str_search_index(str_list list, String s, uint32 size);
 int32 str_to_int32(String s);
 
 long_int str_to_long_int(String s);
@@ -45,7 +45,7 @@ void str_swap(String *s1, String *s2);
 String str_substring(String s, uint32 start, uint32 end);
 
 int32 str_indexof(String s, String s1, uint32 start);
-int32 char_last_indexof(String s,uint8 ch);
+int32 char_last_indexof(String s, uint8 ch);
 String str_to_upper_case(String text);
 
 String str_to_lower_case(String text);

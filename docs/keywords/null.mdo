@@ -1,0 +1,11 @@
+
+#intro
+null is a pre-defined value that set default value of a data type.
+#defaults
+for num data type, default is 0
+for bool data type, default is false
+and for str data type, default is ""
+#samples
+- num n=null //=>n=0;
+- bool b=null //=>b=false
+- str s=null //=>s=""

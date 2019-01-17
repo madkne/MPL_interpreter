@@ -57,9 +57,9 @@ exception
 built-in functions:
 -------MPL functions:
 --Completed:
-typeof(var),push(var[..],var[..],num)/*just for var[?]*/
+typeof(var),push(var[..],var[..],num)/*just for var[?]*/,errhandle(num,str,str)
 --Not Completed:
-len(var[..]),var_type(var[..]),pop(var[..],num)/*just for var[?]*/,del(var[..]),crop(var[..],num,num),error_handle(num,str,str),config_all(),define_all(),define_isset(str),session_all(),session_isset(str),embed_run(str[?]),mpl_execute(str),echo(var)/*just used in embed files*/
+len(var[..]),type(var[..]),pop(var[..],num)/*just for var[?]*/,del(var[..]),crop(var[..],num,num),conall(),defall(),defisset(str),defunset(str),sesunset(str),sesall(),sesisset(str),embedrun(str[?]),exec(str),echo(var)/*just used in embed files*/
 --TMP
 trace_var(var[?,..]),trace_func(str,num)
 -------DATA functions:
@@ -73,7 +73,7 @@ exit(num),print(val|var[..]),input(num),shell(str),time()
 --Not Completed:
 rand(num,num),argvs(),printf(str,var[..])
 --TMP
-free_module(str)
+modfree(str)
 -----------------------------
 built-in constants:(by $def)
 - not edited and just use
@@ -83,8 +83,8 @@ ERROR:num,WARNING:num,OSType:str,OSArch:str,PathSeparator:str,EOF:num,EOL:str,In
 -----------------------------
 built-in config:(by $con)
 - can use and just edited in global and outside of functions
-ErrorsState,WarningsState,ExportLogFile,MaxHugeDivideSteps,MaxHugeDecimalNumbers,TabSize,AppVersion,AppName,AppLicense,AppCreator,SafeMode,SessionMode,HelpArgumentMode,OptimizeMode,OverwriteBuiltinMode,DebugMode,RunOnlyOS,RunOnlyArch,SessionDatabasePath
-just used for package files:
+ErrorsState,WarningsState,ExportLogFile,MaxHugeDivideSteps,MaxHugeDecimalNumbers,TabSize,AppVersion,AppName,AppLicense,AppCreator,SessionMode,HelpArgumentMode,OverwriteBuiltinMode,DebugMode,RunOnlyOS,RunOnlyArch,SessionDatabasePath
+--- just used for package files:
 PackageMode,AccessVariablesMode,NameSpace,ExportByteCode
 -----------------------------
 ++,--:
@@ -124,16 +124,20 @@ import "pack:$/libs/lib1.mpl"
 import "mod:@/fs" //go to modules dir from mpl exe dir(@) and import fs module
 import "file:$$/samples/sam1.mpl" //go to mpl dir ($$) and import sam1.mpl from samples dir
 -----magic macros
-- just can get a value of str,num or bool and nothing else(no array,no struct)
+- just can get a value of str,num or bool and array or struct but dont analyze it.
 - defines alone not by other variables like num j,$def["jj"]=45,6.7
+- can not access to sub values like $def['fg'][1,3] or $ses['df'].good . that's error.
 -----$con:
+- $con just edit in global. but it use anywhere.
 $con["ErrorsState"]="fatals"
 $con["ErrorsState"]="fatals"
 -----$def:
-$def["l1"]=45
+- $def just define for a key(label) just once.
+$def['er']=struct(45,true&&false)
+$def['l1']=45
 num k1=$def["l1"]
 -----$ses:
-- $ses can edit anywhere of program and it data is not destroy when exit app. it's data saved in a database file in project_root and then you can change or use it. (it's like a registery for apps)
+- $ses can edit anywhere of program and its data is not destroy when exit app. it's data saved in a database file in project_root and then you can change or use it. (it's like a registery for apps)
 $ses["gh"]=56.76
 -----loop:
 loop([section1];[section2];[section3])
@@ -277,7 +281,7 @@ int main(){
 //import "embed:$/main.c"
 //import "embed:$/sam1.c"
 func main(){
-	bool su=embed_run("./main.c","./main.out") //=>run 'main.c' and then put results in 'main.out' file and return true if success running.
+	bool su=embedrun("./main.c","./main.out") //=>run 'main.c' and then put results in 'main.out' file and return true if success running.
 	if(su) print("Run Success!\n")
 }
 -----main.out 

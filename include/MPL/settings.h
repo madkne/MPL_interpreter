@@ -9,7 +9,7 @@
 #define  true                           1
 #define  false                          0
 //------------------------------------------main settings
-#define  OS_BUILD                       "windows-10" //"linux-lite"
+#define  OS_BUILD                       "windows-10"
 #define  LINUX_PLATFORM                  false
 #define  WINDOWS_PLATFORM                true
 #define  x86_OS                          true

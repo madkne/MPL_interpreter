@@ -16,7 +16,7 @@ uint8 determine_sub_type_var(String *value, String main_type);
 long_int return_var_id(String var_name, String var_index);
 long_int __return_var_id(String var_name, long_int fin);
 String return_value_var_complete(long_int var_index);
-
+String __return_value_var_complete(long_int pointer_id);
 uint32 return_total_array_rooms(String index);
 
 String calculate_struct_expression(String value, String type_var, uint8 *sub_type);
@@ -74,4 +74,8 @@ Boolean is_valid_math_expression(String s);
 long_int return_struct_entry_pointer_id(String st);
 Mpoint return_var_data_from_name(String name,String type,Boolean checkings);
 int8 recursive_alloc_vars_pointers_data(long_int origin_po_id,long_int alloc_po_id);
+String return_value_from_expression(String exp,String type);
+String simplification_array_value(String exp,String type);
+String simplification_struct_value(String exp);
+String return_first_array_item(String exp);
 #endif //MPL_VARS_MGR_H

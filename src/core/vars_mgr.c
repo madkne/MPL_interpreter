@@ -384,11 +384,21 @@ long_int __return_var_id(String var_name, long_int fin) {
  */
 String return_value_var_complete(long_int var_index) {
   //******************init vars
-  if (var_index == 0) {
-    return 0;
-  }
+  if (var_index == 0) return 0;
   Mvar mvar = get_Mvar(var_index);
-  long_int po_id = mvar.pointer_id;
+  return __return_value_var_complete(mvar.pointer_id);
+
+}
+/**
+ * get an index of Mpoint and return all values that start from this Mpoint (array,struct,value)
+ * @param pointer_id
+ * @return String
+ */
+//*********************************************************
+String __return_value_var_complete(long_int pointer_id) {
+  //******************init vars
+  if (pointer_id == 0) return 0;
+  long_int po_id = pointer_id;
   String final_value = 0;
   str_list store_po;
   uint32 items_count = 0, store_po_len = 0;
@@ -847,6 +857,12 @@ String determine_value_type(String val) {
   if (val == 0 || str_equal(val, "null")) {
     return "null";
   }
+  //------------------if is an array
+  if (val[0] == '{') {
+    val = return_first_array_item(val);
+    if (val == 0) return "null";
+//    printf("ARRAY:%s\n", val);
+  }
   //------------------if a var
   if (is_valid_name(val, true)) {
     String name = 0, index = 0;
@@ -857,7 +873,7 @@ String determine_value_type(String val) {
     }
   }
   //------------------if is a struct
-  if (str_indexof(str_trim_space(val), "struct", 0) == 0) {
+  if (str_indexof(val, "struct", 0) == 0) {
     String stname = 0;
 //    printf("EWWWW:%s\n",val);
     determine_struct_type(val, entry_table.cur_fid, &stname);
@@ -1031,6 +1047,7 @@ long_int determine_struct_type(String s, long_int struct_fid, String *struct_nam
  */
 void calculate_value_of_var(String value, String type, String *ret_value, uint8 *ret_subtype) {
   uint8 sub_type = '0';
+//  printf("@@@@:%s,%s\n", value, type);
   //----------------if is null
   if (type == 0 || str_equal(type, "null")) {
     (*ret_value) = "null";
@@ -1048,6 +1065,7 @@ void calculate_value_of_var(String value, String type, String *ret_value, uint8 
           printf("#ERR3567:%s,%c,%s\n", value, m.type_data, type);
           return;
         }
+//        printf("!!!:%s,%i;%s\n",value,m.id,m.data);
         (*ret_value) = str_reomve_quotations(m.data, type);
         (*ret_subtype) = m.type_data;
         return;
@@ -3453,7 +3471,7 @@ long_int return_struct_entry_pointer_id(String st) {
       st_type = var.type_var;
       final_poid = get_data_memory_id(var.pointer_id, index);
       //=>check if var with its index is exist
-      if(final_poid==0){
+      if (final_poid == 0) {
         //TODO:error
         printf("V#ERR2392456\n");
         return 0;
@@ -3487,13 +3505,13 @@ long_int return_struct_entry_pointer_id(String st) {
 //        printf("!ZZZZ:%i/%i\n",i,seg_len-1);
         //=>set j in st_room_index as which entry of current struct must selected
         st_room_index = j;
-        st_type_name= ret[0];
+        st_type_name = ret[0];
         //update final_poind
         Mpoint pp = get_Mpoint(final_poid);
         char_split(pp.data, ';', &ret, true);
         final_poid = str_to_long_int(ret[st_room_index]);
         //=>if index not exist then zero it!
-        if(index==0&&i+1==seg_len)str_init(&index,"0");
+        if (index == 0 && i + 1 == seg_len)str_init(&index, "0");
         //=>use index to update again final_poind
         Mpoint pp1 = get_Mpoint(final_poid);
         uint32 cc1 = char_split(pp1.data, ';', &ret, true);
@@ -3583,12 +3601,12 @@ int8 recursive_alloc_vars_pointers_data(long_int origin_po_id, long_int alloc_po
 //        printf("AAAAA:%i,%s\n",alen,longint_list_print(alloc_pointer_ids,alloc_pointer_ids_len));
       //=>if origin pointers count less than alloc pointers so add it!
       if (olen < alen) {
-        longint_list tmp=0;
-        uint32 tmp_len=0;
+        longint_list tmp = 0;
+        uint32 tmp_len = 0;
         //=>append all pointers of origin to a longint_list named 'tmp'
-        for(uint32 i=0;i<olen;i++) longint_list_append(&tmp,tmp_len++,str_to_long_int(oret[i]));
+        for (uint32 i = 0; i < olen; i++) longint_list_append(&tmp, tmp_len++, str_to_long_int(oret[i]));
         //=>determine aret node sub type for new pointers
-        uint8 new_sub_types=get_Mpoint(str_to_long_int(aret[0])).type_data;
+        uint8 new_sub_types = get_Mpoint(str_to_long_int(aret[0])).type_data;
         for (uint32 i = 0; i < alen - olen; i++) {
           long_int new_po = add_to_pointer_memory(0, new_sub_types);
           append_Mpoint_pointer(origin_point.id, new_po);
@@ -3615,4 +3633,341 @@ int8 recursive_alloc_vars_pointers_data(long_int origin_po_id, long_int alloc_po
   }
 
   return true;
+}
+//*********************************************************
+String return_value_from_expression(String exp, String type) {
+  /**
+   * st3[1] //=>struct(45,true)
+   * st2  //=>{struct(45,true),struct(89,false)}
+   * struct(45,true,rt[3])
+   * {{4,68},{67,09}}
+   * {45+6,9*5}
+   * true
+   * 4+354*7
+   * st1.g*3
+   */
+//  printf("++++:%s(%s)\n", exp, type);
+  //----------------if is null
+  if (type == 0 || str_equal(type, "null")) {
+    return "null";
+  }
+  //init vars
+  String name = 0, index = 0;
+  //----------------if is an array
+  if (exp[0] == '{') {
+    return simplification_array_value(exp, type);
+  }
+  //----------------if is a struct
+  if (str_indexof(exp, "struct(", 0) == 0) {
+    return simplification_struct_value(exp);
+  }
+  //----------------if is a variable
+  if (is_valid_name(exp, true)) {
+    Mpoint m = __return_var_memory_value(exp);
+    if (m.id > 0) {
+//        printf("!!!:%s,%i;%s\n",exp,m.id,m.data);
+      //=>if value is an atomic data
+      if (m.type_data != 'p' && m.type_data != 'l' && m.type_data != 'v') {
+        if (m.type_data == 's') m.data = str_reomve_quotations(m.data, "s");
+        return m.data;
+      }
+      //=>if value is an array or struct
+      return __return_value_var_complete(m.id);
+    }
+  }
+  //----------------if is a struct entry variable
+//  printf("##is_valid_st:%s=>%i\n", value, is_valid_struct_entry(value));
+  if (is_valid_struct_entry(exp)) {
+    long_int po_id = return_struct_entry_pointer_id(exp);
+    Mpoint m = get_Mpoint(po_id);
+    //=>if value is an atomic data
+    if (m.type_data != 'p' && m.type_data != 'l' && m.type_data != 'v') {
+      if (m.type_data == 's') m.data = str_reomve_quotations(m.data, "s");
+      return m.data;
+    }
+    //=>if value is an array or struct
+    __return_value_var_complete(m.id);
+  }
+//  printf("&YYYY:%s,%s\n", value, type);
+  //----------------if is a value
+  String ret_value = 0;
+  uint8 ret_subtype = 0;
+  if (str_equal(type, "num")) {
+    calculate_math_expression(exp, '_', &ret_value, &ret_subtype);
+    return ret_value;
+  }
+  if (str_equal(type, "str")) {
+    calculate_string_expression(exp, &ret_value, &ret_subtype);
+    return (ret_value);
+  }
+  if (str_equal(type, "bool")) {
+    return calculate_boolean_expression(exp, &ret_subtype);
+  }
+  if (str_equal(type, "vars")) {
+    //printf("$RRRRRR:%s,%s\n",type,value);
+    return determine_unknown_value(exp, &ret_subtype);
+  }
+  return "null";
+
+}
+
+//*********************************************************
+/**
+ * get an array value like {5*7,8-4} and simplification its items and return a value like {35,4}
+ * if type is 'vars' determine again value
+ * @param exp
+ * @param type
+ * @return String
+ */
+String simplification_array_value(String exp, String type) {
+/**
+	samples:
+	- {{0b001010,78,0x56},{-456.88678,9999,0.99}}
+	- {{3,-8,9.78},{(243^34)/4+56.5,8f,null},{0x45,0o34,0b01011},{-3454,45h,12.4i}}
+	 - {struct(5,"hjj"),struct(57878,"amin")}
+	*/
+  //--------------------init vars
+  Boolean is_string = false;
+  uint8 pars = 0/*count of parenthesis*/, bras = 0/*count of brackets*/, acos = 0/*count of acolads*/;
+  String buf = 0;
+  String tmp = exp;
+  exp = str_trim_space(exp);
+  uint32 len = str_length(exp);
+  int32 struct_pars = -1;
+  String final = 0;
+//  printf("AR!!#:%s(%s)\n", exp, type);
+  //--------------------search for values
+  for (uint32 i = 0; i < len; i++) {
+    //========check is string
+    if (exp[i] == '\"' && (i == 0 || exp[i - 1] != '\\')) {
+      is_string = switch_bool(is_string);
+    }
+    //========count pars,bras,acos
+    if (!is_string) {
+      if (exp[i] == '(')pars++;
+      else if (exp[i] == ')')pars--;
+      else if (exp[i] == '[')bras++;
+      else if (exp[i] == ']')bras--;
+      else if (exp[i] == '{') {
+        acos++;
+        if (struct_pars == -1) {
+          buf = 0;
+          final = char_append(final, exp[i]);
+        }
+      } else if (exp[i] == '}')acos--;
+    }
+    //========is struct
+    if (!is_string && struct_pars == -1 && exp[i] == '(' && pars > 0 && bras == 0 &&
+        str_equal(str_trim_space(buf), "struct")) {
+      struct_pars = pars - 1;
+    } else if (!is_string && struct_pars != -1 && struct_pars == pars && exp[i] == ')' && bras == 0) {
+      struct_pars = -1;
+    }
+    //========split segments
+    if (!is_string && struct_pars == -1 && buf != 0 && pars == 0 && bras == 0 &&
+        (exp[i] == ',' || exp[i] == '}')) {
+//      printf("AR#:%s\n", buf);
+      //-----
+      String main_value = 0;
+      uint8 sub_type = '0';
+      if (str_indexof(buf, "struct(", 0) == 0 && !str_search(basic_types, type, StrArraySize(basic_types)))
+        main_value = simplification_struct_value(buf);
+      else
+        calculate_value_of_var(buf, type, &main_value, &sub_type);
+      //-----
+      final = str_append(final, main_value);
+//      printf("ARRR:%s=>%s\n>>>%s\n", buf, main_value, final);
+      //printf("@@##R:%s\n", buf);
+      final = char_append(final, exp[i]);
+      if (i + 1 < len && (exp[i + 1] == ',' || exp[i + 1] == '}'))final = char_append(final, exp[i + 1]);
+      buf = 0;
+      continue;
+    }
+    //========append to buf
+    if (!is_string && struct_pars == -1 && (exp[i] == '{' || exp[i] == '}'))buf = 0;
+    else buf = char_append(buf, exp[i]);
+  }
+//  printf("@ARR:%s>>>%s\n", tmp, final);
+  return final;
+}
+//*********************************************************
+/**
+ * get a struct value like struct(true&&false,5*4) and simplification its items and return a value like struct(false,20)
+ * @param exp
+ * @return String
+ */
+String simplification_struct_value(String exp) {
+  /**
+      * struct(b,y[0,1],"gh",null)
+      * struct(struct(5.6,{true,false}),true||false,bn,{{6,8},{8.8,0x56}})
+      * struct() => null all entries
+      */
+  //init vars
+  uint32 len = 0;
+  String buf = 0, final = 0;
+  Boolean is_string = false;
+  int32 pars = 0, acos = 0, bras = 0;
+  String tmp = exp;
+  //----------------------------
+  //=>if exp not a struct
+  if (str_indexof(exp, "struct(", 0) != 0)return "null";
+  //=>get length of exp
+  len = str_length(exp);
+  //=>trim struct expression
+  exp = str_substring(exp, 7, len - 1);
+  str_init(&final, "struct(");
+  //=>get length of exp again
+  len = str_length(exp);
+  //-------------------- split struct params
+//  printf("ST!!#:%s(%i)\n", exp,len);
+  for (uint32 i = 0; i < len; i++) {
+    //========is string
+    if (exp[i] == '\"' && (i == 0 || exp[i - 1] != '\\')) {
+      is_string = switch_bool(is_string);
+    }
+    //========count pars,bras,acos
+    if (!is_string) {
+      if (exp[i] == '(')pars++;
+      else if (exp[i] == ')')pars--;
+      else if (exp[i] == '[')bras++;
+      else if (exp[i] == ']')bras--;
+      else if (exp[i] == '{')acos++;
+      else if (exp[i] == '}')acos--;
+    }
+    //========get a value
+    if (!is_string && buf != 0 && bras == 0 && acos == 0 &&
+        (exp[i] == ',' || i + 1 == len)) {
+      if (i + 1 == len)buf = char_append(buf, exp[i]);
+//      printf("ST#:%s$\n", buf);
+//-----
+      String main_value = 0;
+      uint8 sub_type = '0';
+      if (buf[0] == '{')main_value = simplification_array_value(buf, "vars");
+      else if (str_indexof(buf, "struct(", 0) == 0)
+        main_value = simplification_struct_value(buf);
+      else calculate_value_of_var(buf, "vars", &main_value, &sub_type);
+//       printf("ST@:%s=>%s$\n",buf,main_value);
+      //-----
+      final = str_append(final, main_value);
+      //printf("@@##R:%s\n", buf);
+      if (i + 1 < len)final = char_append(final, exp[i]);
+      buf = 0;
+      continue;
+    }
+    //========append to buf
+    buf = char_append(buf, exp[i]);
+  }
+  //=>append last ')' for struct template
+  final = char_append(final, ')');
+//printf("@STT:%s>>>%s\n",tmp,final);
+  return final;
+
+
+
+
+  //--------------------create vals_array
+//  for (uint32 j = 0; j < st_values_len; ++j) {
+//    uint32 val_len = str_length(st_values[j]);
+//    str_list attrs = 0;
+//    uint32 attrs_len = char_split(st_params[j], ';', &attrs, false);
+//    //printf("ZZZZ:%s\n",st_values[j]);
+//    //-----is a var
+//    if (is_valid_name(st_values[j], true) && return_var_id(st_values[j], "0") > 0) {
+//      String ret0 = return_value_var_complete(find_index_var_memory(return_var_id(st_values[j], "0")));
+//      //printf("$$$$8:%s=>%s\n", st_values[j], ret0);
+//      str_init(&st_values[j], ret0);
+//      val_len = str_length(st_values[j]);
+//    }
+//    //-----is an array
+//    if (val_len > 2 && st_values[j][0] == '{' && st_values[j][val_len - 1] == '}') {
+//      int32 max_indexes[MAX_ARRAY_DIMENSIONS];//get user indexes
+//      uint8 indexes_len = return_size_value_dimensions(st_values[j], max_indexes, 0);
+//      /*TODO:chck error by difference
+//			 str_list indexes = 0;
+//			uint32 indexes_len = char_split(attrs[2], ',', &indexes, true);
+//			*/
+//      vaar_en s = return_value_dimensions(st_values[j], attrs[0], max_indexes, indexes_len);
+//      //print_vaar(s);
+//      vaar *tmp1 = s.start;
+//      if (tmp1 != 0) {
+//        for (;;) {
+//          tmp1->data_id = (long_int) j;
+//          tmp1->index = 0;
+//          for (uint8 i = 0; i < indexes_len; ++i) {
+//            tmp1->index = str_append(tmp1->index, str_from_int32(max_indexes[i]));
+//            if (i + 1 < indexes_len) tmp1->index = char_append(tmp1->index, ';');
+//          }
+//          append_vaar((*tmp1), &struct_node.st);
+//          tmp1 = tmp1->next;
+//          if (tmp1 == 0) break;
+//        }
+//      }
+//      //printf("!OOOOO:%s,%s\n", st_values[j], print_str_list(attrs, attrs_len));
+//    }
+//      //is a value
+//    else {
+//      String main_value = 0;
+//      uint8 sub_type = '0';
+//      calculate_value_of_var(st_values[j], attrs[0], &main_value, &sub_type);
+//      //-----
+//      //printf("OOOOO:%s,%s,%c,%s\n", st_values[j], main_value, sub_type, print_str_list(attrs, attrs_len));
+//      vaar s = {j, sub_type, main_value, "1", 0};
+//      append_vaar(s, &struct_node.st);
+//    }
+//  }
+//  //--------------------
+//  append_stde(struct_node);
+//  //printf("@STRUCT:%s=>[%i]%s\n", value, st_values_len, print_str_list(st_values, st_values_len));
+//  //print_vaar(struct_node.st);
+}
+//*********************************************************
+/**
+ * get a array value like {56*5,78+4} and return its first item like '56*5'
+ * @param val
+ * @return String
+ */
+String return_first_array_item(String exp) {
+  //--------------------init vars
+  Boolean is_string = false;
+  uint8 pars = 0/*count of parenthesis*/, bras = 0/*count of brackets*/, acos = 0/*count of acolads*/;
+  String buf = 0;
+  int32 struct_pars = -1;
+  exp = str_trim_space(exp);
+  uint32 len = str_length(exp);
+  //--------------------search for values
+  for (uint32 i = 0; i < len; i++) {
+    //========check is string
+    if (exp[i] == '\"' && (i == 0 || exp[i - 1] != '\\')) {
+      is_string = switch_bool(is_string);
+    }
+    //========count pars,bras,acos
+    if (!is_string) {
+      if (exp[i] == '(')pars++;
+      else if (exp[i] == ')')pars--;
+      else if (exp[i] == '[')bras++;
+      else if (exp[i] == ']')bras--;
+      else if (exp[i] == '{') {
+        acos++;
+        if (struct_pars == -1)buf = 0;
+      } else if (exp[i] == '}')acos--;
+    }
+    //========is struct
+    if (!is_string && struct_pars == -1 && exp[i] == '(' && pars > 0 && bras == 0 &&
+        str_equal(str_trim_space(buf), "struct")) {
+      struct_pars = pars - 1;
+    } else if (!is_string && struct_pars != -1 && struct_pars == pars && exp[i] == ')' && bras == 0) {
+      struct_pars = -1;
+    }
+    //========split segments
+    if (!is_string && struct_pars == -1 && buf != 0 && pars == 0 && bras == 0 &&
+        (exp[i] == ',' || exp[i] == '}')) {
+//      printf("FIRST(%c):%s\n",exp[i],buf);
+      return buf;
+    }
+    //========append to buf
+    if (!is_string && struct_pars == -1 && (exp[i] == '{' || exp[i] == '}'))buf = 0;
+    else buf = char_append(buf, exp[i]);
+//    printf("WW[%i]:(%c)%s\n", struct_pars, exp[i], buf);
+  }
+  return 0;
 }

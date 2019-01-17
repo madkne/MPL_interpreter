@@ -2,7 +2,7 @@
 //import "file:$/س.mpl"
 //import "file:$/sss/gh.mpl"
 import "mod:@/fs"
-//__config["DebugMode"]=true
+//$con["DebugMode"]=true
 //__config["AppName"]="MyProgram"
 /*num jg=45;
 j++
@@ -45,8 +45,9 @@ struct gg{
 		return 1;
 }*/
 
-
+$con['TabSize']=12
 func main(){
+	//str s="hi"
 	//num n[4,3],str s,s={{3,-8,9.78},{(24^3)/4+56.5,8f,null},{0x45,0o34+4,0b01011},{-3454,45h,12.4i}},"سلام"+" !"
 	num j,j1,j2[3]=10,29,{67,9.6787,-35}
 	//num jj[?,?]={{0x45,0o34+4,0b01011},{-3454,45h,12.4i}}
@@ -64,7 +65,9 @@ func main(){
 	//gg cv=null;
 	//cv=st3[0].vb[0]
 	//str cv;
-	$def['df']=st3[0]
+	//print("DD:\t67\n")
+	$ses['hi']={5f,7,8+2}
+	//$def['df']={struct(2+3,{struct({true&&false,true},1000),struct({true,true},3500)})}//struct ({true~~false,true},10*70)//{{0x45,0o34+4,0b01011},{-3454,45h,12.4i}}//{56+4,89}//struct ({true~~false,true},10*70)//j2//st3[0]
 	//cv=st1[1].u
 	//cv=struct(100,true);
 	//print(jj,"\n")

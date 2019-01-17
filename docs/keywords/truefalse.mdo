@@ -1,6 +1,7 @@
 
 #intro
-true or TRUE is a pre-defined value that its type is bool(Boolean).
+true,false
+true is a pre-defined value that its type is bool(Boolean).
 You can use it in conditions and boolean expressions.
 #samples
 -bool b=true

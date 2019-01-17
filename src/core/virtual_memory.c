@@ -200,6 +200,7 @@ Boolean change_Mvar_flag(long_int i, uint8 flag) {
 //****************************************************
 /**
  * get a name(and index) of var and return a Mpoint struct of var by its index
+ * defualt of index is 0
  * @param var_name
  * @return Mpoint
  */
@@ -243,11 +244,50 @@ Mpoint return_var_memory_value(String var_name) {
   return get_Mpoint(data_id);
 }
 //****************************************************
+/**
+ * get a name(and index) of var and return a Mpoint struct of var by its index
+ * defualt of index is empty
+ * @param var_name
+ * @return Mpoint
+ */
+Mpoint __return_var_memory_value(String var_name) {
+  /**
+  1- s[1,9]
+  2- st1
+  Samples:
+  1- num nu=d1[0,1]+d1[1,0]
+  2- str st2={"Amin",st1[0]*2+"!"}
+  */
+  //**************************define variables
+  String var_index = 0;
+  uint8 type_var = '0';
+  long_int pointer_id = 0;
+  Mpoint failed = {0, 0, '0', 0};
+  //**************************start analyzing
+  //**************************get name and index
+  return_name_index_var(var_name, true, &var_name, &var_index);
+  //**************************get value of var
+  //----------------search for variable
+  long_int tmpx = return_var_id(var_name, 0);
+  long_int real_id = find_index_var_memory(tmpx);
+  if (real_id == 0) {
+    return failed;
+  }
+  pointer_id = get_Mvar(real_id).pointer_id;
+  //----------------simplification var_index
+  var_index = simplification_var_index(var_index);
+  //----------------search for data in index
+  long_int data_id = get_data_memory_id(pointer_id, var_index);
+  //**************************return
+//  printf("CXCXC:%s[%s]=>(%i)%s\n", var_name,var_index,data_ind, get_Mpoint(data_ind).data);
+  return get_Mpoint(data_id);
+}
+//****************************************************
 
 /**
  * get a pointer_id of var and index of var and return an id of Mpoint
  * @param pointer_id
- * @param index_var (advanced index numbers)
+ * @param index_var (atomic index numbers)
  * @return long_int
  */
 long_int get_data_memory_id(long_int pointer_id, String index_var) {

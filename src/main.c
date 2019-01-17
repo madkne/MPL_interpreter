@@ -15,43 +15,39 @@ int main(int argc, char **argv) {
   //-------------------------init exceptions list
   init_exceptions_list_data();
   //--------------------------get Argvs,analyze it
-  if (argc > 1) {
-    if (str_equal(argv[1], "-v")) {
-      printf("MPL Interpreinterpreter_pathter %s|%s - %s(%s)\n", VERSION_NAME, VERSION, APP_NAME, OS_ARCH);
-      interpreter_mode = 1;
-    } else if (str_equal(argv[1], "-h")) {
-      str_list help_argvs = 0;
-      uint32 help_argvs_len = 0;
-      for (uint32 i = 2; i < argc; i++)
-        str_list_append(&help_argvs, str_trim_space(argv[i]), help_argvs_len++);
-      mpl_help_starter(help_argvs, help_argvs_len);
-      interpreter_mode = 2;
-    } /*else if(str_equal(argv[1],"-s")){
-            start_run_script();
-            interpreter_mode=3;
-        }*/
-    else {
-      if (str_length(argv[1]) > 0 && argv[1][0] == '-') {
-
-        print_error(0, "unknown_opt", "stdin", argv[1], 0, "main");
-        mpl_help_usage();
-      } else {
-        //store arguments of program
-        if (argc > 2)
-          for (int ii = 2; ii < argc; ++ii) {
-            str_list_append(&program_argvs, argv[ii], argvs_len++);
-          }
-        //printf("argv:%s",argv[4]);
-        str_init(&stdin_source_path, argv[1]);
-        stdin_source_path = __syscall_abspath(stdin_source_path);
-        // printf("####:%s,%s\n",argv[1],stdin_source_path);
-        Boolean ret = start_interpreter();
-        interpreter_mode = 4;
-        if (!ret) {
-          print_error(0, "bad_exit", "stdin", 0, 0, "main");
-          return 1;
-        }
+  if (argc < 2) {
+    mpl_help_usage();
+  } else if (argv[1][0] == '-' && argv[1][1]== 'v') {
+    mpl_help_version();
+    interpreter_mode = 1;
+  } else if (argv[1][0] == '-' && argv[1][1]== 'i') {
+    mpl_help_info();
+    interpreter_mode = 1;
+  } else if (argv[1][0] == '-' && argv[1][1]== 'h') {
+    str_list help_argvs = 0;
+    uint32 help_argvs_len = 0;
+    for (uint32 i = 2; i < argc; i++)
+      str_list_append(&help_argvs, str_trim_space(argv[i]), help_argvs_len++);
+    mpl_help_starter(help_argvs, help_argvs_len);
+    interpreter_mode = 2;
+  } else if (argv[1][0] == '-') {
+    print_error(0, "unknown_opt", "stdin", argv[1], 0, "main");
+    mpl_help_usage();
+  } else {
+    //store arguments of program
+    if (argc > 2)
+      for (int ii = 2; ii < argc; ++ii) {
+        str_list_append(&program_argvs, argv[ii], argvs_len++);
       }
+    //printf("argv:%s",argv[4]);
+    str_init(&stdin_source_path, argv[1]);
+    stdin_source_path = __syscall_abspath(stdin_source_path);
+    // printf("####:%s,%s\n",argv[1],stdin_source_path);
+    Boolean ret = start_interpreter();
+    interpreter_mode = 4;
+    if (!ret) {
+      print_error(0, "bad_exit", "stdin", 0, 0, "main");
+      return 1;
     }
   }
 
@@ -90,6 +86,7 @@ Boolean start_interpreter() {
   }
   //show debug memory
   show_memory(0);
+  print_magic_macros(2);
   //-----------------------free memory
   interpreter_level = "free";
 }
