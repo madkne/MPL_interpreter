@@ -20,7 +20,6 @@ uint8 max_estimate_divide_huge = 8;
 
 uint8 max_float_estimate_huge_X0 = 4;
 
-
 String new_line_char = "\n";
 
 String os_tmp_dir = 0;
@@ -37,7 +36,6 @@ long_int max_size_id = 0;
 
 uint32 max_mpl_modules_instance_len = 100;
 
-
 //-------------------------------------------------------defualt for config entries
 int8 errors_mode = ERROR_ID;
 int8 warnings_mode = WARNING_ID;
@@ -47,19 +45,19 @@ String tab_size = "      "; //6
 uint8 tab_size_int = 6;
 uint8 max_steps_estimate_huge = 8;
 uint32 max_decimal_has_huge = 10;
-Boolean safe_mode=true;
-Boolean session_mode=true;
-Boolean help_argv_mode=true;
-Boolean optimize_mode=false;
-Boolean overwrite_builtin_mode=false;
-Boolean debug_mode=false;
-Boolean package_mode=false;
-Boolean access_vars_mode=true;
+Boolean safe_mode = true;
+Boolean session_mode = true;
+Boolean help_argv_mode = true;
+Boolean optimize_mode = false;
+Boolean overwrite_builtin_mode = false;
+Boolean debug_mode = false;
+Boolean package_mode = false;
+Boolean access_vars_mode = true;
 String logfile_path = 0;
-String namespace=0;
-String bytecode_path=0;
-String run_only_os=0;
-String run_only_arch=0;
+String namespace = 0;
+String bytecode_path = 0;
+String run_only_os = 0;
+String run_only_arch = 0;
 //-------------------------------------------------------
 String exceptions_group[] = {
     "ImportError",          //0
@@ -434,6 +432,7 @@ void append_utst(utst s) {
   q->id = s.id;
   q->max_bytes_per_char = s.max_bytes_per_char;
   utf8_str_init(&q->utf8_string, s.utf8_string);
+  q->line=s.line;
   q->next = 0;
   if (entry_table.utst_start == 0)
     entry_table.utst_start = entry_table.utst_end = q;
@@ -442,7 +441,13 @@ void append_utst(utst s) {
     entry_table.utst_end = q;
   }
 }
-
+//*************************************************************
+long_int add_to_utst(uint32 line, str_utf8 str, uint8 max_bytes) {
+  if (max_bytes == 0)max_bytes = utf8_str_max_bytes(str, false);
+  utst tmp1 = {++entry_table.utf8_strings_id,line, str, max_bytes};
+  append_utst(tmp1);
+  return entry_table.utf8_strings_id;
+}
 //*************************************************************
 utst get_utst(long_int id) {
   utst ret = {0, 0, 0, 0};

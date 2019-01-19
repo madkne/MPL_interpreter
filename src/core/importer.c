@@ -125,23 +125,25 @@ Boolean open_mpl_file(imin s) {
         continue;
       }
       //----------------check is str
-      if (code_line[i] == '\"' && (i == 0 || code_line[i - 1] != '\\')) {
+      if ((code_line[i] == '\"' || code_line[i] == '\'') && (i == 0 || code_line[i - 1] != '\\')) {
+        //=>convert single quotation to double quotation
+        if (code_line[i] == '\'')code_line[i] = '\"';
         is_str = switch_bool(is_str);
         if (is_str) {
+          max_bytes = 1;
           collect = 0;
           buffer = utf8_char_append(buffer, (uint32) '\"');
         } else {
-          //utf8_str_print("gggg",collect,true);
-          uint8 max_bytes = utf8_str_max_bytes(collect, true);
-          //printf("XXXX:%i\n",max_bytes);
+//          utf8_str_print("gggg",collect,true);
+          max_bytes = utf8_str_max_bytes(collect, true);
+//          printf("XXXX:%i,%s\n",max_bytes,utf8_to_bytes_string(collect));
           if (max_bytes > 1) {
-            utst tmp1 = {++entry_table.utf8_strings_id, collect, max_bytes};
-            append_utst(tmp1);
+            long_int utf8_id = add_to_utst(line_number, collect, max_bytes);
             collect = 0;
             str_utf8 ss;
-            str_to_utf8(&ss,
-                        str_multi_append(UTF8_ID_LABEL, str_from_long_int(entry_table.utf8_strings_id), 0, 0, 0,
-                                         0));
+            str_to_utf8(&ss, str_append(UTF8_ID_LABEL, str_from_long_int(utf8_id)));
+            //=>remove first quotation of string
+            buffer = utf8_str_substring(buffer, 0, utf8_str_length(buffer) - 1);
             buffer = utf8_str_append(buffer, ss);
             // printf("OOOO:%s\n",str_from_long_int(entry_table.utf8_strings_id));
           } else {
@@ -150,15 +152,17 @@ Boolean open_mpl_file(imin s) {
           }
         }
       }
-      //printf("WW@@@:%c\n",code_line[i]);
+//      printf("WW@@@:%c\n",code_line[i]);
       //----------------add char to buffer
       if (is_str && (collect != 0 || code_line[i] != '\"')) {
         collect = utf8_char_append(collect, code_line[i]);
         uint8 tmp12 = utf8_need_bytes((uint8) code_line[i]);
       }
-      if (!is_str && i > 0 && code_line[i - 1] == ' ' && code_line[i] == ' ') {
+      if (!is_str && i > 0 && code_line[i - 1] == ' ' && code_line[i] == ' ')
         continue;
-      } else if (!is_str) {
+      else if (code_line[i] == '\"' && max_bytes > 1) continue;
+      else if (!is_str) {
+//        printf("WW@@@:%c\n",code_line[i]);
         buffer = utf8_char_append(buffer, code_line[i]);
       }
     }

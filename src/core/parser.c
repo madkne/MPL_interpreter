@@ -17,7 +17,7 @@ stoi is_in_stru[MAX_INTO_IN_STRUCTURES];
 
 //**********************************
 Boolean analyze_source_code() {
-  convert_single_quotations_to_std();
+//  convert_single_quotations_to_std();
   //-------------------reset all
   clear_soco(2);
   empty_stoi(is_in_stru, MAX_INTO_IN_STRUCTURES);
@@ -215,18 +215,21 @@ void manage_import_keywords(uint32 *i) {
                       "manage_import_keywords");
           return;
         }
-        String StrSep = char_to_str(OS_SEPARATOR);
-        //replace project_root by $ sign
-        ret.utf8_string = utf8_str_simple_replace(ret.utf8_string, "$", project_root, 1);
-        //replace mpl_root by $$ sign
-        ret.utf8_string = utf8_str_simple_replace(ret.utf8_string, "$$", interpreter_path, 1);
-        //replace mpl_modules by @ sign
-        ret.utf8_string = utf8_str_simple_replace(ret.utf8_string,
-                                                  "@",
-                                                  str_multi_append(interpreter_path, StrSep, "modules", 0, 0, 0),1);
-        //replace mpl_packs by @@ sign
-        ret.utf8_string = utf8_str_simple_replace(ret.utf8_string,
-                                                  "@", str_multi_append(interpreter_path, StrSep, "packs", 0, 0, 0), 1);
+
+        String abspath=convert_mplpath_to_abspath(utf8_to_bytes_string(ret.utf8_string));
+        ret.utf8_string=utf8_encode_bytes(abspath);
+//        String StrSep = char_to_str(OS_SEPARATOR);
+//        //replace project_root by $ sign
+//        ret.utf8_string = utf8_str_simple_replace(ret.utf8_string, "$", project_root, 1);
+//        //replace mpl_root by $$ sign
+//        ret.utf8_string = utf8_str_simple_replace(ret.utf8_string, "$$", interpreter_path, 1);
+//        //replace mpl_modules by @ sign
+//        ret.utf8_string = utf8_str_simple_replace(ret.utf8_string,
+//                                                  "@",
+//                                                  str_multi_append(interpreter_path, StrSep, "modules", 0, 0, 0),1);
+//        //replace mpl_packs by @@ sign
+//        ret.utf8_string = utf8_str_simple_replace(ret.utf8_string,
+//                                                  "@", str_multi_append(interpreter_path, StrSep, "packs", 0, 0, 0), 1);
         imin tmp2 = {entry_table.import_id++, import_type, true, ret.utf8_string, ret.max_bytes_per_char, 0,
             Aline, Apath};
         append_imin(tmp2);

@@ -491,7 +491,7 @@ set_memory_var(long_int fin, long_int sid, String name, String value_var, String
     if (sub_type == '0' && !str_equal(type_var, "vars")) {
       //printf("###########failed2\n");
       //TODO:error
-      printf("#ERR55\n");
+      printf("VM#ERR55\n");
       return 0;
     }
     //printf("----SSSSW:%s[%s]=>%s[%c]\n", value_var, type_var, main_value, sub_type);

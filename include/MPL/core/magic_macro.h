@@ -11,5 +11,5 @@ void print_magic_macros(uint8 wh);
 void init_magic_define();
 void init_magic_config();
 Boolean flush_session_entries();
-Boolean load_session_entries();
+int8 load_session_entries();
 #endif //MPL_MAGIC_MACRO_H

@@ -7,8 +7,10 @@
 
 //**************************************************define interpreter constants
 #define  APP_NAME                       "Mini Portable Language"
-#define  VERSION                        "0.4.82"    //1.10.100
-#define  VERSION_NUMBER                 47          //X.Y.Z=>(X*100)+(Y*10)+(Z/10)
+#define  VERSION                        "0.5.08"    //X.Y.Z=> Z<100,Y<10
+#define  VERSION_NUMBER                 50          //X.Y.Z=>(X*100)+(Y*10)+(Z/10)
+#define  WIN32_VERSION                  "1.0"
+#define  LINUX_VERSION                  "0.0"
 #define  VERSION_NAME                   "BETA"
 #define  SLOGAN                         "The solution to common problems of programmers" //راه حل کارهای متداول برنامه نویسان
 
@@ -17,12 +19,12 @@
 #define  RC_LBUILD                      "undefined"
 #define  LICENCE                        "OPEN-MPL"
 #define  OFFICIAL_WEBSITE               "http://mpl-lang.ir"
-#define  C_CORE_CODE_LINES              12342       //0.4.56 - 0.5.0
-#define  H_CORE_CODE_LINES              1270
-#define  MODULES_CODE_LINES             16           //+=13628
+#define  C_CORE_CODE_LINES              13424       //0.5.4 - 0.5.50
+#define  H_CORE_CODE_LINES              1331
+#define  MODULES_CODE_LINES             16           //+=14771
 #define  LANGUAGE_CREATOR               "madkne"
 #define  CREATOR_SIGNATURE              "603556816519829596"
-#define  TRUST_LEVEL                    28          //100%
+#define  TRUST_LEVEL                    30          //100%
 #define  WINDOWS_COMPATIBLE             true
 #define  LINUX_COMPATIBLE               false
 //**************************************************define other constants
@@ -63,12 +65,16 @@
 #define   RETURN_TMP_POINTER_ID         2
 #define   STRUCTURES_LABEL              "@@@STRU_"
 #define   SWITCH_LABEL                  "@@@SWITCH_"
-#define   UTF8_ID_LABEL                 "-!U8!_"
+#define   UTF8_ID_LABEL                 "__!U8!_"
 #define   UTF8_ID_LBL_LEN               6
 #define   PARAM_ARRAY_NAME              "__ArrayParam_"
 #define   USER_DEFINED_EXCEPTION        "user"
 #define   WHITE_SPACES                  " \t\n\v\f\r"
 #define   BAD_CODE                      "@!BAD!@"
+#define   SESSION_HEADER_START          "*.*.*"
+#define   SESSION_HEADER_END            ".*.*."
+#define   SESSION_HEADER_FLAG           "!ses--|?"
+#define   SESSION_DEFAULT_FILENAME      "SESSION_DB.mdb"
 //------------------------------------------
 #define   DEBUG_MODE                    "DebugMode"
 #define   DEBUG_QUESTION                "[mdebug]: "

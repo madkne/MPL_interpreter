@@ -39,11 +39,6 @@ st1 s1={0,"56",78}
 st1 s2={7,"56",90}
 if(s1==s2) //do somethings...
 ×××××××××××××××××××××××
-+++++++++++development magic macros($def,$ses) [GOOD]+++ [DONE]
-×××××××××××××××××××××××
-$def["er"]={{5,8},{3,7}}
-$ses["rt"]=struct(0,56,true)
-×××××××××××××××××××××××
 +++++++++++development import
 ×××××××××××××××××××××××
 //import "file:..."

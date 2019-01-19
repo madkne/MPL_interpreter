@@ -115,6 +115,19 @@ str_utf8 utf8_char_append(str_utf8 s, uint32 c) {
 	return ret;
 }
 
+//******************************************
+str_utf8 utf8_str_substring(str_utf8 s, uint32 start, uint32 end) {
+	uint32 s_len = utf8_str_length(s);
+	if (end == 0 && start > 0)end = s_len;
+	if (start >= end) return 0;
+	if (end > s_len)end = s_len;
+	str_utf8 ret = 0;
+	for (uint32 i = start; i < end; i++) {
+		ret = utf8_char_append(ret, s[i]);
+	}
+	return ret;
+}
+//******************************************
 str_utf8 utf8_str_append(str_utf8 s1, str_utf8 s2) {
 	uint32 len1 = utf8_str_length(s1);
 	uint32 len2 = utf8_str_length(s2);

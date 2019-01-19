@@ -62,7 +62,7 @@ if os.path.exists(logfile):
 #for j in compfiles:
 #	print(compfiles)
 #----------------------
-print("\t~~~~~MPL Build Tool (BY Python3) V 2.9~~~~~");
+print("\t~~~~~MPL Build Tool (BY Python3) V 3.2~~~~~");
 print("=== Start Building win32 release of MPL Compiler using Mingw64....");
 #----------------------init dirs
 #-----create docs file
@@ -103,6 +103,7 @@ sources=[
 [scr_folder+"/built_in.c",scr_folder+"/built_in.c -o "+obj_folder+"/built_in.o"],
 [scr_folder+"/tools/common_funcs.c",scr_folder+"/tools/common_funcs.c -o "+obj_folder+"/common_funcs.o"],
 [scr_folder+"/tools/strings.c",scr_folder+"/tools/strings.c -o "+obj_folder+"/strings.o"],
+[scr_folder+"/tools/encoder.c",scr_folder+"/tools/encoder.c -o "+obj_folder+"/encoder.o"],
 [scr_folder+"/tools/utf8.c",scr_folder+"/tools/utf8.c -o "+obj_folder+"/utf8.o"],
 [scr_folder+"/tools/syscalls.c",scr_folder+"/tools/syscalls.c -o "+obj_folder+"/syscalls.o"],
 [scr_folder+"/core/vars_mgr.c",scr_folder+"/core/vars_mgr.c -o "+obj_folder+"/vars_mgr.o"],
@@ -134,7 +135,7 @@ for kl in writefiles:
 	#print(kl)
 	fi.write(str(kl)+"\n");
 fi.close();
-	
+
 #----------------------link object files
 print("=== Start linking object files [mpl.exe]...");
 if is_error==1:
@@ -143,9 +144,12 @@ if is_error==1:
     #----------------------pause
     os.system("pause");
 else:
+    is_error=os.system("windres win32_resources.rc -O coff -o win32rc.res")
+    if is_error==1:os.system("color C0"); exit(1);
     obj_files=glob.glob(obj_folder+"/*.o");
     all_files=' '.join(obj_files);
-    is_error=os.system("gcc "+all_files+" -o "+build_folder+"/mpl.exe");
+    #print("gcc .\win32rc.res "+all_files+" -o "+build_folder+"/mpl.exe")
+    is_error=os.system("gcc win32rc.res "+all_files+" -o "+build_folder+"/mpl.exe");
     
 #----------------------finish
 if is_error==1:

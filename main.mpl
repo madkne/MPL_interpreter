@@ -45,16 +45,18 @@ struct gg{
 		return 1;
 }*/
 
-$con['TabSize']=12
+//$con['DebugMode']=true
 func main(){
-	//str s="hi"
+	str s="hi\'fg"
+	//str dr[?]={'er','سلام','امین'}
+	str ss='سلام به دنیا'+'!'
 	//num n[4,3],str s,s={{3,-8,9.78},{(24^3)/4+56.5,8f,null},{0x45,0o34+4,0b01011},{-3454,45h,12.4i}},"سلام"+" !"
 	num j,j1,j2[3]=10,29,{67,9.6787,-35}
 	//num jj[?,?]={{0x45,0o34+4,0b01011},{-3454,45h,12.4i}}
 	//gg gh[?]={struct({{"A","B"},{"AA","BB"}},6),struct({{"D","E"},{"DD","EE"}},-56*9)}
-	gg1 st1[?]={struct(struct({true,false},1000),"Hello"),struct(struct({true,false},20),"Amin")}
+	//gg1 st1[?]={struct(struct({true,false},1000),"Hello"),struct(struct({true,false},20),"Amin")}
 	
-	zz st3[?]={struct(23,{struct({true,true},1000),struct({true,true},3500)})}
+	//zz st3[?]={struct(23,{struct({true,true},1000),struct({true,true},3500)})}
 	//aaaaaa st2=struct(10,true);
 	//num ll[3,2]={{45,45},{45,78},{5756,0}}
 	//print(j2,j1)
@@ -66,7 +68,9 @@ func main(){
 	//cv=st3[0].vb[0]
 	//str cv;
 	//print("DD:\t67\n")
-	$ses['hi']={5f,7,8+2}
+	$ses['hi']={5f,7,8+2,0x45,78}
+	$ses['ss']=s+"سلام به همه\n"
+	$ses['gh']=ss
 	//$def['df']={struct(2+3,{struct({true&&false,true},1000),struct({true,true},3500)})}//struct ({true~~false,true},10*70)//{{0x45,0o34+4,0b01011},{-3454,45h,12.4i}}//{56+4,89}//struct ({true~~false,true},10*70)//j2//st3[0]
 	//cv=st1[1].u
 	//cv=struct(100,true);

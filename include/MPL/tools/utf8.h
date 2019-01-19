@@ -15,7 +15,7 @@ uint8 utf8_str_max_bytes(str_utf8 s, Boolean is_just_ascii);
 uint8 utf8_need_bytes(uint8 c);
 
 str_utf8 utf8_char_append(str_utf8 s, uint32 c);
-
+str_utf8 utf8_str_substring(str_utf8 s, uint32 start, uint32 end);
 uint32 utf8_str_length(str_utf8 s);
 
 str_utf8 utf8_str_trim_space(str_utf8 s);

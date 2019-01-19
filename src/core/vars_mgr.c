@@ -880,16 +880,24 @@ String determine_value_type(String val) {
 //	  printf("&struct&:%s=>%s\n",val,stname);
     return stname;
   }
-  //------------------if is short else(num,bool)
+  //------------------if is short else(num,bool,stru8)
   if (str_equal(val, "true") || str_equal(val, "false")) {
     return "bool";
   } else if (str_is_num(val)) return "num";
+  else if (str_indexof(val, UTF8_ID_LABEL, 0) == 0)return "str";
+//  printf("SWWdsWW:%s\n", val);
   //------------------if is long else(num,bool,str)
   for (uint32 i = 0; i < val_len; i++) {
     //------------------check is string
     if (val[i] == '\"' && (i == 0 || val[i - 1] != '\\')) {
       is_string = switch_bool(is_string);
       str_init(&final_type, "str");
+      break;
+    }
+    //------------------check is utf8 string
+    if (!is_string && str_equal(word, UTF8_ID_LABEL)) {
+      str_init(&final_type, "str");
+      break;
     }
     //------------------is boolean operators
     String tmp1 = 0;
@@ -906,7 +914,7 @@ String determine_value_type(String val) {
       break;
     }
     //------------------append to word
-    if (!is_string && char_search_count(words_splitter, val[i])) {
+    if (!is_string && (char_search(words_splitter, val[i]) || char_search(single_operators, val[i]))) {
       word = 0;
     } else {
       word = char_append(word, val[i]);
@@ -1093,6 +1101,7 @@ void calculate_value_of_var(String value, String type, String *ret_value, uint8 
     calculate_math_expression(value, '_', &(*ret_value), &(*ret_subtype));
   } else if (str_equal(type, "str")) {
     calculate_string_expression(value, &(*ret_value), &(*ret_subtype));
+//    printf("STRING:%s=>%s(%c)\n", value, *ret_value, *ret_subtype);
   } else if (str_equal(type, "bool")) {
     (*ret_value) = calculate_boolean_expression(value, &sub_type);
     (*ret_subtype) = sub_type;
@@ -1678,12 +1687,20 @@ String format_string_expression(String exp) {
 }
 
 //*********************************************************
+/**
+ * get a string value or a string expression and processing it and then return final string value with sub type
+ * string value can be an utf8 string like -!U8!_2
+ * @param exp
+ * @param value
+ * @param sub_type
+ */
 void calculate_string_expression(String exp, String *value, uint8 *sub_type) {
   /**
 	1- "Ind: %i[0]%\n" ---OK---
 	2- "Hello "+sd[0,1] ---OK---
 	3- ""+"Hi" ---OK---
     4- st1[1].name+"..."
+    5- -!U8!_2
 	*/
   //**************************define variables
   String final_exp = 0, buf = 0, str1 = 0, str2 = 0;
@@ -1694,7 +1711,7 @@ void calculate_string_expression(String exp, String *value, uint8 *sub_type) {
   //var byt byte = '0'
   //**************************start analyzing
   exp = remove_unused_parenthesis(exp);
-  //msg("&UUUU:", exp)
+//  printf("&UUUU:%s\n", exp);
   if (str_equal(exp, "null")) {
     str_init(&(*value), "\"\"");
     (*sub_type) = 's';
@@ -1727,15 +1744,15 @@ void calculate_string_expression(String exp, String *value, uint8 *sub_type) {
     //---------------allocate str1
     if (!is_string && exp[i] == '+' && buf != 0 && op == 0 && !is_str1 && bra == 0) {
       Boolean is_valid_val = false;
+//      printf("aaaaaa:%s\n",buf);
       if (buf_len >= 2 && buf[0] == '\"' && buf[buf_len - 1] == '\"') {
         str1 = str_substring(buf, 1, buf_len - 1);
         is_valid_val = true;
-        if (str_indexof(str1, UTF8_ID_LABEL, 0) == 0) {
-          type = 'u';
-          long_int uid = str_to_long_int(str_substring(str1, UTF8_ID_LBL_LEN, 0));
-          str1 = utf8_to_bytes_string(get_utst(uid).utf8_string);
-          //utf8_str_print("aaaaaa",ustr,true);
-        }
+      } else if (str_indexof(buf, UTF8_ID_LABEL, 0) == 0) {
+        type = 'u';
+        is_valid_val = true;
+        long_int uid = str_to_long_int(str_substring(buf, UTF8_ID_LBL_LEN, 0));
+        str1 = utf8_to_bytes_string(get_utst(uid).utf8_string);
       } else {
         Mpoint point = return_var_data_from_name(buf, "str", true);
         if (point.id == 0) {
@@ -1773,12 +1790,11 @@ void calculate_string_expression(String exp, String *value, uint8 *sub_type) {
       if (buf_len >= 2 && buf[0] == '\"' && buf[buf_len - 1] == '\"') {
         str2 = str_substring(buf, 1, buf_len - 1);
         is_valid_val = true;
-        if (str_indexof(str2, UTF8_ID_LABEL, 0) == 0) {
-          type = 'u';
-          long_int uid = str_to_long_int(str_substring(str2, UTF8_ID_LBL_LEN, 0));
-          str2 = utf8_to_bytes_string(get_utst(uid).utf8_string);
-          //utf8_str_print("aaaaaa",ustr,true);
-        }
+      } else if (str_indexof(buf, UTF8_ID_LABEL, 0) == 0) {
+        type = 'u';
+        is_valid_val = true;
+        long_int uid = str_to_long_int(str_substring(buf, UTF8_ID_LBL_LEN, 0));
+        str2 = utf8_to_bytes_string(get_utst(uid).utf8_string);
       } else if (str_is_num(buf) && (exp[i] == '=' || exp[i] == ')')) {
         str_init(&str2, buf);
         is_valid_val = true;
@@ -1836,7 +1852,7 @@ void calculate_string_expression(String exp, String *value, uint8 *sub_type) {
         s2 = str_substring(s2, 1, 0);
       }
       expression = str_multi_append(s1, result, s2, 0, 0, 0);
-      //printf("$RRRR:%s,%s=>%s\n",s1,s2,expression);
+//      printf("$RRRR:%s,%s=>%s\n",s1,s2,expression);
       str_init(&exp, expression);
       //printf("##DDDDDD:%s,%s,%s,%s\n",result,exp,str1,str2);
       //*************end calculate
@@ -1854,12 +1870,12 @@ void calculate_string_expression(String exp, String *value, uint8 *sub_type) {
       if (buf_len > 1 && buf[0] == '\"' && buf[buf_len - 1] == '\"') {
         is_str_style = true;
         is_valid_val = true;
-        if (str_indexof(buf, UTF8_ID_LABEL, 0) == 0) {
-          type = 'u';
-          long_int uid = str_to_long_int(str_substring(buf, UTF8_ID_LBL_LEN, 0));
-          buf = utf8_to_bytes_string(get_utst(uid).utf8_string);
-          //utf8_str_print("aaaaaa",ustr,true);
-        }
+      } else if (str_indexof(buf, UTF8_ID_LABEL, 0) == 0) {
+        type = 'u';
+        is_valid_val = true;
+        long_int uid = str_to_long_int(str_substring(buf, UTF8_ID_LBL_LEN, 0));
+        buf = utf8_to_bytes_string(get_utst(uid).utf8_string);
+        //utf8_str_print("aaaaaa",ustr,true);
       } else {
         Mpoint point = return_var_data_from_name(buf, "str", true);
         if (point.id == 0) {
@@ -1888,22 +1904,25 @@ void calculate_string_expression(String exp, String *value, uint8 *sub_type) {
       }
       //---------------if utf8
       String utf8_buf = 0;
+      //=>if is utf8 string without ""
       if (!is_str_style) {
         if (type == 'u') str_init(&utf8_buf, buf);
         buf = str_multi_append("\"", buf, "\"", 0, 0, 0);
-      } else if (type == 'u') {
+      }
+        //=>if is utf8 string with ""
+      else if (type == 'u') {
         str_init(&utf8_buf, str_substring(buf, 1, buf_len - 1));
       }
+      //=>if final string is an utf8
       if (type == 'u') {
-        //printf("QQ##A:%s\n",utf8_buf);
         str_utf8 utf8 = utf8_encode_bytes(utf8_buf);
         //utf8_str_print("XXXX",utf8,true);
-        utst tmp1 = {++entry_table.utf8_strings_id, utf8, utf8_str_max_bytes(utf8, false)};
-        append_utst(tmp1);
-        buf = str_multi_append(UTF8_ID_LABEL, str_from_long_int(entry_table.utf8_strings_id), 0, 0, 0, 0);
+        long_int utf8_id = add_to_utst(entry_table.Rline, utf8, 0);
+        buf = str_multi_append(UTF8_ID_LABEL, str_from_long_int(utf8_id), 0, 0, 0, 0);
+//        printf("QQ##A:%s=>%s\n", utf8_buf, buf);
       }
       //---------------break
-      str_init(&final_exp, buf);
+      final_exp = buf;
       break;
     }
     //---------------append to buffer
@@ -1913,7 +1932,8 @@ void calculate_string_expression(String exp, String *value, uint8 *sub_type) {
     }
   }
   //**************************return final_exp
-  str_init(&(*value), final_exp);
+//  printf("@@@@:%s,%c\n",final_exp,type);
+  (*value) = final_exp;
   (*sub_type) = type;
   return;
 }

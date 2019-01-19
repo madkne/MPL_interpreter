@@ -61,7 +61,7 @@ void set_new_breakpoint(String *source_file, uint32 *source_line) {
   for (;;) {
     printf(DEBUG_ANSWER);
     //-----------read input
-    String input = read_input();
+    String input = __syscall_read_input();
     //-----------check params
     str_list params = 0;
     uint32 params_len = char_split(input, ':', &params, true);
@@ -75,7 +75,7 @@ void set_new_breakpoint(String *source_file, uint32 *source_line) {
     }
       //-----------cancel command
     else if (params_len == 1 && str_equal(params[0], "cancel")/*cancel debug mode*/) {
-      edit_magic_macro(CONFIG_MAGIC_MACRO_TYPE, DEBUG_MODE, "false");
+      edit_magic_config(DEBUG_MODE, "false", "bool");
       entry_table.debr_start = 0;
       entry_table.debr_len = 0;
       break;
@@ -159,14 +159,14 @@ uint32 translate_debug_symbols(String s, str_list *pars) {
 void on_breakpoint_interrupt(String code, Boolean is_running) {
   entry_table.debug_is_run = false;
   entry_table.debug_is_next = false;
-  code=get_origin_code(code);
+  code = get_origin_code(code);
   if (is_running) printf("(Running:%i) %s\n", entry_table.Rline, code);
   else printf("(Completed:%i) %s\n", entry_table.Rline, code);
   printf("%sEnter your command (For skip type \"continue\")\n", DEBUG_QUESTION);
   for (;;) {
     printf(DEBUG_ANSWER);
     //-----------read input
-    String input = read_input();
+    String input = __syscall_read_input();
     //-----------check params
     str_list params = 0;
     uint32 params_len = translate_debug_symbols(input, &params);
@@ -191,7 +191,7 @@ void on_breakpoint_interrupt(String code, Boolean is_running) {
     }
       //-----------cancel command
     else if (str_equal(params[0], "cancel")/*cancel debug mode*/) {
-      edit_magic_macro(CONFIG_MAGIC_MACRO_TYPE, DEBUG_MODE, "false");
+      edit_magic_config(DEBUG_MODE, "false", "bool");
       entry_table.debr_start = 0;
       entry_table.debr_len = 0;
       break;
@@ -242,13 +242,13 @@ void on_breakpoint_interrupt(String code, Boolean is_running) {
   }
 }
 //*****************************************
-String get_origin_code(String code){
-  String ret=0;
-  if(code[0]=='@'){
-    blst s=search_lbl_stru(code);
-    ret=str_multi_append(return_type_structure(s.type),"(",str_join(s.params,s.params_len,";"),")",0,0);
-  }else{
-    ret=code;
+String get_origin_code(String code) {
+  String ret = 0;
+  if (code[0] == '@') {
+    blst s = search_lbl_stru(code);
+    ret = str_multi_append(return_type_structure(s.type), "(", str_join(s.params, s.params_len, ";"), ")", 0, 0);
+  } else {
+    ret = code;
   }
 
   return ret;

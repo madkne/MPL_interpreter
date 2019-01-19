@@ -109,6 +109,7 @@ typedef struct exceptions_list_struct {
 //****************************utf8_strings struct
 typedef struct utf8_strings_struct {
   long_int id;
+  uint32 line;
   str_utf8 utf8_string;
   uint8 max_bytes_per_char;
 
@@ -486,7 +487,7 @@ soco get_soco(uint8 type, uint32 ind);
 Boolean edit_soco(uint8 type, uint32 line, String new_data);
 //-------------------------utst funcs
 void append_utst(utst s);
-
+long_int add_to_utst(uint32 line,str_utf8 str,uint8 max_bytes);
 utst get_utst(long_int id);
 utst get_utst_by_string(String s);
 //-------------------------blst funcs

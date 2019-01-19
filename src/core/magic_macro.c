@@ -19,8 +19,6 @@ Boolean edit_magic_macro(uint8 type, String key, String value) {
 //***********************************
 Boolean edit_magic_config(String key, String value, String val_type) {
 //  printf("$CONFIG:%s=>%s(%s)\n",key,value,val_type);
-  //=>remove quotations if value is string
-  value = str_reomve_quotations(value, val_type);
   //=>ErrorsState or WarningsState
   Boolean is_err = false, not_exist = false;
   if ((is_err = str_equal(key, "ErrorsState")) || str_equal(key, "WarningsState")) {
@@ -28,6 +26,8 @@ Boolean edit_magic_config(String key, String value, String val_type) {
       //TODO:error
       return false;
     }
+    //=>remove quotations if value is string
+    value = str_reomve_quotations(value, val_type);
     //=>ErrorsState change
     if (is_err) {
       if (str_equal(value, "fatal"))errors_mode = FATAL_ID;
@@ -71,6 +71,36 @@ Boolean edit_magic_config(String key, String value, String val_type) {
       if (tab_size_int == 6)using_custom_tab = false;
       else using_custom_tab = true;
     }
+  }
+
+  //----------------------------------------
+  //=SessionMode,HelpArgumentMode,OverwriteBuiltinMode,DebugMode,PackageMode,AccessVariablesMode
+  if (str_has_suffix(key, "Mode")) {
+    if (!str_equal(val_type, "bool")) {
+      //TODO:error
+      return false;
+    }
+    Boolean value_bool = str_to_bool(value);
+    if (str_equal(key, "SessionMode"))session_mode = value_bool;
+    else if (str_equal(key, "HelpArgumentMode"))help_argv_mode = value_bool;
+    else if (str_equal(key, "OverwriteBuiltinMode"))overwrite_builtin_mode = value_bool;
+    else if (str_equal(key, DEBUG_MODE))debug_mode = value_bool;
+    //TODO:PackageMode,AccessVariablesMode
+  }
+  //----------------------------------------
+  //=>ExportByteCode,ExportLogFile,SessionDatabasePath
+  Boolean exportb = false, exportl = false, dbpath = false;
+  if ((exportb = str_equal(key, "ExportByteCode")) || (exportl = str_equal(key, "ExportLogFile"))
+      || (dbpath = str_equal(key, "SessionDatabasePath"))) {
+    if (!str_equal(val_type, "str")) {
+      //TODO:error
+      return false;
+    }
+    //=>remove quotations if value is string
+    value = str_reomve_quotations(value, val_type);
+    if (exportb)bytecode_path = value;
+    else if (exportl)logfile_path = value;
+    else if (dbpath)sessiondb_path = value;
   }
 
   //=>edit main $con[key]
@@ -123,18 +153,18 @@ void init_magic_config() {
   add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "num", "MaxHugeDivideSteps", str_from_int32(max_steps_estimate_huge)); //[OK]
   add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "num", "MaxHugeDecimalNumbers", str_from_int32(max_decimal_has_huge)); //[OK]
   add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "num", "TabSize", str_from_int32(tab_size_int)); //[OK]
-  add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "bool", "SessionMode", "true");
-  add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "bool", "HelpArgumentMode", "false");
-  add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "bool", "OverwriteBuiltinMode", "false");
-  add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "bool", DEBUG_MODE, "false");
-  add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "bool", "PackageMode", "false");
-  add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "bool", "AccessVariablesMode", "false");
+  add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "bool", "SessionMode", "true"); //[OK]
+  add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "bool", "HelpArgumentMode", "false"); //[OK]
+  add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "bool", "OverwriteBuiltinMode", "false"); //[OK]
+  add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "bool", DEBUG_MODE, "false"); //[OK]
+//  add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "bool", "PackageMode", "false");
+//  add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "bool", "AccessVariablesMode", "false");
+//  add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "str", "NameSpace", 0);
+//  add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "str", "ExportByteCode", 0); //[OK]
+  add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "str", "ExportLogFile", 0); //[OK]
+  add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "str", "SessionDatabasePath", 0); //[OK]
   add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "str", "RunOnlyOS", 0);//windows,linux
   add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "str", "RunOnlyArch", 0);//x86,x64
-  add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "str", "NameSpace", 0);
-  add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "str", "ExportByteCode", 0);
-  add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "str", "ExportLogFile", 0);
-  add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "str", "SessionDatabasePath", 0);
 
   add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "str", "AppVersion", "1.0.0");
   add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "str", "AppName", main_source_name);
@@ -148,14 +178,199 @@ void init_magic_config() {
  * store all session entries in session database in disk
  * @return Boolean
  */
-Boolean flush_session_entries(){
-return true;
+Boolean flush_session_entries() {
+  //init vars
+  String filename;
+  String result = 0;
+  utst *sesutf8_start = 0;
+  utst *sesutf8_end = 0;
+  Boolean is_exist = false;
+  //--------------------------
+  /**
+   * SESSION DATABASE STRUCTURE(V1):
+    SESSION_HEADER_FLAG
+    VERSION_NUMBER
+    SESSION_HEADER_START
+    #key,type,value_len
+    value(encoded)
+    SESSION_HEADER_END
+    //if exist utf8 strings,then continue
+    SESSION_HEADER_START
+    id;max_bytes;utf8_str
+
+   */
+  //=>determine database path
+  if (sessiondb_path == 0)
+    filename = str_multi_append(project_root, char_to_str(OS_SEPARATOR), SESSION_DEFAULT_FILENAME, 0, 0, 0);
+  else filename = convert_mplpath_to_abspath(sessiondb_path);
+  //=>append header to result
+  result = str_multi_append(SESSION_HEADER_FLAG, "\n", str_from_int32(VERSION_NUMBER), "\n", SESSION_HEADER_START, 0);
+  //=>write all session entries to result
+  mama *tmp1 = entry_table.mama_start;
+  for (;;) {
+    if (tmp1->type == SESSION_MAGIC_MACRO_TYPE) {
+      is_exist = true;
+      result = str_multi_append(result, "\n#", tmp1->key, ",", tmp1->value_type, ",");
+      result = str_multi_append(result,
+                                str_from_int32(str_length(tmp1->value)),
+                                "\n", MPLV1_encode(tmp1->value),
+                                0,
+                                0);
+      //=>if value is utf8 string
+      if (str_indexof(tmp1->value, UTF8_ID_LABEL, 0) == 0) {
+        long_int uid = str_to_long_int(str_substring(tmp1->value, UTF8_ID_LBL_LEN, 0));
+        utst *q = (utst *) malloc(sizeof(utst));
+        if (q == 0) return false;
+        (*q) = get_utst(uid);
+        q->next = 0;
+        if (sesutf8_start == 0) { sesutf8_start = sesutf8_end = q; }
+        else {
+          sesutf8_end->next = q;
+          sesutf8_end = q;
+        }
+      }
+    }
+    tmp1 = tmp1->next;
+    if (tmp1 == 0) break;
+  }
+  //=>if not exist any session entries
+  if (!is_exist)return true;
+  //=>append end of main section
+  result = char_append(result, '\n');
+  result = str_append(result, SESSION_HEADER_END);
+  //=>append utf8 entries
+  if (sesutf8_start == 0)return true;
+  result = str_multi_append(result, "\n", SESSION_HEADER_START, "\n", 0, 0);
+  utst *tmp2 = sesutf8_start;
+  for (;;) {
+//      printf("DDDS:%i,%s\n", tmp2->id, utf8_to_unicode_str(tmp2->utf8_string));
+    result = str_multi_append(result,
+                              str_from_long_int(tmp2->id),
+                              ";",
+                              str_from_int32(tmp2->max_bytes_per_char),
+                              ";",
+                              utf8_to_bytes_string(tmp2->utf8_string));
+    result = char_append(result, '\n');
+    tmp2 = tmp2->next;
+    if (tmp2 == 0) break;
+  }
+  //=>encode all result
+  for (uint32 i = 0; i < str_length(result); i++) {
+    result[i] += 1;
+    result[i] = ~result[i];
+  }
+  //=>flush to db file
+  __syscall_write_file(filename, result);
+  //=>return true
+  return true;
 }
 //***********************************
 /**
- * load all session entries from session database to mama
- * @return Boolean
+ * load all session entries from session database to mama and return a number that shows state
+ * @return int8
  */
-Boolean load_session_entries(){
+int8 load_session_entries() {
+  //init vars
+  String filename;
+  String output = 0;
+  uint32 out_len = 0;
+  FILE *fp;
+  String buf = 0;
+  uint8 section_counter = 0;
+  uint32 header_version_number = 0;
+  uint32 keys_start_ind = 0, keys_end_ind = 0, session_keys = 0, utf8_session_keys_len = 0,
+      tmp_utf8_session_keys_len = 0;
+  Boolean is_utf8_header = false;
+  str_list utf8_session_keys = 0;
+  //--------------------------
+  //=>determine database path
+  if (sessiondb_path == 0)
+    filename = str_multi_append(project_root, char_to_str(OS_SEPARATOR), SESSION_DEFAULT_FILENAME, 0, 0, 0);
+  else filename = convert_mplpath_to_abspath(sessiondb_path);
+  //=>open database if exist as a binary file
+  fp = fopen(filename, "r");
+  if (fp == NULL) return false;
+  //=>get every bytes of database file and decode it and then store to output
+  for (;;) {
+    int32 c = fgetc(fp);
+    if (c == EOF)break;
+    c = ~c;
+    c -= 1;
+    if (c == 0)break;
+    out_len++;
+    output = char_append(output, c);
+//    printf("WW(%i)>>%s\n", c, output);
+  }
+  fclose(fp);
+//  printf("output(%i):%s\n", out_len, output);
+  //=>check header for any error and get version_number
+  for (uint32 i = 0; i < out_len; i++) {
+    if (output[i] == '\n') {
+      section_counter++;
+      if (section_counter == 1 && !str_equal(buf, SESSION_HEADER_FLAG))return -1;
+      else if (section_counter == 2 && !str_is_int32(buf))return -1;
+      else if (section_counter == 2)header_version_number = str_to_long_int(buf);
+      else if (section_counter == 3 && (!str_equal(buf, SESSION_HEADER_START) || output[i + 1] != '#')) return -1;
+      else if (section_counter == 3) {
+        keys_start_ind = i + 1;
+        break;
+      }
+      buf = 0;
+      continue;
+    }
+    buf = char_append(buf, output[i]);
+  }
+//  printf("Session{vernum:%i}\n", header_version_number);
+  //=>get all keys and values from output
+  buf = 0;
+  for (uint32 i = keys_start_ind; i < out_len; i++) {
+    if (output[i] == '\n') {
+      if (session_keys > 0 && str_equal(buf, SESSION_HEADER_END)) {
+        keys_end_ind = i + 1;
+        break;
+      }
+      if (buf[0] != '#')return -2;
+      str_list ret = 0;
+      session_keys++;
+      uint32 retlen = char_split(buf, ',', &ret, true);
+      if (retlen != 3) return -2;
+      ret[0] = str_substring(ret[0], 1, 0);
+      uint32 vallen = (uint32) str_to_long_int(ret[2]);
+      String value = str_substring(output, i + 1, i + 1 + vallen);
+      value = MPLV1_decode(value);
+      //=>add to $ses magic macro
+      if (str_indexof(value, UTF8_ID_LABEL, 0) == 0)
+        str_list_append(&utf8_session_keys, ret[0], utf8_session_keys_len++);
+      add_to_mama(SESSION_MAGIC_MACRO_TYPE, ret[1], ret[0], value);
+//      printf("@EE:%s(%s)[%i]:%s$(%i)\n", ret[0], ret[1], vallen, value, utf8_session_keys_len);
+      i += 1 + vallen;
+      buf = 0;
+      continue;
+    }
+    buf = char_append(buf, output[i]);
+  }
+  //=>if exist utf8 strings, then get all
+  if (keys_end_ind == 0 || keys_end_ind + 4 >= out_len)return true;
+  buf = 0;
+  for (uint32 i = keys_end_ind; i < out_len; i++) {
+    if (output[i] == '\n') {
+//      printf("DDDDD:%s[%c],%i\n",buf,output[keys_end_ind],utf8_session_keys_len);
+      if (!is_utf8_header && str_equal(buf, SESSION_HEADER_START))is_utf8_header = true;
+      else if (!is_utf8_header)return -3;
+      else if (buf == 0) break;
+      else {
+        str_list ret = 0;
+        uint32 retlen = char_split(buf, ';', &ret, true);
+        if (retlen != 3 || tmp_utf8_session_keys_len > utf8_session_keys_len) return -3;
+        long_int utf8_id = add_to_utst(0, utf8_encode_bytes(ret[2]), str_to_int32(ret[1]));
+        String utf8_str = str_append(UTF8_ID_LABEL, str_from_long_int(utf8_id));
+        edit_magic_macro(SESSION_MAGIC_MACRO_TYPE, utf8_session_keys[tmp_utf8_session_keys_len++], utf8_str);
+//        printf("@UTF:%s(%s)=>%s:%s\n", ret[0], ret[1], utf8_session_keys[utf8_session_keys_len + 1], ret[2]);
+      }
+      buf = 0;
+      continue;
+    }
+    buf = char_append(buf, output[i]);
+  }
   return true;
 }

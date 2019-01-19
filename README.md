@@ -1,4 +1,4 @@
-**mpl:))** Mini Portable Language - MPL (BETA-0.4)
+**mpl:))** Mini Portable Language - MPL (BETA-0.5)
 ============================================
 
 _This is a small,fast and simple interpreter also best solution to common problems of programmers._
@@ -154,22 +154,34 @@ TODO
 * add -i argument as info to mpl **[OK]**
 * set $con as standard **[OK]**
 * set ErrorsState, WarningsState, MaxHugeDivideSteps, MaxHugeDecimalNumbers, TabSize in $con **[OK]**
-* set SessionMode,HelpArgumentMode,OverwriteBuiltinMode,DEBUG_MODE in $con **[..]**
-* set ExportByteCode,ExportLogFile,SessionDatabasePath in $con **[..]**
-* set new $ses **[..]**
-* using custom tab size
+* set SessionMode,HelpArgumentMode,OverwriteBuiltinMode,DebugMode in $con **[OK]**
+* set ExportByteCode,ExportLogFile,SessionDatabasePath in $con **[OK]**
+* implement MPLV1 encoding algorithm **[OK]**
+* set new $ses **[OK]**
+* store session entries in database **[OK]**
+* support array of utf8 strings **[OK]**
+* support utf8 strings for magic macros **[OK]**
+* store utf8 entries in database **[OK]**
+* load and decoding session database **[OK]**
+* implement MPLV1 decoding algorithm **[OK]**
+* compatible with control chars like \n,\t **[OK]**
+* load session database in program **[OK]**
+* decode values and import entries to $ses magic macro **[OK]**
+* using custom tab size **[..]**
+* using garbage collector for remove unusable utf8 strings **[..]**
+* call magic macros as standard **[..]**
+* set logo for mpl interpreter execute **[OK]**
 * support sqlite3 as a module
-* support for package libraries
-* set PackageMode,AccessVariablesMode,NameSpace in $con
-* call magic macros as standard
 * set RunOnlyOS,RunOnlyArch in $con
 * building MPL website **[OK]**
-* set logo for mpl interpreter exe
 * support for embedded files
 * implement bit functions
 * start review_array_loop **[OK]**
 * alloc review array every time
 * implement help argument for program
+* implement log file for program
+* implement OverwriteBuiltinMode for program
+* implement RunOnlyOS,RunOnlyArch for program
 
 * **_complete full structure of mpl_** **[..]**
 
@@ -195,7 +207,7 @@ TODO
 * complete all functions describe
 * optimizing huge numbers
 * optimizing RAM,CPU usage
-* find (3/100) bug and debug it!
+* find (5/100) bug and debug it!
 
 MPL BUG be reported
 --------
@@ -206,10 +218,17 @@ MPL BUG be reported
 * [B4] bug for complex structs in simplification_struct_value [OK]
 * [B4] bug for complex structs in simplification_array_value [OK]
 * [B5] bug in huge_num functions(like:3h/2) [..]
+* [B6] bug for identify between ascii and utf8 strings [OK]
+* [B6] bug for support utf8 in calculate_string_expression function [OK]
+* [B6] bug for support utf8 in determine_value_type function [OK]
 
 ### ((:publish MPL-RC version of MPL (for windows):))
 
 * publish RC version for linux
+* support for package libraries
+* set PackageMode,AccessVariablesMode,NameSpace in $con
+* implement ExportByteCode for source code
+* implement NameSpace,AccessVariablesMode for packages
 * implement SafeMode config
 * implement OptimizeMode config
 * implement switch keyword
@@ -250,7 +269,7 @@ MPL Modules
 --------
 
 * math module
-* sqlite3 module
+* sqlite3 module **[..]**
 * mgl module
 * net module
 * fs module **[..]**
@@ -278,8 +297,9 @@ MPL Language Features
 > support multi return values **[OK]** <br>
 > support call by refrence vars **[OK]** <br>
 > support short allocations for vars **[OK]** <br>
+> support built-in encoder **[OK]** <br>
 > has bit functions **[..]** <br>
-> support session storage **[..]** <br>
+> support session storage **[OK]** <br>
 > support package libraries **[..]** <br>
 > support browse arrays in loop **[..]** <br>
 > support switch condition **[..]** <br>

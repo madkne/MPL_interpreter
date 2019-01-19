@@ -1,0 +1,24 @@
+#include "../include/MPL/constants.h"
+1 ICON "logo.ico"
+1 VERSIONINFO
+FILEVERSION     1,0,0,0
+BEGIN
+  BLOCK "StringFileInfo"
+  BEGIN
+    BLOCK "040904E4"
+    BEGIN
+      VALUE "CompanyName", "MPL"
+      VALUE "FileDescription", "MPL Interpreter"
+      VALUE "FileVersion", WIN32_VERSION
+      VALUE "InternalName", "mpl"
+      VALUE "LegalCopyright", LICENCE
+      VALUE "OriginalFilename", "mpl.exe"
+      VALUE "ProductName", APP_NAME
+      VALUE "ProductVersion", VERSION
+    END
+  END
+  BLOCK "VarFileInfo"
+  BEGIN
+    VALUE "Translation", 0x409, 1252
+  END
+END

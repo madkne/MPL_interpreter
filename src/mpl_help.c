@@ -124,7 +124,7 @@ int8 mpl_help_print_article(String path, String part, Boolean generate_list) {
   if (part == 0)is_range = true;//if not any specific part, then browse all parts
   if (generate_list)list_count = 0;
   //=>read all lines from [file].mdo and store it in 'lines' str_list
-  int32 lines_co = read_lines_from_file(path, &lines, true);
+  int32 lines_co = __syscall_read_file(path, &lines, true);
   //=>check if occur an exception when reading file or is END OF FILE(EOF)
   //printf("SSWWWWW:%s,%i\n",path,lines_co);
   if (lines_co == -1)return -1;
@@ -254,7 +254,7 @@ void mpl_help_list(uint8 type, String params[3], String *not_exist) {
     str_list lines = 0;
     int32
         lines_co =
-        read_lines_from_file(str_multi_append(docs_dir, params[0], sp, subject_path, 0, 0), &lines, true);
+        __syscall_read_file(str_multi_append(docs_dir, params[0], sp, subject_path, 0, 0), &lines, true);
     uint32 co = 0;
     //=>if can not read subject file
     if (lines_co == -1) {

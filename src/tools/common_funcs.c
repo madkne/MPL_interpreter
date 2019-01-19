@@ -1,17 +1,25 @@
 #include <MPL/system.h>
 
 //******************************************
-String read_input() {
-  String ret = "";
-  uint8 c = 0;
-  for (;;) {
-    c = fgetc(stdin);
-    if (c == EOF || c == '\n'/*ENTER*/) break;
-    ret = char_append(ret, c);
-  }
+String convert_mplpath_to_abspath(String mplpath) {
+  //init vars
+  String StrSep = char_to_str(OS_SEPARATOR);
+  String ret = 0;
+  str_init(&ret, mplpath);
+  //----------------------------
+  //replace project_root by $ sign
+  ret = str_replace(ret, "$", project_root, 1);
+  //replace mpl_root by $$ sign
+  ret = str_replace(ret, "$$", interpreter_path, 1);
+  //replace mpl_modules by @ sign
+  ret = str_replace(ret, "@",
+                    str_multi_append(interpreter_path, StrSep, "modules", 0, 0, 0), 1);
+  //replace mpl_packs by @@ sign
+  ret = str_replace(ret, "@",
+                    str_multi_append(interpreter_path, StrSep, "packs", 0, 0, 0), 1);
   return ret;
-}
 
+}
 //******************************************
 String get_mpl_dir_path() {
   String out = 0;
@@ -221,7 +229,7 @@ void print_struct(uint8 which) {
     if (tmp1 == 0) return;
     printf("=====Print utf8_strings_struct :\n");
     for (;;) {
-      printf("id:%li,max_bytes:%i, ", tmp1->id, tmp1->max_bytes_per_char);
+      printf("id:%li,line:%i,max_bytes:%i, ", tmp1->id, tmp1->line, tmp1->max_bytes_per_char);
       utf8_str_print("string", tmp1->utf8_string, true);
       tmp1 = tmp1->next;
       if (tmp1 == 0) break;
@@ -649,7 +657,9 @@ String replace_control_chars(String val) {
         else if (using_custom_tab)ret = char_append(ret, '\t');
       } else if (val[i + 1] == '\"') ret = char_append(ret, '\"');
       else if (val[i + 1] == '\\') ret = char_append(ret, '\\');
+      //backspace
       else if (val[i + 1] == 'b') ret = char_append(ret, '\b');//ret = char_backspace (ret);
+      //alert
       else if (val[i + 1] == 'a') ret = char_append(ret, '\a');
       i++;
     } else ret = char_append(ret, val[i]);
@@ -714,36 +724,7 @@ uint8 convert_index_to_int32(String ind, int32 ret[], Boolean manage_ques) {
   return ret_len;
 }
 //*************************************************************
-int32 read_lines_from_file(String path, str_list *lines, Boolean skip_empty_lines) {
-  FILE *fp = fopen(path, "r");
-  if (fp == NULL)return -1;
-  // printf ("PATH:%s\n", path);
-  int32 lines_co = 0;
-  for (;;) {
-    String line = 0;
-    for (;;) {
-      int32 buf = fgetc(fp);
-      if (buf == EOF) {
-        if (line[0] != 0)str_list_append(&(*lines), line, lines_co++);
-        goto ENDOFFILE;
-      }
-      if (buf == 0)continue;
-      if ('\n' == buf || '\r' == buf)break;
-      line = char_append(line, buf);
-//      printf("-----%s\n", line);
-    }
-    if (skip_empty_lines) {
-      line = str_trim_space(line);
-      if (line == 0)continue;
-    }
-    //printf ("LI:%s\n", line);
-    str_list_append(&(*lines), line, lines_co++);
-  }
-  ENDOFFILE:
-  fclose(fp);
-  return lines_co;
 
-}
 //*************************************************************
 String find_first_var_name(String exp, uint32 start, Boolean is_inverse, uint32 *endpoint) {
   String ret = 0;

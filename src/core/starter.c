@@ -4,9 +4,17 @@
 #include <MPL/system.h>
 //**********************************************************
 Boolean start_runtime() {
-  //*************init global vars
+  //=>init global vars includes normal vars and magic macros entries
   init_global_vars();
-  //*************init variables
+  //=>if SessionMode is true, so load session database
+  if (session_mode) {
+    int8 ret = load_session_entries();
+    if (ret < 0) {
+      //TODO:error
+      printf("ST#ERR456665:%i\n", ret);
+    }
+  }
+  //=>init global runtime variables
   entry_table.func_index++; //add one for main() function
   //add_to_prev_fins_array(0)
   entry_table.cur_fid = 0;
@@ -16,7 +24,7 @@ Boolean start_runtime() {
   entry_table.cur_order = 1;
   entry_table.Rsrc = 0;
   entry_table.Rline = 0;
-  //*************find main function
+  //=>find main function
   blst main_func = search_lbl_func("main", 0, 0);
   if (main_func.id == 0) {
     print_error(0, "not_found_main", "stdin", 0, 0, "start_runtime");
@@ -27,7 +35,7 @@ Boolean start_runtime() {
 
   //*************start debugger if enabled
 //  print_magic_macros(CONFIG_MAGIC_MACRO_TYPE);
-  if (str_to_bool(get_mama(CONFIG_MAGIC_MACRO_TYPE, DEBUG_MODE).value)) {
+  if (debug_mode) {
     start_debugger();
   }
   //*************start program from fid=2,fin=2,sid=0,order=1

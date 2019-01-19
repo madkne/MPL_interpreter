@@ -57,11 +57,11 @@ exception
 built-in functions:
 -------MPL functions:
 --Completed:
-typeof(var),push(var[..],var[..],num)/*just for var[?]*/,errhandle(num,str,str)
+typeof(var),push(var[..],var[..],num)/*just for var[?]*/,ErrHandle(num,str,str)
 --Not Completed:
-len(var[..]),type(var[..]),pop(var[..],num)/*just for var[?]*/,del(var[..]),crop(var[..],num,num),conall(),defall(),defisset(str),defunset(str),sesunset(str),sesall(),sesisset(str),embedrun(str[?]),exec(str),echo(var)/*just used in embed files*/
+len(var[..]),type(var[..]),pop(var[..],num)/*just for var[?]*/,del(var[..]),crop(var[..],num,num),ConAll(),DefAll(),DefIsset(str),DefUnset(str),SesUnset(str),SesAll(),SesIsset(str),EmbedRun(str[?]),exec(str),echo(var)/*just used in embed files*/
 --TMP
-trace_var(var[?,..]),trace_func(str,num)
+TraceVar(var[?,..]),TraceFunc(str,num)
 -------DATA functions:
 --Completed:
 and(num,num),xor(num,num),or(num,num),not(num),rshift(num,num),lshift(num,num)

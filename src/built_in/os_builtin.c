@@ -29,7 +29,7 @@ String _OS_TYPE__input(String type) {
   if (str_equal(type, READ_CHAR_INPUT_TYPE)) {
     return str_trim_space(char_to_str(fgetc(stdin)));
   } else if (str_equal(type, READ_LINE_INPUT_TYPE)) {
-    return read_input();
+    return __syscall_read_input();
   }
   return 0;
 }

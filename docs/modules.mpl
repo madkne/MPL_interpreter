@@ -8,25 +8,25 @@ sqlite3,math,fs[..],os,strs,mhl,mgl
 ------------------module:strs
 - str version()
 
-- str str_crop(str,num,num)
+- str StrCrop(str,num,num)
 
-- str str_indexof(str,str,num)
+- str StrIndexof(str,str,num)
 
-- str str_uppercase(str)
+- str StrUppercase(str)
 
-- str str_lowercase(str)
+- str StrLowercase(str)
 
-- str str_trim(str,num)
+- str StrTrim(str,num)
 
-- str str_replace(str,str,str)
+- str StrReplace(str,str,str)
 
-- str str_split(str[..],str) 
+- str StrSplit(str[..],str) 
 
-- str str_contains(str,str)
+- str StrContains(str,str)
 
-- str str_join(str,str)
+- str StrJoin(str,str)
 
-- str str_reverse(str)
+- str StrReverse(str)
 
 ------------------module:math
 - num PI()
@@ -69,33 +69,33 @@ sqlite3,math,fs[..],os,strs,mhl,mgl
 
 - num radians(num)
 
-- num base_convert(num,num,bool)
+- num ConvertBase(num,num,bool)
 
 ------------------module:os
 - str version()
 
 
 
-- str homedir()
+- str HomeDir()
 
 - num uptime()
 
-- str[?] osinfo()
+- str[?] OSInfo()
 
-- str[?] cpuinfo()
+- str[?] CpuInfo()
 
-- str[?] meminfo()
+- str[?] MemInfo()
 
 - bool shutdown(num)
 
-- bool pstart(str,str[?])
+- bool ProcessStart(str,str[?])
 
 ------------------module:fs
 - str version()
 
 
 
-- str abspath(str)
+- str AbsPath(str)
 
 - bool mkdir(str)
 
@@ -105,13 +105,13 @@ sqlite3,math,fs[..],os,strs,mhl,mgl
 
 - num fwrite(num,str)
 
-- str fread_all(num)
+- str freadAll(num)
 
-- str fread_line(num)
+- str freadLine(num)
 
-- str fread_until(num,str)
+- str freadUntil(num,str)
 
-- str fread_until(num,num)
+- str freadUntil(num,num)
 
 - str[?] finfo(str)
 
@@ -123,22 +123,22 @@ sqlite3,math,fs[..],os,strs,mhl,mgl
 
 - bool remove(str)
 
-- str[?,2] scandir(str,num)
+- str[?,2] ScanDir(str,num)
 
-- bool isdir(str)
+- bool IsDir(str)
 
-- bool isfile(str)
+- bool IsFile(str)
 
-- str parentpath(str)
+- str ParentPath(str)
 
 
 ------------------module:mhl (mpl hacking library)
 - str Version()
 
-- dns_mapping()
+- DnsMapping()
 
-- dns_tracing()
+- DnsTracing()
 
-- whois_info()
+- WhoisInfo()
 
-- gathering_data(num type)
+- GatheringData(num type)

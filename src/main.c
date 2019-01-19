@@ -17,13 +17,13 @@ int main(int argc, char **argv) {
   //--------------------------get Argvs,analyze it
   if (argc < 2) {
     mpl_help_usage();
-  } else if (argv[1][0] == '-' && argv[1][1]== 'v') {
+  } else if (argv[1][0] == '-' && argv[1][1] == 'v') {
     mpl_help_version();
     interpreter_mode = 1;
-  } else if (argv[1][0] == '-' && argv[1][1]== 'i') {
+  } else if (argv[1][0] == '-' && argv[1][1] == 'i') {
     mpl_help_info();
     interpreter_mode = 1;
-  } else if (argv[1][0] == '-' && argv[1][1]== 'h') {
+  } else if (argv[1][0] == '-' && argv[1][1] == 'h') {
     str_list help_argvs = 0;
     uint32 help_argvs_len = 0;
     for (uint32 i = 2; i < argc; i++)
@@ -51,13 +51,13 @@ int main(int argc, char **argv) {
     }
   }
 
+//  String ss = 0;
+//  str_init(&ss, "Hello Amin.");
+//  printf("encode:%s\n>>>%s\n>>>%s$\n", ss, MPLV1_encode(ss),MPLV1_decode(MPLV1_encode(ss)));
   //printf("Hello World:%s,%li\n",argv[1],str_length(""));
   //  print_struct(PRINT_CONDITION_LEVEL_ST);
   //	print_magic_macros(CONFIG_MAGIC_MACRO_TYPE);
-  //  print_struct(PRINT_UTF8_ST);
-  //String sss=0;uint8 hhhh;
-  //  str_init(&sss,"(true&&((45-1)<=45))||!(!false||true)");
-  //printf("@@###:%s>>>%s\n",sss,calculate_boolean_expression(sss,&hhhh));
+  print_struct(PRINT_UTF8_ST);
 //  int h[3];
 //  for(int i=3;i>=0;--i){
 //    printf("EE:%i,%i\n",i,h[i]);
@@ -68,27 +68,23 @@ int main(int argc, char **argv) {
 }
 //************************************************
 Boolean start_interpreter() {
-  //-----------------------init compiler
+  //-----------------------init interpreter
+  str_init(&interpreter_level, "init");
   init_interpreter();
-  //getchar();
   //-----------------------parsing source codes
-  interpreter_level = "parse";
+  str_init(&interpreter_level, "parse");
   Boolean ret0 = import_all_files();
   //printf("VVVVVV:%i\n",ret0);
-  if (!ret0) {
-    return false;
-  }
+  if (!ret0) return false;
   //-----------------------meaning&running instructions
-  interpreter_level = "runtime";
+  str_init(&interpreter_level, "runtime");
   Boolean ret3 = start_runtime();
-  if (!ret3) {
-    return false;
-  }
-  //show debug memory
+  if (!ret3) return false;
+  //show debug  lists info
   show_memory(0);
-  print_magic_macros(2);
+  print_magic_macros(3);
   //-----------------------free memory
-  interpreter_level = "free";
+  str_init(&interpreter_level, "free");
 }
 
 //************************************************
