@@ -167,21 +167,25 @@ TODO
 * compatible with control chars like \n,\t **[OK]**
 * load session database in program **[OK]**
 * decode values and import entries to $ses magic macro **[OK]**
-* using custom tab size **[..]**
-* using garbage collector for remove unusable utf8 strings **[..]**
-* call magic macros as standard **[..]**
 * set logo for mpl interpreter execute **[OK]**
-* support sqlite3 as a module
-* set RunOnlyOS,RunOnlyArch in $con
+* implement sqlite interface **[OK]**
+* get sqlite lib version **[OK]**
+* send utf8 strings to functions **[OK]**
+* implement open,close functions of sqlite **[OK]**
+* implement query function of sqlite **[OK]**
+* support sqlite as a module **[OK]**
+* set RunOnlyOS,RunOnlyArch in $con **[..]**
+* implement RunOnlyOS,RunOnlyArch for program **[..]**
+* start implement ExportExec config
 * building MPL website **[OK]**
 * support for embedded files
-* implement bit functions
+* using custom tab size
 * start review_array_loop **[OK]**
 * alloc review array every time
 * implement help argument for program
 * implement log file for program
 * implement OverwriteBuiltinMode for program
-* implement RunOnlyOS,RunOnlyArch for program
+* implement hash table for utf8 strings
 
 * **_complete full structure of mpl_** **[..]**
 
@@ -207,7 +211,7 @@ TODO
 * complete all functions describe
 * optimizing huge numbers
 * optimizing RAM,CPU usage
-* find (5/100) bug and debug it!
+* find (10/100) bug and debug it!
 
 MPL BUG be reported
 --------
@@ -221,6 +225,10 @@ MPL BUG be reported
 * [B6] bug for identify between ascii and utf8 strings [OK]
 * [B6] bug for support utf8 in calculate_string_expression function [OK]
 * [B6] bug for support utf8 in determine_value_type function [OK]
+* [B7] bug in call_built_in_funcs function [OK]
+* [B8] bug in function_return function [OK]
+* [b9] bug for null value for [?,?](like num j[?,?]=null) in set_memory_var function [OK]
+* [B10] bug for str mm[1,1,1]={{{"SSSSSSS"}}} in set_memory_var function [..]
 
 ### ((:publish MPL-RC version of MPL (for windows):))
 
@@ -230,6 +238,7 @@ MPL BUG be reported
 * implement ExportByteCode for source code
 * implement NameSpace,AccessVariablesMode for packages
 * implement SafeMode config
+* using garbage collector for remove unusable utf8 strings
 * implement OptimizeMode config
 * implement switch keyword
 * implement callback keyword
@@ -269,7 +278,7 @@ MPL Modules
 --------
 
 * math module
-* sqlite3 module **[..]**
+* sqlite module **[OK]**
 * mgl module
 * net module
 * fs module **[..]**
@@ -280,7 +289,7 @@ MPL Modules
 MPL Language Features
 --------
 
-> support utf-8 strings **[OK]** <br>
+> support utf8 strings **[OK]** <br>
 > support radix numbers **[OK]** <br>
 > has boolean XOR operand **[OK]** <br>
 > support data structures **[OK]** <br>
@@ -291,19 +300,21 @@ MPL Language Features
 > manage exceptions **[OK]** <br>
 > support multi dimensions arrays **[OK]** <br>
 > has built-in garbage collector(gc) **[OK]** <br>
-> expandibility by c libraries **[OK]** <br>
+> expandability by c libraries **[OK]** <br>
 > support built-in debugger **[OK]** <br>
 > support unlimited function parameters **[OK]** <br>
 > support multi return values **[OK]** <br>
-> support call by refrence vars **[OK]** <br>
+> support call by reference vars **[OK]** <br>
 > support short allocations for vars **[OK]** <br>
 > support built-in encoder **[OK]** <br>
-> has bit functions **[..]** <br>
+> has bit functions **[OK]** <br>
 > support session storage **[OK]** <br>
+> support sqlite3 module **[OK]** <br>
 > support package libraries **[..]** <br>
 > support browse arrays in loop **[..]** <br>
 > support switch condition **[..]** <br>
 > support module os syscalls **[..]** <br>
+> support create executable file from program **[..]** <br>
 
 MPL Hello World Program
 --------
@@ -386,27 +397,36 @@ Programmers & Designers
 
 1. Mohammad Amin Delavar Khalafi [main developer,designer],[Iran],[amindelavar@hotmail.com]
 
+MPL VERSIONS
+--------
+* MPL-BETA(0)	:	0.0.0 - 0.9.9
+* MPL-RC(1)		:	1.0.0 - 1.9.9
+* MPL-HELLO(2)	:	2.0.0 - 2.9.9
+* MPL-HI(3)		:	3.0.0 - 3.9.9
+* To Be Continue...
+
 Events
 --------
 
 * 0.1.0-0.9.0 : Publish 'BETA' version of MPL for windows (2018-2019)  **[DONE]**
 * 0.3.0-1.0.0 : Complete 'www.mpl-lang.ir' website and MPL documentation (2018-2019)
-* 0.9.0-1.0.0 : 10 daily rolling publish and complete modules (2018-2019)
+* 0.9.0-1.0.0 : 10 daily rolling publish and complete standard modules (2018-2019)
 * 1.0.0-2.0.0 : Publish 'MPL-RC' version of MPL (2019-2020)
 * 2.0.0-3.0.0 : Publish 'MPL-HELLO' version of MPL (2019-2021)
-* 2.2.0-4.0.0 : Complete gui programming on windows and linux (2019-2022)
+* 2.2.0-4.0.0 : Complete GUI programming on windows and linux (2019-2022)
 * 2.5.0-4.5.0 : Enter mpl to servers and web applications (2019-2023)
 * 3.0.0-4.0.0 : Publish 'MPL-HI' version of MPL (2020-2022)
 
 MPL is best choice FOR
 --------
 
-1. build tools of personal projects or big projects
-2. start to learning the programming world
-3. create small and common tools for programmers
-4. personal programming for spend timeend time
-5. create and test new algorithms
-6. network testing and hacking
+1. build tools of personal projects or big projects 	**[DONE]**
+2. start to learning the programming world				**[DONE]**
+3. create small and common tools for programmers		**[....]**
+4. personal programming for spend time-end time			**[DONE]**
+5. create and test new algorithms						**[DONE]**
+6. network testing and hacking							**[....]**
+7. familiarity and learning SQL							**[DONE]**
 
 MPL appreciates for your suggestions and the other :))
 --------

@@ -1751,8 +1751,7 @@ void calculate_string_expression(String exp, String *value, uint8 *sub_type) {
       } else if (str_indexof(buf, UTF8_ID_LABEL, 0) == 0) {
         type = 'u';
         is_valid_val = true;
-        long_int uid = str_to_long_int(str_substring(buf, UTF8_ID_LBL_LEN, 0));
-        str1 = utf8_to_bytes_string(get_utst(uid).utf8_string);
+        str1 = utf8_to_bytes_string(get_utst_by_label(buf).utf8_string);
       } else {
         Mpoint point = return_var_data_from_name(buf, "str", true);
         if (point.id == 0) {
@@ -1764,8 +1763,7 @@ void calculate_string_expression(String exp, String *value, uint8 *sub_type) {
         is_valid_val = true;
         if (point.type_data == 'u') {
           type = 'u';
-          long_int uid = str_to_long_int(str_substring(str1, UTF8_ID_LBL_LEN, 0));
-          str1 = utf8_to_bytes_string(get_utst(uid).utf8_string);
+          str1 = utf8_to_bytes_string(get_utst_by_label(str1).utf8_string);
         }
         //msg("&CCDDD:", str1, buf, string(tmp1))
       }
@@ -1793,15 +1791,13 @@ void calculate_string_expression(String exp, String *value, uint8 *sub_type) {
       } else if (str_indexof(buf, UTF8_ID_LABEL, 0) == 0) {
         type = 'u';
         is_valid_val = true;
-        long_int uid = str_to_long_int(str_substring(buf, UTF8_ID_LBL_LEN, 0));
-        str2 = utf8_to_bytes_string(get_utst(uid).utf8_string);
+        str2 = utf8_to_bytes_string(get_utst_by_label(buf).utf8_string);
       } else if (str_is_num(buf) && (exp[i] == '=' || exp[i] == ')')) {
         str_init(&str2, buf);
         is_valid_val = true;
         if (str_indexof(str2, UTF8_ID_LABEL, 0) == 0) {
           type = 'u';
-          long_int uid = str_to_long_int(str_substring(str2, UTF8_ID_LBL_LEN, 0));
-          str2 = utf8_to_bytes_string(get_utst(uid).utf8_string);
+          str2 = utf8_to_bytes_string(get_utst_by_label(str2).utf8_string);
           //utf8_str_print("aaaaaa",ustr,true);
         }
       } else {
@@ -1815,8 +1811,7 @@ void calculate_string_expression(String exp, String *value, uint8 *sub_type) {
         is_valid_val = true;
         if (point.type_data == 'u') {
           type = 'u';
-          long_int uid = str_to_long_int(str_substring(str2, UTF8_ID_LBL_LEN, 0));
-          str2 = utf8_to_bytes_string(get_utst(uid).utf8_string);
+          str2 = utf8_to_bytes_string(get_utst_by_label(str2).utf8_string);
         }
         //msg("&KKKK:", buf, str2)
       }
@@ -1873,8 +1868,7 @@ void calculate_string_expression(String exp, String *value, uint8 *sub_type) {
       } else if (str_indexof(buf, UTF8_ID_LABEL, 0) == 0) {
         type = 'u';
         is_valid_val = true;
-        long_int uid = str_to_long_int(str_substring(buf, UTF8_ID_LBL_LEN, 0));
-        buf = utf8_to_bytes_string(get_utst(uid).utf8_string);
+        buf = utf8_to_bytes_string(get_utst_by_label(buf).utf8_string);
         //utf8_str_print("aaaaaa",ustr,true);
       } else {
         Mpoint point = return_var_data_from_name(buf, "str", true);
@@ -1888,8 +1882,7 @@ void calculate_string_expression(String exp, String *value, uint8 *sub_type) {
         is_valid_val = true;
         if (point.type_data == 'u') {
           type = 'u';
-          long_int uid = str_to_long_int(str_substring(buf, UTF8_ID_LBL_LEN, 0));
-          buf = utf8_to_bytes_string(get_utst(uid).utf8_string);
+          buf = utf8_to_bytes_string(get_utst_by_label(buf).utf8_string);
         }
       }
       if (!is_valid_val) {

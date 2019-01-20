@@ -7,8 +7,8 @@
 
 //**************************************************define interpreter constants
 #define  APP_NAME                       "Mini Portable Language"
-#define  VERSION                        "0.5.08"    //X.Y.Z=> Z<100,Y<10
-#define  VERSION_NUMBER                 50          //X.Y.Z=>(X*100)+(Y*10)+(Z/10)
+#define  VERSION                        "0.5.23"    //X.Y.Z=> Z<100,Y<10
+#define  VERSION_NUMBER                 52          //X.Y.Z=>(X*100)+(Y*10)+(Z/10)
 #define  WIN32_VERSION                  "1.0"
 #define  LINUX_VERSION                  "0.0"
 #define  VERSION_NAME                   "BETA"
@@ -186,7 +186,7 @@
 //------------------------------------------used for mpl_modules_instance array
 #define   FS_MODULE_ID                  1
 #define   OS_MODULE_ID                  2
-#define   SQLITE3_MODULE_ID             3
+#define   SQLITE_MODULE_ID              3
 #define   MATH_MODULE_ID                4
 #define   MGT_MODULE_ID                 5
 #define   STRS_MODULE_ID                6

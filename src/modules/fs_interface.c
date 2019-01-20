@@ -56,42 +56,7 @@ int32 run_fs_mod_funcs(String func_name, str_list params, str_list pars_type, ui
 }
 //***************************************
 void init_fs_module_funcs() {
-  append_fs_mofu(0, FS_MODULE_ID, 0, 0, 0);
-  append_fs_mofu(1, FS_MODULE_ID, "Version", 0, "str");
-  append_fs_mofu(2, FS_MODULE_ID, "abspath", "str", "str");
-}
-//***************************************
-void append_fs_mofu(uint32 id,
-                    uint8 mod_id,
-                    String func_name,
-                    String params,
-                    String returns) {
-  /**
-  * a=bool|str|num|struct|var[0] : value
-  * aa=bool[?,..]|str[?,..]|num[?,..]|struct[?,..] : var
-  * aa..=bool[?,..]|str[?,..]|num[?,..]|struct[?,..] : var,var,..
-  */
-  //----------------------------------init vars
-  uint8 par_len = 0, ret_len = 0;
-  mofu *q;
-  //----------------------------------analyzing params,returns
-  par_len = char_search_count(params, ';');
-  ret_len = char_search_count(returns, ';');
-  //----------------------------------append to mofu
-  q = (mofu *) malloc(sizeof(mofu));
-  if (q == 0) return;
-  q->id = id;
-  q->mod_id = mod_id;
-  q->params_len = par_len;
-  q->returns_len = ret_len;
-  str_init(&q->func_name, func_name);
-  str_init(&q->params, params);
-  str_init(&q->returns, returns);
-  q->next = 0;
-  if (fs_start == 0) {
-    fs_start = fs_end = q;
-  } else {
-    fs_end->next = q;
-    fs_end = q;
-  }
+  append_to_mofu(0, FS_MODULE_ID, 0, 0, 0);
+  append_to_mofu(1, FS_MODULE_ID, "version", 0, "str");
+  append_to_mofu(2, FS_MODULE_ID, "abspath", "str", "str");
 }

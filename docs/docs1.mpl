@@ -28,12 +28,15 @@ Extensions:
 - mcf : mpl configuration files
 -----------------------------
 Applications:
-- mpl		: MPL Interpreter [OK]
-- mdebug	: MPL Debugger [OK]
-- mprog		: MPL Program Manager [..]
-- mdoc		: MPL Documentation
-- mmod		: MPL Module Executer
-- mclang	: MPL Codes Converter To Clang
+--built-in
+- mpl		: MPL Interpreter [OK]			[c]
+- mdebug	: MPL Debugger [OK]				[c]
+- mexec		: MPL Program Executable [..]	[c]
+--others
+- mprog		: MPL Program Manager [..]		[mpl]
+- mdoc		: MPL Documentation				[mpl]
+- mmod		: MPL Module Executer			[mpl]
+- mclang	: MPL Codes Converter To Clang	[c]
 -----------------------------
 -----mmod example:
 > mmod strs str_split "Hi,hey,hello" ","
@@ -86,6 +89,8 @@ built-in config:(by $con)
 ErrorsState,WarningsState,ExportLogFile,MaxHugeDivideSteps,MaxHugeDecimalNumbers,TabSize,AppVersion,AppName,AppLicense,AppCreator,SessionMode,HelpArgumentMode,OverwriteBuiltinMode,DebugMode,RunOnlyOS,RunOnlyArch,SessionDatabasePath
 --- just used for package files:
 PackageMode,AccessVariablesMode,NameSpace,ExportByteCode
+-- in feature:
+ExportExec,AppIcon
 -----------------------------
 ++,--:
 str:("Hello")

@@ -54,4 +54,5 @@
 //---------------------------------modules
 #include "module.h"
 #include "modules/fs_interface.h"
+#include "MPL/modules/sqlite_interface.h"
 #endif //MPL_SYSTEM_H

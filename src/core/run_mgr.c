@@ -265,14 +265,15 @@ String alloc_magic_macros(String exp) {
     return BAD_CODE;
   }
   //---------------is use type
-  if (is_use_magic) {//TODO
-    printf("##use_magic:%s=>%s(%s,%s)\n", exp, buf, mm_name, mm_index);
+  if (is_use_magic) {
+    //TODO
     mama s = get_mama(mm_type, mm_index);
+//    printf("##use_magic:%s=>%s(%s,%s)=>%i(%s):%s[%i,%i]\n", exp, buf, mm_name, mm_index, s.id, s.value_type, s.value,start, end);
     if (s.id == 0) {
       exception_handler("not_defined_mm_key", __func__, mm_index, mm_name);
       return BAD_CODE;
     }
-    ret_exp = replace_in_expression(exp, s.value, start, end, true, true);
+    ret_exp = replace_in_expression(exp, s.value, start, end, false, true);
   }
     //---------------is define type
   else {
@@ -301,14 +302,12 @@ String alloc_magic_macros(String exp) {
     String type = determine_value_type(value);
     value = return_value_from_expression(value, type);
 //    printf("EEEEE:%s=>%s;%s$\n", mm_name, value, type);
-
     //TODO:errors
     if (mm_exist.id > 0 && !str_equal(type, mm_exist.value_type)) {
       //TODO:error
       printf("R#ERR5768768\n");
       return BAD_CODE;
     }
-//    printf("##define_magic:%s=>%s(%s,%s) : %s,%s,%i\n", exp, buf, mm_name, mm_index, value, type,edit_magic_macro(mm_type, mm_index, value));
     //=>edit $con value in sepecial
     if (mm_type == CONFIG_MAGIC_MACRO_TYPE && mm_exist.id > 0 && !edit_magic_config(mm_index, value, type)) {
       return BAD_CODE;
@@ -740,9 +739,10 @@ int8 run_package_module_function(uint8 func_type, String pack_name, String func_
       str_init(&return_module, "return ");
       for (uint32 i = 0; i < returns_module_len; i++) {
         return_module = str_append(return_module, returns_module[i]);
-        if (i + 1 < returns_module_len)return_module = str_append(return_module, ",");
+        if (i + 1 < returns_module_len)return_module = char_append(return_module, ',');
       }
       //----call function_return
+//      printf("GGGG:%s\n",return_module);
       function_return(return_module);
       return FUNC_RET_MODULE;
     }
@@ -908,6 +908,14 @@ int8 set_function_parameters(String func_name, str_list pars, uint32 pars_len) {
 //****************************************************
 
 //****************************************************
+/**
+ * get a list of function parameters and return a list of all types of parameters
+ * every type format:type[num];var_index;state[0];var_dimensions[2,3]
+ * @param params
+ * @param params_len
+ * @param ret
+ * @return uint32
+ */
 uint32 determine_type_name_func_parameters(str_list params, uint32 params_len, str_list *ret) {
   //printf("$$$$TP:%s,%i\n", print_str_list(params, params_len), params_len);
   //-----------init vars
@@ -1034,14 +1042,17 @@ Boolean function_return(String exp) {
     char_split(return_types[i], ';', &p1, false);
     tmp_names_count++;
     String tmp2 = generate_return_var_name(0, &tmp_names_count);
-    //printf("$WQQQQ:%s,%s=>%s\n",return_vals[i],return_types[i],tmp2);
-    if (str_equal(p1[0], "str") && str_ch_equal(p1[2], '0')/*is value*/ && str_length(return_vals[i]) > 0
+//    printf("$WQQQQ:%s,%s=>%s\n", return_vals[i], return_types[i], tmp2);
+    if (str_equal(p1[0], "str") && str_ch_equal(p1[2], '0')/*is value*/&& str_ch_equal(p1[3], '0')/*not array*/
+        && str_length(return_vals[i]) > 0
         && return_vals[i][0] != '\"') {
       return_vals[i] = str_multi_append("\"", return_vals[i], "\"", 0, 0, 0);
     }
     //---------------define var by value
     if (str_ch_equal(p1[2], '0')) {
-      //msg("RET_MMM:", tmp2, tmp1[1], tmp1[0])
+      //=>if return_vals[i] has index like '2' or '2,4', then attach to tmp2
+      if (!str_ch_equal(p1[3], '0')) tmp2 = str_multi_append(tmp2, "[", p1[3], "]", 0, 0);
+//      printf("RET_MMM:%s(%s)=%s\n", tmp2, p1[0], return_vals[i]);
       long_int var_id = set_memory_var(entry_table.cur_fin, 0, tmp2, return_vals[i], p1[0], true);
       if (return_ids != 0)return_ids = char_append(return_ids, ';');
       return_ids = str_append(return_ids, str_from_long_int(var_id));

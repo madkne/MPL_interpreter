@@ -43,10 +43,12 @@ void convert_built_in_module_vars_to_values(str_list partypes,
       //is value
     else {
       String ret1 = 0;
-      uint8 ret2 = 0;
-      calculate_value_of_var(params[i], p1[0], &ret1, &ret2);
-      ret1 = str_reomve_quotations(ret1, p1[0]);
-//        printf("###argv%i:%s(%s)=>%s\n",i,params[i],p1[0],ret1);
+      ret1 = return_value_from_expression(params[i], p1[0]);
+      //=>if string is utf8
+      if (p1[0][0] == 's' && str_indexof(ret1, UTF8_ID_LABEL, 0) == 0) {
+        ret1 = utf8_to_bytes_string(get_utst_by_label(ret1).utf8_string);
+      } else ret1 = str_reomve_quotations(ret1, p1[0]);
+//      printf("###argv%i:%s(%s)=>%s\n", i, params[i], p1[0], ret1);
       str_list_append(&(*argvs), ret1, i);
     }
   }
@@ -80,7 +82,7 @@ uint32 call_built_in_funcs(String func_name, str_list params, str_list partypes,
   //convert vars to values
   convert_built_in_module_vars_to_values(partypes, params, params_len, &argvs, &var0_ind);
 //print_struct(PRINT_STRUCT_DES_ST);
-//  printf ("@BUILT-IN:%s@%i@;%s\n", print_str_list (params, params_len),params_len, print_str_list (argvs, params_len));
+//  printf("@BUILT-IN:%s@%i@;%s\n", print_str_list(params, params_len), params_len, print_str_list(argvs, params_len));
   //---------------------MPL Function Calls----------------------
   if (func_type == MPL_BUILT_IN_TYPE) {
     if (func_id == _MPL_LEN) {

@@ -656,6 +656,7 @@ String replace_control_chars(String val) {
         if (using_custom_tab)ret = str_append(ret, tab_size);
         else if (using_custom_tab)ret = char_append(ret, '\t');
       } else if (val[i + 1] == '\"') ret = char_append(ret, '\"');
+      else if (val[i + 1] == '\'') ret = char_append(ret, '\'');
       else if (val[i + 1] == '\\') ret = char_append(ret, '\\');
       //backspace
       else if (val[i + 1] == 'b') ret = char_append(ret, '\b');//ret = char_backspace (ret);

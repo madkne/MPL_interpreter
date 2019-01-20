@@ -11,6 +11,7 @@
 #if WINDOWS_PLATFORM == true
 typedef String (WINAPI *FUNCTYPE1)(void);
 typedef String (WINAPI *FUNCTYPE2)(String);
+typedef String (WINAPI *FUNCTYPE3)(int32);
 #endif
 //******************************************functions
 int32 call_module_funcs(String mod_name,
@@ -23,7 +24,12 @@ Boolean load_module_file(String path, uint32 line, String src);
 uint32 return_module_id(String module_name);
 void init_module_file_funcs(uint8 module_id);
 
-
+String call_module_type1(String func_name,uint32 mpl_module_id);
 String call_module_type2(String func_name,uint32 mpl_module_id,String s);
-
+String call_module_type3(String func_name, uint32 mpl_module_id,int32 i);
+void append_to_mofu(uint32 id,
+                    uint8 mod_id,
+                    String func_name,
+                    String params,
+                    String returns);
 #endif //MPL_PUBLIC_MOD_H

@@ -301,7 +301,7 @@ long_int get_data_memory_id(long_int pointer_id, String index_var) {
   //----------------if not even index
   if (index_var == 0) return pointer_id;
   //----------------if pointer_id is zero
-  if(pointer_id==0)return 0;
+  if (pointer_id == 0)return 0;
   //----------------search for data in index
   str_list tmp1 = 0;
   uint32 tmp1_len = char_split(index_var, ',', &tmp1, true);
@@ -319,7 +319,7 @@ long_int get_data_memory_id(long_int pointer_id, String index_var) {
       str_list tmp2 = 0;
       uint32 tmp2_len = char_split(mpoint.data, ';', &tmp2, true);
       if (user_ind >= tmp2_len || user_ind < 0) {
-        String var_name= get_Mvar(return_var_ind_pointer_id(basic_pointer)).name;
+        String var_name = get_Mvar(return_var_ind_pointer_id(basic_pointer)).name;
         exception_handler("out_of_range_index", __func__, index_var, var_name);
 //        printf("##EEEE:%i,%s,%s\n",basic_pointer,get_Mvar(return_var_ind_pointer_id(basic_pointer)).name,index_var);
         return 0;
@@ -435,14 +435,19 @@ set_memory_var(long_int fin, long_int sid, String name, String value_var, String
         //TODO:error
         printf("VM#ERR52\n");
       }
-      int32 tmp_indexes[MAX_ARRAY_DIMENSIONS];
-      uint8 tmp_len = return_size_value_dimensions(value_var, tmp_indexes, 0);
-      if (tmp_len != indexes_len) {
-        //TODO:error
-        printf("VM#ERR53\n");
-      }
-      for (uint32 i = 0; i < indexes_len; i++) {
-        if (max_indexes[i] == -10)max_indexes[i] = tmp_indexes[i];
+
+      if (str_equal(value_var, "null")) {
+        for (uint32 i = 0; i < indexes_len; i++)
+          if (max_indexes[i] == -10)max_indexes[i] = 1;
+      } else {
+        int32 tmp_indexes[MAX_ARRAY_DIMENSIONS];
+        uint8 tmp_len = return_size_value_dimensions(value_var, tmp_indexes, 0);
+        if (tmp_len != indexes_len) {
+          //TODO:error
+          printf("VM#ERR53\n");
+        }
+        for (uint32 i = 0; i < indexes_len; i++)
+          if (max_indexes[i] == -10)max_indexes[i] = tmp_indexes[i];
       }
     }
   }

@@ -1,12 +1,27 @@
 -----------------------------
 external modules:
-sqlite3,math,fs[..],os,strs,mhl,mgl
+sqlite[..],math,fs[..],os,strs,mhl,mgl
 
 ------------------module:mgl (mpl graphics library)
 - str version()
 
+
+------------------module:sqlite
+- str version()					[OK]
+
+
+- str LibVersion()				[OK]
+
+- num open(str)					[..]
+
+- bool close(num)				[..]
+
+- str[?,?] exec(num,str)		[..]
+
 ------------------module:strs
 - str version()
+
+
 
 - str StrCrop(str,num,num)
 
@@ -32,6 +47,7 @@ sqlite3,math,fs[..],os,strs,mhl,mgl
 - num PI()
 - num E()
 - str version()
+
 
 - num sqrt(num) : calculate root 2 of a num
 
@@ -133,7 +149,9 @@ sqlite3,math,fs[..],os,strs,mhl,mgl
 
 
 ------------------module:mhl (mpl hacking library)
-- str Version()
+- str version()
+
+
 
 - DnsMapping()
 

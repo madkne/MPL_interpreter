@@ -23,6 +23,9 @@ int32 call_module_funcs(String mod_name,
   //-----------------------find module interface
   if (mod_id == FS_MODULE_ID) {
     ret_func_response = run_fs_mod_funcs(func_name, params, pars_type, params_len, &(*rets_mod));
+  } else if (mod_id == SQLITE_MODULE_ID) {
+    ret_func_response = run_sqlite_mod_funcs(func_name, params, pars_type, params_len, &(*rets_mod));
+//    printf("DDFSS:%s\n",*rets_mod[0]);
   }
   //-----------------------return
   if (ret_func_response > 0)rets_mod_len = ret_func_response;
@@ -61,7 +64,7 @@ Boolean load_module_file(String path, uint32 line, String src) {
 uint32 return_module_id(String module_name) {
   if (str_equal(module_name, "fs")) return FS_MODULE_ID;
   else if (str_equal(module_name, "os")) return OS_MODULE_ID;
-  else if (str_equal(module_name, "sqlite3")) return SQLITE3_MODULE_ID;
+  else if (str_equal(module_name, "sqlite")) return SQLITE_MODULE_ID;
   else if (str_equal(module_name, "math")) return MATH_MODULE_ID;
   else if (str_equal(module_name, "mgt")) return MGT_MODULE_ID;
   else if (str_equal(module_name, "strs")) return STRS_MODULE_ID;
@@ -70,19 +73,84 @@ uint32 return_module_id(String module_name) {
 //***********************************************
 void init_module_file_funcs(uint8 module_id) {
   if (module_id == FS_MODULE_ID) init_fs_module_funcs();
+  else if (module_id == SQLITE_MODULE_ID) init_sqlite_module_funcs();
   //TODO
 }
 //***********************************************
-String call_module_type2(String func_name,uint32 mpl_module_id,String s){
-  #if WINDOWS_PLATFORM==true
-  FUNCTYPE2 Proc = (FUNCTYPE2) GetProcAddress(mpl_modules_instance[mpl_module_id],func_name);
-  if (NULL != Proc){
-    return (String)Proc(s);
-  }
+String call_module_type1(String func_name,uint32 mpl_module_id){
+  #if WINDOWS_PLATFORM == true
+  FUNCTYPE1 Proc = (FUNCTYPE1) GetProcAddress(mpl_modules_instance[mpl_module_id], func_name);
+  if (NULL != Proc) return (String) Proc();
   #endif
   //TODO:error
-  printf("ERR34\n");
+  printf("M#ERR343:%s,%i\n",func_name,mpl_module_id);
+  return 0;
+}
+//***********************************************
+String call_module_type2(String func_name, uint32 mpl_module_id, String s) {
+  #if WINDOWS_PLATFORM == true
+  FUNCTYPE2 Proc = (FUNCTYPE2) GetProcAddress(mpl_modules_instance[mpl_module_id], func_name);
+  if (NULL != Proc) return (String) Proc(s);
+  #endif
+  //TODO:error
+  printf("M#ERR34\n");
+  return 0;
+}
+//***********************************************
+String call_module_type3(String func_name, uint32 mpl_module_id,int32 i) {
+  #if WINDOWS_PLATFORM == true
+  FUNCTYPE3 Proc = (FUNCTYPE3) GetProcAddress(mpl_modules_instance[mpl_module_id], func_name);
+  if (NULL != Proc) return (String) Proc(i);
+  #endif
+  //TODO:error
+  printf("M#ERR374\n");
   return 0;
 }
 
 //***********************************************
+void append_to_mofu(uint32 id,
+                    uint8 mod_id,
+                    String func_name,
+                    String params,
+                    String returns) {
+  /**
+  * a=bool|str|num|struct|var[0] : value
+  * aa=bool[?,..]|str[?,..]|num[?,..]|struct[?,..] : var
+  * aa..=bool[?,..]|str[?,..]|num[?,..]|struct[?,..] : var,var,..
+  */
+  //----------------------------------init vars
+  uint8 par_len = 0, ret_len = 0;
+  mofu *q;
+  //----------------------------------analyzing params,returns
+  par_len = char_search_count(params, ';');
+  ret_len = char_search_count(returns, ';');
+  //----------------------------------append to mofu
+  q = (mofu *) malloc(sizeof(mofu));
+  if (q == 0) return;
+  q->id = id;
+  q->mod_id = mod_id;
+  q->params_len = par_len;
+  q->returns_len = ret_len;
+  str_init(&q->func_name, func_name);
+  str_init(&q->params, params);
+  str_init(&q->returns, returns);
+  q->next = 0;
+  //=>if module is fs
+  if (mod_id == FS_MODULE_ID) {
+    if (fs_start == 0)
+      fs_start = fs_end = q;
+    else {
+      fs_end->next = q;
+      fs_end = q;
+    }
+  }
+    //=>if module is sqlite3
+  else if (mod_id == SQLITE_MODULE_ID) {
+    if (sqlite_start == 0)
+      sqlite_start = sqlite_end = q;
+    else {
+      sqlite_end->next = q;
+      sqlite_end = q;
+    }
+  }
+}

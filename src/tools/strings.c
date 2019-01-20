@@ -22,8 +22,9 @@ String convert_to_string(String s) {
 
 //******************************************
 String str_reomve_quotations(String s, String type) {
+  if ((!str_ch_equal(type, 's') && !str_equal(type, "str")))return s;
   uint32 s_len = str_length(s);
-  if ((str_ch_equal(type, 's') || str_equal(type, "str")) && s_len >= 2 && s[0] == '\"' && s[s_len - 1] == '\"') {
+  if (s_len >= 2 && s[0] == '\"' && s[s_len - 1] == '\"') {
     return str_substring(s, 1, s_len - 1);
   }
   return s;
@@ -461,7 +462,7 @@ int32 char_last_indexof(String s, uint8 ch) {
   uint32 len = str_length(s);
   if (len < 1)return -1;
   for (uint32 i = len - 1; i >= 0; i--) {
-    if(i==-1)break;
+    if (i == -1)break;
     if (s[i] == ch) return i;
   }
   return -1;

@@ -432,7 +432,7 @@ void append_utst(utst s) {
   q->id = s.id;
   q->max_bytes_per_char = s.max_bytes_per_char;
   utf8_str_init(&q->utf8_string, s.utf8_string);
-  q->line=s.line;
+  q->line = s.line;
   q->next = 0;
   if (entry_table.utst_start == 0)
     entry_table.utst_start = entry_table.utst_end = q;
@@ -444,7 +444,7 @@ void append_utst(utst s) {
 //*************************************************************
 long_int add_to_utst(uint32 line, str_utf8 str, uint8 max_bytes) {
   if (max_bytes == 0)max_bytes = utf8_str_max_bytes(str, false);
-  utst tmp1 = {++entry_table.utf8_strings_id,line, str, max_bytes};
+  utst tmp1 = {++entry_table.utf8_strings_id, line, str, max_bytes};
   append_utst(tmp1);
   return entry_table.utf8_strings_id;
 }
@@ -486,7 +486,21 @@ utst get_utst_by_string(String s) {
     return nil;
 
 }
-
+//*************************************************************
+utst get_utst_by_label(String s) {
+  utst ret = {0, 0, 0, 0};
+  long_int uid = str_to_long_int(str_substring(s, UTF8_ID_LBL_LEN, 0));
+  if (uid == 0)return ret;
+  utst *tmp1 = entry_table.utst_start;
+  for (;;) {
+    if (tmp1->id == uid) {
+      return (*tmp1);
+    }
+    tmp1 = tmp1->next;
+    if (tmp1 == 0) break;
+  }
+  return ret;
+}
 //*************************************************************
 //****************block_structures functions*******************
 //*************************************************************

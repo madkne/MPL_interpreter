@@ -57,11 +57,7 @@ int main(int argc, char **argv) {
   //printf("Hello World:%s,%li\n",argv[1],str_length(""));
   //  print_struct(PRINT_CONDITION_LEVEL_ST);
   //	print_magic_macros(CONFIG_MAGIC_MACRO_TYPE);
-  print_struct(PRINT_UTF8_ST);
-//  int h[3];
-//  for(int i=3;i>=0;--i){
-//    printf("EE:%i,%i\n",i,h[i]);
-//  }
+//  print_struct(PRINT_UTF8_ST);
   //-------------------------time of end program
   __syscall_exit(EXIT_SUCCESS);
   return 0;
@@ -81,8 +77,10 @@ Boolean start_interpreter() {
   Boolean ret3 = start_runtime();
   if (!ret3) return false;
   //show debug  lists info
-  show_memory(0);
-  print_magic_macros(3);
+  if (is_programmer_debug > 0) {
+    show_memory(0);
+    print_magic_macros(1);
+  }
   //-----------------------free memory
   str_init(&interpreter_level, "free");
 }
