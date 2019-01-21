@@ -10,8 +10,9 @@ String project_root = 0;
 
 String main_source_name = 0;
 
-String interpreter_path = 0;
-
+String interpreter_path = 0; //=>mpl dir path
+String interpreter_tmp_path = 0; //mpl-root/tmp-dir
+String os_separator = 0; //char_to_str(OS_SEPARATOR);
 uint8 MAX_INT_LEN = 0;
 
 uint8 MAX_FLOAT_LEN = 0;
@@ -58,6 +59,8 @@ String namespace = 0;
 String bytecode_path = 0;
 String run_only_os = 0;
 String run_only_arch = 0;
+Boolean build_mode = false;
+String buildfile_path = 0;
 //-------------------------------------------------------
 String exceptions_group[] = {
     "ImportError",          //0
@@ -74,7 +77,8 @@ String exceptions_group[] = {
     "TypeError",            //11
     "FloatingPointError",   //12
     "CommandError",         //13
-    "DebuggerError"         //14
+    "DebuggerError",        //14
+    "BuilderError"          //15
 };
 
 String exceptions_type[4] = {"CANCEL", "FATAL", "ERROR", "WARNING"};
@@ -121,7 +125,7 @@ uint32 argvs_len = 0;
 //*************************************************************
 //*********************public functions************************
 //*************************************************************
-void init_database() {
+void init_data_defined() {
 
   //---------------init project_root
   str_list entries, filename;
@@ -138,8 +142,14 @@ void init_database() {
   MAX_INT_LEN = INT_USED_BYTES * 2;
   MAX_FLOAT_LEN = (FLOAT_USED_BYTES * 2) - 2;
 
-  //---------------
+  //---------------get mpl path
+  os_separator = char_to_str(OS_SEPARATOR);
   interpreter_path = get_mpl_dir_path();
+  interpreter_tmp_path = str_multi_append(interpreter_path, os_separator, "tmp", os_separator, 0, 0);
+  if (fopen(str_append(interpreter_tmp_path, "TMPDIR"), "r") == NULL) {
+    mkdir(interpreter_tmp_path);
+    fopen(str_append(interpreter_tmp_path, "TMPDIR"), "w");
+  }
   //---------------init mpl_modules_instance
   for (uint32 i = 0; i < max_mpl_modules_instance_len; i++) {
     mpl_modules_instance[i] = 0;

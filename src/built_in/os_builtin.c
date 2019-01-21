@@ -39,21 +39,34 @@ String _OS_TYPE__shell(String command) {
   String ret = 0;
   FILE *fp;
   uint8 line[1035];
+  str_list lines = 0;
+  //=>store errors of command in stderr.txt
+  command = str_multi_append(command, " 2>", interpreter_tmp_path, "stderr.txt", 0, 0);
   /* Open the command for reading. */
-  fp = _popen(command, "r");
+  fp = popen(command, "r");
   if (fp == 0) {
     exception_user_handler(ERROR_ID, "bad_command", "Failed to run command", "shell");
     return 0;
   }
+
   /* Read the output a line at a time - output it. */
   while (fgets(line, sizeof(line) - 1, fp) != NULL) {
     ret = str_append(ret, line);
   }
   /* close */
   pclose(fp);
-  if (str_length(ret) < 2 && (ret[0] < 32 || ret[0] > 126)) {
+//  printf("QQ:%s$\n",__syscall_get_line(stderr));
+  //=>raise an error when stdout is empty
+  if (str_length(ret) < 2 || (ret[0] < 32 || ret[0] > 126)) {
     exception_user_handler(ERROR_ID, "bad_output", "Failed to get output of command", "shell");
-    return 0;
+    //=>if stdout is empty, then get errors from stderr.txt
+    int32 lines_len = __syscall_read_file(str_append(interpreter_tmp_path, "stderr.txt"), &lines, true);
+//    printf("EEE:%s=>%i\n", str_append(interpreter_tmp_path, "stderr.txt"), lines_len);
+    if (lines_len <= 0)return 0;
+    for (uint32 i = 0; i < lines_len; i++) {
+      ret = str_append(ret, lines[i]);
+      if (i + 1 < lines_len)ret = char_append(ret, '\n');
+    }
   }
 
   return ret;

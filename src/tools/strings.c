@@ -434,6 +434,7 @@ String str_substring(String s, uint32 start, uint32 end) {
 
 //******************************************
 int32 str_indexof(String s, String s1, uint32 start) {
+  if(s==0||s1==0)return -1;
   uint32 len = str_length(s);
   uint32 len1 = str_length(s1);
   if (start >= len || len1 > len)return -1;

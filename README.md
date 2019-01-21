@@ -174,9 +174,11 @@ TODO
 * implement open,close functions of sqlite **[OK]**
 * implement query function of sqlite **[OK]**
 * support sqlite as a module **[OK]**
-* set RunOnlyOS,RunOnlyArch in $con **[..]**
-* implement RunOnlyOS,RunOnlyArch for program **[..]**
-* start implement ExportExec config
+* set ExportBuildFile,AppIcon,BuildMode in $con **[OK]**
+* start implement BuildMode config **[OK]**
+* check exist compiler,linker,builder.dll **[OK]**
+* complete main codes of program **[..]**
+* compile and link with builder.dll and export execute file **[..]**
 * building MPL website **[OK]**
 * support for embedded files
 * using custom tab size
@@ -186,6 +188,8 @@ TODO
 * implement log file for program
 * implement OverwriteBuiltinMode for program
 * implement hash table for utf8 strings
+* set RunOnlyOS,RunOnlyArch in $con 
+* implement RunOnlyOS,RunOnlyArch for program
 
 * **_complete full structure of mpl_** **[..]**
 
@@ -229,6 +233,7 @@ MPL BUG be reported
 * [B8] bug in function_return function [OK]
 * [b9] bug for null value for [?,?](like num j[?,?]=null) in set_memory_var function [OK]
 * [B10] bug for str mm[1,1,1]={{{"SSSSSSS"}}} in set_memory_var function [..]
+* [B11] bug in __syscall_read_file function to reading files [OK]
 
 ### ((:publish MPL-RC version of MPL (for windows):))
 

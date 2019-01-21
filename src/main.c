@@ -88,7 +88,7 @@ Boolean start_interpreter() {
 //************************************************
 void init_interpreter() {
   //********************
-  init_database();
+  init_data_defined();
   //********************
   init_memory();
   //********************

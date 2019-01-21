@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <malloc.h>
 #include <time.h>
+#include <sys/stat.h>
 //---------------------------------platform based C functions
 #if LINUX_PLATFORM == 1
 #include <linux/limits.h>
@@ -32,6 +33,7 @@
 #include "built_in.h"
 #include "mpl_help.h"
 #include "debugger.h"
+#include "builder.h"
 //---------------------------------core functions
 #include "core/importer.h"
 #include "core/parser.h"
@@ -54,5 +56,5 @@
 //---------------------------------modules
 #include "module.h"
 #include "modules/fs_interface.h"
-#include "MPL/modules/sqlite_interface.h"
+#include "modules/sqlite_interface.h"
 #endif //MPL_SYSTEM_H

@@ -46,7 +46,7 @@ struct gg{
 		return 1;
 }*/
 
-//$con['DebugMode']=true
+$con['BuildMode']=true
 func main(){
 	str s="hi\'fg"
 	//str dr[?]={'er','سلام','امین'}
@@ -56,14 +56,15 @@ func main(){
 	//num jj[?,?]={{0x45,0o34+4,0b01011},{-3454,45h,12.4i}}
 	//gg gh[?]={struct({{"A","B"},{"AA","BB"}},6),struct({{"D","E"},{"DD","EE"}},-56*9)}
 	//gg1 st1[?]={struct(struct({true,false},1000),"Hello"),struct(struct({true,false},20),"Amin")}
-	num sql=sqlite::open('$/mydb.db')
+	//num sql=sqlite::open('$/mydb.db')
 	//sqlite::exec(sql,"create table product(id int PRIMARY KEY,name varchar(30),price int);")
-	str op[?,?]=sqlite::exec(sql,"INSERT INTO product(id,name,price) VALUES(2,\'Reza\',66);")
-	str ui[?,?] =sqlite::exec(sql,"select * from product")
-	bool isclose=sqlite::close(sql)
+	//sqlite::exec(sql,"INSERT INTO product(id,name,price) VALUES(2,\'Reza\',66);")
+	//str ui[?,?] =sqlite::exec(sql,"select * from product")
+	//bool isclose=sqlite::close(sql)
 	//print(sqlite::LibVersion(),sql,isclose,'\n')
 	//str mm[1,1,1]={{{"SSSSSSS"}}}
-	print(ui,'\n',mm[0,0,0])
+	print(s,'\n',j2,'\n')
+	//print(ui,'\n',mm[0,0,0])
 	//zz st3[?]={struct(23,{struct({true,true},1000),struct({true,true},3500)})}
 	//aaaaaa st2=struct(10,true);
 	//num ll[3,2]={{45,45},{45,78},{5756,0}}

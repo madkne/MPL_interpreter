@@ -388,39 +388,36 @@ int8 print_error(long_int line_err, String name_err, String file_err, String rep
   //-----------------------print exception
   String exception_msg = malloc(7 + str_length(file_err) + (2 * sizeof(long_int)) + str_length(text_err) +
       str_length(exceptions_group[group_err]) + 1);
-  if (line_err == 0)
+  if (line_err == 0&&!is_user_defined)
     sprintf(exception_msg,
             "%s : %s (%s::Errno%li)",
+            exceptions_type[-type_err], text_err,
+            exceptions_group[group_err], id_err);
+  else if(line_err == 0&&is_user_defined)
+    sprintf(exception_msg,
+            "%s : %s (%s::%s)",
             exceptions_type[-type_err],
-            text_err,
-            exceptions_group[group_err],
-            id_err);
+            text_err, occur_func, name_err);
   else if (is_user_defined)
     sprintf(exception_msg,
             "%s[%s:%li] %s (%s::%s)",
             exceptions_type[-type_err],
-            file_err,
-            line_err,
-            text_err,
-            occur_func,
-            name_err);
+            file_err, line_err,
+            text_err, occur_func, name_err);
   else
     sprintf(exception_msg,
             "%s[%s:%li] %s (%s::Errno%li)",
             exceptions_type[-type_err],
-            file_err,
-            line_err,
-            text_err,
-            exceptions_group[group_err],
-            id_err);
+            file_err, line_err, text_err,
+            exceptions_group[group_err], id_err);
   if (is_programmer_debug >= 1 && !is_user_defined) {
     //y, mo, d := time.Now().Date()
     // h, mi, s := time.Now().Clock()
     //time_now := fmt.Sprintf("%v:%v:%v - %v.%v.%v", h, mi, s, y, mo, d)
     // exception_msg += new_line_char + fmt.Sprintf("Occurs in:[%s] [%s]", occur_func, time_now)
-    printf("%s {occur_func:%s}\n", exception_msg, occur_func);
+    fprintf(stderr,"%s {occur_func:%s}\n", exception_msg, occur_func);
   } else {
-    printf("%s\n", exception_msg);
+    fprintf(stderr,"%s\n", exception_msg);
   }
 
   if (logfile_path != 0) {

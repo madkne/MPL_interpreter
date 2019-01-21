@@ -13,4 +13,6 @@ String __syscall_datetime(uint8 type);
 String __syscall_read_input();
 int32 __syscall_read_file(String path, str_list *lines, Boolean skip_empty_lines);
 Boolean __syscall_write_file(String path,String s);
+String  __syscall_get_line(FILE *fp);
+Boolean __syscall_mkdir(String path);
 #endif //MPL_SYSCALLS_H

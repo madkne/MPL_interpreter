@@ -12,7 +12,7 @@
 #define DRAW_TABLE_FOOTER(ROW) printf("%s\n   |\n:::| %s\n%s\n",header_full, ROW,header_sp);
 #define MPL_LICENCE_VIEW_COMMAND  "mpl -h about license"
 //*******************************arrays
-String help_groups[9];
+String help_groups[10];
 String help_get_started_subjects[3];
 String help_about_subjects[4];
 

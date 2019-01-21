@@ -6,7 +6,7 @@
 
 void __syscall_exit(int32 i) {
   //=>store all session entries to database in disk
-  if(!flush_session_entries()){
+  if (!flush_session_entries()) {
     //TODO:error
   }
   //=>show exit message if in program debug
@@ -103,29 +103,32 @@ String __syscall_read_input() {
 int32 __syscall_read_file(String path, str_list *lines, Boolean skip_empty_lines) {
   FILE *fp = fopen(path, "r");
   if (fp == NULL)return -1;
-  // printf ("PATH:%s\n", path);
+//   printf ("PATH:%s\n", path);
+  Boolean is_end = false;
   int32 lines_co = 0;
   for (;;) {
     String line = 0;
     for (;;) {
       int32 buf = fgetc(fp);
       if (buf == EOF) {
-        if (line[0] != 0)str_list_append(&(*lines), line, lines_co++);
-        goto ENDOFFILE;
+        is_end = true;
+        break;
       }
       if (buf == 0)continue;
       if ('\n' == buf || '\r' == buf)break;
       line = char_append(line, buf);
 //      printf("-----%s\n", line);
     }
+//    printf("CO:%i\n",++co);
     if (skip_empty_lines) {
       line = str_trim_space(line);
-      if (line == 0)continue;
+      if (line == 0 && !is_end)continue;
+      else if (line == 0 && is_end)break;
     }
-    //printf ("LI:%s\n", line);
+//    printf ("LI:%s\n", line);
     str_list_append(&(*lines), line, lines_co++);
+    if (is_end)break;
   }
-  ENDOFFILE:
   fclose(fp);
   return lines_co;
 
@@ -140,4 +143,39 @@ Boolean __syscall_write_file(String path, String s) {
   return true;
 }
 
+//******************************************
+String __syscall_get_line(FILE *fp) {
+  char *line = malloc(100), *linep = line;
+  size_t lenmax = 100, len = lenmax;
+  int c;
 
+  if (line == NULL)
+    return NULL;
+
+  for (;;) {
+    c = fgetc(fp);
+    if (c == EOF)
+      break;
+
+    if (--len == 0) {
+      len = lenmax;
+      char *linen = realloc(linep, lenmax *= 2);
+
+      if (linen == NULL) {
+        free(linep);
+        return NULL;
+      }
+      line = linen + (line - linep);
+      linep = linen;
+    }
+
+    if ((*line++ = c) == '\n')
+      break;
+  }
+  *line = '\0';
+  return linep;
+}
+//******************************************
+Boolean __syscall_mkdir(String path) {
+  mkdir(path);
+}

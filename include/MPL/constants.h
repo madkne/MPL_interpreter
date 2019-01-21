@@ -7,7 +7,7 @@
 
 //**************************************************define interpreter constants
 #define  APP_NAME                       "Mini Portable Language"
-#define  VERSION                        "0.5.23"    //X.Y.Z=> Z<100,Y<10
+#define  VERSION                        "0.5.30"    //X.Y.Z=> Z<100,Y<10
 #define  VERSION_NUMBER                 52          //X.Y.Z=>(X*100)+(Y*10)+(Z/10)
 #define  WIN32_VERSION                  "1.0"
 #define  LINUX_VERSION                  "0.0"
@@ -24,7 +24,7 @@
 #define  MODULES_CODE_LINES             16           //+=14771
 #define  LANGUAGE_CREATOR               "madkne"
 #define  CREATOR_SIGNATURE              "603556816519829596"
-#define  TRUST_LEVEL                    30          //100%
+#define  TRUST_LEVEL                    33          //100%
 #define  WINDOWS_COMPATIBLE             true
 #define  LINUX_COMPATIBLE               false
 //**************************************************define other constants
@@ -41,11 +41,13 @@
 #define   OS_TYPE                       "linux"
 #define   MAX_INT_NUMBER                10000000
 #define   MAX_FLOAT_NUMBER              1000000000
+#define   BUILDER_LIB_NAME              "builder.so"
 #elif WINDOWS_PLATFORM == true
 #define   OS_SEPARATOR                  '\\'
 #define   OS_TYPE                       "windows"
 #define   MAX_INT_NUMBER                INT_MAX
 #define   MAX_FLOAT_NUMBER              DBL_MAX
+#define   BUILDER_LIB_NAME              "builder.dll"
 #endif
 //------------------------------------------
 #define   HASH_VCACHE_SIZE              10001 //must be first number
@@ -115,6 +117,7 @@
 #define   FloatingPointError            12
 #define   CommandError                  13
 #define   DebuggerError                 14
+#define   BuilderError                  15
 #define   UserDefinedError              100
 //------------------------------------------
 #define IMPORT_FILE                     1

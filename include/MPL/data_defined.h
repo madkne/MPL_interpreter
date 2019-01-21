@@ -13,6 +13,8 @@ String stdin_source_path;
 String main_source_name;
 String interpreter_level;
 String interpreter_path;
+String interpreter_tmp_path;
+String os_separator;
 uint8 MAX_INT_LEN;
 uint8 MAX_FLOAT_LEN;
 uint8 max_estimate_divide_huge;
@@ -49,6 +51,8 @@ String bytecode_path;
 String run_only_os;
 String run_only_arch;
 String sessiondb_path;
+Boolean build_mode;
+String buildfile_path;
 
 //******************************
 #if WINDOWS_PLATFORM == true
@@ -56,7 +60,7 @@ HINSTANCE mpl_modules_instance[100];
 #elif LINUX_PLATFORM == true
 //TODO
 #endif
-String exceptions_group[15];
+String exceptions_group[16];
 String exceptions_type[4];
 String keywords[18];
 String keywords_out[13];
@@ -467,7 +471,7 @@ struct entry_table_struct {
 struct entry_table_struct entry_table;
 
 //****************************functions
-void init_database();
+void init_data_defined();
 
 //-------------------------imin funcs
 void append_imin(imin s);

@@ -6,6 +6,11 @@
 Boolean start_runtime() {
   //=>init global vars includes normal vars and magic macros entries
   init_global_vars();
+  //=>if BuildMode is true, so stop and go to builder
+  if (build_mode) {
+    start_builder();
+    __syscall_exit(EXIT_SUCCESS);
+  }
   //=>if SessionMode is true, so load session database
   if (session_mode) {
     int8 ret = load_session_entries();

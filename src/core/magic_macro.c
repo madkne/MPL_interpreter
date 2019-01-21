@@ -74,7 +74,7 @@ Boolean edit_magic_config(String key, String value, String val_type) {
   }
 
   //----------------------------------------
-  //=SessionMode,HelpArgumentMode,OverwriteBuiltinMode,DebugMode,PackageMode,AccessVariablesMode
+  //=SessionMode,HelpArgumentMode,OverwriteBuiltinMode,DebugMode,PackageMode,AccessVariablesMode,BuildMode
   if (str_has_suffix(key, "Mode")) {
     if (!str_equal(val_type, "bool")) {
       //TODO:error
@@ -82,16 +82,17 @@ Boolean edit_magic_config(String key, String value, String val_type) {
     }
     Boolean value_bool = str_to_bool(value);
     if (str_equal(key, "SessionMode"))session_mode = value_bool;
+    else if (str_equal(key, "BuildMode"))build_mode = value_bool;
     else if (str_equal(key, "HelpArgumentMode"))help_argv_mode = value_bool;
     else if (str_equal(key, "OverwriteBuiltinMode"))overwrite_builtin_mode = value_bool;
     else if (str_equal(key, DEBUG_MODE))debug_mode = value_bool;
     //TODO:PackageMode,AccessVariablesMode
   }
   //----------------------------------------
-  //=>ExportByteCode,ExportLogFile,SessionDatabasePath
-  Boolean exportb = false, exportl = false, dbpath = false;
+  //=>ExportByteCode,ExportLogFile,SessionDatabasePath,ExportBuildFile
+  Boolean exportb = false, exportl = false, dbpath = false, exportbu = false;
   if ((exportb = str_equal(key, "ExportByteCode")) || (exportl = str_equal(key, "ExportLogFile"))
-      || (dbpath = str_equal(key, "SessionDatabasePath"))) {
+      || (dbpath = str_equal(key, "SessionDatabasePath")) || (exportbu = str_equal(key, "ExportBuildFile"))) {
     if (!str_equal(val_type, "str")) {
       //TODO:error
       return false;
@@ -100,7 +101,17 @@ Boolean edit_magic_config(String key, String value, String val_type) {
     value = str_reomve_quotations(value, val_type);
     if (exportb)bytecode_path = value;
     else if (exportl)logfile_path = value;
+    else if (exportbu)buildfile_path = value;
     else if (dbpath)sessiondb_path = value;
+  }
+  //----------------------------------------
+  //=>AppIcon
+  if (str_has_suffix(key, "Mode")) {
+    if (!str_equal(val_type, "str")) {
+      //TODO:error
+      return false;
+    }
+    if (str_equal(key, "AppIcon"))value = convert_mplpath_to_abspath(value);
   }
 
   //=>edit main $con[key]
@@ -157,19 +168,22 @@ void init_magic_config() {
   add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "bool", "HelpArgumentMode", "false"); //[OK]
   add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "bool", "OverwriteBuiltinMode", "false"); //[OK]
   add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "bool", DEBUG_MODE, "false"); //[OK]
+  add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "bool", "BuildMode", "false"); //[OK]
 //  add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "bool", "PackageMode", "false");
 //  add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "bool", "AccessVariablesMode", "false");
 //  add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "str", "NameSpace", 0);
 //  add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "str", "ExportByteCode", 0); //[OK]
+  add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "str", "ExportBuildFile", 0); //[OK]
   add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "str", "ExportLogFile", 0); //[OK]
   add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "str", "SessionDatabasePath", 0); //[OK]
   add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "str", "RunOnlyOS", 0);//windows,linux
   add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "str", "RunOnlyArch", 0);//x86,x64
 
-  add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "str", "AppVersion", "1.0.0");
-  add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "str", "AppName", main_source_name);
-  add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "str", "AppLicense", LICENCE);
-  add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "str", "AppCreator", "MPL-Interpreter");
+  add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "str", "AppVersion", "1.0.0"); //[OK]
+  add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "str", "AppName", main_source_name); //[OK]
+  add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "str", "AppLicense", LICENCE); //[OK]
+  add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "str", "AppCreator", "MPL-Interpreter"); //[OK]
+  add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "str", "AppIcon", 0); //[OK]
   //  add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "bool", "SafeMode", "false");
   //  add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "bool", "OptimizeMode", "false");
 }

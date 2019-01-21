@@ -31,7 +31,7 @@ Applications:
 --built-in
 - mpl		: MPL Interpreter [OK]			[c]
 - mdebug	: MPL Debugger [OK]				[c]
-- mexec		: MPL Program Executable [..]	[c]
+- mbuild	: MPL Program Builder [..]		[c]
 --others
 - mprog		: MPL Program Manager [..]		[mpl]
 - mdoc		: MPL Documentation				[mpl]
@@ -86,11 +86,10 @@ ERROR:num,WARNING:num,OSType:str,OSArch:str,PathSeparator:str,EOF:num,EOL:str,In
 -----------------------------
 built-in config:(by $con)
 - can use and just edited in global and outside of functions
-ErrorsState,WarningsState,ExportLogFile,MaxHugeDivideSteps,MaxHugeDecimalNumbers,TabSize,AppVersion,AppName,AppLicense,AppCreator,SessionMode,HelpArgumentMode,OverwriteBuiltinMode,DebugMode,RunOnlyOS,RunOnlyArch,SessionDatabasePath
+ErrorsState,WarningsState,ExportLogFile,MaxHugeDivideSteps,MaxHugeDecimalNumbers,TabSize,AppVersion,AppName,AppLicense,AppCreator,SessionMode,HelpArgumentMode,OverwriteBuiltinMode,DebugMode,RunOnlyOS,RunOnlyArch,SessionDatabasePath,ExportBuildFile,AppIcon,BuildMode
 --- just used for package files:
 PackageMode,AccessVariablesMode,NameSpace,ExportByteCode
 -- in feature:
-ExportExec,AppIcon
 -----------------------------
 ++,--:
 str:("Hello")
@@ -266,10 +265,12 @@ fs::fread_line(56)
 call a constant variable of a module like math:
 math::PI
 -----sqlite.dll mod:
-import "mod:sqlite"
-str s[?,?]=sqlite::query("SELECT * FROM USERS");
-str s1="hj"
-str s2[?,?]=sqlite::query("SELECT %s1% FROM USERS");
+import "mod:@/sqlite"
+num sql=sqlite::open('$/mydb.db')
+sqlite::exec(sql,"create table product(id int PRIMARY KEY,name varchar(30),price int);")
+sqlite::exec(sql,"INSERT INTO product(id,name,price) VALUES(2,\'Reza\',66);")
+str ui[?,?] =sqlite::exec(sql,"select * from product")
+bool isclose=sqlite::close(sql)
 
 ------------------------------using in embedded files
 -----main.c
