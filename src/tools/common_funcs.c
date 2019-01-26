@@ -658,9 +658,9 @@ String replace_control_chars(String val) {
       } else if (val[i + 1] == '\"') ret = char_append(ret, '\"');
       else if (val[i + 1] == '\'') ret = char_append(ret, '\'');
       else if (val[i + 1] == '\\') ret = char_append(ret, '\\');
-      //backspace
+        //backspace
       else if (val[i + 1] == 'b') ret = char_append(ret, '\b');//ret = char_backspace (ret);
-      //alert
+        //alert
       else if (val[i + 1] == 'a') ret = char_append(ret, '\a');
       i++;
     } else ret = char_append(ret, val[i]);
@@ -836,4 +836,14 @@ Boolean has_suffix_for_array(String s, str_list ar, uint32 ar_len) {
   }
   return false;
 }
-
+//*************************************************************
+double calculate_period_time(long_int start_time, String *unit) {
+  long_int during = (long_int) clock() - start_time;
+  double time_taken = ((double) during) / CLOCKS_PER_SEC; // in seconds
+  if (time_taken == 0) time_taken += 0.000001;
+  if (time_taken >= 60) {
+    time_taken /= 60;
+    str_init(&(*unit), "minutes");
+  } else str_init(&(*unit), "seconds");
+  return time_taken;
+}

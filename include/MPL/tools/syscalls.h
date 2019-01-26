@@ -15,4 +15,6 @@ int32 __syscall_read_file(String path, str_list *lines, Boolean skip_empty_lines
 Boolean __syscall_write_file(String path,String s);
 String  __syscall_get_line(FILE *fp);
 Boolean __syscall_mkdir(String path);
+uint32 __syscall_rand(uint32 min, uint32 max);
+Boolean __syscall_binary_copy(String src, String dst);
 #endif //MPL_SYSCALLS_H

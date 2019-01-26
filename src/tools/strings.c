@@ -434,7 +434,7 @@ String str_substring(String s, uint32 start, uint32 end) {
 
 //******************************************
 int32 str_indexof(String s, String s1, uint32 start) {
-  if(s==0||s1==0)return -1;
+  if (s == 0 || s1 == 0)return -1;
   uint32 len = str_length(s);
   uint32 len1 = str_length(s1);
   if (start >= len || len1 > len)return -1;
@@ -763,6 +763,16 @@ String str_join(str_list s, uint32 len, String delimiter) {
   for (uint32 i = 0; i < len; i++) {
     ret = str_append(ret, s[i]);
     if (i + 1 < len)ret = str_append(ret, delimiter);
+  }
+  return ret;
+}
+//******************************************
+String str_to_validate(String s) {
+  String ret = 0;
+  for (uint32 i = 0; i < str_length(s); i++) {
+    if (s[i] == '\"' && (i == 0 || s[i - 1] != '\\')) {
+      ret = str_append(ret, "\\\"");
+    } else ret = char_append(ret, s[i]);
   }
   return ret;
 }

@@ -6,6 +6,7 @@
 Boolean edit_magic_macro(uint8 type, String key, String value) {
   mama *tmp1 = entry_table.mama_start;
   if (tmp1 == 0) return false;
+//  printf("SSSS:%s=>%s\n",key,value);
   for (;;) {
     if (tmp1->type == type && str_equal(tmp1->key, key)) {
       str_init(&tmp1->value, value);
@@ -82,7 +83,7 @@ Boolean edit_magic_config(String key, String value, String val_type) {
     }
     Boolean value_bool = str_to_bool(value);
     if (str_equal(key, "SessionMode"))session_mode = value_bool;
-    else if (str_equal(key, "BuildMode"))build_mode = value_bool;
+    else if (is_real_mpl && str_equal(key, "BuildMode"))build_mode = value_bool;
     else if (str_equal(key, "HelpArgumentMode"))help_argv_mode = value_bool;
     else if (str_equal(key, "OverwriteBuiltinMode"))overwrite_builtin_mode = value_bool;
     else if (str_equal(key, DEBUG_MODE))debug_mode = value_bool;
@@ -99,6 +100,8 @@ Boolean edit_magic_config(String key, String value, String val_type) {
     }
     //=>remove quotations if value is string
     value = str_reomve_quotations(value, val_type);
+    //=>convert path to absolute path
+    value = convert_mplpath_to_abspath(value);
     if (exportb)bytecode_path = value;
     else if (exportl)logfile_path = value;
     else if (exportbu)buildfile_path = value;
@@ -106,14 +109,32 @@ Boolean edit_magic_config(String key, String value, String val_type) {
   }
   //----------------------------------------
   //=>AppIcon
-  if (str_has_suffix(key, "Mode")) {
+  if (str_indexof(key, "App", 0) == 0) {
     if (!str_equal(val_type, "str")) {
       //TODO:error
       return false;
     }
-    if (str_equal(key, "AppIcon"))value = convert_mplpath_to_abspath(value);
+    //=>remove quotations if value is string
+    value = str_reomve_quotations(value, val_type);
+    if (str_equal(key, "AppIcon")) {
+      value = convert_mplpath_to_abspath(value);
+      String ret = 0;
+      for (uint32 i = 0; i < str_length(value); i++) {
+        if (value[i] == '\\') {
+          ret = char_append(ret, '/');
+          continue;
+        }
+        ret = char_append(ret, value[i]);
+      }
+      value = ret;
+      #if WINDOWS_PLATFORM == true
+      if (!str_has_suffix(value, ".ico"))value = str_append(value, ".ico");
+      #elif LINUX_PLATFORM == true
+      if(!str_has_suffix(value,".png"))value=str_append(value,".png");
+      #endif
+    }
   }
-
+//  printf("CONFIG:%s(%s)=>%s\n", key, val_type, value);
   //=>edit main $con[key]
   return edit_magic_macro(CONFIG_MAGIC_MACRO_TYPE, key, value);
 }
@@ -179,7 +200,7 @@ void init_magic_config() {
   add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "str", "RunOnlyOS", 0);//windows,linux
   add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "str", "RunOnlyArch", 0);//x86,x64
 
-  add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "str", "AppVersion", "1.0.0"); //[OK]
+  add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "str", "AppVersion", "1.0.0.0"); //[OK]
   add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "str", "AppName", main_source_name); //[OK]
   add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "str", "AppLicense", LICENCE); //[OK]
   add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "str", "AppCreator", "MPL-Interpreter"); //[OK]

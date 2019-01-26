@@ -102,8 +102,7 @@ Boolean analyze_source_code() {
       if (is_in_func) {
         String name = 0;
         str_init(&name, get_soco(2, i + 1).code);
-        print_error(Aline, "define_func_in", entry_table.cur_ascii_source_path, name, "",
-                    "analyze_source_code");
+        print_error(Aline, "define_func_in", entry_table.cur_ascii_source_path, name, "", "analyze_source_code");
         break;
       }
       state = 1;
@@ -216,8 +215,8 @@ void manage_import_keywords(uint32 *i) {
           return;
         }
 
-        String abspath=convert_mplpath_to_abspath(utf8_to_bytes_string(ret.utf8_string));
-        ret.utf8_string=utf8_encode_bytes(abspath);
+        String abspath = convert_mplpath_to_abspath(utf8_to_bytes_string(ret.utf8_string));
+        ret.utf8_string = utf8_encode_bytes(abspath);
 //        String StrSep = char_to_str(OS_SEPARATOR);
 //        //replace project_root by $ sign
 //        ret.utf8_string = utf8_str_simple_replace(ret.utf8_string, "$", project_root, 1);

@@ -11,20 +11,11 @@ void __syscall_exit(int32 i) {
   }
   //=>show exit message if in program debug
   if (is_programmer_debug >= 1) {
-    AppStartedClock = clock() - AppStartedClock;
-    double time_taken = ((double) AppStartedClock) / CLOCKS_PER_SEC; // in seconds
     //exit state
     String exit_state = 0, unit = 0;
+    double time_taken = calculate_period_time((long_int) AppStartedClock, &unit);
     if (i == 0)str_init(&exit_state, "EXIT_SUCCESS");
     else str_init(&exit_state, "EXIT_FAILURE");
-    if (time_taken == 0) {
-      time_taken += 0.000001;
-      //printf("BAD\n");
-    }
-    if (time_taken >= 60) {
-      time_taken /= 60;
-      str_init(&unit, "minutes");
-    } else str_init(&unit, "seconds");
     printf("Process finished during %.6f %s with exit code %i (%s)\n", time_taken, unit, i, exit_state);
   }
   exit(i);
@@ -178,4 +169,34 @@ String __syscall_get_line(FILE *fp) {
 //******************************************
 Boolean __syscall_mkdir(String path) {
   mkdir(path);
+}
+//******************************************
+uint32 __syscall_rand(uint32 min, uint32 max) {
+  //=>Use current time as seed for random generator
+  srand(time(0));
+  //max >= min and 1+max-min < RAND_MAX
+  if (min > max) {
+    uint32 tmp = max + 1; // include max in output
+    max = min;
+    min = tmp;
+  }
+  if (max > RAND_MAX)max = RAND_MAX;
+  uint32 result = (rand() % (max - min)) + min;
+  return result;
+}
+//******************************************
+Boolean __syscall_binary_copy(String src, String dst) {
+  char buff[BUFSIZ];
+  FILE *in, *out;
+  size_t n;
+  in = fopen(src, "rb");
+  if (in == NULL)return false;
+  out = fopen(dst, "wb");
+  if (out == NULL)return false;
+  while ((n = fread(buff, 1, BUFSIZ, in)) != 0) {
+    fwrite(buff, 1, n, out);
+  }
+  fclose(in);
+  fclose(out);
+  return true;
 }

@@ -76,6 +76,8 @@ String str_make_negative_number(String s);
 
 void str_detachment_float(String s, String *s1, String *s2);
 String str_join(str_list s, uint32 len, String delimiter);
+String str_to_validate(String s);
+
 //***********************************************************************************
 String char_backspace(String s);
 uint8 char_to_uint8(uint8 c, Boolean *has_err);

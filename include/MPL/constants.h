@@ -7,8 +7,8 @@
 
 //**************************************************define interpreter constants
 #define  APP_NAME                       "Mini Portable Language"
-#define  VERSION                        "0.5.30"    //X.Y.Z=> Z<100,Y<10
-#define  VERSION_NUMBER                 52          //X.Y.Z=>(X*100)+(Y*10)+(Z/10)
+#define  VERSION                        "0.5.65"    //X.Y.Z=> Z<100,Y<10
+#define  VERSION_NUMBER                 56          //X.Y.Z=>(X*100)+(Y*10)+(Z/10)
 #define  WIN32_VERSION                  "1.0"
 #define  LINUX_VERSION                  "0.0"
 #define  VERSION_NAME                   "BETA"
@@ -19,12 +19,12 @@
 #define  RC_LBUILD                      "undefined"
 #define  LICENCE                        "OPEN-MPL"
 #define  OFFICIAL_WEBSITE               "http://mpl-lang.ir"
-#define  C_CORE_CODE_LINES              13424       //0.5.4 - 0.5.50
-#define  H_CORE_CODE_LINES              1331
-#define  MODULES_CODE_LINES             16           //+=14771
+#define  C_CORE_CODE_LINES              14349       //0.5.65 - 0.6.30
+#define  H_CORE_CODE_LINES              1415
+#define  MODULES_CODE_LINES             16           //+=15780
 #define  LANGUAGE_CREATOR               "madkne"
 #define  CREATOR_SIGNATURE              "603556816519829596"
-#define  TRUST_LEVEL                    33          //100%
+#define  TRUST_LEVEL                    36          //100%
 #define  WINDOWS_COMPATIBLE             true
 #define  LINUX_COMPATIBLE               false
 //**************************************************define other constants
@@ -42,12 +42,14 @@
 #define   MAX_INT_NUMBER                10000000
 #define   MAX_FLOAT_NUMBER              1000000000
 #define   BUILDER_LIB_NAME              "builder.so"
+#define   APP_EXTENSION                 ""
 #elif WINDOWS_PLATFORM == true
 #define   OS_SEPARATOR                  '\\'
 #define   OS_TYPE                       "windows"
 #define   MAX_INT_NUMBER                INT_MAX
 #define   MAX_FLOAT_NUMBER              DBL_MAX
 #define   BUILDER_LIB_NAME              "builder.dll"
+#define   APP_EXTENSION                 ".exe"
 #endif
 //------------------------------------------
 #define   HASH_VCACHE_SIZE              10001 //must be first number
@@ -60,6 +62,7 @@
 #define   MAX_VAR_ALLOC_INSTRUCTIONS    15
 #define   MAX_PARAMS_STRUCT             30
 #define   MAX_INTO_IN_STRUCTURES        20
+#define   MAX_INTO_IN_FUNCTION_CALLS    30
 #define   MAX_OPENED_FILES              20
 #define   END_OF_FILE                  -10
 #define   SYSTEM_STRING_DEFINE          "SYS__STR_"

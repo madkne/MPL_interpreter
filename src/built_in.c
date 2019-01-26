@@ -32,10 +32,22 @@ void convert_built_in_module_vars_to_values(str_list partypes,
     char_split(partypes[i], ';', &p1, false);
     //is var
     if (str_ch_equal(p1[2], '1') || str_ch_equal(p1[2], '2')) {
-//      printf("###argv%i:(VAR)%s\n", i, partypes[i]);
-      String var_val = return_value_var_complete(str_to_long_int(p1[1]));
-      if (p1[3] == 0 || str_ch_equal(p1[3], '0') || str_ch_equal(p1[3], '1') && var_val != 0 && var_val[0] != '{')
+      String var_val = 0;
+//      printf("###argv%i:%s(VAR)%s\n", i, params[i], partypes[i]);
+      //=>if var not has any index
+      if (str_ch_equal(p1[3], '_')) var_val = return_value_var_complete(str_to_long_int(p1[1]));
+        //=> else if var has index
+      else {
+        long_int po_id = get_Mvar(str_to_long_int(p1[1])).pointer_id;
+        long_int data_id = get_data_memory_id(po_id, p1[3]);
+        var_val = __return_value_var_complete(data_id);
+      }
+      if (str_ch_equal(p1[3], '_') || str_ch_equal(p1[3], '1') && var_val != 0 && var_val[0] != '{')
         var_val = str_reomve_quotations(var_val, p1[0]);
+      //=>if string is utf8
+      if (p1[0][0] == 's' && str_indexof(var_val, UTF8_ID_LABEL, 0) == 0) {
+        var_val = utf8_to_bytes_string(get_utst_by_label(var_val).utf8_string);
+      }
       str_list_append(&(*argvs), var_val, i);
       //if param[0] is var, store its index
       if (i == 0) (*var0_ind) = str_to_long_int(p1[1]);
@@ -154,6 +166,14 @@ uint32 call_built_in_funcs(String func_name, str_list params, str_list partypes,
     } else if (func_id == _OS_TIME) {
       String ret = _OS_TYPE__time();
       str_list_append(&(*returns), ret, returns_len++);
+    }else if (func_id == _OS_RAND) {
+      String ret = _OS_TYPE__rand(argvs[0],argvs[1]);
+//      printf("RAND:%s,%s=>%s\n",argvs[0],argvs[1],ret);
+      str_list_append(&(*returns), ret, returns_len++);
+    }else if (func_id == _OS_ARGVS) {
+      String ret=_OS_TYPE__argvs();
+//      printf("ARGVS:%s\n",ret);
+      str_list_append(&(*returns), ret, returns_len++);
     }
     //TODO:complete
   }
@@ -213,7 +233,7 @@ void init_built_in_funcs() {
   add_to_bifs(_OS_INPUT, OS_BUILT_IN_TYPE, "input", "num", "str"); //=>[OK]
   add_to_bifs(_OS_SHELL, OS_BUILT_IN_TYPE, "shell", "str", "str"); //=>[OK]
   add_to_bifs(_OS_TIME, OS_BUILT_IN_TYPE, "time", 0, "num"); //=>[OK]
-  add_to_bifs(_OS_RAND, OS_BUILT_IN_TYPE, "rand", "num|num", "num");
+  add_to_bifs(_OS_RAND, OS_BUILT_IN_TYPE, "rand", "num|num", "num"); //[OK]
   add_to_bifs(_OS_ARGVS, OS_BUILT_IN_TYPE, "argvs", 0, "str;?");
 }
 

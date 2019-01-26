@@ -177,10 +177,17 @@ TODO
 * set ExportBuildFile,AppIcon,BuildMode in $con **[OK]**
 * start implement BuildMode config **[OK]**
 * check exist compiler,linker,builder.dll **[OK]**
-* complete main codes of program **[..]**
-* compile and link with builder.dll and export execute file **[..]**
+* translate utst struct in builder **[OK]**
+* translate datas struct in builder **[OK]**
+* translate blst funcs struct in builder **[OK]**
+* translate blst stru struct in builder **[OK]**
+* translate instru struct in builder **[OK]**
+* remove external include files for builder **[OK]**
+* complete main codes of program in builder **[OK]**
+* merge used modules to output executable program **[..]**
+* compile and link with builder.dll and export execute file **[OK]**
+* implement rand,argvs built-in functions **[OK]**
 * building MPL website **[OK]**
-* support for embedded files
 * using custom tab size
 * start review_array_loop **[OK]**
 * alloc review array every time
@@ -197,7 +204,7 @@ TODO
 * complete mdebug commands
 * complete import error_handling
 * complete mpl built-in functions
-* complete built-in constants
+* complete built-in constants [OK]
 * complete data built-in functions
 * complete parse error_handling
 * complete os built-in functions
@@ -234,10 +241,16 @@ MPL BUG be reported
 * [b9] bug for null value for [?,?](like num j[?,?]=null) in set_memory_var function [OK]
 * [B10] bug for str mm[1,1,1]={{{"SSSSSSS"}}} in set_memory_var function [..]
 * [B11] bug in __syscall_read_file function to reading files [OK]
+* [B12] bug in alloc_magic_macros function [OK]
+* [B13] bug in init_global_vars function [OK]
+* [B14] bug for handle utf8 strings in convert_built_in_module_vars_to_values function [OK]
+* [B15] bug for var dimensions in determine_type_name_func_parameters function [OK]
+* [B16] bug for complex function calls in function_call function [OK]
 
 ### ((:publish MPL-RC version of MPL (for windows):))
 
 * publish RC version for linux
+* support for embedded files
 * support for package libraries
 * set PackageMode,AccessVariablesMode,NameSpace in $con
 * implement ExportByteCode for source code

@@ -31,12 +31,11 @@ Applications:
 --built-in
 - mpl		: MPL Interpreter [OK]			[c]
 - mdebug	: MPL Debugger [OK]				[c]
-- mbuild	: MPL Program Builder [..]		[c]
+- mbuild	: MPL Program Builder [OK]		[c]
 --others
 - mprog		: MPL Program Manager [..]		[mpl]
 - mdoc		: MPL Documentation				[mpl]
 - mmod		: MPL Module Executer			[mpl]
-- mclang	: MPL Codes Converter To Clang	[c]
 -----------------------------
 -----mmod example:
 > mmod strs str_split "Hi,hey,hello" ","
@@ -72,9 +71,9 @@ and(num,num),xor(num,num),or(num,num),not(num),rshift(num,num),lshift(num,num)
 tnum(var,bool),tbool(var),tstr(var),tchars(var),at(var,num),into(var,num,str),inum(var),ibool(var),istr(var)
 -------OS functions:
 --Completed:
-exit(num),print(val|var[..]),input(num),shell(str),time()
+exit(num),print(val|var[..]),input(num),shell(str),time(),rand(num,num),argvs()
 --Not Completed:
-rand(num,num),argvs(),printf(str,var[..])
+printf(str,var[..])
 --TMP
 modfree(str)
 -----------------------------

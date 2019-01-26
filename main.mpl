@@ -14,12 +14,12 @@ __config["AppName"]="dfhfg"*/
 	if(fg=="hello")print("............\n")
 	return 45,fg
 }*/
-struct aaaaaa{
+	struct aaaaaa{
 		num n,
 		bool b
 	}
-struct gg{
-		bool bb[?],
+	struct gg{
+		str bb[?,?],
 		num n
 	}
 	struct gg1{
@@ -27,9 +27,9 @@ struct gg{
 	}
 
 	
-	/*func samp(num n){
+	func samp(num n){
 		return n * 2
-	}*/
+	}
 	
 	struct zz{
 	num j,gg vb[2]
@@ -45,14 +45,21 @@ struct gg{
 	else
 		return 1;
 }*/
+//$con['ExportBuildFile']='$/'
+$con['AppName']='myprog'
+$con['AppIcon']='$/app'
+//$con['BuildMode']=true
+/*func gh(num n){
+	return n+1
+}*/
 
-$con['BuildMode']=true
 func main(){
-	str s="hi\'fg"
+	//str s="hi\'fg"
 	//str dr[?]={'er','سلام','امین'}
 	//str ss='سلام به دنیا'+'!'
 	//num n[4,3],str s,s={{3,-8,9.78},{(24^3)/4+56.5,8f,null},{0x45,0o34+4,0b01011},{-3454,45h,12.4i}},"سلام"+" !"
 	num j,j1,j2[3]=10,29,{67,9.6787,-35}
+	//gg vb=struct({{"A","B"},{"AA","BB"}},6)
 	//num jj[?,?]={{0x45,0o34+4,0b01011},{-3454,45h,12.4i}}
 	//gg gh[?]={struct({{"A","B"},{"AA","BB"}},6),struct({{"D","E"},{"DD","EE"}},-56*9)}
 	//gg1 st1[?]={struct(struct({true,false},1000),"Hello"),struct(struct({true,false},20),"Amin")}
@@ -63,7 +70,11 @@ func main(){
 	//bool isclose=sqlite::close(sql)
 	//print(sqlite::LibVersion(),sql,isclose,'\n')
 	//str mm[1,1,1]={{{"SSSSSSS"}}}
-	print(s,'\n',j2,'\n')
+	//if(j>10)
+	print(argvs(),'\n',j2,'\n')
+	//else
+	//	print("Hi\n")
+	//_u@_
 	//print(ui,'\n',mm[0,0,0])
 	//zz st3[?]={struct(23,{struct({true,true},1000),struct({true,true},3500)})}
 	//aaaaaa st2=struct(10,true);

@@ -1,6 +1,6 @@
 #include "../include/MPL/constants.h"
 1 ICON "logo.ico"
-1 VERSIONINFO
+2 VERSIONINFO
 FILEVERSION     1,0,0,0
 BEGIN
   BLOCK "StringFileInfo"

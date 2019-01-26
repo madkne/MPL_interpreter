@@ -58,15 +58,16 @@ String _OS_TYPE__shell(String command) {
 //  printf("QQ:%s$\n",__syscall_get_line(stderr));
   //=>raise an error when stdout is empty
   if (str_length(ret) < 2 || (ret[0] < 32 || ret[0] > 126)) {
-    exception_user_handler(ERROR_ID, "bad_output", "Failed to get output of command", "shell");
     //=>if stdout is empty, then get errors from stderr.txt
     int32 lines_len = __syscall_read_file(str_append(interpreter_tmp_path, "stderr.txt"), &lines, true);
 //    printf("EEE:%s=>%i\n", str_append(interpreter_tmp_path, "stderr.txt"), lines_len);
+    ret = 0;
     if (lines_len <= 0)return 0;
     for (uint32 i = 0; i < lines_len; i++) {
       ret = str_append(ret, lines[i]);
       if (i + 1 < lines_len)ret = char_append(ret, '\n');
     }
+    if (ret != 0)exception_user_handler(ERROR_ID, "bad_output", "Failed to get output of command", "shell");
   }
 
   return ret;
@@ -74,4 +75,39 @@ String _OS_TYPE__shell(String command) {
 //************************************************
 String _OS_TYPE__time() {
   return str_from_long_int(__syscall_unix_time());
+}
+//************************************************
+String _OS_TYPE__rand(String min, String max) {
+  //=>if min or max are negative numbers
+  if (min[0] == '-' || max[0] == '-') {
+    exception_user_handler(ERROR_ID, "bad_inputs", "Failed to generate a random number in negative interval", "rand");
+    return "-1";
+  }
+  //=>determine sub type of min and max
+  uint8 type = set_type_of_math(&min, &max);
+  //=>if sub type is int(i) or huge(h)
+  if (type == 'i' || type == 'h')return str_from_long_int(__syscall_rand(str_to_long_int(min), str_to_long_int(max)));
+  //=>if sub type is float(f)
+  if (type == 'f') {
+    double f1 = str_to_double(min);
+    double f2 = str_to_double(max);
+    return str_from_long_int(__syscall_rand((uint32) f1, (uint32) f2));
+  }
+  exception_user_handler(ERROR_ID,
+                         "bad_inputs",
+                         "Failed to generate a random number between min and max inputs",
+                         "rand");
+  return "-1";
+}
+//************************************************
+String _OS_TYPE__argvs() {
+  String ret = 0;
+  if (argvs_len == 0)return "null";
+  ret = char_append(ret, '{');
+  for (uint32 i = 0; i < argvs_len; i++) {
+    ret = str_append(ret, convert_to_string(program_argvs[i]));
+    if (i + 1 < argvs_len)ret = char_append(ret, ',');
+  }
+  ret = char_append(ret, '}');
+  return ret;
 }

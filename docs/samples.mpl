@@ -29,7 +29,10 @@ $def['df']={56+4,89}
 $def['df']={{0x45,0o34+4,0b01011},{-3454,45h,12.4i}}
 $def['df']=struct ({true~~false,true},10*70)
 $def['df']={struct(2+3,{struct({true&&false,true},1000),struct({true,true},3500)})}
-
+---------------------function calls
+p1(p2(p3(4,"hi"),6+87))
+fs::p1(p2(9,pk->p3("j")))
+p1(fs::p2("hi"),pk->p3(7-5))
 
 
 

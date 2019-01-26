@@ -312,7 +312,7 @@ long_int get_data_memory_id(long_int pointer_id, String index_var) {
     //msg("RTE:", pointer_memory[po_ind], po_ind)
     uint32 user_ind = 0;
     if (i < tmp1_len) {
-      user_ind = str_to_int32(simplification_var_index(tmp1[i]));
+      user_ind = str_to_int32(tmp1[i]);
     }
     Mpoint mpoint = get_Mpoint(pointer_id);
     if (mpoint.type_data == 'p') {
@@ -320,6 +320,7 @@ long_int get_data_memory_id(long_int pointer_id, String index_var) {
       uint32 tmp2_len = char_split(mpoint.data, ';', &tmp2, true);
       if (user_ind >= tmp2_len || user_ind < 0) {
         String var_name = get_Mvar(return_var_ind_pointer_id(basic_pointer)).name;
+        if (var_name == 0)str_init(&var_name, "undefined");
         exception_handler("out_of_range_index", __func__, index_var, var_name);
 //        printf("##EEEE:%i,%s,%s\n",basic_pointer,get_Mvar(return_var_ind_pointer_id(basic_pointer)).name,index_var);
         return 0;
@@ -462,9 +463,13 @@ set_memory_var(long_int fin, long_int sid, String name, String value_var, String
   //*******************************************analyzing values of variable
   //if value is null
   if (value_var == 0 || str_equal(value_var, "null")) {
-    //printf("fgjfjff:%s,%i[%i]\n",type_var,max_indexes[0],indexes_len);
+//    printf("fgjfjff:%s,%i[%i]\n",type_var,max_indexes[0],indexes_len);
     if (!is_multi_array && str_search(basic_types, type_var, StrArraySize (basic_types)))
       value_var = return_default_value(type_var);
+    else if (!is_multi_array && str_equal(type_var, "null") && str_indexof(name, RETURN_TMP_NAME, 0) == 0) {
+      str_init(&type_var, "num");
+      value_var = return_default_value(type_var);
+    }
     else
       value_var = create_null_array(type_var, max_indexes, indexes_len);
 //    printf ("####EmptyVal:%s,%s\n", type_var, value_var);
@@ -496,7 +501,7 @@ set_memory_var(long_int fin, long_int sid, String name, String value_var, String
     if (sub_type == '0' && !str_equal(type_var, "vars")) {
       //printf("###########failed2\n");
       //TODO:error
-      printf("VM#ERR55\n");
+      printf("VM#ERR55:%s;%s;%s(%c)\n", name, value_var, type_var, sub_type);
       return 0;
     }
     //printf("----SSSSW:%s[%s]=>%s[%c]\n", value_var, type_var, main_value, sub_type);

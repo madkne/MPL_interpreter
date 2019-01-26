@@ -64,4 +64,5 @@ String return_type_structure(uint8 t);
 String return_file_name_extension_path(String path, String *ext);
 String convert_sub_type_to_type(uint8 sub_type);
 Boolean has_suffix_for_array(String s, str_list ar, uint32 ar_len);
+double calculate_period_time(long_int start_time, String *unit);
 #endif /*__COMMON_FUNCS_H*/

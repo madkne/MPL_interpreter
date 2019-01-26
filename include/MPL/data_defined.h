@@ -28,6 +28,7 @@ uint64 os_total_memory;
 uint64 os_total_disk;
 long_int max_size_id;
 uint32 max_mpl_modules_instance_len;
+Boolean is_real_mpl;
 //******************************config values
 uint8 is_programmer_debug;
 String logfile_path;
@@ -536,7 +537,7 @@ void append_mama(mama s);
 void add_to_mama(uint8 type, String value_type, String key, String value);
 
 mama get_mama(uint8 type, String key);
-
+String get_config_mama_value(String key);
 //-------------------------vaar funcs
 void append_vaar(vaar s, vaar_en *s1);
 

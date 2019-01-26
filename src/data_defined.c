@@ -36,7 +36,7 @@ uint64 os_total_disk = 0; //in kilo-bytes
 long_int max_size_id = 0;
 
 uint32 max_mpl_modules_instance_len = 100;
-
+Boolean is_real_mpl = false;
 //-------------------------------------------------------defualt for config entries
 int8 errors_mode = ERROR_ID;
 int8 warnings_mode = WARNING_ID;
@@ -145,10 +145,12 @@ void init_data_defined() {
   //---------------get mpl path
   os_separator = char_to_str(OS_SEPARATOR);
   interpreter_path = get_mpl_dir_path();
-  interpreter_tmp_path = str_multi_append(interpreter_path, os_separator, "tmp", os_separator, 0, 0);
-  if (fopen(str_append(interpreter_tmp_path, "TMPDIR"), "r") == NULL) {
-    mkdir(interpreter_tmp_path);
-    fopen(str_append(interpreter_tmp_path, "TMPDIR"), "w");
+  if (is_real_mpl) {
+    interpreter_tmp_path = str_multi_append(interpreter_path, os_separator, "tmp", os_separator, 0, 0);
+    if (fopen(str_append(interpreter_tmp_path, "TMPDIR"), "r") == NULL) {
+      mkdir(interpreter_tmp_path);
+      fopen(str_append(interpreter_tmp_path, "TMPDIR"), "w");
+    }
   }
   //---------------init mpl_modules_instance
   for (uint32 i = 0; i < max_mpl_modules_instance_len; i++) {
@@ -900,7 +902,19 @@ mama get_mama(uint8 type, String key) {
   }
   return null;
 }
-
+//*************************************************************
+String get_config_mama_value(String key) {
+  mama *tmp1 = entry_table.mama_start;
+  if (tmp1 == 0) return 0;
+  for (;;) {
+    if (tmp1->type == CONFIG_MAGIC_MACRO_TYPE && str_equal(tmp1->key, key)) {
+      return (*tmp1).value;
+    }
+    tmp1 = tmp1->next;
+    if (tmp1 == 0) break;
+  }
+  return 0;
+}
 //*************************************************************
 //********************vals_array functions*********************
 //*************************************************************

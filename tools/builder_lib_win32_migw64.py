@@ -52,7 +52,7 @@ scr_folder="../src";
 compiler="gcc ";
 is_error=0;
 #----------------------
-print("\t~~~~~MPL Builder Library Tool (BY Python3) V 1.2~~~~~");
+print("\t~~~~~MPL Builder Library Tool (BY Python3) V 1.4~~~~~");
 print("=== Start Building win32 release of Builder.dll using Mingw64....");
 #----------------------init dirs
 #-----delete all obj/.*o
@@ -66,9 +66,12 @@ if not os.path.exists(obj_folder):
 #----------------------compile mpl sources
 print("=== Start compiling source files [Builder.dll]...");
 sources=[
+[scr_folder+"/builder.c",scr_folder+"/builder.c -o "+obj_folder+"/builder.o"],
+[scr_folder+"/mpl_help.c",scr_folder+"/mpl_help.c -o "+obj_folder+"/mpl_help.o"],
 [scr_folder+"/module.c",scr_folder+"/module.c -o "+obj_folder+"/module.o"],
 [scr_folder+"/data_defined.c",scr_folder+"/data_defined.c -o "+obj_folder+"/data_defined.o"],
 [scr_folder+"/exceptions.c",scr_folder+"/exceptions.c -o "+obj_folder+"/exceptions.o"],
+[scr_folder+"/debugger.c",scr_folder+"/debugger.c -o "+obj_folder+"/debugger.o"],
 [scr_folder+"/built_in.c",scr_folder+"/built_in.c -o "+obj_folder+"/built_in.o"],
 [scr_folder+"/tools/common_funcs.c",scr_folder+"/tools/common_funcs.c -o "+obj_folder+"/common_funcs.o"],
 [scr_folder+"/tools/strings.c",scr_folder+"/tools/strings.c -o "+obj_folder+"/strings.o"],
@@ -76,6 +79,8 @@ sources=[
 [scr_folder+"/tools/utf8.c",scr_folder+"/tools/utf8.c -o "+obj_folder+"/utf8.o"],
 [scr_folder+"/tools/syscalls.c",scr_folder+"/tools/syscalls.c -o "+obj_folder+"/syscalls.o"],
 [scr_folder+"/core/vars_mgr.c",scr_folder+"/core/vars_mgr.c -o "+obj_folder+"/vars_mgr.o"],
+[scr_folder+"/core/parser.c",scr_folder+"/core/parser.c -o "+obj_folder+"/parser.o"],
+[scr_folder+"/core/importer.c",scr_folder+"/core/importer.c -o "+obj_folder+"/importer.o"],
 [scr_folder+"/core/starter.c",scr_folder+"/core/starter.c -o "+obj_folder+"/starter.o"],
 [scr_folder+"/core/run_mgr.c",scr_folder+"/core/run_mgr.c -o "+obj_folder+"/run_mgr.o"],
 [scr_folder+"/core/virtual_memory.c",scr_folder+"/core/virtual_memory.c -o "+obj_folder+"/virtual_memory.o"],
@@ -113,6 +118,9 @@ if is_error==1:
 else:
 	os.system("color A0");
 	print("=== Finish Building! All Done in "+build_folder+" folder");
+	#-----delete 'build_win32_mingw64_list.txt' file
+	if os.path.exists('build_win32_mingw64_list.txt'):
+		os.remove('build_win32_mingw64_list.txt')
 	
 	
 	

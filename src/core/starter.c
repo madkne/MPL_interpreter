@@ -7,6 +7,7 @@ Boolean start_runtime() {
   //=>init global vars includes normal vars and magic macros entries
   init_global_vars();
   //=>if BuildMode is true, so stop and go to builder
+//  print_magic_macros(2);
   if (build_mode) {
     start_builder();
     __syscall_exit(EXIT_SUCCESS);
@@ -109,6 +110,9 @@ int8 INSTRUCTION_EXECUTOR(long_int index) {
   if (is_programmer_debug >= 1 && str_equal(Rcode, "_@_")) {
     show_memory(0);
     return SUCCESS_EXECUTE_INSTRUCTION;
+  } else if (is_programmer_debug >= 1 && str_equal(Rcode, "_u@_")) {
+    print_struct(PRINT_UTF8_ST);
+    return SUCCESS_EXECUTE_INSTRUCTION;
   }
   //---------------------
   if (str_equal(Rcode, "null")) return SUCCESS_EXECUTE_INSTRUCTION;
@@ -198,7 +202,7 @@ Boolean init_global_vars() {
       entry_table.Rline = st->line;
       Boolean is_done = true;
       uint8 state = labeled_instruction(Rcode);
-      if (is_programmer_debug >= 0) {
+      if (is_programmer_debug > 0) {
         printf("@###############GLOBAL_INST(State:%i,fin:%i,line:%i):\n%s\n@###############\n", state,
                entry_table.cur_fin, entry_table.Rline, Rcode);
       }
@@ -229,8 +233,8 @@ Boolean init_global_vars() {
         }
         //show_prev_fins_array()
       }
+      order++;
     }
-    order++;
     st = st->next;
     if (st == 0) break;
   }

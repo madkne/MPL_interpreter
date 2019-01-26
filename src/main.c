@@ -12,6 +12,7 @@ int main(int argc, char **argv) {
   //-------------------------time of start program
   AppStartedClock = clock();
   AppStartedTime = str_from_long_int(__syscall_unix_time());
+  is_real_mpl=true;
   //-------------------------init exceptions list
   init_exceptions_list_data();
   //--------------------------get Argvs,analyze it
@@ -36,9 +37,8 @@ int main(int argc, char **argv) {
   } else {
     //store arguments of program
     if (argc > 2)
-      for (int ii = 2; ii < argc; ++ii) {
+      for (int ii = 2; ii < argc; ++ii)
         str_list_append(&program_argvs, argv[ii], argvs_len++);
-      }
     //printf("argv:%s",argv[4]);
     str_init(&stdin_source_path, argv[1]);
     stdin_source_path = __syscall_abspath(stdin_source_path);
@@ -79,7 +79,8 @@ Boolean start_interpreter() {
   //show debug  lists info
   if (is_programmer_debug > 0) {
     show_memory(0);
-    print_magic_macros(1);
+//    print_magic_macros(2);
+//    print_struct(PRINT_INSTRU_ST);
   }
   //-----------------------free memory
   str_init(&interpreter_level, "free");

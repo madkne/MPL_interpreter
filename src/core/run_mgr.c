@@ -309,36 +309,31 @@ String alloc_magic_macros(String exp) {
       return BAD_CODE;
     }
     //=>edit $con value in sepecial
-    if (mm_type == CONFIG_MAGIC_MACRO_TYPE && mm_exist.id > 0 && !edit_magic_config(mm_index, value, type)) {
+    if (mm_type == CONFIG_MAGIC_MACRO_TYPE && (mm_exist.id == 0 || !edit_magic_config(mm_index, value, type))) {
       return BAD_CODE;
-    } else {
-      if (!edit_magic_macro(mm_type, mm_index, value))
-        add_to_mama(mm_type, type, mm_index, value);
+    } else if (mm_type != CONFIG_MAGIC_MACRO_TYPE && !edit_magic_macro(mm_type, mm_index, value)) {
+      add_to_mama(mm_type, type, mm_index, value);
     }
     ret_exp = 0;
-
   }
   //---------------return
-  //printf("@EEEEEEEE:%s\n", ret_exp);
+//  printf("@EEEEEEEE:%s\n", ret_exp);
   return ret_exp;
 }
 
 //****************************************************
 String function_call(String exp) {
   /**
-  1- os.out("Hello") ---OK---
-  2- inst1.find(5,"hi") ---OK---
-  3- inst1[1].find(5,"hi")
-  4- inst1.find(5,"hi")[0] ---OK---
-  5- st.splite(",").join("--") ---OK---
-  6- class1.get()[1].ConvertToBin() //num num1,num2=class1.get() || num2.ConvertToBin()
-  7- 89*(num1.ConvertToBin()+23) ---OK---
-  8- inst1.find(5,{{"hi"},"ui"}) ---OK---
-  9- inst1[inst1[1+dg.size()]+4].find(4) ---OK---
+  1- p1(p2(p3(4,"hi"),6+87))
+  2- fs::p1(p2(9,pk->p3("j")))
+  3- p1(fs::p2("hi"),pk->p3(7-5))
   */
   //********************init variables
   String ret_exp = 0, buffer = 0, word = 0, index = 0, func_name = 0, pack_name = 0, ret_vars = 0;
   uint8 func_type = FUNC_TYPE_NORMAL;
+  int32 func_start_stack[MAX_INTO_IN_FUNCTION_CALLS];
+  String pack_stack[MAX_INTO_IN_FUNCTION_CALLS];
+  int32 func_call_stack_ind = -1;
   str_list parameters = 0;
   uint32 params_len = 0;
   Boolean is_string = false, is_par = false, is_struct = false;
@@ -376,52 +371,55 @@ String function_call(String exp) {
     if (!is_string && i + 1 < exp_len && exp[i] == ':' && exp[i + 1] == ':' && word != 0 && is_valid_name(word, true)
         && en_func == -1 && acos == 0) {
       st_func = tmp1;
-      str_init(&pack_name, word);
+      //=>append ':' to pack_name for determine func_type later!
+      pack_name = char_append(word, ':');
       func_name = 0;
       is_par = false;
-      en_func = -1;
       en_pack = i + 1;
       i++;
-      str_empty(&word);
-      func_type = FUNC_TYPE_MODULE;
+      word = 0;
       continue;
     }
     //------------------if is "->" (pack name) (pack_name)
     if (!is_string && i + 1 < exp_len && exp[i] == '-' && exp[i + 1] == '>' && word != 0 && is_valid_name(word, true)
         && en_func == -1 && acos == 0) {
       st_func = tmp1;
-      str_init(&pack_name, word);
+      //=>append '>' to pack_name for determine func_type later!
+      pack_name = char_append(word, '>');
       func_name = 0;
       is_par = false;
-      en_func = -1;
       en_pack = i + 1;
       i++;
-      str_empty(&word);
-      func_type = FUNC_TYPE_PACKAGE;
+      word = 0;
       continue;
     }
     //------------------if is '(' (func_name)
     if (!is_string && exp[i] == '(' && word != 0 && !str_equal(word, "struct") && is_valid_name(word, false) &&
         en_func == -1 && acos == 0) {
-      //printf("&HHHH:%s,%s\n", word,print_str_list(parameters, params_len));
-//      printf("FFFF:%i,%i,%i,%s\n",en_pack,i,str_length(word),word);
-      if (en_pack > -1 && i - en_pack - 1 > str_length(word)) {
-        //[sample] fs::abspath("sss",er(45))
-        pack_name = 0;
-        en_pack = -1;
-        func_type = FUNC_TYPE_NORMAL;
-        st_func = -1;
+//      printf("&HHHH:%s,%s\n", word,print_str_list(parameters, params_len));
+      //=>if count of function calls is more than MAX_INTO_IN_FUNCTION_CALLS
+      if (func_call_stack_ind + 1 == MAX_INTO_IN_FUNCTION_CALLS) {
+        //TODO:error
+        printf("R#ERR222234445554\n");
+        return 0;
       }
-      str_init(&func_name, word);
+      //=>append pack_name to pack_stack and then clear pack_name
+      pack_stack[++func_call_stack_ind]=pack_name;
+      pack_name = 0;
+      //=>if pack_name not exist st_func is -1
+      if (st_func == -1)st_func = tmp1;
+      //=>append st_func to func_start_stack and then reset st_func
+      func_start_stack[func_call_stack_ind] = st_func;
+      st_func = -1;
+      func_name = word;
       pars_num = pars - 1;
       bras_num = bras;
       parameters = 0;
       params_len = 0;
       is_par = true;
       is_struct = false;
-      str_empty(&word);
+      word = 0;
       str_empty(&buffer);
-      if (st_func == -1)st_func = tmp1;
       continue;
     }
     //------------------ get parameters
@@ -450,7 +448,7 @@ String function_call(String exp) {
         break;
       }
       str_empty(&buffer);
-      str_empty(&word);
+      word = 0;
       continue;
     }
     //------------------append to buffer & word
@@ -466,10 +464,31 @@ String function_call(String exp) {
       if (word == 0) tmp1 = i;
       word = char_append(word, exp[i]);
     }
-    //msg("TTTT:", word)
+//    printf("TTTT(%c):%s\n",exp[i], word);
   }
+  //********************determine pack_name,func_type,st_func
+  if (func_call_stack_ind == -1) {
+    //TODO:error
+    printf("R#ERR547567\n");
+    return 0;
+  }
+  //=>determine pack_name based on pack_stack
+  pack_name = pack_stack[func_call_stack_ind];
+  //=>determine func_type based on pack_name
+  if (pack_name != 0) {
+    uint32 plen = str_length(pack_name);
+    if (pack_name[plen - 1] == ':')func_type = FUNC_TYPE_MODULE;
+    if (pack_name[plen - 1] == '>')func_type = FUNC_TYPE_PACKAGE;
+    pack_name[plen - 1] = 0;
+  }
+  //=>determine st_func based on func_start_stack
+  st_func=func_start_stack[func_call_stack_ind];
   //********************calling functions
-//  printf("***FUNC_CALL(%s):\nFtype:%i,Pname:%s,Fname:%s,Params:%s[%i],Index:%s,(start:%i,end:%i),Return:%s=>%s\n", exp,func_type, pack_name, func_name, print_str_list(parameters, params_len),params_len,index, st_func, en_func, ret_exp, str_substring(exp, st_func, en_func));
+//  printf("***FUNC_CALL(%s):\nFtype:%i,Pname:%s,Fname:%s,Params:%s[%i],Index:%s,(start:%i,end:%i),Return:%s=>%s\n",
+//         exp, func_type, pack_name, func_name,
+//         print_str_list(parameters, params_len),
+//         params_len, index, st_func, en_func,
+//         ret_exp, str_substring(exp, st_func, en_func));
 //  show_memory(0);
 
   ret_vars = init_calling_function(func_type, pack_name, func_name, parameters, params_len, index);
@@ -520,7 +539,7 @@ String init_calling_function(uint8 func_type,
     ret0 = set_function_parameters(fname, params, param_len);
   else
     ret0 = run_package_module_function(func_type, pname, fname, params, param_len);
-//    printf("STOP:%s\n",fname);
+//  printf("STOP:%s\n",fname);
   //--------------------analyzing ret0
   Boolean is_return = false;
   if (ret0 == FUNC_RET_BAD) {
@@ -695,7 +714,7 @@ is_exact_function(str_list func_params,
         str_list p3 = 0;
         for (uint32 j = i; j < params_len; ++j) {
           char_split(type_params[j], ';', &p3, false);
-          if ((p3[3] != 0 && !str_ch_equal(p3[3], '0')/*if is array*/)
+          if ((p3[3] != 0 && !str_ch_equal(p3[3], '_')/*if is array*/)
               || str_ch_equal(p3[2], '2')/*if is reference var*/) {
             //printf("3####################:%s\n",type_params[j]);
             return false;
@@ -711,7 +730,7 @@ is_exact_function(str_list func_params,
       //-----check dimensions
       //printf("@WWWW:%s,%s\n", p1[2], p2[3]);
       if (!is_equal_arrays_indexes(p1[2], p2[3])) {
-        //printf("@##EEE\n");
+        printf("R#ERR45436456711111\n");
         return false;
       }
     }
@@ -772,7 +791,7 @@ int8 set_function_parameters(String func_name, str_list pars, uint32 pars_len) {
   3- expanded arrays : {5,9.6,-6},{struct(9,"78")}
   4- expanded structs : struct(0,"fsdg",true)
   */
-//  printf("SDDDDDDD:%s,%i\n", print_str_list(pars, pars_len), pars_len);
+//  printf("SDDDDDDD:%s,%s,%i\n",func_name, print_str_list(pars, pars_len), pars_len);
   //-----------------------------init vars
   Boolean is_user_func = false;
   str_list func_params = 0;
@@ -803,6 +822,7 @@ int8 set_function_parameters(String func_name, str_list pars, uint32 pars_len) {
     tmp1 = tmp1->next;
     if (tmp1 == 0) break;
   }
+//  printf("STOP:\n");
   //-----------------------------if is_user_func
   if (is_user_func) {
     next_fin = ++entry_table.func_index;
@@ -872,7 +892,7 @@ int8 set_function_parameters(String func_name, str_list pars, uint32 pars_len) {
         vars_po_ids = str_append(vars_po_ids, po_id);
       } else {
         String namei = 0;
-        if (p1[3] == 0 || str_ch_equal(p1[3], '0'))str_init(&namei, p2[1]);
+        if (str_ch_equal(p1[3], '_'))str_init(&namei, p2[1]);
         else namei = str_multi_append(p2[1], "[", p1[3], "]", 0, 0);
         set_memory_var(next_fin, 0, namei, pars[i], p2[0], true);
       }
@@ -911,6 +931,7 @@ int8 set_function_parameters(String func_name, str_list pars, uint32 pars_len) {
 /**
  * get a list of function parameters and return a list of all types of parameters
  * every type format:type[num];var_index;state[0];var_dimensions[2,3]
+ * if not has var_dimension, then set '_'
  * @param params
  * @param params_len
  * @param ret
@@ -942,23 +963,11 @@ uint32 determine_type_name_func_parameters(str_list params, uint32 params_len, s
         Mvar var = get_Mvar(real_id);
         String type_name = 0;
         str_init(&type_name, get_datas(var.type_var).name);
+        index = simplification_var_index(index);
         //if is complete var
-        if (index == 0) {
-          str_list tmp1;
-          uint32 tmp1_len = return_array_dimensions(var.pointer_id, &tmp1);
-          String var_dim = char_join(tmp1, ',', tmp1_len, true);
-          //printf("^^^FF:%s=>%i,%s\n",params[i],tmp1_len,tmp1[0]);
-          if (str_ch_equal(var_dim, '1') || str_ch_equal(var_dim, '0'))var_dim = 0;
-          str_list_append(&(*ret),
-                          str_multi_append(type_name, ";", str_from_long_int(real_id), state_s, var_dim, 0),
-                          ret_len++);
-        }
-          //if is a room of var
-        else {
-          str_list_append(&(*ret),
-                          str_multi_append(type_name, ";", str_from_long_int(real_id), state_s, index, 0),
-                          ret_len++);
-        }
+        if (index == 0) str_init(&index, "_");
+        str_list_append(&(*ret),
+                        str_multi_append(type_name, ";", str_from_long_int(real_id), state_s, index, 0), ret_len++);
         continue;
       }
     }
@@ -1043,7 +1052,7 @@ Boolean function_return(String exp) {
     tmp_names_count++;
     String tmp2 = generate_return_var_name(0, &tmp_names_count);
 //    printf("$WQQQQ:%s,%s=>%s\n", return_vals[i], return_types[i], tmp2);
-    if (str_equal(p1[0], "str") && str_ch_equal(p1[2], '0')/*is value*/&& str_ch_equal(p1[3], '0')/*not array*/
+    if (str_equal(p1[0], "str") && str_ch_equal(p1[2], '0')/*is value*/&& str_ch_equal(p1[3], '_')/*not array*/
         && str_length(return_vals[i]) > 0
         && return_vals[i][0] != '\"') {
       return_vals[i] = str_multi_append("\"", return_vals[i], "\"", 0, 0, 0);
@@ -1051,7 +1060,7 @@ Boolean function_return(String exp) {
     //---------------define var by value
     if (str_ch_equal(p1[2], '0')) {
       //=>if return_vals[i] has index like '2' or '2,4', then attach to tmp2
-      if (!str_ch_equal(p1[3], '0')) tmp2 = str_multi_append(tmp2, "[", p1[3], "]", 0, 0);
+      if (!str_ch_equal(p1[3], '_')) tmp2 = str_multi_append(tmp2, "[", p1[3], "]", 0, 0);
 //      printf("RET_MMM:%s(%s)=%s\n", tmp2, p1[0], return_vals[i]);
       long_int var_id = set_memory_var(entry_table.cur_fin, 0, tmp2, return_vals[i], p1[0], true);
       if (return_ids != 0)return_ids = char_append(return_ids, ';');
