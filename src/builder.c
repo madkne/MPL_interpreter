@@ -70,7 +70,7 @@ Boolean builder_check_exist() {
   printf("\t[OK]\n");
   printf("------------checking %s:\n", BUILDER_LIB_NAME);
   //=>check builder library
-  builder_lib_path = str_multi_append(interpreter_path, os_separator, BUILDER_LIB_NAME, 0,0,0);
+  builder_lib_path = str_multi_append(interpreter_path, os_separator, BUILDER_LIB_NAME, 0, 0, 0);
   if (fopen(builder_lib_path, "rb") == NULL) {
     //TODO:error
     printf("B#ERR3676\n");
@@ -96,8 +96,8 @@ Boolean builder_generate_code() {
                             "init_exceptions_list_data();\n"
                             "if (argc > 2)for (int ii = 2; ii < argc; ++ii)\n"
                             " str_list_append(&program_argvs, argv[ii], argvs_len++);\n"
-                            "str_init(&stdin_source_path, argv[1]);\n"
-                            "stdin_source_path = __syscall_abspath(stdin_source_path);"
+                            "str_init(&interpreter_path,\"#mpldir#\");\n"
+                            "stdin_source_path=str_append(get_mpl_dir_path(),\"#appname#\");\n"
                             "init_data_defined();\n"
                             "  init_memory();\n"
                             "  init_built_in_funcs();\n"
@@ -107,6 +107,8 @@ Boolean builder_generate_code() {
                             "pre_loader();\n"
                             "start_runtime();\n"
                             "}\n");
+  ccode = str_replace(ccode, "#mpldir#", str_from_path(interpreter_path), 1);
+  ccode = str_replace(ccode, "#appname#", str_from_path(str_append(os_separator, app_filename)), 1);
   //=>create pre_loader function
   str_init(&preloader, "void pre_loader(){\n"
                        "//#utst#\n"
@@ -114,6 +116,7 @@ Boolean builder_generate_code() {
                        "//#blst_f#\n"
                        "//#blst_s#\n"
                        "//#instru#\n"
+                       "//#mod#\n"
                        "}\n");
   //=>add all utst nodes
   preloader = str_replace(preloader, "//#utst#", __generate_utst_codes(), 1);
@@ -125,6 +128,8 @@ Boolean builder_generate_code() {
   preloader = str_replace(preloader, "//#blst_s#", __generate_blst_codes(LOOP_STRU_ID), 1);
   //=>add all instru nodes
   preloader = str_replace(preloader, "//#instru#", __generate_instru_codes(), 1);
+  //=>add all modules
+  preloader = str_replace(preloader, "//#mod#", __generate_modules_codes(), 1);
   //=>append preloader to main code
   ccode = str_append(ccode, preloader);
   //=>create 'main_[build_id].c' in tmp dir and write all codes into it!
@@ -141,7 +146,7 @@ Boolean builder_export_app() {
   //init vars
   String main_object_file = 0;
   String app_file_path = 0;
-  String final_app_path = 0;
+  String app_path = 0, app_path_exe = 0;
   //--------------------------
   main_object_file = str_multi_append(interpreter_tmp_path, "main_", str_from_long_int(build_id), ".o", 0, 0);
   app_file_path = str_multi_append(interpreter_tmp_path, "main_", str_from_long_int(build_id), APP_EXTENSION, 0, 0);
@@ -156,23 +161,34 @@ Boolean builder_export_app() {
   if (is_programmer_debug > 1 && tmp1 != 0)printf(tmp1);
   if (tmp1 == 0)printf("\t[OK]\n");
   //=>create res_[build_id].rc file
-  printf("------------generate resource:\n");
+  printf("------------generate and compile resource:\n");
   if (!builder_generate_resource()) return false;
   printf("\t[OK]\n");
   //=>link main.o with builder lib
-  printf("------------compile resource:\n");
-  _OS_TYPE__shell(str_multi_append("gcc ",
-                                   char_append(res_build_file, ' '),
-                                   char_append(main_object_file, ' '),
-                                   builder_lib_path, " -o ",
-                                   app_file_path));
+  printf("------------link and create application:\n");
+  String gcc_command = str_multi_append("gcc ",
+                                        char_append(res_build_file, ' '),
+                                        char_append(main_object_file, ' '),
+                                        builder_lib_path, " -o ",
+                                        app_file_path);
+  _OS_TYPE__shell(gcc_command);
+//  printf("GCC:%s\n",gcc_command);
   printf("\t[OK]\n");
   //=>export app
   printf("------------export application:\n");
-  final_app_path = get_config_mama_value("ExportBuildFile");
-  if (final_app_path == 0)final_app_path = str_multi_append(project_root, os_separator, app_filename, 0, 0, 0);
-  else final_app_path = str_multi_append(final_app_path, os_separator, app_filename, 0, 0, 0);
-  if (!__syscall_binary_copy(app_file_path, final_app_path))return false;
+  app_path = get_config_mama_value("ExportBuildFile");
+  if (app_path == 0)app_path = project_root;
+  app_path_exe = str_multi_append(app_path, os_separator, app_filename, 0, 0, 0);
+  if (!__syscall_binary_copy(app_file_path, app_path_exe))return false;
+  printf("\t[OK]\n");
+  //=>export app
+  printf("------------copy app modules:\n");
+  for (uint32 i = 0; i < installed_modules_len; i++) {
+    String mod_name = return_file_name_extension_path(installed_modules[i], 0, false);
+    String mod_path = str_multi_append(app_path, os_separator, mod_name, LIB_EXTENSION, 0, 0);
+    if (!__syscall_binary_copy(installed_modules[i], mod_path))
+      return false;
+  }
   printf("\t[OK]\n");
   return true;
 }
@@ -186,17 +202,22 @@ Boolean builder_generate_resource() {
   if (get_config_mama_value("AppIcon") != 0)
     res = str_append(res, str_replace("1 ICON \"#\"\n", "#", get_config_mama_value("AppIcon"), 1));
   //=>generate version and others fields
-  res = str_append(res, "2 VERSIONINFO\n"
-                        "FILEVERSION     #VER#\n"
+  res = str_append(res, "1 VERSIONINFO\n"
+                        "FILEVERSION     1,0,0,0\n"
+                        "FILEFLAGS 0x0L\n"
+                        "FILEFLAGSMASK 0x3fL\n"
+                        "FILEOS 0x40004L\n"
+                        "FILETYPE 0x1L\n"
+                        "FILESUBTYPE 0x0L\n"
                         "BEGIN\n"
                         "  BLOCK \"StringFileInfo\"\n"
                         "  BEGIN\n"
-                        "    BLOCK \"040904E4\"\n"
+                        "    BLOCK \"040904b0\"\n"
                         "    BEGIN\n"
                         "      VALUE \"CompanyName\", \"#creator#\"\n"
                         "      VALUE \"FileDescription\", \"#name#\"\n"
                         "      VALUE \"FileVersion\", \"#ver#\"\n"
-                        "      VALUE \"InternalName\", \"#name#\"\n"
+                        "      VALUE \"InternalName\", \"#name#.exe\"\n"
                         "      VALUE \"LegalCopyright\", \"#license#\"\n"
                         "      VALUE \"OriginalFilename\", \"#name#.exe\"\n"
                         "      VALUE \"ProductName\", \"#name#\"\n"
@@ -205,14 +226,13 @@ Boolean builder_generate_resource() {
                         "  END\n"
                         "  BLOCK \"VarFileInfo\"\n"
                         "  BEGIN\n"
-                        "    VALUE \"Translation\", 0x409, 1252\n"
+                        "    VALUE \"Translation\", 0x409, 1200\n"
                         "  END\n"
                         "END");
   res = str_replace(res, "#creator#", get_config_mama_value("AppCreator"), 1);
   res = str_replace(res, "#ver#", get_config_mama_value("AppVersion"), -1);
   res = str_replace(res, "#name#", get_config_mama_value("AppName"), -1);
-  res = str_replace(res, "#license#", get_config_mama_value("AppLicense"), 1);
-  res = str_replace(res, "#VER#", "1,0,0,0", 1);
+  res = str_replace(res, "#license#", COPYRIGHT, 1);
   //=>create res_[build_id].rc file
   if (!__syscall_write_file(res_filename, res)) {
     //TODO:error
@@ -351,6 +371,16 @@ String __generate_datas_codes() {
   return ret;
 }
 //*********************************************
+String __generate_modules_codes() {
+  String ret = 0;
+  str_init(&ret, "//module paths:\n");
+  for (uint32 i = 0; i < installed_modules_len; i++) {
+    String mod_name = return_file_name_extension_path(installed_modules[i], 0, false);
+    ret = str_multi_append(ret, "load_module_file(\"", mod_name, LIB_EXTENSION, "\",0,0);\n", 0);
+  }
+  return ret;
+}
+//*********************************************
 String __generate_str_list(str_list s, uint32 slen, String name) {
   String nodes = 0;
   if (slen == 0) return str_multi_append("str_list ", name, "=0;\n", 0, 0, 0);
@@ -389,10 +419,13 @@ String __generate_header_codes() {
                         "typedef unsigned char Boolean;\n");
   //---------------------------------
   ret = str_append(ret, "String project_root;\n"
+                        "String interpreter_path;\n"
                         "str_list program_argvs;\n"
                         "uint32 argvs_len;\n"
                         "String stdin_source_path;\n"
-                        "uint8 is_programmer_debug;\n");
+                        "uint8 is_programmer_debug;\n"
+                        "str_list installed_modules;\n"
+                        "uint32 installed_modules_len;\n");
   //---------------------------------
   ret = str_append(ret, "typedef struct utf8_strings_struct {\n"
                         "  long_int id;\n"

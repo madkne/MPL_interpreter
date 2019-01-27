@@ -1,24 +1,30 @@
 #include "../include/MPL/constants.h"
-1 ICON "logo.ico"
-2 VERSIONINFO
+
+1 ICON "../logo/logo.ico"
+1 VERSIONINFO // This value must be 1.
 FILEVERSION     1,0,0,0
+FILEFLAGS 0x0L
+FILEFLAGSMASK 0x3fL
+FILEOS 0x40004L
+FILETYPE 0x1L
+FILESUBTYPE 0x0L
 BEGIN
-  BLOCK "StringFileInfo"
-  BEGIN
-    BLOCK "040904E4"
+    BLOCK "StringFileInfo"
     BEGIN
-      VALUE "CompanyName", "MPL"
-      VALUE "FileDescription", "MPL Interpreter"
-      VALUE "FileVersion", WIN32_VERSION
-      VALUE "InternalName", "mpl"
-      VALUE "LegalCopyright", LICENCE
-      VALUE "OriginalFilename", "mpl.exe"
-      VALUE "ProductName", APP_NAME
-      VALUE "ProductVersion", VERSION
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "CompanyName", "MPL"
+            VALUE "FileDescription", "MPL Interpreter"
+            VALUE "FileVersion", VERSION
+            VALUE "InternalName", "mpl.exe"
+            VALUE "LegalCopyright", COPYRIGHT
+            VALUE "OriginalFilename", "mpl.exe"
+            VALUE "ProductName", APP_NAME
+            VALUE "ProductVersion", VERSION
+        END
     END
-  END
-  BLOCK "VarFileInfo"
-  BEGIN
-    VALUE "Translation", 0x409, 1252
-  END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
 END

@@ -36,9 +36,6 @@ int8 errors_mode;
 int8 warnings_mode;
 uint8 max_steps_estimate_huge;
 uint32 max_decimal_has_huge;
-Boolean using_custom_tab;
-String tab_size;
-uint8 tab_size_int;
 Boolean safe_mode;
 Boolean session_mode;
 Boolean help_argv_mode;
@@ -49,8 +46,6 @@ Boolean package_mode;
 Boolean access_vars_mode;
 String namespace;
 String bytecode_path;
-String run_only_os;
-String run_only_arch;
 String sessiondb_path;
 Boolean build_mode;
 String buildfile_path;
@@ -80,6 +75,8 @@ String control_chars[5];
 utf8_str_list source_paths;
 str_list program_argvs;
 uint32 argvs_len;
+str_list installed_modules;
+uint32 installed_modules_len;
 //****************************import struct
 typedef struct import_inst_struct {
   long_int id;

@@ -61,7 +61,7 @@ uint8 convert_index_to_int32(String ind, int32 ret[], Boolean manage_ques);
 String find_first_var_name(String exp, uint32 start, Boolean is_inverse, uint32 *endpoint);
 String format_int32_array(int32 s[], uint32 start, uint32 end);
 String return_type_structure(uint8 t);
-String return_file_name_extension_path(String path, String *ext);
+String return_file_name_extension_path(String path, String *ext,Boolean must_ext);
 String convert_sub_type_to_type(uint8 sub_type);
 Boolean has_suffix_for_array(String s, str_list ar, uint32 ar_len);
 double calculate_period_time(long_int start_time, String *unit);

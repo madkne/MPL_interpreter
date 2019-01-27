@@ -624,7 +624,8 @@ String limit_decimal_huge_numbers(String s) {
 //*************************************************************
 Boolean is_equal_arrays_indexes(String s1, String s2) {
   //printf("#WWWWW:%s@@%s\n",s1,s2);
-  if ((s1 == 0 && str_equal(s2, "0")) || (s2 == 0 && str_equal(s1, "0")))return true;
+  if ((s1 == 0 && str_ch_equal(s2, '0')) || (s2 == 0 && str_ch_equal(s1, '0')))return true;
+  if ((str_ch_equal(s1, '_') && str_ch_equal(s2, '0')) || (str_ch_equal(s2, '_') && str_ch_equal(s1, '0')))return true;
   str_list sl1 = 0, sl2 = 0;
   uint32 sl1_len = char_split(s1, ',', &sl1, true);
   uint32 sl2_len = char_split(s2, ',', &sl2, true);
@@ -652,10 +653,8 @@ String replace_control_chars(String val) {
   for (uint32 i = 0; i < len; i++) {
     if (val[i] == '\\' && i + 1 < len) {
       if (val[i + 1] == 'n')ret = char_append(ret, '\n');
-      else if (val[i + 1] == 't') {
-        if (using_custom_tab)ret = str_append(ret, tab_size);
-        else if (using_custom_tab)ret = char_append(ret, '\t');
-      } else if (val[i + 1] == '\"') ret = char_append(ret, '\"');
+      else if (val[i + 1] == 't') ret = char_append(ret, '\t');
+      else if (val[i + 1] == '\"') ret = char_append(ret, '\"');
       else if (val[i + 1] == '\'') ret = char_append(ret, '\'');
       else if (val[i + 1] == '\\') ret = char_append(ret, '\\');
         //backspace
@@ -808,17 +807,23 @@ String return_type_structure(uint8 t) {
  * @param ext
  * @return String
  */
-String return_file_name_extension_path(String path, String *ext) {
-  int32 pos = char_last_indexof(path, OS_SEPARATOR);
-  if (pos == -1) return 0;
-  String sub = str_substring(path, pos + 1, 0);
+String return_file_name_extension_path(String path, String *ext, Boolean must_ext) {
   str_list ret = 0;
-  uint32 len = char_split(sub, '.', &ret, true);
-  if (len < 2)return 0;
-  if (ext != 0) {
+  uint32 len = 0;
+  int32 pos = char_last_indexof(path, OS_SEPARATOR);
+  if (pos == -1) {
+    len = char_split(path, '.', &ret, true);
+    if (must_ext && len < 2)return 0;
+  } else {
+    String sub = str_substring(path, pos + 1, 0);
+    len = char_split(sub, '.', &ret, true);
+    if (must_ext && len < 2)return 0;
+  }
+  if (ext != 0 && len > 1) {
     str_list_delete_first(&ret, len--);
     (*ext) = char_join(ret, '.', len, true);
   }
+//  printf("Filename:%s=>%s\n", path, ret[0]);
   return ret[0];
 }
 //*************************************************************
@@ -847,3 +852,4 @@ double calculate_period_time(long_int start_time, String *unit) {
   } else str_init(&(*unit), "seconds");
   return time_taken;
 }
+//*************************************************************

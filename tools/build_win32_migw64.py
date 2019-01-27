@@ -103,6 +103,7 @@ sources=[
 [scr_folder+"/debugger.c",scr_folder+"/debugger.c -o "+obj_folder+"/debugger.o"],
 [scr_folder+"/built_in.c",scr_folder+"/built_in.c -o "+obj_folder+"/built_in.o"],
 [scr_folder+"/tools/common_funcs.c",scr_folder+"/tools/common_funcs.c -o "+obj_folder+"/common_funcs.o"],
+[scr_folder+"/tools/console.c",scr_folder+"/tools/console.c -o "+obj_folder+"/console.o"],
 [scr_folder+"/tools/strings.c",scr_folder+"/tools/strings.c -o "+obj_folder+"/strings.o"],
 [scr_folder+"/tools/encoder.c",scr_folder+"/tools/encoder.c -o "+obj_folder+"/encoder.o"],
 [scr_folder+"/tools/utf8.c",scr_folder+"/tools/utf8.c -o "+obj_folder+"/utf8.o"],
@@ -146,6 +147,8 @@ if is_error==1:
     #----------------------pause
     os.system("pause");
 else:
+    if os.path.exists("win32rc.res"):
+       os.remove("win32rc.res");
     is_error=os.system("windres win32_resources.rc -O coff -o win32rc.res")
     if is_error==1:os.system("color C0"); exit(1);
     obj_files=glob.glob(obj_folder+"/*.o");

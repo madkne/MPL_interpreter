@@ -184,19 +184,26 @@ TODO
 * translate instru struct in builder **[OK]**
 * remove external include files for builder **[OK]**
 * complete main codes of program in builder **[OK]**
-* merge used modules to output executable program **[..]**
+* using modules in output executable program **[OK]**
 * compile and link with builder.dll and export execute file **[OK]**
 * implement rand,argvs built-in functions **[OK]**
+* implement console color **[OK]**
 * building MPL website **[OK]**
-* using custom tab size
+* implement printf built-in function **[OK]**
+* implement at,into built-in functions **[..]**
+* implement ConAll,DefAll,DefIsset built-in functions **[..]**
+* implement help argument for program **[..]**
+* implement len built-in function **[..]**
+* implement SesAll,SesIsset built-in functions **[..]**
+* implement log file for program **[..]**
+* implement crop built-in function **[..]**
+* implement pop built-in function **[..]**
+* implement del built-in function **[..]**
+* implement exec built-in function **[..]**
+* implement DefUnset,SesUnset built-in functions **[..]**
+* implement OverwriteBuiltinMode for program
 * start review_array_loop **[OK]**
 * alloc review array every time
-* implement help argument for program
-* implement log file for program
-* implement OverwriteBuiltinMode for program
-* implement hash table for utf8 strings
-* set RunOnlyOS,RunOnlyArch in $con 
-* implement RunOnlyOS,RunOnlyArch for program
 
 * **_complete full structure of mpl_** **[..]**
 
@@ -227,7 +234,7 @@ TODO
 MPL BUG be reported
 --------
 * [B1] vars_allocation function messy [OK]
-* [B2] check_post_short_alloc bug [..]
+* [B2] check_post_short_alloc bug [OK]
 * [B3] not read last line in read_lines_from_file function [OK]
 * [B4] bug for complex structs in return_first_array_item [OK]
 * [B4] bug for complex structs in simplification_struct_value [OK]
@@ -246,6 +253,9 @@ MPL BUG be reported
 * [B14] bug for handle utf8 strings in convert_built_in_module_vars_to_values function [OK]
 * [B15] bug for var dimensions in determine_type_name_func_parameters function [OK]
 * [B16] bug for complex function calls in function_call function [OK]
+* [B17} bug in flush_session_entries function when exit from program [OK]
+* [B18] bug in return_file_name_extension_path function [OK]
+* [B19] bug in is_exact_function function for vars data type [OK]
 
 ### ((:publish MPL-RC version of MPL (for windows):))
 

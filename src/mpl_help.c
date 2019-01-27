@@ -56,13 +56,19 @@ Boolean mpl_help_starter(str_list argvs, uint32 argvs_len) {
   else {
     //init vars
     String params[3] = {0, 0, 0};
+    //=>if argvs_len>3,raise an error
+    if(argvs_len>3){
+      //TODO:error
+      printf("MH#ERR2432423\n");
+      return false;
+    }
     docs_dir = str_multi_append(interpreter_path, os_separator, "docs", os_separator, 0, 0); //=>absolute path of 'docs' dir
     String not_exist = 0;
     //---------------------------------------------
     //=>full params array
     for (uint8 i = 0; i < argvs_len; i++) params[i] = argvs[i];
     //=>if list is requested
-    uint8 list_ind = 0;
+    int8 list_ind = 0;
     if ((list_ind = str_search_index(params, "-l", 3)) > -1)mpl_help_list(list_ind, params, &not_exist);
       //if article is requested
     else mpl_help_article(params, &not_exist);

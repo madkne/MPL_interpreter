@@ -166,14 +166,17 @@ uint32 call_built_in_funcs(String func_name, str_list params, str_list partypes,
     } else if (func_id == _OS_TIME) {
       String ret = _OS_TYPE__time();
       str_list_append(&(*returns), ret, returns_len++);
-    }else if (func_id == _OS_RAND) {
-      String ret = _OS_TYPE__rand(argvs[0],argvs[1]);
+    } else if (func_id == _OS_RAND) {
+      String ret = _OS_TYPE__rand(argvs[0], argvs[1]);
 //      printf("RAND:%s,%s=>%s\n",argvs[0],argvs[1],ret);
       str_list_append(&(*returns), ret, returns_len++);
-    }else if (func_id == _OS_ARGVS) {
-      String ret=_OS_TYPE__argvs();
+    } else if (func_id == _OS_ARGVS) {
+      String ret = _OS_TYPE__argvs();
 //      printf("ARGVS:%s\n",ret);
       str_list_append(&(*returns), ret, returns_len++);
+    } else if (func_id == _OS_PRINTF) {
+      Boolean ret = _OS_TYPE__printf(argvs, params_len);
+      str_list_append(&(*returns), str_from_bool(ret), returns_len++);
     }
     //TODO:complete
   }
@@ -229,11 +232,11 @@ void init_built_in_funcs() {
   //----------------------------------os built_in
   add_to_bifs(_OS_EXIT, OS_BUILT_IN_TYPE, "exit", "num", "bool"); //=>[OK]
   add_to_bifs(_OS_PRINT, OS_BUILT_IN_TYPE, "print", "aa..", "bool"); //=>[OK]
-  add_to_bifs(_OS_PRINTF, OS_BUILT_IN_TYPE, "printf", "str|aa..", "bool");
+  add_to_bifs(_OS_PRINTF, OS_BUILT_IN_TYPE, "printf", "str|vars", "bool"); //=>[OK]
   add_to_bifs(_OS_INPUT, OS_BUILT_IN_TYPE, "input", "num", "str"); //=>[OK]
   add_to_bifs(_OS_SHELL, OS_BUILT_IN_TYPE, "shell", "str", "str"); //=>[OK]
   add_to_bifs(_OS_TIME, OS_BUILT_IN_TYPE, "time", 0, "num"); //=>[OK]
-  add_to_bifs(_OS_RAND, OS_BUILT_IN_TYPE, "rand", "num|num", "num"); //[OK]
-  add_to_bifs(_OS_ARGVS, OS_BUILT_IN_TYPE, "argvs", 0, "str;?");
+  add_to_bifs(_OS_RAND, OS_BUILT_IN_TYPE, "rand", "num|num", "num"); //=>[OK]
+  add_to_bifs(_OS_ARGVS, OS_BUILT_IN_TYPE, "argvs", 0, "str;?"); //=>[OK]
 }
 

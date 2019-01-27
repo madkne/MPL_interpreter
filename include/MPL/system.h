@@ -49,6 +49,7 @@
 #include "tools/utf8.h"
 #include "tools/syscalls.h"
 #include "tools/encoder.h"
+#include "tools/console.h"
 //---------------------------------built-in functions
 #include "built_in/mpl_builtin.h"
 #include "built_in/os_builtin.h"

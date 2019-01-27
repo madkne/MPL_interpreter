@@ -27,7 +27,7 @@ __config["AppName"]="dfhfg"*/
 	}
 
 	
-	func samp(num n){
+	func samp(num n,vars b){
 		return n * 2
 	}
 	
@@ -45,7 +45,7 @@ __config["AppName"]="dfhfg"*/
 	else
 		return 1;
 }*/
-//$con['ExportBuildFile']='$/'
+//$con['ExportBuildFile']='$/tools'
 $con['AppName']='myprog'
 $con['AppIcon']='$/app'
 //$con['BuildMode']=true
@@ -58,7 +58,7 @@ func main(){
 	//str dr[?]={'er','سلام','امین'}
 	//str ss='سلام به دنیا'+'!'
 	//num n[4,3],str s,s={{3,-8,9.78},{(24^3)/4+56.5,8f,null},{0x45,0o34+4,0b01011},{-3454,45h,12.4i}},"سلام"+" !"
-	num j,j1,j2[3]=10,29,{67,9.6787,-35}
+	num j,j1,j2[3]=10.5,29,{67,9.6787,-35}
 	//gg vb=struct({{"A","B"},{"AA","BB"}},6)
 	//num jj[?,?]={{0x45,0o34+4,0b01011},{-3454,45h,12.4i}}
 	//gg gh[?]={struct({{"A","B"},{"AA","BB"}},6),struct({{"D","E"},{"DD","EE"}},-56*9)}
@@ -71,7 +71,10 @@ func main(){
 	//print(sqlite::LibVersion(),sql,isclose,'\n')
 	//str mm[1,1,1]={{{"SSSSSSS"}}}
 	//if(j>10)
-	print(argvs(),'\n',j2,'\n')
+	//samp(4,6,"Hi",true)
+	//print($def['AppPath'],'\n',$def['MplPath'],'\n',j2,'\n')
+	printf("%10i;%3s;%.3h%%;%2.h\n",j*3,"hello",56.123456,324.99999)
+	//printf("%b;%s;%10s$\n",true&&false,"Hello","Hello")
 	//else
 	//	print("Hi\n")
 	//_u@_

@@ -1,6 +1,6 @@
 -----------------------------
 external modules:
-sqlite[..],math,fs[..],os,strs,mhl,mgl
+sqlite[OK],math,fs[..],os,strs,mhl,mgl,serve
 
 ------------------module:mgl (mpl graphics library)
 - str version()
@@ -12,11 +12,11 @@ sqlite[..],math,fs[..],os,strs,mhl,mgl
 
 - str LibVersion()				[OK]
 
-- num open(str)					[..]
+- num open(str)					[OK]
 
-- bool close(num)				[..]
+- bool close(num)				[OK]
 
-- str[?,?] exec(num,str)		[..]
+- str[?,?] exec(num,str)		[OK]
 
 ------------------module:strs
 - str version()

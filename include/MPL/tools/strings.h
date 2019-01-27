@@ -25,7 +25,7 @@ int32 str_to_int32(String s);
 long_int str_to_long_int(String s);
 
 Boolean str_is_int32(String s);
-
+Boolean str_is_bool(String s);
 Boolean str_is_num(String str);
 
 String str_from_long_int(long_int num);
@@ -77,7 +77,7 @@ String str_make_negative_number(String s);
 void str_detachment_float(String s, String *s1, String *s2);
 String str_join(str_list s, uint32 len, String delimiter);
 String str_to_validate(String s);
-
+String str_from_path(String path);
 //***********************************************************************************
 String char_backspace(String s);
 uint8 char_to_uint8(uint8 c, Boolean *has_err);

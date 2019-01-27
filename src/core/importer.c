@@ -7,11 +7,7 @@
 Boolean import_all_files() {
   //-----------------------analyzing source path
   String t_src = stdin_source_path;
-  //printf("fgg:%s,%i\n",source,source);
-  if (stdin_source_path == 0) {
-    print_error(0, "not_exist_file", 0, t_src, 0, "import_all_files");
-    return false;
-  }
+//  printf("fgg:%s\n",stdin_source_path);
   //printf(print_str_list(program_argvs,argvs_len));
 
   //-----------------------append main source path to imin

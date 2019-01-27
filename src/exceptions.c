@@ -55,7 +55,7 @@ void init_exceptions_list_data() {
   define_new_exception(5, ERROR_ID, "import_not_support_protocol", ImportError,
                        "not support the protocol in this path '!1@1!' import instruction");
   define_new_exception(6, ERROR_ID, "can_not_load_module", ImportError, "can not load a module in '!1@1!' path");
-  define_new_exception(7, ERROR_ID, "not_support_module", ImportError, "mpl not support '!1@1!' as a module");
+  define_new_exception(7, ERROR_ID, "not_support_module", ImportError, "mpl not support '!1@1!' as a module in '!2@2!' path");
   //\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\
 	//InterruptedError
   define_new_exception(1, ERROR_ID, "zero_division", InterruptedError, "division by zero in '!1@1!' expression");
@@ -266,7 +266,7 @@ int8 exception_handler(String lbl_err, const char func_occur[], String rep1, Str
     }
       //---------if was fatal
     else if (ret_num == FATAL_ID) {
-      __syscall_exit(EXIT_FAILURE);
+      __syscall_exit(EXIT_FATAL);
     }
   }
 
@@ -388,12 +388,12 @@ int8 print_error(long_int line_err, String name_err, String file_err, String rep
   //-----------------------print exception
   String exception_msg = malloc(7 + str_length(file_err) + (2 * sizeof(long_int)) + str_length(text_err) +
       str_length(exceptions_group[group_err]) + 1);
-  if (line_err == 0&&!is_user_defined)
+  if (line_err == 0 && !is_user_defined)
     sprintf(exception_msg,
             "%s : %s (%s::Errno%li)",
             exceptions_type[-type_err], text_err,
             exceptions_group[group_err], id_err);
-  else if(line_err == 0&&is_user_defined)
+  else if (line_err == 0 && is_user_defined)
     sprintf(exception_msg,
             "%s : %s (%s::%s)",
             exceptions_type[-type_err],
@@ -410,23 +410,33 @@ int8 print_error(long_int line_err, String name_err, String file_err, String rep
             exceptions_type[-type_err],
             file_err, line_err, text_err,
             exceptions_group[group_err], id_err);
+
+  //=>change console color to red
+  Boolean is_color_mode = false;
+  if ((is_color_mode = console_enable_color_mode())) {
+    if (type_err == ERROR_ID || type_err == FATAL_ID)console_color_red();
+    else if (type_err == WARNING_ID)console_color_yellow();
+  }
+
   if (is_programmer_debug >= 1 && !is_user_defined) {
     //y, mo, d := time.Now().Date()
     // h, mi, s := time.Now().Clock()
     //time_now := fmt.Sprintf("%v:%v:%v - %v.%v.%v", h, mi, s, y, mo, d)
     // exception_msg += new_line_char + fmt.Sprintf("Occurs in:[%s] [%s]", occur_func, time_now)
-    fprintf(stderr,"%s {occur_func:%s}\n", exception_msg, occur_func);
+    fprintf(stderr, "%s {occur_func:%s}\n", exception_msg, occur_func);
   } else {
-    fprintf(stderr,"%s\n", exception_msg);
+    fprintf(stderr, "%s\n", exception_msg);
   }
-
+  //=>reset console color
+  if (is_color_mode)console_color_reset();
+  //=>add exeption message to logfile is enabled!
   if (logfile_path != 0) {
     //append_to_file(project_root+separator+is_set_logfile+".log", exception_msg+new_line_char+"---------------------------"+new_line_char)
     //msg("&YYYYY", project_root+separator+is_set_logfile+".log")
   }
   //-----------------------handle fatal
   if (type_err == FATAL_ID) {
-    __syscall_exit(EXIT_FAILURE);
+    __syscall_exit(EXIT_FATAL);
   }
   return type_err;
 }

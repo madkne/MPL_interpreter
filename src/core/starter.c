@@ -10,7 +10,7 @@ Boolean start_runtime() {
 //  print_magic_macros(2);
   if (build_mode) {
     start_builder();
-    __syscall_exit(EXIT_SUCCESS);
+    __syscall_exit(EXIT_NORMAL);
   }
   //=>if SessionMode is true, so load session database
   if (session_mode) {

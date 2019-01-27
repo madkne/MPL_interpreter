@@ -50,11 +50,10 @@ Boolean edit_magic_config(String key, String value, String val_type) {
 //    printf("@WW:%s(%i):%i,%i\n",value,is_err,errors_mode,warnings_mode);
   }
   //----------------------------------------
-  //=>MaxHugeDivideSteps or MaxHugeDecimalNumbers or TabSize
-  Boolean divide = false, decimal = false, tabsize = false;
+  //=>MaxHugeDivideSteps or MaxHugeDecimalNumbers
+  Boolean divide = false, decimal = false;
   int32 value_int = 0;
-  if ((divide = str_equal(key, "MaxHugeDivideSteps")) || (decimal = str_equal(key, "MaxHugeDecimalNumbers"))
-      || (tabsize = str_equal(key, "TabSize"))) {
+  if ((divide = str_equal(key, "MaxHugeDivideSteps")) || (decimal = str_equal(key, "MaxHugeDecimalNumbers"))) {
     if (!str_equal(val_type, "num") || determine_type_num(value) != 'i' || !str_is_int32(value)
         || (value_int = str_to_int32(value)) < 1) {
       //TODO:error
@@ -64,14 +63,6 @@ Boolean edit_magic_config(String key, String value, String val_type) {
     if (divide) max_steps_estimate_huge = (uint8) value_int;
       //=>MaxHugeDecimalNumbers change
     else if (decimal) max_decimal_has_huge = (uint32) value_int;
-      //=>TabSize change
-    else if (tabsize) {
-      tab_size_int = (uint8) value_int;
-      tab_size = 0;
-      for (uint8 i = 0; i < tab_size_int; i++) tab_size = char_append(tab_size, ' ');
-      if (tab_size_int == 6)using_custom_tab = false;
-      else using_custom_tab = true;
-    }
   }
 
   //----------------------------------------
@@ -167,7 +158,8 @@ void init_magic_define() {
               "str",
               "MplVersion",
               str_multi_append(VERSION_NAME, "-", VERSION, "-", str_from_long_int(VERSION_NUMBER), 0));
-  add_to_mama(DEFINE_MAGIC_MACRO_TYPE, "str", "AppPath", project_root);
+  add_to_mama(DEFINE_MAGIC_MACRO_TYPE, "str", "AppPath", str_from_path(project_root));
+  add_to_mama(DEFINE_MAGIC_MACRO_TYPE, "str", "MplPath", str_from_path(interpreter_path));
   add_to_mama(DEFINE_MAGIC_MACRO_TYPE, "num", "LeftDirect", LEFT_DIRECT);
   add_to_mama(DEFINE_MAGIC_MACRO_TYPE, "num", "RightDirect", RIGHT_DIRECT);
   add_to_mama(DEFINE_MAGIC_MACRO_TYPE, "num", "BothDirect", BOTH_DIRECT);
@@ -184,7 +176,6 @@ void init_magic_config() {
   add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "str", "WarningsState", "warning");//[OK] error,fatal
   add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "num", "MaxHugeDivideSteps", str_from_int32(max_steps_estimate_huge)); //[OK]
   add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "num", "MaxHugeDecimalNumbers", str_from_int32(max_decimal_has_huge)); //[OK]
-  add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "num", "TabSize", str_from_int32(tab_size_int)); //[OK]
   add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "bool", "SessionMode", "true"); //[OK]
   add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "bool", "HelpArgumentMode", "false"); //[OK]
   add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "bool", "OverwriteBuiltinMode", "false"); //[OK]
@@ -197,8 +188,6 @@ void init_magic_config() {
   add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "str", "ExportBuildFile", 0); //[OK]
   add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "str", "ExportLogFile", 0); //[OK]
   add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "str", "SessionDatabasePath", 0); //[OK]
-  add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "str", "RunOnlyOS", 0);//windows,linux
-  add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "str", "RunOnlyArch", 0);//x86,x64
 
   add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "str", "AppVersion", "1.0.0.0"); //[OK]
   add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "str", "AppName", main_source_name); //[OK]

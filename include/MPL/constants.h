@@ -7,10 +7,8 @@
 
 //**************************************************define interpreter constants
 #define  APP_NAME                       "Mini Portable Language"
-#define  VERSION                        "0.5.65"    //X.Y.Z=> Z<100,Y<10
-#define  VERSION_NUMBER                 56          //X.Y.Z=>(X*100)+(Y*10)+(Z/10)
-#define  WIN32_VERSION                  "1.0"
-#define  LINUX_VERSION                  "0.0"
+#define  VERSION                        "0.5.85"    //X.Y.Z=> Z<100,Y<10
+#define  VERSION_NUMBER                 57          //X.Y.Z=>(X*100)+(Y*10)+(Z/10)
 #define  VERSION_NAME                   "BETA"
 #define  SLOGAN                         "The solution to common problems of programmers" //راه حل کارهای متداول برنامه نویسان
 
@@ -19,12 +17,13 @@
 #define  RC_LBUILD                      "undefined"
 #define  LICENCE                        "OPEN-MPL"
 #define  OFFICIAL_WEBSITE               "http://mpl-lang.ir"
+#define  COPYRIGHT                      "Copyright (C) 2019"
 #define  C_CORE_CODE_LINES              14349       //0.5.65 - 0.6.30
 #define  H_CORE_CODE_LINES              1415
 #define  MODULES_CODE_LINES             16           //+=15780
 #define  LANGUAGE_CREATOR               "madkne"
 #define  CREATOR_SIGNATURE              "603556816519829596"
-#define  TRUST_LEVEL                    36          //100%
+#define  TRUST_LEVEL                    37          //100%
 #define  WINDOWS_COMPATIBLE             true
 #define  LINUX_COMPATIBLE               false
 //**************************************************define other constants
@@ -43,6 +42,7 @@
 #define   MAX_FLOAT_NUMBER              1000000000
 #define   BUILDER_LIB_NAME              "builder.so"
 #define   APP_EXTENSION                 ""
+#define   LIB_EXTENSION                 ".so"
 #elif WINDOWS_PLATFORM == true
 #define   OS_SEPARATOR                  '\\'
 #define   OS_TYPE                       "windows"
@@ -50,12 +50,11 @@
 #define   MAX_FLOAT_NUMBER              DBL_MAX
 #define   BUILDER_LIB_NAME              "builder.dll"
 #define   APP_EXTENSION                 ".exe"
+#define   LIB_EXTENSION                 ".dll"
 #endif
 //------------------------------------------
 #define   HASH_VCACHE_SIZE              10001 //must be first number
 #define   HASH_PCACHE_SIZE              50001
-#define   EXIT_SUCCESS                  0
-#define   EXIT_FAILURE                  1
 #define   INT_USED_BYTES                sizeof(MAX_INT_NUMBER)
 #define   FLOAT_USED_BYTES              sizeof(MAX_FLOAT_NUMBER)
 #define   MAX_ARRAY_DIMENSIONS          5
@@ -84,7 +83,10 @@
 #define   DEBUG_MODE                    "DebugMode"
 #define   DEBUG_QUESTION                "[mdebug]: "
 #define   DEBUG_ANSWER                  "[mdebug]$ "
-
+//------------------------------------------used as exit status for exit syscall
+#define   EXIT_NORMAL                   0
+#define   EXIT_ERROR                    1
+#define   EXIT_FATAL                    2
 //------------------------------------------used as exception status
 #define   ERROR_ID                     -2
 #define   WARNING_ID                   -3

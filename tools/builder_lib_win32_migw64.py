@@ -74,6 +74,7 @@ sources=[
 [scr_folder+"/debugger.c",scr_folder+"/debugger.c -o "+obj_folder+"/debugger.o"],
 [scr_folder+"/built_in.c",scr_folder+"/built_in.c -o "+obj_folder+"/built_in.o"],
 [scr_folder+"/tools/common_funcs.c",scr_folder+"/tools/common_funcs.c -o "+obj_folder+"/common_funcs.o"],
+[scr_folder+"/tools/console.c",scr_folder+"/tools/console.c -o "+obj_folder+"/console.o"],
 [scr_folder+"/tools/strings.c",scr_folder+"/tools/strings.c -o "+obj_folder+"/strings.o"],
 [scr_folder+"/tools/encoder.c",scr_folder+"/tools/encoder.c -o "+obj_folder+"/encoder.o"],
 [scr_folder+"/tools/utf8.c",scr_folder+"/tools/utf8.c -o "+obj_folder+"/utf8.o"],

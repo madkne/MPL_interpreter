@@ -12,7 +12,7 @@ int main(int argc, char **argv) {
   //-------------------------time of start program
   AppStartedClock = clock();
   AppStartedTime = str_from_long_int(__syscall_unix_time());
-  is_real_mpl=true;
+  is_real_mpl = true;
   //-------------------------init exceptions list
   init_exceptions_list_data();
   //--------------------------get Argvs,analyze it
@@ -42,24 +42,30 @@ int main(int argc, char **argv) {
     //printf("argv:%s",argv[4]);
     str_init(&stdin_source_path, argv[1]);
     stdin_source_path = __syscall_abspath(stdin_source_path);
-    // printf("####:%s,%s\n",argv[1],stdin_source_path);
+//     printf("####:%s,%s\n",argv[1],stdin_source_path);
+    //=>check if source path is exist
+    if (stdin_source_path == 0) {
+      print_error(0, "not_exist_file", 0, argv[1], 0, "main");
+    }
     Boolean ret = start_interpreter();
     interpreter_mode = 4;
-    if (!ret) {
+    if (!ret)
       print_error(0, "bad_exit", "stdin", 0, 0, "main");
-      return 1;
-    }
+
   }
 
 //  String ss = 0;
 //  str_init(&ss, "Hello Amin.");
 //  printf("encode:%s\n>>>%s\n>>>%s$\n", ss, MPLV1_encode(ss),MPLV1_decode(MPLV1_encode(ss)));
-  //printf("Hello World:%s,%li\n",argv[1],str_length(""));
+//  console_color_reverse();
+//  printf("Hello World:%s\n",argv[1]);
+//  console_color_reset();
+//  printf("Hello World:%s\n",argv[1]);
   //  print_struct(PRINT_CONDITION_LEVEL_ST);
   //	print_magic_macros(CONFIG_MAGIC_MACRO_TYPE);
 //  print_struct(PRINT_UTF8_ST);
   //-------------------------time of end program
-  __syscall_exit(EXIT_SUCCESS);
+  __syscall_exit(EXIT_NORMAL);
   return 0;
 }
 //************************************************

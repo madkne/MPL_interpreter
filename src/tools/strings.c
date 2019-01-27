@@ -302,7 +302,12 @@ Boolean str_is_int32(String s) {
   }
   return true;
 }
-
+//******************************************
+Boolean str_is_bool(String s){
+  if(s==0)return false;
+  if(str_equal(s,"true")||str_equal(s,"false"))return true;
+  return false;
+}
 //******************************************
 Boolean str_is_num(String str) {
   uint32 len = str_length(str);
@@ -773,6 +778,16 @@ String str_to_validate(String s) {
     if (s[i] == '\"' && (i == 0 || s[i - 1] != '\\')) {
       ret = str_append(ret, "\\\"");
     } else ret = char_append(ret, s[i]);
+  }
+  return ret;
+}
+//******************************************
+String str_from_path(String path){
+  String ret = 0;
+  for (uint32 i = 0; i < str_length(path); i++) {
+    if (path[i] == '\\' && (i == 0 || path[i - 1] != '\\')) {
+      ret = str_append(ret, "\\\\");
+    } else ret = char_append(ret, path[i]);
   }
   return ret;
 }

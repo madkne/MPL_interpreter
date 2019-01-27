@@ -67,7 +67,7 @@ void set_new_breakpoint(String *source_file, uint32 *source_line) {
     uint32 params_len = char_split(input, ':', &params, true);
     //-----------exit command
     if (params_len == 1 && str_equal(params[0], "exit")/*exit the program*/)
-      __syscall_exit(EXIT_SUCCESS);
+      __syscall_exit(EXIT_NORMAL);
       //-----------sources command
     else if (params_len == 1 && str_equal(params[0], "sources"/*display all sources*/)) {
       display_all_source_paths();
@@ -172,7 +172,7 @@ void on_breakpoint_interrupt(String code, Boolean is_running) {
     uint32 params_len = translate_debug_symbols(input, &params);
     //-----------exit command
     if (str_equal(params[0], "exit")/*exit from program*/)
-      __syscall_exit(EXIT_SUCCESS);
+      __syscall_exit(EXIT_NORMAL);
       //-----------run command
     else if (str_equal(params[0], "run")/*run current line*/) {
       if (!is_running) {

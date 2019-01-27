@@ -3162,20 +3162,23 @@ uint8 determine_type_num(String num) {
 }
 //*********************************************************
 /**
- * get a pointer_id or id of a var and check that it is a array or no!
+ * get a pointer_id and check that it is an array or a struct or value or undefined!
+ * undefined: -1
+ * value: 0
+ * array: 1
+ * struct: 2
+ * var: 3
  * @param pointer_id
  * @return Boolean
  */
-Boolean is_array_var(long_int id, Boolean is_id) {
-  if (is_id) {
-    id = get_Mvar(find_index_var_memory(id)).pointer_id;
-  }
-  if (id == 0)return false;
-  Mpoint p = get_Mpoint(id);
+int8 return_Mpoint_status(long_int po_id) {
 
-  if (p.type_data == 'p' && str_indexof(p.data, ";", 0) > 0)return true;
-
-  return false;
+  Mpoint m = get_Mpoint(po_id);
+  if (m.id == 0)return -1;
+  if (m.type_data == 'p' && str_indexof(m.data, ";", 0) > 0)return 1;
+  else if (m.type_data == 'l')return 2;
+  else if (m.type_data == 'v') return 3;
+  else return 0;
 }
 //*********************************************************
 String return_default_value(String type) {

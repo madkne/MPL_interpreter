@@ -93,11 +93,11 @@ func main(){
 +++++++++++development vars keyword usage [GOOD]+
 ×××××××××××××××××××××××
 func fg(num n,vars v) //v can only num,str,bool
-func fg1(num n,vars v?) //v can struct or array or num,str,bool
+func fg1(num n,vars? v) //v can struct or array or num,str,bool
 {
 	num b=len(v?)
-	str s[2]=var_type(v?[b]) //s={"num","3"}
-	num m[?]=v?[b] //m={5,8,9}
+	str s[2]=var_type(v[b]) //s={"num","3"}
+	num m[?]=v[b] //m={5,8,9}
 }
 func main(){
 	fg1(4,5,struct(8,true),{5,8,9})

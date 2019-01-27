@@ -273,6 +273,9 @@ String alloc_magic_macros(String exp) {
       exception_handler("not_defined_mm_key", __func__, mm_index, mm_name);
       return BAD_CODE;
     }
+    //=>if value is a string data
+    if (str_equal(s.value_type, "str") && s.value[0] != '{')
+      s.value = convert_to_string(s.value);
     ret_exp = replace_in_expression(exp, s.value, start, end, false, true);
   }
     //---------------is define type
@@ -404,7 +407,7 @@ String function_call(String exp) {
         return 0;
       }
       //=>append pack_name to pack_stack and then clear pack_name
-      pack_stack[++func_call_stack_ind]=pack_name;
+      pack_stack[++func_call_stack_ind] = pack_name;
       pack_name = 0;
       //=>if pack_name not exist st_func is -1
       if (st_func == -1)st_func = tmp1;
@@ -482,7 +485,7 @@ String function_call(String exp) {
     pack_name[plen - 1] = 0;
   }
   //=>determine st_func based on func_start_stack
-  st_func=func_start_stack[func_call_stack_ind];
+  st_func = func_start_stack[func_call_stack_ind];
   //********************calling functions
 //  printf("***FUNC_CALL(%s):\nFtype:%i,Pname:%s,Fname:%s,Params:%s[%i],Index:%s,(start:%i,end:%i),Return:%s=>%s\n",
 //         exp, func_type, pack_name, func_name,
@@ -674,7 +677,12 @@ is_exact_function(str_list func_params,
                   str_list type_params,
                   uint32 params_len,
                   Boolean is_built_in) {
-  //printf ("##FUNCII:%s,%s\n", print_str_list (func_params, func_params_len), print_str_list (type_params, params_len));
+  /**
+   * a=bool|str|num|struct|var[0] : value
+   * aa=bool[?,..]|str[?,..]|num[?,..]|struct[?,..] : var
+   * aa..=bool[?,..]|str[?,..]|num[?,..]|struct[?,..] : var,var,..
+   */
+  printf("##FUNCII:%s,%s\n", print_str_list(func_params, func_params_len), print_str_list(type_params, params_len));
   if (func_params_len == 0 && params_len == 0) {
     return true;
   } else if (func_params_len == 0 && params_len != 0) {
@@ -689,19 +697,21 @@ is_exact_function(str_list func_params,
       is_last_vars = true;
     //if call params is less than func params
     if (params_len < func_params_len && !is_last_vars) {
+      //TODO:error
       //printf ("1####################\n");
       return false;
     }
     //if func params is less than call params
     if (func_params_len < params_len && !is_last_vars) {
       //printf ("2####################\n");
+      //TODO:error
       return false;
     }
     //move on ret_pars array
     for (uint32 i = 0; i < params_len; ++i) {
       Boolean is_a_builtin = false;
       if (func_params_len < i + 1) break;
-//      printf ("+STR:%s==%s\n", func_params[i], type_params[i]);
+//      printf("+STR:%s==%s\n", func_params[i], type_params[i]);
       str_list p1 = 0, p2 = 0;
       char_split(func_params[i], ';', &p1, false);
       char_split(type_params[i], ';', &p2, false);
@@ -710,13 +720,16 @@ is_exact_function(str_list func_params,
       if (is_built_in && str_equal(p1[0], "aa.."))break;
       else if (is_built_in && str_ch_equal(p1[0], 'a'))is_a_builtin = true;
       //-----check if vars
-      if (!is_a_builtin && str_equal(p1[0], "vars")) {
+      if (str_equal(p1[0], "vars")) {
         str_list p3 = 0;
         for (uint32 j = i; j < params_len; ++j) {
           char_split(type_params[j], ';', &p3, false);
-          if ((p3[3] != 0 && !str_ch_equal(p3[3], '_')/*if is array*/)
-              || str_ch_equal(p3[2], '2')/*if is reference var*/) {
-            //printf("3####################:%s\n",type_params[j]);
+          if ((str_ch_equal(p3[2], '0') && p3[3] != 0 && !str_ch_equal(p3[3], '_')/*if is array value*/)
+              || (!str_search(basic_types, p3[0], StrArraySize(basic_types))/*if is a struct*/)
+              || str_ch_equal(p3[2], '2')/*if is reference var*/
+              || (str_ch_equal(p3[2], '1') && str_ch_equal(p3[3], '_')
+                  && return_Mpoint_status(get_Mvar(str_to_long_int(p3[1])).pointer_id) == 1/*if is array var*/)) {
+//            printf("3####################:%s\n",type_params[j]);
             return false;
           }
         }
@@ -730,7 +743,8 @@ is_exact_function(str_list func_params,
       //-----check dimensions
       //printf("@WWWW:%s,%s\n", p1[2], p2[3]);
       if (!is_equal_arrays_indexes(p1[2], p2[3])) {
-        printf("R#ERR45436456711111\n");
+        //TODO:error
+        printf("R#ERR45436456711111:%s,%s\n", p1[2], p2[3]);
         return false;
       }
     }
@@ -930,8 +944,9 @@ int8 set_function_parameters(String func_name, str_list pars, uint32 pars_len) {
 //****************************************************
 /**
  * get a list of function parameters and return a list of all types of parameters
- * every type format:type[num];var_index;state[0];var_dimensions[2,3]
+ * every type format:type[num];var_index[3];state[0];var_dimensions[2,3]
  * if not has var_dimension, then set '_'
+ * state: 0=value,1=var,2=reference
  * @param params
  * @param params_len
  * @param ret
@@ -941,7 +956,6 @@ uint32 determine_type_name_func_parameters(str_list params, uint32 params_len, s
   //printf("$$$$TP:%s,%i\n", print_str_list(params, params_len), params_len);
   //-----------init vars
   uint32 ret_len = 0;
-  //ret[i]="type;var_index;state;var_dimensions" state: 0=value,1=var,2=reference
   for (uint32 i = 0; i < params_len; ++i) {
     uint32 param_len = str_length(params[i]);
     //printf("@@@PAR:%s,%i\n", params[i],is_valid_name(params[i], true));
@@ -983,7 +997,7 @@ uint32 determine_type_name_func_parameters(str_list params, uint32 params_len, s
     //determine value type
     value_type = determine_value_type(value);
     //if not array
-    if (str_ch_equal(var_dim, '1') && !has_two_limiting(params[i], '{', '}', true)) str_init(&var_dim, "0");
+    if (str_ch_equal(var_dim, '1') && !has_two_limiting(params[i], '{', '}', true)) str_init(&var_dim, "_");
     //append to ret
 //    printf("#VAL:%s=>%s,%s,%s\n", params[i],var_dim, value,value_type);
     str_list_append(&(*ret), str_multi_append(value_type, ";0;0;", var_dim, 0, 0, 0), ret_len++);

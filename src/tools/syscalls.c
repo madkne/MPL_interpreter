@@ -6,7 +6,7 @@
 
 void __syscall_exit(int32 i) {
   //=>store all session entries to database in disk
-  if (!flush_session_entries()) {
+  if (i != EXIT_FATAL && !flush_session_entries()) {
     //TODO:error
   }
   //=>show exit message if in program debug
@@ -14,10 +14,11 @@ void __syscall_exit(int32 i) {
     //exit state
     String exit_state = 0, unit = 0;
     double time_taken = calculate_period_time((long_int) AppStartedClock, &unit);
-    if (i == 0)str_init(&exit_state, "EXIT_SUCCESS");
+    if (i == EXIT_NORMAL)str_init(&exit_state, "EXIT_SUCCESS");
     else str_init(&exit_state, "EXIT_FAILURE");
     printf("Process finished during %.6f %s with exit code %i (%s)\n", time_taken, unit, i, exit_state);
   }
+  //=>call exit system call with i parameter
   exit(i);
 }
 

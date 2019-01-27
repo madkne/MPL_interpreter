@@ -71,21 +71,20 @@ and(num,num),xor(num,num),or(num,num),not(num),rshift(num,num),lshift(num,num)
 tnum(var,bool),tbool(var),tstr(var),tchars(var),at(var,num),into(var,num,str),inum(var),ibool(var),istr(var)
 -------OS functions:
 --Completed:
-exit(num),print(val|var[..]),input(num),shell(str),time(),rand(num,num),argvs()
+exit(num),print(val|var[..]),input(num),shell(str),time(),rand(num,num),argvs(),printf(str,var[..])
 --Not Completed:
-printf(str,var[..])
 --TMP
 modfree(str)
 -----------------------------
 built-in constants:(by $def)
 - not edited and just use
 --Completed:
-ERROR:num,WARNING:num,OSType:str,OSArch:str,PathSeparator:str,EOF:num,EOL:str,IntSize:num,FloatSize:num,MplVersion:str,AppPath:str,LeftDirect:num,RightDirect:num,BothDirect:num,ReadChar:num,ReadLine:num,ReadAll:num,PID:num,StartedTime:num,HostName:str
+ERROR:num,WARNING:num,OSType:str,OSArch:str,PathSeparator:str,EOF:num,EOL:str,IntSize:num,FloatSize:num,MplVersion:str,AppPath:str,LeftDirect:num,RightDirect:num,BothDirect:num,ReadChar:num,ReadLine:num,ReadAll:num,PID:num,StartedTime:num,HostName:str,MplPath:str
 --Not Completed:
 -----------------------------
 built-in config:(by $con)
 - can use and just edited in global and outside of functions
-ErrorsState,WarningsState,ExportLogFile,MaxHugeDivideSteps,MaxHugeDecimalNumbers,TabSize,AppVersion,AppName,AppLicense,AppCreator,SessionMode,HelpArgumentMode,OverwriteBuiltinMode,DebugMode,RunOnlyOS,RunOnlyArch,SessionDatabasePath,ExportBuildFile,AppIcon,BuildMode
+ErrorsState,WarningsState,ExportLogFile,MaxHugeDivideSteps,MaxHugeDecimalNumbers,AppVersion,AppName,AppLicense,AppCreator,SessionMode,HelpArgumentMode,OverwriteBuiltinMode,DebugMode,SessionDatabasePath,ExportBuildFile,AppIcon,BuildMode
 --- just used for package files:
 PackageMode,AccessVariablesMode,NameSpace,ExportByteCode
 -- in feature:

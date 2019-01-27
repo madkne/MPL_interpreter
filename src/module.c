@@ -34,10 +34,10 @@ int32 call_module_funcs(String mod_name,
 //***********************************************
 Boolean load_module_file(String path, uint32 line, String src) {
   //if module supported by mpl
-  String mod_name = return_file_name_extension_path(path, 0);
+  String mod_name = return_file_name_extension_path(path, 0,true);
   uint32 mpl_module_id = return_module_id(mod_name);
   if (mpl_module_id == 0) {
-    print_error(line, "not_support_module", src, mod_name, 0, "load_module_file");
+    print_error(line, "not_support_module", src, mod_name, path, "load_module_file");
     return false;
   }
   //printf("@@:%s,%s\n", path, mod_name);
@@ -54,6 +54,7 @@ Boolean load_module_file(String path, uint32 line, String src) {
   mpl_modules_instance[mpl_module_id] = hinstLib;
   //init module functions
   init_module_file_funcs(mpl_module_id);
+  str_list_append(&installed_modules,path,installed_modules_len++);
   return true;
   //-----------------------------------
   #elif LINUX_PLATFORM == 1

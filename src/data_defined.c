@@ -41,9 +41,6 @@ Boolean is_real_mpl = false;
 int8 errors_mode = ERROR_ID;
 int8 warnings_mode = WARNING_ID;
 uint8 is_programmer_debug = 2;
-Boolean using_custom_tab = false;
-String tab_size = "      "; //6
-uint8 tab_size_int = 6;
 uint8 max_steps_estimate_huge = 8;
 uint32 max_decimal_has_huge = 10;
 Boolean safe_mode = true;
@@ -57,8 +54,6 @@ Boolean access_vars_mode = true;
 String logfile_path = 0;
 String namespace = 0;
 String bytecode_path = 0;
-String run_only_os = 0;
-String run_only_arch = 0;
 Boolean build_mode = false;
 String buildfile_path = 0;
 //-------------------------------------------------------
@@ -118,9 +113,11 @@ Mpoint *hash_pointers[HASH_MEM_SIZE] = {0};
 
 utf8_str_list source_paths;
 
-str_list program_argvs;
-
+str_list program_argvs = 0;
 uint32 argvs_len = 0;
+
+str_list installed_modules = 0;
+uint32 installed_modules_len = 0;
 
 //*************************************************************
 //*********************public functions************************
@@ -134,17 +131,17 @@ void init_data_defined() {
   String Fsrc = filename[0];
   str_init(&main_source_name, Fsrc);
   project_root = char_join(entries, OS_SEPARATOR, size - 1, true);
-  //printf("GGGGG:%s,%s\n",project_root,stdin_source_path);
-  if (LINUX_PLATFORM == 1) {
-    project_root = str_append("/", project_root);
-  }
+//  printf("GGGGG:%s,%s\n",project_root,stdin_source_path);
+  #if LINUX_PLATFORM == true
+  project_root = str_append("/", project_root);
+  #endif
   //---------------init max_int ,max_float
   MAX_INT_LEN = INT_USED_BYTES * 2;
   MAX_FLOAT_LEN = (FLOAT_USED_BYTES * 2) - 2;
 
   //---------------get mpl path
   os_separator = char_to_str(OS_SEPARATOR);
-  interpreter_path = get_mpl_dir_path();
+  if (interpreter_path == 0) interpreter_path = get_mpl_dir_path();
   if (is_real_mpl) {
     interpreter_tmp_path = str_multi_append(interpreter_path, os_separator, "tmp", os_separator, 0, 0);
     if (fopen(str_append(interpreter_tmp_path, "TMPDIR"), "r") == NULL) {
