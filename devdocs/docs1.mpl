@@ -59,16 +59,15 @@ exception
 built-in functions:
 -------MPL functions:
 --Completed:
-typeof(var),push(var[..],var[..],num)/*just for var[?]*/,ErrHandle(num,str,str)
+typeof(var),push(var[..],var[..],num)/*just for var[?]*/,ErrHandle(num,str,str),ConAll(),DefAll(),DefIsset(str),SesAll(),SesIsset(str),len(var[..]),type(var[..])
 --Not Completed:
-len(var[..]),type(var[..]),pop(var[..],num)/*just for var[?]*/,del(var[..]),crop(var[..],num,num),ConAll(),DefAll(),DefIsset(str),DefUnset(str),SesUnset(str),SesAll(),SesIsset(str),EmbedRun(str[?]),exec(str),echo(var)/*just used in embed files*/
+pop(var[..],num)/*just for var[?]*/,del(var[..]),crop(var[..],num,num),DefUnset(str),SesUnset(str),EmbedRun(str[?]),exec(str),echo(var)/*just used in embed files*/
 --TMP
 TraceVar(var[?,..]),TraceFunc(str,num)
 -------DATA functions:
 --Completed:
-and(num,num),xor(num,num),or(num,num),not(num),rshift(num,num),lshift(num,num)
+and(num,num),xor(num,num),or(num,num),not(num),rshift(num,num),lshift(num,num),at(str,num),into(str,num,str),tnum(var),tbool(var),tstr(var),inum(str),ibool(str),tarray(var)
 --Not Completed:
-tnum(var,bool),tbool(var),tstr(var),tchars(var),at(var,num),into(var,num,str),inum(var),ibool(var),istr(var)
 -------OS functions:
 --Completed:
 exit(num),print(val|var[..]),input(num),shell(str),time(),rand(num,num),argvs(),printf(str,var[..])
@@ -84,7 +83,7 @@ ERROR:num,WARNING:num,OSType:str,OSArch:str,PathSeparator:str,EOF:num,EOL:str,In
 -----------------------------
 built-in config:(by $con)
 - can use and just edited in global and outside of functions
-ErrorsState,WarningsState,ExportLogFile,MaxHugeDivideSteps,MaxHugeDecimalNumbers,AppVersion,AppName,AppLicense,AppCreator,SessionMode,HelpArgumentMode,OverwriteBuiltinMode,DebugMode,SessionDatabasePath,ExportBuildFile,AppIcon,BuildMode
+ErrorsState,WarningsState,ExportLogFile,MaxHugeDivideSteps,MaxHugeDecimalNumbers,AppVersion,AppName,AppLicense,AppCreator,SessionMode,OverwriteBuiltinMode,DebugMode,SessionDatabasePath,ExportBuildFile,AppIcon,BuildMode
 --- just used for package files:
 PackageMode,AccessVariablesMode,NameSpace,ExportByteCode
 -- in feature:

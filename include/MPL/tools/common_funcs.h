@@ -54,6 +54,7 @@ Boolean is_equal_arrays_indexes(String s1, String s2);
 
 Boolean has_two_limiting(String s, uint8 l1, uint8 l2, Boolean ignore_space);
 String replace_control_chars(String val);
+String set_valid_control_chars(String val);
 Boolean is_equal_data_types(uint8 t1, uint8 t2);
 int32 search_int32_array(int32 a[], uint32 al, int32 n);
 Boolean delete_int32_element_array(int32 a[], uint32 al, int32 n, Boolean delete_last);

@@ -481,7 +481,6 @@ set_memory_var(long_int fin, long_int sid, String name, String value_var, String
 
 //    print_vaar (vals_array);
     if (vals_array.start == 0) {
-      //printf ("###########failed1\n");
       //TODO:error
       printf("#ERR54\n");
       return 0;
@@ -808,7 +807,7 @@ long_int return_var_ind_pointer_id(long_int pointer_id) {
 }
 //****************************************************
 /**
- * get a pointer id of a array and return count of its dimensions like: f[1,2];=>1,2
+ * get a pointer id of an array and return count of its dimensions like: f[1,2];=>1,2
  * @param var_ind
  * @param ret
  * @return uint32

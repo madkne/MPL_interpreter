@@ -682,7 +682,7 @@ is_exact_function(str_list func_params,
    * aa=bool[?,..]|str[?,..]|num[?,..]|struct[?,..] : var
    * aa..=bool[?,..]|str[?,..]|num[?,..]|struct[?,..] : var,var,..
    */
-  printf("##FUNCII:%s,%s\n", print_str_list(func_params, func_params_len), print_str_list(type_params, params_len));
+//  printf("##FUNCII:%s,%s\n", print_str_list(func_params, func_params_len), print_str_list(type_params, params_len));
   if (func_params_len == 0 && params_len == 0) {
     return true;
   } else if (func_params_len == 0 && params_len != 0) {
@@ -715,38 +715,55 @@ is_exact_function(str_list func_params,
       str_list p1 = 0, p2 = 0;
       char_split(func_params[i], ';', &p1, false);
       char_split(type_params[i], ';', &p2, false);
+//      printf("SSSSS:%s;%s\n", func_params[i], type_params[i]);
       //-----check if aa in built-in
       if (is_built_in && str_equal(p1[0], "aa"))continue;
       if (is_built_in && str_equal(p1[0], "aa.."))break;
       else if (is_built_in && str_ch_equal(p1[0], 'a'))is_a_builtin = true;
       //-----check if vars
-      if (str_equal(p1[0], "vars")) {
+      if (str_equal(p1[0], "vars") || (is_built_in && str_ch_equal(p1[0], 'a'))) {
         str_list p3 = 0;
         for (uint32 j = i; j < params_len; ++j) {
           char_split(type_params[j], ';', &p3, false);
-          if ((str_ch_equal(p3[2], '0') && p3[3] != 0 && !str_ch_equal(p3[3], '_')/*if is array value*/)
-              || (!str_search(basic_types, p3[0], StrArraySize(basic_types))/*if is a struct*/)
-              || str_ch_equal(p3[2], '2')/*if is reference var*/
+          if (str_ch_equal(p3[2], '0') && p3[3] != 0 && !str_ch_equal(p3[3], '_')/*if is array value*/)return false;
+          if (!is_built_in && !str_search(basic_types, p3[0], StrArraySize(basic_types))/*if is a struct*/)return false;
+          if (str_ch_equal(p3[2], '2')/*if is reference var*/
               || (str_ch_equal(p3[2], '1') && str_ch_equal(p3[3], '_')
-                  && return_Mpoint_status(get_Mvar(str_to_long_int(p3[1])).pointer_id) == 1/*if is array var*/)) {
-//            printf("3####################:%s\n",type_params[j]);
+                  && return_Mpoint_status(get_Mvar(str_to_long_int(p3[1])).pointer_id) == 1/*if is array var*/))
             return false;
-          }
         }
-        break;
+        if (!is_built_in) break;
       }
       //-----check data types
       if (!is_a_builtin && !str_equal(p1[0], p2[0])) {
-        //printf("2####################\n");
+        //TODO:error
+        printf("R#ERR454364567111167\n");
         return false;
       }
       //-----check dimensions
       //printf("@WWWW:%s,%s\n", p1[2], p2[3]);
-      if (!is_equal_arrays_indexes(p1[2], p2[3])) {
-        //TODO:error
-        printf("R#ERR45436456711111:%s,%s\n", p1[2], p2[3]);
-        return false;
+      //=>if is value and not equal indexes
+      if (str_ch_equal(p2[2], '0') && !is_equal_arrays_indexes(p1[2], p2[3]))
+        goto ERRDIM_is_exact;
+      //=>if var or ref is value and type is value too!
+      if (!str_ch_equal(p2[2], '0') && !str_ch_equal(p2[3], '_') && str_ch_equal(p1[2], '0')) continue;
+      //=>if var or ref is value and type is an array
+      if (!str_ch_equal(p2[2], '0') && !str_ch_equal(p2[3], '_') && !str_ch_equal(p1[2], '0'))goto ERRDIM_is_exact;
+      //=>if is var or ref not sure and type not important!
+      if (!str_ch_equal(p2[2], '0' && str_ch_equal(p2[3], '_'))) {
+        long_int po_id = get_Mvar(str_to_long_int(p2[1])).pointer_id;
+        str_list tmp = 0;
+        uint32 tmplen = return_array_dimensions(po_id, &tmp);
+        String res = str_join(tmp, tmplen, ",");
+        if (str_ch_equal(res, '1'))res[0] = '0';
+//        printf("___:%s==%s\n",p1[2], res);
+        if (is_equal_arrays_indexes(p1[2], res))continue;
       }
+      ERRDIM_is_exact:
+      //TODO:error
+      printf("R#ERR45436456711111:%s,%s\n", p1[2], p2[3]);
+      return false;
+
     }
 //    printf("FFFFFFFFFFFFFFFF\n");
   }
@@ -876,7 +893,7 @@ int8 set_function_parameters(String func_name, str_list pars, uint32 pars_len) {
     char_split(func_params[i], ';', &p2, false);
     if (i < ret_pars_len) {
       p1_len = char_split(ret_pars[i], ';', &p1, false);
-      //printf("#STR:%s==%s&&%s (%i,%i)\n", ret_pars[i], func_params[i], pars[i], p1_len, func_params_len);
+//      printf("#STR:%s==%s&&%s (%i,%i)\n", ret_pars[i], func_params[i], pars[i], p1_len, func_params_len);
       if (p1_len == 0)break;
     }
     //====is vars
@@ -908,6 +925,7 @@ int8 set_function_parameters(String func_name, str_list pars, uint32 pars_len) {
         String namei = 0;
         if (str_ch_equal(p1[3], '_'))str_init(&namei, p2[1]);
         else namei = str_multi_append(p2[1], "[", p1[3], "]", 0, 0);
+//        printf("####:%s;%s\n",namei,pars[i]);
         set_memory_var(next_fin, 0, namei, pars[i], p2[0], true);
       }
     }
@@ -919,7 +937,13 @@ int8 set_function_parameters(String func_name, str_list pars, uint32 pars_len) {
         if (vars_po_ids != 0)vars_po_ids = char_append(vars_po_ids, ';');
         vars_po_ids = str_append(vars_po_ids, po_id);
       } else {
-        copy_memory_var(str_to_long_int(p1[1]), p2[1], next_fin);
+        if (str_ch_equal(p1[3], '_'))
+          copy_memory_var(str_to_long_int(p1[1]), p2[1], next_fin);
+        else {
+          long_int po_id = get_data_memory_id(get_Mvar(str_to_long_int(p1[1])).pointer_id, p1[3]);
+          String val = __return_value_var_complete(po_id);
+          set_memory_var(next_fin, 0, p2[1], val, p2[0], true);
+        }
       }
     }
       //====define var by reference var

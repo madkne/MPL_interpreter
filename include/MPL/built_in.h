@@ -29,12 +29,11 @@
 #define _DATA_TNUM              1
 #define _DATA_TBOOL             2
 #define _DATA_TSTR              3
-#define _DATA_TCHARS            4
+#define _DATA_TARRAY            4
 #define _DATA_AT                5
 #define _DATA_INTO              6
 #define _DATA_INUM              7
 #define _DATA_IBOOL             8
-#define _DATA_ISTR              9
 #define _DATA_XOR               10
 #define _DATA_AND               11
 #define _DATA_OR                12

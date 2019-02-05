@@ -66,7 +66,7 @@ Boolean edit_magic_config(String key, String value, String val_type) {
   }
 
   //----------------------------------------
-  //=SessionMode,HelpArgumentMode,OverwriteBuiltinMode,DebugMode,PackageMode,AccessVariablesMode,BuildMode
+  //=SessionMode,OverwriteBuiltinMode,DebugMode,PackageMode,AccessVariablesMode,BuildMode
   if (str_has_suffix(key, "Mode")) {
     if (!str_equal(val_type, "bool")) {
       //TODO:error
@@ -75,7 +75,6 @@ Boolean edit_magic_config(String key, String value, String val_type) {
     Boolean value_bool = str_to_bool(value);
     if (str_equal(key, "SessionMode"))session_mode = value_bool;
     else if (is_real_mpl && str_equal(key, "BuildMode"))build_mode = value_bool;
-    else if (str_equal(key, "HelpArgumentMode"))help_argv_mode = value_bool;
     else if (str_equal(key, "OverwriteBuiltinMode"))overwrite_builtin_mode = value_bool;
     else if (str_equal(key, DEBUG_MODE))debug_mode = value_bool;
     //TODO:PackageMode,AccessVariablesMode
@@ -154,9 +153,7 @@ void init_magic_define() {
   add_to_mama(DEFINE_MAGIC_MACRO_TYPE, "str", "EOL", new_line_char);
   add_to_mama(DEFINE_MAGIC_MACRO_TYPE, "num", "IntSize", str_from_int32(MAX_INT_LEN));
   add_to_mama(DEFINE_MAGIC_MACRO_TYPE, "num", "FloatSize", str_from_int32(MAX_FLOAT_LEN));
-  add_to_mama(DEFINE_MAGIC_MACRO_TYPE,
-              "str",
-              "MplVersion",
+  add_to_mama(DEFINE_MAGIC_MACRO_TYPE, "str", "MplVersion",
               str_multi_append(VERSION_NAME, "-", VERSION, "-", str_from_long_int(VERSION_NUMBER), 0));
   add_to_mama(DEFINE_MAGIC_MACRO_TYPE, "str", "AppPath", str_from_path(project_root));
   add_to_mama(DEFINE_MAGIC_MACRO_TYPE, "str", "MplPath", str_from_path(interpreter_path));
@@ -177,7 +174,6 @@ void init_magic_config() {
   add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "num", "MaxHugeDivideSteps", str_from_int32(max_steps_estimate_huge)); //[OK]
   add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "num", "MaxHugeDecimalNumbers", str_from_int32(max_decimal_has_huge)); //[OK]
   add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "bool", "SessionMode", "true"); //[OK]
-  add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "bool", "HelpArgumentMode", "false"); //[OK]
   add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "bool", "OverwriteBuiltinMode", "false"); //[OK]
   add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "bool", DEBUG_MODE, "false"); //[OK]
   add_to_mama(CONFIG_MAGIC_MACRO_TYPE, "bool", "BuildMode", "false"); //[OK]

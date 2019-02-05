@@ -1949,12 +1949,8 @@ void calculate_math_expression(String exp, uint8 target_type, String *retval, ui
   exp = str_trim_space(exp);
   //----------------if is '0'||null||'?'
   if (str_equal(exp, "0") || str_equal(exp, "null") || str_equal(exp, "?")) {
-    if (type_exp == '_') {
-      type_exp = 'i';
-    }
-    if (str_equal(exp, "?")) {
-      str_init(&final_exp, "?");
-    }
+    if (type_exp == '_') type_exp = 'i';
+    if (str_equal(exp, "?")) str_init(&final_exp, "?");
     str_init(&(*retval), final_exp);
     (*rettype) = type_exp;
     return;
@@ -1964,14 +1960,14 @@ void calculate_math_expression(String exp, uint8 target_type, String *retval, ui
 
   uint32 len_exp = str_length(exp);
 
-  if (len_exp == 1 && (exp[0] < '0' || exp[0] > '9')) {
-    str_init(&(*retval), "0");
-    (*rettype) = 'i';
-    return;
-  }
+//  if (len_exp == 1 && (exp[0] < '0' || exp[0] > '9')) {
+//    str_init(&(*retval), "0");
+//    (*rettype) = 'i';
+//    return;
+//  }
   exp = char_append(exp, '=');
   len_exp++;
-  //printf("&UUU:%s,%c,%i\n", exp, type_exp,len_exp);
+//  printf("&UUU:%s,%c,%i\n", exp, type_exp, len_exp);
   //******************
   for (uint32 i = 0; i < str_length(exp); i++) {
     if (exp[i] == ' ')continue;
@@ -2105,7 +2101,7 @@ void calculate_math_expression(String exp, uint8 target_type, String *retval, ui
     //---------------end of calculation
     if (buf != 0 && num1 == 0 && num2 == 0 && op == 0 && exp[i] == '=') {
       Boolean is_valid_val = false;
-//      printf("&www:%s=>%s\n",exp, buf);
+//      printf("&www:%s=>%s\n", exp, buf);
       //----check if buf is num
       if (type_exp == '_' && !is_valid_name(buf, true)) {
         type_exp = set_type_of_math(&buf, 0);

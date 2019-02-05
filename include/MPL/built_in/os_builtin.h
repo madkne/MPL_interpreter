@@ -12,6 +12,6 @@ String _OS_TYPE__shell(String command);
 String _OS_TYPE__time();
 String _OS_TYPE__rand(String min,String max);
 String _OS_TYPE__argvs();
-Boolean _OS_TYPE__printf(str_list items, uint32 items_len);
-Boolean _OS_TYPE__printf_format(String f,String s,String *ret);
+Boolean _OS_TYPE__printf(str_list types,str_list items, uint32 items_len);
+Boolean _OS_TYPE__printf_format(String f,String s,String type,String *ret);
 #endif //MPL_OS_BUILTIN_H

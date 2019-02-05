@@ -190,11 +190,13 @@ TODO
 * implement console color **[OK]**
 * building MPL website **[OK]**
 * implement printf built-in function **[OK]**
-* implement at,into built-in functions **[..]**
-* implement ConAll,DefAll,DefIsset built-in functions **[..]**
-* implement help argument for program **[..]**
-* implement len built-in function **[..]**
-* implement SesAll,SesIsset built-in functions **[..]**
+* implement at,into built-in functions **[OK]**
+* implement ConAll,DefAll,DefIsset built-in functions **[OK]**
+* implement len built-in function **[OK]**
+* implement SesAll,SesIsset built-in functions **[OK]**
+* implement tnum,tbool,tstr built-in functions **[OK]**
+* implement inum,ibool built-in functions **[OK]**
+* implement tarray built-in function **[OK]**
 * implement log file for program **[..]**
 * implement crop built-in function **[..]**
 * implement pop built-in function **[..]**
@@ -204,6 +206,8 @@ TODO
 * implement OverwriteBuiltinMode for program
 * start review_array_loop **[OK]**
 * alloc review array every time
+* implement AbsPath,mkdir functions of fs module
+* implement DnsMapping function of mhl function
 
 * **_complete full structure of mpl_** **[..]**
 
@@ -212,9 +216,9 @@ TODO
 * complete import error_handling
 * complete mpl built-in functions
 * complete built-in constants [OK]
-* complete data built-in functions
+* complete data built-in functions [..]
 * complete parse error_handling
-* complete os built-in functions
+* complete os built-in functions [OK]
 * complete mean_run error_handling
 * complete built-in error_handling
 * complete support utf8
@@ -256,6 +260,12 @@ MPL BUG be reported
 * [B17} bug in flush_session_entries function when exit from program [OK]
 * [B18] bug in return_file_name_extension_path function [OK]
 * [B19] bug in is_exact_function function for vars data type [OK]
+* [B20] bug in calculate_math_expression function for unknown one letter var [OK]
+* [B21] bug in printf function for string and num values [OK]
+* [B22] bug for "print(tstr(jj[0]))" error in parser [..]
+* [B23] bug in call_built_in_funcs function to determine value as 'a' [OK]
+* [B24] bug in is_exact_function function for matching array dimensions [OK]
+* [B25] bug in set_function_parameters for assign array var index value to var [OK]
 
 ### ((:publish MPL-RC version of MPL (for windows):))
 

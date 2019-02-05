@@ -38,7 +38,6 @@ uint8 max_steps_estimate_huge;
 uint32 max_decimal_has_huge;
 Boolean safe_mode;
 Boolean session_mode;
-Boolean help_argv_mode;
 Boolean optimize_mode;
 Boolean overwrite_builtin_mode;
 Boolean debug_mode;

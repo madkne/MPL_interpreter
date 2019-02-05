@@ -3,7 +3,28 @@
 //
 #include <MPL/system.h>
 
+String _MPL_TYPE__len(String partype) {
+  //=>init vars
+  str_list partype1 = 0;
+  str_list store = 0;
+  uint32 storelen = 0;
+  //--------------------------
+  //=>split partype to partype1
+  char_split(partype, ';', &partype1, true);
+  //=>if is a value
+  if (str_ch_equal(partype1[2], 0)) {
+    storelen = char_split(partype1[3], ',', &store, true);
+  }
+    //=>if is var or ref var
+  else {
+    long_int po_id = get_Mvar(str_to_long_int(partype1[1])).pointer_id;
+    storelen = return_array_dimensions(po_id, &store);
 
+  }
+  //=>return!
+  if (storelen == 0)return "null";
+  return str_multi_append("{", str_join(store, storelen, ","), "}", 0, 0, 0);
+}
 //************************************************
 /**
  * process just atomic values like: num,str,bool and for struct return null. in public it return 's' for str or 'b' for bool
@@ -20,6 +41,14 @@ String _MPL_TYPE__typeof(String value, String type) {
   return "null";
 }
 //************************************************
+/**
+ * push to a variable a value(str,num,struct,..) and return var items count
+ * @param var_ind
+ * @param value
+ * @param val_type
+ * @param wh
+ * @return uint32
+*/
 uint32 _MPL_TYPE__push(long_int var_ind, String value, String val_type, String wh) {
   if (var_ind == 0) {
     //TODO:error
@@ -81,7 +110,6 @@ Boolean _MPL_TYPE__error_handle(int8 err_type, String err_name, String err_des) 
   return exception_user_handler(err_type, err_name, err_des, get_func_by_id(entry_table.cur_fid).lbl);
 }
 //************************************************
-//************************************************
 /**
  * get a variable or value and return its main type like for a num value or variable return 'num' and return its indexes as {"num","1"}
  * @param value
@@ -92,4 +120,35 @@ Boolean _MPL_TYPE__error_handle(int8 err_type, String err_name, String err_des) 
 String _MPL_TYPE__var_type(String value, String type) {
   return type;
 }
+//************************************************
+String _MPL_TYPE__mm_all(uint8 type) {
+  //=>init vars
+  String ret = 0;
+  str_list tmp = 0;
+  uint32 tmplen = 0;
+  //---------------------------
+  //=>get start point of mama
+  mama *tmp1 = entry_table.mama_start;
+  //=>if no any date, so return null
+  if (tmp1 == 0) return "null";
+  //=>store all mm keys to tmp str_list
+  for (;;) {
+    if (tmp1->type == type) {
+      str_list_append(&tmp, convert_to_string(tmp1->key), tmplen++);
+    }
+    tmp1 = tmp1->next;
+    if (tmp1 == 0) break;
+  }
+  //=>create ret and return it!
+  ret = str_multi_append("{", str_join(tmp, tmplen, ","), "}", 0, 0, 0);
+  return ret;
+}
+//************************************************
+Boolean _MPL_TYPE__mm_isset(uint8 type, String key) {
+  mama ret = get_mama(type, key);
+  if (ret.id == 0)return false;
+  return true;
+}
+//************************************************
+
 

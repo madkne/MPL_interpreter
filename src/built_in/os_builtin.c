@@ -114,11 +114,12 @@ String _OS_TYPE__argvs() {
 //************************************************
 /**
  * display on console a formatted text
+ * @param types
  * @param items
  * @param len
  * @return Boolean
  */
-Boolean _OS_TYPE__printf(str_list items, uint32 items_len) {
+Boolean _OS_TYPE__printf(str_list types,str_list items, uint32 items_len) {
 //  printf("!!!!:%s(%i)\n", print_str_list(items, items_len), items_len);
   //init vars
   String text = items[0];
@@ -147,7 +148,7 @@ Boolean _OS_TYPE__printf(str_list items, uint32 items_len) {
         exception_user_handler(ERROR_ID, "not_enough_inputs", "count of parameters is not enough", "printf");
         return false;
       }
-      if (!_OS_TYPE__printf_format(format, items[items_ind++], &retf)) {
+      if (!_OS_TYPE__printf_format(format, items[items_ind++],types[items_ind], &retf)) {
         exception_user_handler(ERROR_ID,
                                "bad_entry_format",
                                str_multi_append("entry \'",
@@ -166,7 +167,7 @@ Boolean _OS_TYPE__printf(str_list items, uint32 items_len) {
   return true;
 }
 //************************************************
-Boolean _OS_TYPE__printf_format(String f, String s, String *ret) {
+Boolean _OS_TYPE__printf_format(String f, String s,String type, String *ret) {
   /**
  * %s:string(hello)                     ---OK---
  * %i:integer(455)                      ---OK---
@@ -197,7 +198,7 @@ Boolean _OS_TYPE__printf_format(String f, String s, String *ret) {
     //=>if format is str
   else if (str_has_suffix(f, "s")) {
     //=>check input is valid as a string
-    if (str_is_bool(s) || str_is_num(s))return false;
+    if (!str_equal(type,"str"))return false;
     //=>if has number limit
     String tmp = str_substring(f, 0, flen - 1);
     if (tmp == 0)ico = slen;

@@ -7,8 +7,8 @@
 
 //**************************************************define interpreter constants
 #define  APP_NAME                       "Mini Portable Language"
-#define  VERSION                        "0.5.85"    //X.Y.Z=> Z<100,Y<10
-#define  VERSION_NUMBER                 57          //X.Y.Z=>(X*100)+(Y*10)+(Z/10)
+#define  VERSION                        "0.5.98"    //X.Y.Z=> Z<100,Y<10
+#define  VERSION_NUMBER                 59          //X.Y.Z=>(X*100)+(Y*10)+(Z/10)
 #define  VERSION_NAME                   "BETA"
 #define  SLOGAN                         "The solution to common problems of programmers" //راه حل کارهای متداول برنامه نویسان
 
@@ -23,7 +23,7 @@
 #define  MODULES_CODE_LINES             16           //+=15780
 #define  LANGUAGE_CREATOR               "madkne"
 #define  CREATOR_SIGNATURE              "603556816519829596"
-#define  TRUST_LEVEL                    37          //100%
+#define  TRUST_LEVEL                    39          //100%
 #define  WINDOWS_COMPATIBLE             true
 #define  LINUX_COMPATIBLE               false
 //**************************************************define other constants

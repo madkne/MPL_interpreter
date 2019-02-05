@@ -668,6 +668,31 @@ String replace_control_chars(String val) {
 
 }
 //*************************************************************
+String set_valid_control_chars(String val) {
+  uint32 len = str_length(val);
+  if (len < 1)return val;
+  String ret = 0;
+  for (uint32 i = 0; i < len; i++) {
+//    printf("Dsfsdgdrgh:%c\n",val[i]);
+    if ((i == 0 || val[i - 1] != '\\')
+        && (val[i] == '\n' || val[i] == '\t' || val[i] == '\"' || val[i] == '\'' || val[i] == '\\' || val[i] == '\b'
+            || val[i] == '\a')) {
+
+      if (val[i] == '\n')ret = str_append(ret, "\\n");
+      else if (val[i] == 't') ret = str_append(ret, "\\t");
+      else if (val[i] == '\"') ret = str_append(ret, "\\\"");
+      else if (val[i] == '\'') ret = str_append(ret, "\\'");
+      else if (val[i] == '\\') ret = str_append(ret, "\\\\");
+        //backspace
+      else if (val[i] == 'b') ret = str_append(ret, "\\b");
+        //alert
+      else if (val[i] == 'a') ret = str_append(ret, "\\a");
+    } else ret = char_append(ret, val[i]);
+  }
+  return ret;
+
+}
+//*************************************************************
 Boolean is_equal_data_types(uint8 t1, uint8 t2) {
   if (t1 == 0 || t2 == 0 || t1 == '0' || t2 == '0')return false;
   if (t1 == t2)return true;

@@ -45,7 +45,6 @@ uint8 max_steps_estimate_huge = 8;
 uint32 max_decimal_has_huge = 10;
 Boolean safe_mode = true;
 Boolean session_mode = true;
-Boolean help_argv_mode = true;
 Boolean optimize_mode = false;
 Boolean overwrite_builtin_mode = false;
 Boolean debug_mode = false;

@@ -14,8 +14,7 @@ Boolean str_equal(String s1, String s2) {
 //******************************************
 String convert_to_string(String s) {
   String ret = 0;
-  ret = char_append(ret, '\"');
-  ret = str_append(ret, s);
+  ret = str_append("\"", s);
   ret = char_append(ret, '\"');
   return ret;
 }
@@ -538,8 +537,8 @@ String str_from_int64(int64 x) {
 }
 //******************************************
 Boolean str_to_bool(String s) {
-  if (str_ch_equal(s, '1') || str_equal(s, "true") || str_equal(str_to_lower_case(s), "true")) return true;
-  return false;
+  if (str_ch_equal(s, '0') || str_equal(s, "false") || str_equal(str_to_lower_case(s), "false")) return false;
+  return true;
 }
 //******************************************
 double str_to_double(String s) {
