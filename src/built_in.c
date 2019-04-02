@@ -136,6 +136,15 @@ uint32 call_built_in_funcs(String func_name, str_list params, str_list partypes,
     } else if (func_id == _MPL_SESSION_ISSET) {
       Boolean ret = _MPL_TYPE__mm_isset(SESSION_MAGIC_MACRO_TYPE, argvs[0]);
       str_list_append(&(*returns), str_from_bool(ret), returns_len++);
+    } else if (func_id == _MPL_EXECUTE) {
+      Boolean ret = _MPL_TYPE__exec(argvs[0]);
+      str_list_append(&(*returns), str_from_bool(ret), returns_len++);
+    }else if (func_id == _MPL_CROP) {
+      String ret = _MPL_TYPE__crop(var0_ind, str_to_long_int(argvs[1]),str_to_long_int(argvs[2]));
+      str_list_append(&(*returns), ret, returns_len++);
+    }else if (func_id == _MPL_DEL) {
+      Boolean ret = _MPL_TYPE__del(var0_ind);
+      str_list_append(&(*returns), str_from_bool(ret), returns_len++);
     }
 
     //TODO:complete
@@ -185,6 +194,9 @@ uint32 call_built_in_funcs(String func_name, str_list params, str_list partypes,
     } else if (func_id == _DATA_INUM) {
       Boolean ret = _DATA_TYPE__inum(argvs[0]);
       str_list_append(&(*returns), str_from_bool(ret), returns_len++);
+    }else if (func_id == _DATA_DBSLASH) {
+      String ret = _DATA_TYPE__dbslah(argvs[0]);
+      str_list_append(&(*returns), convert_to_string(ret), returns_len++);
     }
     //TODO:complete
   }
@@ -243,19 +255,19 @@ void init_built_in_funcs() {
   add_to_bifs(_MPL_EMBED_RUN, MPL_BUILT_IN_TYPE, "EmbedRun", "str;?", "num");
   add_to_bifs(_MPL_SESSION_ALL, MPL_BUILT_IN_TYPE, "SesAll", 0, "str;?,2");//=>[OK]
   add_to_bifs(_MPL_SESSION_ISSET, MPL_BUILT_IN_TYPE, "SesIsset", "str", "bool");//=>[OK]
-  add_to_bifs(_MPL_CROP, MPL_BUILT_IN_TYPE, "crop", "aa|num|num", "aa");
+  add_to_bifs(_MPL_CROP, MPL_BUILT_IN_TYPE, "crop", "aa|num|num", "aa"); //=>[OK]
   add_to_bifs(_MPL_PUSH, MPL_BUILT_IN_TYPE, "push", "aa|a|num", "num");//=>[OK]
   add_to_bifs(_MPL_POP, MPL_BUILT_IN_TYPE, "pop", "aa|num", "num");
-  add_to_bifs(_MPL_DEL, MPL_BUILT_IN_TYPE, "del", "aa", "bool");
-  add_to_bifs(_MPL_MPL_EXECUTE, MPL_BUILT_IN_TYPE, "exec", "str", "str");
+  add_to_bifs(_MPL_DEL, MPL_BUILT_IN_TYPE, "del", "aa", "bool"); //=>[..]
+  add_to_bifs(_MPL_EXECUTE, MPL_BUILT_IN_TYPE, "exec", "str", "bool"); //=>[OK]
   add_to_bifs(_MPL_ECHO, MPL_BUILT_IN_TYPE, "echo", "aa..", "bool");
   add_to_bifs(_MPL_DEFINE_UNSET, MPL_BUILT_IN_TYPE, "DefUnset", "str", "bool");
   add_to_bifs(_MPL_SESSION_UNSET, MPL_BUILT_IN_TYPE, "SesUnset", "str", "bool");
-  //----------------------------------data types built_in
+  //----------------------------------data types built_in [OK]
   add_to_bifs(_DATA_TNUM, DATA_BUILT_IN_TYPE, "tnum", "a", "num"); //=>[OK]
   add_to_bifs(_DATA_TBOOL, DATA_BUILT_IN_TYPE, "tbool", "a", "bool"); //=>[OK]
   add_to_bifs(_DATA_TSTR, DATA_BUILT_IN_TYPE, "tstr", "a", "str"); //=>[OK]
-  add_to_bifs(_DATA_TARRAY, DATA_BUILT_IN_TYPE, "tarray", "a", "str;?"); //=>[..]
+  add_to_bifs(_DATA_TARRAY, DATA_BUILT_IN_TYPE, "tarray", "a", "str;?"); //=>[OK]
   add_to_bifs(_DATA_AT, DATA_BUILT_IN_TYPE, "at", "str|num", "str"); //=>[OK]
   add_to_bifs(_DATA_INTO, DATA_BUILT_IN_TYPE, "into", "str|num|str", "str"); //=>[OK]
   add_to_bifs(_DATA_IBOOL, DATA_BUILT_IN_TYPE, "ibool", "str", "bool"); //=>[OK]
@@ -266,6 +278,7 @@ void init_built_in_funcs() {
   add_to_bifs(_DATA_NOT, DATA_BUILT_IN_TYPE, "not", "num", "num");//=>[OK]
   add_to_bifs(_DATA_RSHIFT, DATA_BUILT_IN_TYPE, "rshift", "num|num", "num");//=>[OK]
   add_to_bifs(_DATA_LSHIFT, DATA_BUILT_IN_TYPE, "lshift", "num|num", "num");//=>[OK]
+  add_to_bifs(_DATA_DBSLASH, DATA_BUILT_IN_TYPE, "dbslah", "str", "str");//=>[OK]
   //----------------------------------os built_in [OK]
   add_to_bifs(_OS_EXIT, OS_BUILT_IN_TYPE, "exit", "num", "bool"); //=>[OK]
   add_to_bifs(_OS_PRINT, OS_BUILT_IN_TYPE, "print", "aa..", "bool"); //=>[OK]

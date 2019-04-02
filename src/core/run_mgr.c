@@ -1114,7 +1114,7 @@ Boolean function_return(String exp) {
   //****************set in RETURN_TMP_POINTER_ID
   edit_Mpoint(RETURN_TMP_POINTER_ID, return_ids, 0, true, false);
   //****************return
-  //show_memory(40)
+//  show_memory(0);
   return true;
 }
 

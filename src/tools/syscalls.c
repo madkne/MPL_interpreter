@@ -4,30 +4,21 @@
 
 #include <MPL/system.h>
 
-void __syscall_exit(int32 i) {
-  //=>store all session entries to database in disk
-  if (i != EXIT_FATAL && !flush_session_entries()) {
-    //TODO:error
-  }
-  //=>show exit message if in program debug
-  if (is_programmer_debug >= 1) {
-    //exit state
-    String exit_state = 0, unit = 0;
-    double time_taken = calculate_period_time((long_int) AppStartedClock, &unit);
-    if (i == EXIT_NORMAL)str_init(&exit_state, "EXIT_SUCCESS");
-    else str_init(&exit_state, "EXIT_FAILURE");
-    printf("Process finished during %.6f %s with exit code %i (%s)\n", time_taken, unit, i, exit_state);
-  }
-  //=>call exit system call with i parameter
-  exit(i);
-}
-
 //******************************************
 String __syscall_hostname() {
   #if WINDOWS_PLATFORM == true
   return getenv("COMPUTERNAME");
   #elif LINUX_PLATFORM == true
   return getenv("HOSTNAME");
+  #endif
+  return "<unknown>";
+}
+//******************************************
+String __syscall_homedir() {
+  #if WINDOWS_PLATFORM == true
+  return str_append(getenv("HOMEDRIVE"), getenv("HOMEPATH"));
+  #elif LINUX_PLATFORM == true
+  return getenv("HOME");
   #endif
   return "<unknown>";
 }
@@ -55,7 +46,7 @@ String __syscall_abspath(String path) {
   GetFullPathName(path, BufferSize, tmp, 0);
   str_init(&abs_path, tmp);
   if (INVALID_FILE_ATTRIBUTES == GetFileAttributes(abs_path) && GetLastError() == ERROR_FILE_NOT_FOUND) return 0;
-  //printf("\nSSS::%s=>%s\n",path,abs_path);
+//  printf("\nSSS::%s=>%s\n",path,abs_path);
   return abs_path;
   #endif
   return 0;
@@ -168,8 +159,23 @@ String __syscall_get_line(FILE *fp) {
   return linep;
 }
 //******************************************
-Boolean __syscall_mkdir(String path) {
-  mkdir(path);
+Boolean __syscall_mkdir(String path, Boolean is_make_parents) {
+  if (is_make_parents) {
+    //TODO
+  } else {
+    #if WINDOWS_PLATFORM == true
+    int err = CreateDirectoryA(path, NULL);
+//    printf("mkdir:%s=>%i\n",path,err);
+    if (err == 0)return false;
+    else return true;
+    #elif LINUX_PLATFORM == true
+    mkdir(path);
+    //TODO
+    #endif
+
+  }
+
+  return true;
 }
 //******************************************
 uint32 __syscall_rand(uint32 min, uint32 max) {

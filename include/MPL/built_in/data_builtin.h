@@ -13,5 +13,6 @@ String _DATA_TYPE__tstr(String type, String value);
 Boolean _DATA_TYPE__tbool(String type, String value);
 String _DATA_TYPE__tarray(String type, String value);
 Boolean _DATA_TYPE__inum(String value);
+String _DATA_TYPE__dbslah(String val);
 Boolean _DATA_TYPE__ibool(String value);
 #endif //MPL_DATA_BUILTIN_H

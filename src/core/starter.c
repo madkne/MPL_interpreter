@@ -10,7 +10,7 @@ Boolean start_runtime() {
 //  print_magic_macros(2);
   if (build_mode) {
     start_builder();
-    __syscall_exit(EXIT_NORMAL);
+    exit_runtime(EXIT_NORMAL);
   }
   //=>if SessionMode is true, so load session database
   if (session_mode) {
@@ -172,10 +172,10 @@ int8 INSTRUCTION_EXECUTOR(long_int index) {
 //       printf("---------------:%i,%s\n",entry_table.post_short_alloc_len,entry_table.post_short_alloc[0]);
       //check post short alloc
       is_done = check_post_short_alloc();
-
     }
     if (!is_done) {
       printf("~~~~~~~~~~~~~~~~~~>BREAK :(\n\n");
+      return FAILED_EXECUTE_INSTRUCTION;
     }
     //show_prev_fins_array()
   }
@@ -241,3 +241,20 @@ Boolean init_global_vars() {
 }
 
 //**********************************************************
+void exit_runtime(int32 i) {
+  //=>store all session entries to database in disk
+  if (i != EXIT_FATAL && !flush_session_entries()) {
+    //TODO:error
+  }
+  //=>show exit message if in program debug
+  if (is_programmer_debug >= 1) {
+    //exit state
+    String exit_state = 0, unit = 0;
+    double time_taken = calculate_period_time((long_int) AppStartedClock, &unit);
+    if (i == EXIT_NORMAL)str_init(&exit_state, "EXIT_SUCCESS");
+    else str_init(&exit_state, "EXIT_FAILURE");
+    printf("Process finished during %.6f %s with exit code %i (%s)\n", time_taken, unit, i, exit_state);
+  }
+  //=>call exit system call with i parameter
+  exit(i);
+}

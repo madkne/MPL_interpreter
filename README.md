@@ -1,4 +1,4 @@
-**mpl:))** Mini Portable Language - MPL (BETA-0.5)
+**mpl:))** Mini Portable Language - MPL (BETA-0.6)
 ============================================
 
 _This is a small,fast and simple interpreter also best solution to common problems of programmers._
@@ -197,26 +197,38 @@ TODO
 * implement tnum,tbool,tstr built-in functions **[OK]**
 * implement inum,ibool built-in functions **[OK]**
 * implement tarray built-in function **[OK]**
-* implement log file for program **[..]**
-* implement crop built-in function **[..]**
+* implement log file for program **[OK]**
+* implement exec built-in function **[OK]**
+* implement DnsMapping function of mhl function **[..]**
+* implement crop built-in function **[OK]**
 * implement pop built-in function **[..]**
-* implement del built-in function **[..]**
-* implement exec built-in function **[..]**
-* implement DefUnset,SesUnset built-in functions **[..]**
+* implement del built-in function **[OK]**
+* implement AbsPath,mkdir functions of fs module **[OK]**
+* implement dbslah built-in function **[OK]**
+* implement fopen,fclose functions of fs module
+* implement fwrite function of fs module
+* implement init command of mprog **[..]**
+* implement test command of mprog 
+* implement start command of mprog 
+* implement version,locate command of mprog 
+* implement root,help command of mprog
+* implement list,remove command of mprog 
+* implement search command of mprog 
+* implement recent command of mprog 
+* implement DefUnset,SesUnset built-in functions 
 * implement OverwriteBuiltinMode for program
 * start review_array_loop **[OK]**
 * alloc review array every time
-* implement AbsPath,mkdir functions of fs module
-* implement DnsMapping function of mhl function
+
 
 * **_complete full structure of mpl_** **[..]**
 
-* complete $con entries usage
+* complete $con entries usage [..]
 * complete mdebug commands
 * complete import error_handling
-* complete mpl built-in functions
+* complete mpl built-in functions [..]
 * complete built-in constants [OK]
-* complete data built-in functions [..]
+* complete data built-in functions [OK]
 * complete parse error_handling
 * complete os built-in functions [OK]
 * complete mean_run error_handling
@@ -233,7 +245,7 @@ TODO
 * complete all functions describe
 * optimizing huge numbers
 * optimizing RAM,CPU usage
-* find (10/100) bug and debug it!
+* find (30/100) bug and debug it!
 
 MPL BUG be reported
 --------
@@ -262,10 +274,12 @@ MPL BUG be reported
 * [B19] bug in is_exact_function function for vars data type [OK]
 * [B20] bug in calculate_math_expression function for unknown one letter var [OK]
 * [B21] bug in printf function for string and num values [OK]
-* [B22] bug for "print(tstr(jj[0]))" error in parser [..]
+* [B22] bug for "print(tstr(jj[0])" error in parser [..]
 * [B23] bug in call_built_in_funcs function to determine value as 'a' [OK]
 * [B24] bug in is_exact_function function for matching array dimensions [OK]
 * [B25] bug in set_function_parameters for assign array var index value to var [OK]
+* [B26] bug in printing path with '\' [..]
+* [B27] bug for convert String to LPCSTR [..] 
 
 ### ((:publish MPL-RC version of MPL (for windows):))
 

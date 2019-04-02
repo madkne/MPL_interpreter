@@ -106,6 +106,68 @@ uint32 _MPL_TYPE__push(long_int var_ind, String value, String val_type, String w
   return var_len;
 }
 //************************************************
+/**
+ * crop an array by min,max numbers and return croped var or null
+ * @param var_ind
+ * @param min
+ * @param max
+ * @return string
+*/
+String _MPL_TYPE__crop(long_int var_ind, uint32 min, uint32 max) {
+  //=>if min>max, then return null
+  if (min > max) return "null";
+  //=>if min is zero
+  if (min == 0) {
+    //TODO:error
+    printf("ERR_mb5768888\n");
+    return "null";
+  }
+  //=>init vars
+  str_list ret = 0, pointers;
+  uint32 ret_len = 0;
+  //----------------------------------
+//  printf("***rt:%i,%s,%s\n", var_ind, value, wh);
+  //=>get Mvar
+  Mvar var = get_Mvar(var_ind);
+  //=>get dimensions of var
+  str_list c1 = 0;
+  uint32 c1_len = return_array_dimensions(var.pointer_id, &c1);
+  //=>check if var has one dimension,no more!
+  if (c1_len > 1) {
+    //TODO:error
+    return 0;
+  }
+  //=>get length of var
+  uint32 var_len = (uint32) str_to_long_int(c1[0]);
+  //=>check max is smaller or equal with var length,then ignore it!
+  if (max > var_len)max = var_len;
+  //=>check if min>max,then return null!
+  if (min > max) return "null";
+  //=>get list of room pointers
+  long_int po_id = var.pointer_id;
+  char_split(get_Mpoint(po_id).data, ';', &pointers, true);
+  //=>collect all nodes between min,max
+  for (uint32 i = min - 1; i < max; i++) {
+    str_list_append(&ret, __return_value_var_complete(str_to_long_int(pointers[i])), ret_len++);
+  }
+  //=>return if ret is an array
+  if (ret_len > 1)return str_multi_append("{", str_join(ret, ret_len, ","), "}", 0, 0, 0);
+  //=>return if exist a value
+  if (ret_len == 1)return ret[0];
+  //=>else return null
+  return "null";
+}
+
+//************************************************
+/**
+ * get var_index of variable and delete var and removes it from VM and then return true
+ * @param var_ind
+ * @return Boolean
+ */
+Boolean _MPL_TYPE__del(long_int var_ind) {
+  return delete_full_memory_var(var_ind, true);
+}
+//************************************************
 Boolean _MPL_TYPE__error_handle(int8 err_type, String err_name, String err_des) {
   return exception_user_handler(err_type, err_name, err_des, get_func_by_id(entry_table.cur_fid).lbl);
 }
@@ -150,5 +212,33 @@ Boolean _MPL_TYPE__mm_isset(uint8 type, String key) {
   return true;
 }
 //************************************************
-
+Boolean _MPL_TYPE__exec(String cmd) {
+  Boolean is_done = true;
+  cmd = replace_control_chars(cmd);
+  if (str_equal(cmd, "null")) return true;
+  while ((cmd = str_trim_space(cmd)) != 0) {
+    uint8 state = labeled_instruction(cmd);
+    if (is_programmer_debug >= 1) {
+      printf("@###############INST_EXEC(fid:%i,sid:%i,order:%i,state:%i,fin:%i,line:%i):\n%s\n", entry_table.cur_fid,
+             entry_table.cur_sid, entry_table.Rorder, state, entry_table.cur_fin, entry_table.Rline, cmd);
+    }
+    //---------------------analyzing all states
+    if (state == UNKNOWN_LBL_INST) {
+      is_done = false;
+      if (str_equal(cmd, "null")) return true;
+      exception_handler("unknown_instruction", __func__, cmd, "");
+    } else if (state == DEF_VARS_LBL_INST) cmd = define_vars(cmd);
+    else if (state == ALLOC_MAGIC_MACROS_LBL_INST)cmd = alloc_magic_macros(cmd);
+    else if (state == FUNC_CALL_LBL_INST)cmd = function_call(cmd);
+    else if (state == ALLOC_VARS_LBL_INST) return vars_allocation(cmd);
+    else if (state == ALLOC_SHORT_LBL_INST) cmd = vars_allocation_short(cmd);
+    else if (state == NEXT_BREAK_LBL_INST) return structure_loop_next_break(cmd);
+    else is_done = false;
+    if (str_equal(cmd, BAD_CODE)) is_done = false;
+    else if (entry_table.is_occur_error_exception) is_done = false;
+    //********************
+    if (!is_done) break;
+  }
+  return is_done;
+}
 

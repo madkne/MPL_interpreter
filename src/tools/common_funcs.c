@@ -4,19 +4,26 @@
 String convert_mplpath_to_abspath(String mplpath) {
   //init vars
   String StrSep = char_to_str(OS_SEPARATOR);
-  String ret = 0;
-  str_init(&ret, mplpath);
+  String ret = str_trim_space(mplpath);
   //----------------------------
-  //replace project_root by $ sign
-  ret = str_replace(ret, "$", project_root, 1);
-  //replace mpl_root by $$ sign
-  ret = str_replace(ret, "$$", interpreter_path, 1);
-  //replace mpl_modules by @ sign
-  ret = str_replace(ret, "@",
-                    str_multi_append(interpreter_path, StrSep, "modules", 0, 0, 0), 1);
-  //replace mpl_packs by @@ sign
-  ret = str_replace(ret, "@",
-                    str_multi_append(interpreter_path, StrSep, "packs", 0, 0, 0), 1);
+  //=>replace mpl_root by $$ sign
+  if (str_indexof(ret, "$$", 0) == 0)
+    ret = str_replace(ret, "$$", interpreter_path, 1);
+    //=>replace project_root by $ sign
+  else if (str_indexof(ret, "$", 0) == 0)
+    ret = str_replace(ret, "$", project_root, 1);
+    //=>replace mpl_packs by @@ sign
+  else if (str_indexof(ret, "@@", 0) == 0)
+    ret = str_replace(ret, "@@",
+                      str_multi_append(interpreter_path, StrSep, "packs", 0, 0, 0), 1);
+    //=>replace mpl_modules by @ sign
+  else if (str_indexof(ret, "@", 0) == 0)
+    ret = str_replace(ret, "@",
+                      str_multi_append(interpreter_path, StrSep, "modules", 0, 0, 0), 1);
+    //=>if not has any signs
+  else
+    ret = str_multi_append(__syscall_homedir(), StrSep, ret, 0, 0, 0);
+
   return ret;
 
 }

@@ -21,7 +21,7 @@
 #define _MPL_SESSION_ALL        12
 #define _MPL_SESSION_ISSET      13
 #define _MPL_EMBED_RUN          14
-#define _MPL_MPL_EXECUTE        15
+#define _MPL_EXECUTE            15
 #define _MPL_ECHO               16
 #define _MPL_DEFINE_UNSET       17
 #define _MPL_SESSION_UNSET      18
@@ -40,6 +40,7 @@
 #define _DATA_NOT               13
 #define _DATA_RSHIFT            14
 #define _DATA_LSHIFT            15
+#define _DATA_DBSLASH           16
 //------------------os function defines
 #define _OS_EXIT                1
 #define _OS_PRINT               2

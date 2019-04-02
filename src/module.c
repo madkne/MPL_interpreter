@@ -88,6 +88,14 @@ String call_module_type1(String func_name,uint32 mpl_module_id){
   return 0;
 }
 //***********************************************
+/**
+ * a function that can call a module function with a String and return a String
+ * mod(String):String
+ * @param func_name
+ * @param mpl_module_id
+ * @param s => get String
+ * @return String
+ */
 String call_module_type2(String func_name, uint32 mpl_module_id, String s) {
   #if WINDOWS_PLATFORM == true
   FUNCTYPE2 Proc = (FUNCTYPE2) GetProcAddress(mpl_modules_instance[mpl_module_id], func_name);
@@ -98,6 +106,14 @@ String call_module_type2(String func_name, uint32 mpl_module_id, String s) {
   return 0;
 }
 //***********************************************
+/**
+ * a function that can call a module function with a int32 and return a String
+ * mod(int32):String
+ * @param func_name
+ * @param mpl_module_id
+ * @param i => get int32
+ * @return String
+ */
 String call_module_type3(String func_name, uint32 mpl_module_id,int32 i) {
   #if WINDOWS_PLATFORM == true
   FUNCTYPE3 Proc = (FUNCTYPE3) GetProcAddress(mpl_modules_instance[mpl_module_id], func_name);
@@ -105,6 +121,24 @@ String call_module_type3(String func_name, uint32 mpl_module_id,int32 i) {
   #endif
   //TODO:error
   printf("M#ERR374\n");
+  return 0;
+}
+//***********************************************
+/**
+ * a function that can call a module function with a String and return a Boolean
+ * mod(String):Boolean
+ * @param func_name
+ * @param mpl_module_id
+ * @param s => get String
+ * @return Boolean
+ */
+Boolean call_module_type4(String func_name, uint32 mpl_module_id,String s) {
+  #if WINDOWS_PLATFORM == true
+  FUNCTYPE4 Proc = (FUNCTYPE4) GetProcAddress(mpl_modules_instance[mpl_module_id], func_name);
+  if (NULL != Proc) return (Boolean) Proc(s);
+  #endif
+  //TODO:error
+  printf("M#ERR399\n");
   return 0;
 }
 

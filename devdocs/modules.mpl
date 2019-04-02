@@ -1,6 +1,6 @@
 -----------------------------
 external modules:
-sqlite[OK],math,fs[..],os,strs,mhl,mgl,serve
+sqlite[OK],math,fs[..],os,strs,mhl,mgl,serve,json
 
 ------------------module:mgl (mpl graphics library)
 - str version()
@@ -107,13 +107,15 @@ sqlite[OK],math,fs[..],os,strs,mhl,mgl,serve
 - bool ProcessStart(str,str[?])
 
 ------------------module:fs
-- str version()
+//interface
+- str version()					[OK]
+- str AbsPath(str)				[OK]
 
 
+//lib
+- str LibVersion()				[OK]
 
-- str AbsPath(str)
-
-- bool mkdir(str)
+- bool mkdir(str)				[..]
 
 - num fopen(str,str)
 
@@ -147,15 +149,17 @@ sqlite[OK],math,fs[..],os,strs,mhl,mgl,serve
 
 - str ParentPath(str)
 
+- bool mkdirs(str)
+
 
 ------------------module:mhl (mpl hacking library)
 - str version()
 
 
 
-- DnsMapping()
+- DnsMap()
 
-- DnsTracing()
+- DnsTrace()
 
 - WhoisInfo()
 

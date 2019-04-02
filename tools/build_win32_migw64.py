@@ -171,7 +171,8 @@ else:
 	#----------------------run mpl.exe
 	print("=== Running mpl.exe ...");
 	print("_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_");
-	os.system("..\\win32-release\\mpl.exe ..\\main.mpl ");
+	os.system("..\\win32-release\\mpl.exe ..\\main.mpl");
+	#os.system("..\\win32-release\\mpl.exe ..\\mprog.mpl init my_project");
 	#os.system("..\\win32-release\\mpl.exe -h keywords null");
 	#os.system("dir");
 	#os.system("pause");

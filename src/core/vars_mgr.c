@@ -389,12 +389,12 @@ String return_value_var_complete(long_int var_index) {
   return __return_value_var_complete(mvar.pointer_id);
 
 }
+//*********************************************************
 /**
  * get an index of Mpoint and return all values that start from this Mpoint (array,struct,value)
  * @param pointer_id
  * @return String
  */
-//*********************************************************
 String __return_value_var_complete(long_int pointer_id) {
   //******************init vars
   if (pointer_id == 0) return 0;

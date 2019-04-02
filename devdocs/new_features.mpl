@@ -86,16 +86,16 @@ func main(){
 	return (#r);
 #end
 func main(){
-	#def1(32,print("%i%:good:)\n")); //(runtime)=>loop(num i=0;i<32;i++){print("%i%:good:)}
+	#def1:(32,print("%i%:good:)\n")); //(runtime)=>loop(num i=0;i<32;i++){print("%i%:good:)}
 	#ret(45) 						//(runtime)=>return (45);
 }
 ×××××××××××××××××××××××
 +++++++++++development vars keyword usage [GOOD]+
 ×××××××××××××××××××××××
-func fg(num n,vars v) //v can only num,str,bool
+func fg(num n,vars v){} //v can only num,str,bool
 func fg1(num n,vars? v) //v can struct or array or num,str,bool
 {
-	num b=len(v?)
+	num b=len(v) //b=3
 	str s[2]=var_type(v[b]) //s={"num","3"}
 	num m[?]=v[b] //m={5,8,9}
 }
@@ -111,7 +111,7 @@ import "pack:@/sample"
 %%import "wpack:sample.com/sample"%%
 //--------------for unknown vars type
 func fg(num n,vars s){
-	s*=34 %%s+="Hi"%% //if s not a num and a str type, so ...
+	s*=34 %%s+="Hi"%% //if s not a num type, so ...
 }
 ×××××××××××××××××××××××
 +++++++++++development struct

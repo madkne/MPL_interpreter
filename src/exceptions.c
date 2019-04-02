@@ -55,7 +55,11 @@ void init_exceptions_list_data() {
   define_new_exception(5, ERROR_ID, "import_not_support_protocol", ImportError,
                        "not support the protocol in this path '!1@1!' import instruction");
   define_new_exception(6, ERROR_ID, "can_not_load_module", ImportError, "can not load a module in '!1@1!' path");
-  define_new_exception(7, ERROR_ID, "not_support_module", ImportError, "mpl not support '!1@1!' as a module in '!2@2!' path");
+  define_new_exception(7,
+                       ERROR_ID,
+                       "not_support_module",
+                       ImportError,
+                       "mpl not support '!1@1!' as a module in '!2@2!' path");
   //\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\
 	//InterruptedError
   define_new_exception(1, ERROR_ID, "zero_division", InterruptedError, "division by zero in '!1@1!' expression");
@@ -136,7 +140,7 @@ void init_exceptions_list_data() {
   define_new_exception(8, ERROR_ID, "not_defined_mm_key", ValueError,
                        "'!1@1!' not defined in '!2@2!' magic macro");
   define_new_exception(9, ERROR_ID, "reinitialized_in__define_mm", ValueError,
-                       "'!1@1!' was defined in '__define' magic macro. you can not Re-initialized it");
+                       "'!1@1!' was defined in '$def' magic macro. you can not Re-initialized it");
   define_new_exception(10, ERROR_ID, "not_global__config_mm", ValueError,
                        "you can not edit '__config' magic macro items inside of a function");
   define_new_exception(11, ERROR_ID, "not_float_array_index", ValueError,
@@ -155,7 +159,7 @@ void init_exceptions_list_data() {
                        ERROR_ID,
                        "not_exist__config_mm",
                        NotExistError,
-                       "Not exist any items by name '!1@1!' in '__config' magic macro");
+                       "Not exist any items by name '!1@1!' in '$con' magic macro");
   define_new_exception(7,
                        ERROR_ID,
                        "not_exist_func_param",
@@ -266,7 +270,7 @@ int8 exception_handler(String lbl_err, const char func_occur[], String rep1, Str
     }
       //---------if was fatal
     else if (ret_num == FATAL_ID) {
-      __syscall_exit(EXIT_FATAL);
+      exit_runtime(EXIT_FATAL);
     }
   }
 
@@ -430,15 +434,31 @@ int8 print_error(long_int line_err, String name_err, String file_err, String rep
   //=>reset console color
   if (is_color_mode)console_color_reset();
   //=>add exeption message to logfile is enabled!
-  if (logfile_path != 0) {
-    //append_to_file(project_root+separator+is_set_logfile+".log", exception_msg+new_line_char+"---------------------------"+new_line_char)
-    //msg("&YYYYY", project_root+separator+is_set_logfile+".log")
-  }
+  if (logfile_path != 0) set_to_logfile(exception_msg);
+
   //-----------------------handle fatal
   if (type_err == FATAL_ID) {
-    __syscall_exit(EXIT_FATAL);
+    exit_runtime(EXIT_FATAL);
   }
   return type_err;
+}
+//**************************************************************
+Boolean set_to_logfile(String exception_msg) {
+  String clk = __syscall_datetime(1);
+//  printf("logfile:%s\n",logfile_path);
+  FILE *fp = fopen(logfile_path, "a");
+  if (fp == NULL) {
+    //TODO:error
+    printf("E#ERR5654756\n");
+    return false;
+  }
+  //=>write to file
+  fwrite(clk, sizeof(uint8), str_length(clk), fp);
+  fwrite(" *** ", sizeof(uint8), 5, fp);
+  fwrite(exception_msg, sizeof(uint8), str_length(exception_msg), fp);
+  fwrite("\n", sizeof(uint8), 1, fp);
+  fclose(fp);
+  return true;
 }
 //**************************************************************
 Boolean exception_user_handler(int8 err_type, String err_name, String err_des, String err_func) {

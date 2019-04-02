@@ -57,25 +57,25 @@ built-in structs :
 exception
 -----------------------------
 built-in functions:
--------MPL functions:
+-------MPL functions: [..]
 --Completed:
-typeof(var),push(var[..],var[..],num)/*just for var[?]*/,ErrHandle(num,str,str),ConAll(),DefAll(),DefIsset(str),SesAll(),SesIsset(str),len(var[..]),type(var[..])
+typeof(var),push(var[..],var[..],num)/*just for var[?]*/,ErrHandle(num,str,str),ConAll(),DefAll(),DefIsset(str),SesAll(),SesIsset(str),len(var[..]),type(var[..]),exec(str),crop(var[..],num,num)/*just for var[?]*/,del(var[..])
 --Not Completed:
-pop(var[..],num)/*just for var[?]*/,del(var[..]),crop(var[..],num,num),DefUnset(str),SesUnset(str),EmbedRun(str[?]),exec(str),echo(var)/*just used in embed files*/
+pop(var[..],num)/*just for var[?]*/,DefUnset(str),SesUnset(str)
 --TMP
-TraceVar(var[?,..]),TraceFunc(str,num)
--------DATA functions:
+TraceVar(var[?,..]),TraceFunc(str,num),EmbedRun(str[?]),echo(var)/*just used in embed files*/
+-------DATA functions: [OK]
 --Completed:
-and(num,num),xor(num,num),or(num,num),not(num),rshift(num,num),lshift(num,num),at(str,num),into(str,num,str),tnum(var),tbool(var),tstr(var),inum(str),ibool(str),tarray(var)
+and(num,num),xor(num,num),or(num,num),not(num),rshift(num,num),lshift(num,num),at(str,num),into(str,num,str),tnum(var),tbool(var),tstr(var),inum(str),ibool(str),tarray(var),dbslah(str)
 --Not Completed:
--------OS functions:
+-------OS functions: [OK]
 --Completed:
 exit(num),print(val|var[..]),input(num),shell(str),time(),rand(num,num),argvs(),printf(str,var[..])
 --Not Completed:
 --TMP
 modfree(str)
 -----------------------------
-built-in constants:(by $def)
+built-in constants:(by $def) [OK]
 - not edited and just use
 --Completed:
 ERROR:num,WARNING:num,OSType:str,OSArch:str,PathSeparator:str,EOF:num,EOL:str,IntSize:num,FloatSize:num,MplVersion:str,AppPath:str,LeftDirect:num,RightDirect:num,BothDirect:num,ReadChar:num,ReadLine:num,ReadAll:num,PID:num,StartedTime:num,HostName:str,MplPath:str

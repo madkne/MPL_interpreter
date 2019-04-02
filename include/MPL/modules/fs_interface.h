@@ -6,7 +6,7 @@
 #define MPL_FS_INTERFACE_H
 
 //--------------------------------constants
-#define FS_VERSION                     "1.2"
+#define FS_VERSION_INTERFACE                     "1.4"
 //--------------------------------variables
 mofu *fs_start;
 mofu *fs_end;

@@ -7,8 +7,8 @@
 
 //**************************************************define interpreter constants
 #define  APP_NAME                       "Mini Portable Language"
-#define  VERSION                        "0.5.98"    //X.Y.Z=> Z<100,Y<10
-#define  VERSION_NUMBER                 59          //X.Y.Z=>(X*100)+(Y*10)+(Z/10)
+#define  VERSION                        "0.6.12"    //X.Y.Z=> Z<100,Y<10
+#define  VERSION_NUMBER                 61          //XYZ=>(X*100)+(Y*10)+(Z/10)
 #define  VERSION_NAME                   "BETA"
 #define  SLOGAN                         "The solution to common problems of programmers" //راه حل کارهای متداول برنامه نویسان
 

@@ -65,7 +65,7 @@ int main(int argc, char **argv) {
   //	print_magic_macros(CONFIG_MAGIC_MACRO_TYPE);
 //  print_struct(PRINT_UTF8_ST);
   //-------------------------time of end program
-  __syscall_exit(EXIT_NORMAL);
+  exit_runtime(EXIT_NORMAL);
   return 0;
 }
 //************************************************

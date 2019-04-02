@@ -15,15 +15,6 @@ int32 run_fs_mod_funcs(String func_name, str_list params, str_list pars_type, ui
   str_list argvs = 0;
   long_int var0_ind = 0;
   //-----------------------search for fs function
-//  mofu *tmp1 = fs_start;
-//  if (tmp1 == 0) printf("--NULL fs functions--\n");
-//  else
-//    for (;;) {
-//      if (tmp1->id != 0)
-//        printf("FS_func[%i]:%s %s\n", tmp1->id, tmp1->func_name, tmp1->params);
-//      tmp1 = tmp1->next;
-//      if (tmp1 == 0) break;
-//    }
   mofu *st = fs_start;
   for (;;) {
     //if func_name is true
@@ -40,16 +31,22 @@ int32 run_fs_mod_funcs(String func_name, str_list params, str_list pars_type, ui
   //-----------------------check and convert
   if (func_id == 0)return 0;
   //convert vars to values
-  convert_built_in_module_vars_to_values(pars_type,params,params_len,&argvs,&var0_ind);
+  convert_built_in_module_vars_to_values(pars_type, params, params_len, &argvs, &var0_ind);
 //  printf("SSSS:%i,%s,%s\n", func_id, st->func_name, st->params);
   //-----------------------call function
-  if(func_id==1/*version*/){
-    //TODO:
-  }else if(func_id==2/*abspath*/){
-    #if WINDOWS_PLATFORM==true
-      String ret=call_module_type2("fs_mod__abspath",FS_MODULE_ID,"sd");
-      printf("abspath:%s=>%s\n",argvs[0],ret);
-    #endif
+  if (func_id == 1/*version*/) {
+    str_list_append(&(*rets_mod), convert_to_string(FS_VERSION_INTERFACE), rets_mod_len++);
+  } else if (func_id == 2/*LibVersion*/) {
+    String ret = call_module_type1("fs_mod__LibVersion", FS_MODULE_ID);
+    str_list_append(&(*rets_mod), convert_to_string(ret), rets_mod_len++);
+  } else if (func_id == 3/*AbsPath*/) {
+    String path = convert_mplpath_to_abspath(argvs[0]);
+    String ret = __syscall_abspath(path);
+    str_list_append(&(*rets_mod), convert_to_string(ret), rets_mod_len++);
+  } else if (func_id == 4/*mkdir*/) {
+    String path = convert_mplpath_to_abspath(argvs[0]);
+    Boolean ret = call_module_type4("fs_mod__mkdir", FS_MODULE_ID, path);
+    str_list_append(&(*rets_mod), str_from_bool(ret), rets_mod_len++);
   }
   //-----------------------return
   return rets_mod_len;
@@ -58,5 +55,7 @@ int32 run_fs_mod_funcs(String func_name, str_list params, str_list pars_type, ui
 void init_fs_module_funcs() {
   append_to_mofu(0, FS_MODULE_ID, 0, 0, 0);
   append_to_mofu(1, FS_MODULE_ID, "version", 0, "str");
-  append_to_mofu(2, FS_MODULE_ID, "abspath", "str", "str");
+  append_to_mofu(2, FS_MODULE_ID, "LibVersion", 0, "str");
+  append_to_mofu(3, FS_MODULE_ID, "AbsPath", "str", "str");
+  append_to_mofu(4, FS_MODULE_ID, "mkdir", "str", "bool");
 }

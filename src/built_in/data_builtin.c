@@ -122,6 +122,19 @@ Boolean _DATA_TYPE__inum(String value) {
   return false;
 }
 //************************************************
+String _DATA_TYPE__dbslah(String val) {
+  uint32 len = str_length(val);
+  if (len < 1)return val;
+  String ret = 0;
+  for (uint32 i = 0; i < len; i++) {
+    if (val[i] == '\\' && i + 1 < len) {
+      ret = str_append(ret, "\\\\");
+    } else ret = char_append(ret, val[i]);
+  }
+//  printf("Slash:%s=>%s\n", val, ret);
+  return ret;
+}
+//************************************************
 Boolean _DATA_TYPE__ibool(String value) {
   if (str_is_bool(value))return true;
   return false;
