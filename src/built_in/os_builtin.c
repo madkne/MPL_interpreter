@@ -119,7 +119,7 @@ String _OS_TYPE__argvs() {
  * @param len
  * @return Boolean
  */
-Boolean _OS_TYPE__printf(str_list types,str_list items, uint32 items_len) {
+Boolean _OS_TYPE__printf(str_list types, str_list items, uint32 items_len) {
 //  printf("!!!!:%s(%i)\n", print_str_list(items, items_len), items_len);
   //init vars
   String text = items[0];
@@ -148,7 +148,7 @@ Boolean _OS_TYPE__printf(str_list types,str_list items, uint32 items_len) {
         exception_user_handler(ERROR_ID, "not_enough_inputs", "count of parameters is not enough", "printf");
         return false;
       }
-      if (!_OS_TYPE__printf_format(format, items[items_ind++],types[items_ind], &retf)) {
+      if (!_OS_TYPE__printf_format(format, items[items_ind++], types[items_ind], &retf)) {
         exception_user_handler(ERROR_ID,
                                "bad_entry_format",
                                str_multi_append("entry \'",
@@ -167,7 +167,7 @@ Boolean _OS_TYPE__printf(str_list types,str_list items, uint32 items_len) {
   return true;
 }
 //************************************************
-Boolean _OS_TYPE__printf_format(String f, String s,String type, String *ret) {
+Boolean _OS_TYPE__printf_format(String f, String s, String type, String *ret) {
   /**
  * %s:string(hello)                     ---OK---
  * %i:integer(455)                      ---OK---
@@ -198,7 +198,7 @@ Boolean _OS_TYPE__printf_format(String f, String s,String type, String *ret) {
     //=>if format is str
   else if (str_has_suffix(f, "s")) {
     //=>check input is valid as a string
-    if (!str_equal(type,"str"))return false;
+    if (!str_equal(type, "str"))return false;
     //=>if has number limit
     String tmp = str_substring(f, 0, flen - 1);
     if (tmp == 0)ico = slen;
@@ -276,4 +276,89 @@ Boolean _OS_TYPE__printf_format(String f, String s,String type, String *ret) {
     }
   }
   return false;
+}
+//************************************************
+String _OS_TYPE__date_english(long_int timestamp, String format) {
+/**
+ * format:
+ * #y : 2019
+ * #m : 1..12
+ * #M : Jan,Feb,..
+ * #d : 1..31
+ * #D : 0..365
+ * #h : 1..12
+ * #H : 0..23
+ * #i : 0..59
+ * #s : 0..59
+ * #t : AM,PM
+ * #w : 1..7
+ * #W : Sun,Fri,..
+ * #z : (Win32)Iran Standard Time
+ * #Z : (Win32) (UTC+03:30) Tehran
+ */
+  //=>init vars
+  String timezone = 0;
+  String days[7] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+  String months[12] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+  //------------------------------------
+  //=>get time struct
+  time_t t = timestamp;
+  struct tm tim = *localtime(&t);
+  //=>set #y format
+  format = str_replace(format, "#y", str_from_int32(tim.tm_year + 1900), -1);
+  //=>set #m format
+  format = str_replace(format, "#m", str_from_int32(tim.tm_mon + 1), -1);
+  //=>set #M format
+  format = str_replace(format, "#M", months[tim.tm_mon], -1);
+  //=>set #d format
+  format = str_replace(format, "#d", str_from_int32(tim.tm_mday), -1);
+  //=>set #D format
+  format = str_replace(format, "#D", str_from_int32(tim.tm_yday), -1);
+  //=>set #h format
+  format = str_replace(format, "#h", str_from_int32(_OS_TYPE__get_12_from_24hours((uint8) tim.tm_hour)), -1);
+  //=>set #H format
+  format = str_replace(format, "#H", str_from_int32(tim.tm_hour), -1);
+  //=>set #i format
+  format = str_replace(format, "#i", str_from_int32(tim.tm_min), -1);
+  //=>set #s format
+  format = str_replace(format, "#s", str_from_int32(tim.tm_sec), -1);
+  //=>set #t format
+  if (tim.tm_hour > 12) format = str_replace(format, "#t", "PM", -1);
+  else format = str_replace(format, "#t", "AM", -1);
+  //=>set #w format
+  format = str_replace(format, "#w", str_from_int32(tim.tm_wday), -1);
+  //=>set #W format
+  format = str_replace(format, "#W", days[tim.tm_wday], -1);
+  //=>set #z format
+  if (str_indexof(format, "#z", 0) != -1) {
+    //=>Get the timezone info.
+    #if WINDOWS_PLATFORM == true
+    timezone = __syscall_reg_value(HKEY_LOCAL_MACHINE,
+                                   "SYSTEM\\CurrentControlSet\\Control\\TimeZoneInformation", "TimeZoneKeyName");
+    #elif LINUX_PLATFORM == true
+    //TODO
+    #endif
+    format = str_replace(format, "#z", timezone, -1);
+  }
+  //=>set #Z format
+  if (str_indexof(format, "#Z", 0) != -1) {
+    //=>Get the timezone info.
+    #if WINDOWS_PLATFORM == true
+    String tmp1 = __syscall_reg_value(HKEY_LOCAL_MACHINE,
+                                      "SYSTEM\\CurrentControlSet\\Control\\TimeZoneInformation", "TimeZoneKeyName");
+    String timezone = __syscall_reg_value(HKEY_LOCAL_MACHINE,
+                                          str_append("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Time Zones\\",
+                                                     tmp1), "Display");
+    #elif LINUX_PLATFORM == true
+    //TODO
+    #endif
+    format = str_replace(format, "#Z", timezone, -1);
+  }
+  return format;
+}
+//************************************************
+uint8 _OS_TYPE__get_12_from_24hours(uint8 h24) {
+  if (h24 == 0)return 12;
+  if (h24 < 13)return h24;
+  return h24 - 12;
 }

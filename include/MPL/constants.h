@@ -7,8 +7,8 @@
 
 //**************************************************define interpreter constants
 #define  APP_NAME                       "Mini Portable Language"
-#define  VERSION                        "0.6.12"    //X.Y.Z=> Z<100,Y<10
-#define  VERSION_NUMBER                 61          //XYZ=>(X*100)+(Y*10)+(Z/10)
+#define  VERSION                        "0.6.31"    //X.Y.Z=> Z<100,Y<10
+#define  VERSION_NUMBER                 63          //XYZ=>(X*100)+(Y*10)+(Z/10)
 #define  VERSION_NAME                   "BETA"
 #define  SLOGAN                         "The solution to common problems of programmers" //راه حل کارهای متداول برنامه نویسان
 
@@ -18,12 +18,12 @@
 #define  LICENCE                        "OPEN-MPL"
 #define  OFFICIAL_WEBSITE               "http://mpl-lang.ir"
 #define  COPYRIGHT                      "Copyright (C) 2019"
-#define  C_CORE_CODE_LINES              14349       //0.5.65 - 0.6.30
-#define  H_CORE_CODE_LINES              1415
-#define  MODULES_CODE_LINES             16           //+=15780
+#define  C_CORE_CODE_LINES              15278       //0.6.31 - 0.6.90
+#define  H_CORE_CODE_LINES              1479
+#define  MODULES_CODE_LINES             0           //+=16757
 #define  LANGUAGE_CREATOR               "madkne"
 #define  CREATOR_SIGNATURE              "603556816519829596"
-#define  TRUST_LEVEL                    39          //100%
+#define  TRUST_LEVEL                    42          //100%
 #define  WINDOWS_COMPATIBLE             true
 #define  LINUX_COMPATIBLE               false
 //**************************************************define other constants
@@ -168,6 +168,7 @@
 #define   MPL_BUILT_IN_TYPE             1
 #define   DATA_BUILT_IN_TYPE            2
 #define   OS_BUILT_IN_TYPE              3
+#define   FS_BUILT_IN_TYPE              4
 //------------------------------------------used in built_in-determine type of magic macros
 #define   DEFINE_MAGIC_MACRO_TYPE       1
 #define   CONFIG_MAGIC_MACRO_TYPE       2
@@ -192,7 +193,6 @@
 #define   NEXT_INST                     1
 #define   BREAK_INST                    2
 //------------------------------------------used for mpl_modules_instance array
-#define   FS_MODULE_ID                  1
 #define   OS_MODULE_ID                  2
 #define   SQLITE_MODULE_ID              3
 #define   MATH_MODULE_ID                4

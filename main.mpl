@@ -1,7 +1,6 @@
 
 //import "file:$/س.mpl"
 //import "file:$/sss/gh.mpl"
-import "mod:@/fs"
 import "mod:@/sqlite"
 //$con["DebugMode"]=true
 //__config["AppName"]="MyProgram"
@@ -61,8 +60,11 @@ func main(){
 	//num n[4,3],str s,s={{3,-8,9.78},{(24^3)/4+56.5,8f,null},{0x45,0o34+4,0b01011},{-3454,45h,12.4i}},"سلام"+" !"
 	num j,j1,j2[4]=10.5,29,{54.89,67,9.6787,-35}
 	//print(crop(j2,2,1))
-	str b=fs::AbsPath('$/main.mpl');//mkdir('$/سلام')
-	print(dbslah(b),s)
+	//bool b=mkdir('$/سلام')
+	num b=fopen("$/سلام.txt","a");
+	num k=fwrite(b,date(time(),'#y.#m.#d-#H:#i:#s #t #W #M #z  #Z'))
+	fclose(b);
+	print(k,b,s)
 	//gg vb=struct({{"A","B"},{"AA","BB"}},6)
 	//num jj[?,?]={{0x45,0o34+4,0b01011},{-3454,45h,12.4i}}
 	//gg gh[?]={struct({{"A","B"},{"AA","BB"}},6),struct({{"D","E"},{"DD","EE"}},-56*9)}

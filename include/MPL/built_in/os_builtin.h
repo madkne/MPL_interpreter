@@ -14,4 +14,6 @@ String _OS_TYPE__rand(String min,String max);
 String _OS_TYPE__argvs();
 Boolean _OS_TYPE__printf(str_list types,str_list items, uint32 items_len);
 Boolean _OS_TYPE__printf_format(String f,String s,String type,String *ret);
+String _OS_TYPE__date_english(long_int timestamp,String format);
+uint8 _OS_TYPE__get_12_from_24hours(uint8 h24);
 #endif //MPL_OS_BUILTIN_H

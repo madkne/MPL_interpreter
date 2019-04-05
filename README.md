@@ -199,15 +199,16 @@ TODO
 * implement tarray built-in function **[OK]**
 * implement log file for program **[OK]**
 * implement exec built-in function **[OK]**
-* implement DnsMapping function of mhl function **[..]**
 * implement crop built-in function **[OK]**
 * implement pop built-in function **[..]**
 * implement del built-in function **[OK]**
-* implement AbsPath,mkdir functions of fs module **[OK]**
+* implement AbsPath,mkdir built-in functions  **[OK]**
 * implement dbslah built-in function **[OK]**
-* implement fopen,fclose functions of fs module
-* implement fwrite function of fs module
+* implement fopen,fclose built-in functions  **[OK]**
+* implement fwrite built-in function **[OK]**
+* implement version command of mprog **[OK]**
 * implement init command of mprog **[..]**
+* implement date built-in function **[OK]**
 * implement test command of mprog 
 * implement start command of mprog 
 * implement version,locate command of mprog 
@@ -278,12 +279,13 @@ MPL BUG be reported
 * [B23] bug in call_built_in_funcs function to determine value as 'a' [OK]
 * [B24] bug in is_exact_function function for matching array dimensions [OK]
 * [B25] bug in set_function_parameters for assign array var index value to var [OK]
-* [B26] bug in printing path with '\' [..]
-* [B27] bug for convert String to LPCSTR [..] 
+* [B26] bug in printing path with '\' [OK]
+* [B27] bug in making a directory by utf8 name [..] 
 
 ### ((:publish MPL-RC version of MPL (for windows):))
 
 * publish RC version for linux
+* implement DnsMapping function of mhl function
 * support for embedded files
 * support for package libraries
 * set PackageMode,AccessVariablesMode,NameSpace in $con

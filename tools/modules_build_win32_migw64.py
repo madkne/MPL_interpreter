@@ -109,14 +109,14 @@ if not os.path.exists(obj_folder):
     os.makedirs(obj_folder);
 
 #----------------------compile fs mod sources
-compile_module("fs",scr_folder+"/",[
-	["fs.c","fs.c -o "+obj_folder+"/fs.o"],
-	["../tools/syscalls.c","../tools/syscalls.c -o "+obj_folder+"/syscalls.o"],
-	["../tools/utf8.c","../tools/utf8.c -o "+obj_folder+"/utf8.o"],
-	["../tools/strings.c","../tools/strings.c -o "+obj_folder+"/strings.o"],
-	#["../data_defined.c","../data_defined.c -o "+obj_folder+"/data_defined.o"],
-	["../tools/common_funcs.c","../tools/common_funcs.c -o "+obj_folder+"/common_funcs.o"]
-])
+# compile_module("fs",scr_folder+"/",[
+# 	["fs.c","fs.c -o "+obj_folder+"/fs.o"],
+# 	["../tools/syscalls.c","../tools/syscalls.c -o "+obj_folder+"/syscalls.o"],
+# 	["../tools/utf8.c","../tools/utf8.c -o "+obj_folder+"/utf8.o"],
+# 	["../tools/strings.c","../tools/strings.c -o "+obj_folder+"/strings.o"],
+# 	#["../data_defined.c","../data_defined.c -o "+obj_folder+"/data_defined.o"],
+# 	["../tools/common_funcs.c","../tools/common_funcs.c -o "+obj_folder+"/common_funcs.o"]
+# ])
 
 
 

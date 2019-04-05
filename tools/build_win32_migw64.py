@@ -62,7 +62,7 @@ if os.path.exists(logfile):
 #for j in compfiles:
 #	print(compfiles)
 #----------------------
-print("\t~~~~~MPL Build Tool (BY Python3) V 3.3~~~~~");
+print("\t~~~~~MPL Build Tool (BY Python3) V 3.4~~~~~");
 print("=== Start Building win32 release of MPL Compiler using Mingw64....");
 #----------------------init dirs
 #-----create docs file
@@ -118,7 +118,8 @@ sources=[
 [scr_folder+"/built_in/mpl_builtin.c",scr_folder+"/built_in/mpl_builtin.c -o "+obj_folder+"/mpl_builtin.o"],
 [scr_folder+"/built_in/os_builtin.c",scr_folder+"/built_in/os_builtin.c -o "+obj_folder+"/os_builtin.o"],
 [scr_folder+"/built_in/data_builtin.c",scr_folder+"/built_in/data_builtin.c -o "+obj_folder+"/data_builtin.o"],
-[scr_folder+"/modules/fs_interface.c",scr_folder+"/modules/fs_interface.c -o "+obj_folder+"/fs_interface.o"],
+[scr_folder+"/built_in/fs_builtin.c",scr_folder+"/built_in/fs_builtin.c -o "+obj_folder+"/fs_builtin.o"],
+
 [scr_folder+"/modules/sqlite_interface.c",scr_folder+"/modules/sqlite_interface.c -o "+obj_folder+"/sqlite_interface.o"]
 ];
 for i in range(0,len(sources),1):

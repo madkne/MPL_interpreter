@@ -72,8 +72,16 @@ and(num,num),xor(num,num),or(num,num),not(num),rshift(num,num),lshift(num,num),a
 --Completed:
 exit(num),print(val|var[..]),input(num),shell(str),time(),rand(num,num),argvs(),printf(str,var[..])
 --Not Completed:
+date(num,str)
 --TMP
-modfree(str)
+modfree(str),date(num,str,str)/*english,persian*/
+-------FS functions: [..]
+--Completed:
+abspath(str),mkdir(str),mkdirs(str),fopen(str,str),fclose(num),fwrite(num,str),
+--Not Completed:
+fcontent(str),frline(num),fruntil(num,num),finfo(str),fcopy(str,str),rmdir(str),rmfile(str),dscan(str),idir(str),ifile(str),ppath(str),
+--TMP
+
 -----------------------------
 built-in constants:(by $def) [OK]
 - not edited and just use

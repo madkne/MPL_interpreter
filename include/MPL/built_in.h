@@ -50,6 +50,25 @@
 #define _OS_TIME                6
 #define _OS_RAND                7
 #define _OS_ARGVS               8
+#define _OS_DATE                9
+//------------------fs function defines
+#define _FS_ABSPATH             1
+#define _FS_MKDIR               2
+#define _FS_MKDIRS              3
+#define _FS_FOPEN               4
+#define _FS_FCLOSE              5
+#define _FS_FWRITE              6
+#define _FS_FCONTENT            7
+#define _FS_FRLINE              8
+#define _FS_FRUNTIL             9
+#define _FS_FINFO               10
+#define _FS_FCOPY               11
+#define _FS_RMDIR               12
+#define _FS_RMFILE              13
+#define _FS_DSCAN               14
+#define _FS_IDIR                15
+#define _FS_IFILE               16
+#define _FS_PPATH               17
 //******************************functions
 Boolean check_built_in_module_function(String S_params, str_list partypes, uint32 params_len);
 void convert_built_in_module_vars_to_values(str_list partypes,str_list params,uint32 params_len,str_list *argvs,long_int *var0_ind);

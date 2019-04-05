@@ -12,9 +12,12 @@ long_int __syscall_unix_time();
 String __syscall_datetime(uint8 type);
 String __syscall_read_input();
 int32 __syscall_read_file(String path, str_list *lines, Boolean skip_empty_lines);
-Boolean __syscall_write_file(String path,String s);
-String  __syscall_get_line(FILE *fp);
-Boolean __syscall_mkdir(String path,Boolean is_make_parents);
+Boolean __syscall_write_file(String path, String s);
+String __syscall_get_line(FILE *fp);
+Boolean __syscall_mkdir(String path, Boolean is_make_parents);
 uint32 __syscall_rand(uint32 min, uint32 max);
 Boolean __syscall_binary_copy(String src, String dst);
+#if WINDOWS_PLATFORM == true
+String __syscall_reg_value(HKEY hkey, String path, String key);
+#endif
 #endif //MPL_SYSCALLS_H

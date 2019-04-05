@@ -21,9 +21,7 @@ int32 call_module_funcs(String mod_name,
     return -1;
   }
   //-----------------------find module interface
-  if (mod_id == FS_MODULE_ID) {
-    ret_func_response = run_fs_mod_funcs(func_name, params, pars_type, params_len, &(*rets_mod));
-  } else if (mod_id == SQLITE_MODULE_ID) {
+  if (mod_id == SQLITE_MODULE_ID) {
     ret_func_response = run_sqlite_mod_funcs(func_name, params, pars_type, params_len, &(*rets_mod));
 //    printf("DDFSS:%s\n",*rets_mod[0]);
   }
@@ -34,7 +32,7 @@ int32 call_module_funcs(String mod_name,
 //***********************************************
 Boolean load_module_file(String path, uint32 line, String src) {
   //if module supported by mpl
-  String mod_name = return_file_name_extension_path(path, 0,true);
+  String mod_name = return_file_name_extension_path(path, 0, true);
   uint32 mpl_module_id = return_module_id(mod_name);
   if (mpl_module_id == 0) {
     print_error(line, "not_support_module", src, mod_name, path, "load_module_file");
@@ -54,7 +52,7 @@ Boolean load_module_file(String path, uint32 line, String src) {
   mpl_modules_instance[mpl_module_id] = hinstLib;
   //init module functions
   init_module_file_funcs(mpl_module_id);
-  str_list_append(&installed_modules,path,installed_modules_len++);
+  str_list_append(&installed_modules, path, installed_modules_len++);
   return true;
   //-----------------------------------
   #elif LINUX_PLATFORM == 1
@@ -63,8 +61,7 @@ Boolean load_module_file(String path, uint32 line, String src) {
 }
 //***********************************************
 uint32 return_module_id(String module_name) {
-  if (str_equal(module_name, "fs")) return FS_MODULE_ID;
-  else if (str_equal(module_name, "os")) return OS_MODULE_ID;
+  if (str_equal(module_name, "os")) return OS_MODULE_ID;
   else if (str_equal(module_name, "sqlite")) return SQLITE_MODULE_ID;
   else if (str_equal(module_name, "math")) return MATH_MODULE_ID;
   else if (str_equal(module_name, "mgt")) return MGT_MODULE_ID;
@@ -73,18 +70,17 @@ uint32 return_module_id(String module_name) {
 }
 //***********************************************
 void init_module_file_funcs(uint8 module_id) {
-  if (module_id == FS_MODULE_ID) init_fs_module_funcs();
-  else if (module_id == SQLITE_MODULE_ID) init_sqlite_module_funcs();
+  if (module_id == SQLITE_MODULE_ID) init_sqlite_module_funcs();
   //TODO
 }
 //***********************************************
-String call_module_type1(String func_name,uint32 mpl_module_id){
+String call_module_type1(String func_name, uint32 mpl_module_id) {
   #if WINDOWS_PLATFORM == true
   FUNCTYPE1 Proc = (FUNCTYPE1) GetProcAddress(mpl_modules_instance[mpl_module_id], func_name);
   if (NULL != Proc) return (String) Proc();
   #endif
   //TODO:error
-  printf("M#ERR343:%s,%i\n",func_name,mpl_module_id);
+  printf("M#ERR343:%s,%i\n", func_name, mpl_module_id);
   return 0;
 }
 //***********************************************
@@ -114,7 +110,7 @@ String call_module_type2(String func_name, uint32 mpl_module_id, String s) {
  * @param i => get int32
  * @return String
  */
-String call_module_type3(String func_name, uint32 mpl_module_id,int32 i) {
+String call_module_type3(String func_name, uint32 mpl_module_id, int32 i) {
   #if WINDOWS_PLATFORM == true
   FUNCTYPE3 Proc = (FUNCTYPE3) GetProcAddress(mpl_modules_instance[mpl_module_id], func_name);
   if (NULL != Proc) return (String) Proc(i);
@@ -132,7 +128,7 @@ String call_module_type3(String func_name, uint32 mpl_module_id,int32 i) {
  * @param s => get String
  * @return Boolean
  */
-Boolean call_module_type4(String func_name, uint32 mpl_module_id,String s) {
+Boolean call_module_type4(String func_name, uint32 mpl_module_id, String s) {
   #if WINDOWS_PLATFORM == true
   FUNCTYPE4 Proc = (FUNCTYPE4) GetProcAddress(mpl_modules_instance[mpl_module_id], func_name);
   if (NULL != Proc) return (Boolean) Proc(s);
@@ -170,17 +166,8 @@ void append_to_mofu(uint32 id,
   str_init(&q->params, params);
   str_init(&q->returns, returns);
   q->next = 0;
-  //=>if module is fs
-  if (mod_id == FS_MODULE_ID) {
-    if (fs_start == 0)
-      fs_start = fs_end = q;
-    else {
-      fs_end->next = q;
-      fs_end = q;
-    }
-  }
-    //=>if module is sqlite3
-  else if (mod_id == SQLITE_MODULE_ID) {
+  //=>if module is sqlite3
+  if (mod_id == SQLITE_MODULE_ID) {
     if (sqlite_start == 0)
       sqlite_start = sqlite_end = q;
     else {

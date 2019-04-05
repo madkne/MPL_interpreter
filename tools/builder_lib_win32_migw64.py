@@ -52,7 +52,7 @@ scr_folder="../src";
 compiler="gcc ";
 is_error=0;
 #----------------------
-print("\t~~~~~MPL Builder Library Tool (BY Python3) V 1.4~~~~~");
+print("\t~~~~~MPL Builder Library Tool (BY Python3) V 1.5~~~~~");
 print("=== Start Building win32 release of Builder.dll using Mingw64....");
 #----------------------init dirs
 #-----delete all obj/.*o
@@ -89,7 +89,7 @@ sources=[
 [scr_folder+"/built_in/mpl_builtin.c",scr_folder+"/built_in/mpl_builtin.c -o "+obj_folder+"/mpl_builtin.o"],
 [scr_folder+"/built_in/os_builtin.c",scr_folder+"/built_in/os_builtin.c -o "+obj_folder+"/os_builtin.o"],
 [scr_folder+"/built_in/data_builtin.c",scr_folder+"/built_in/data_builtin.c -o "+obj_folder+"/data_builtin.o"],
-[scr_folder+"/modules/fs_interface.c",scr_folder+"/modules/fs_interface.c -o "+obj_folder+"/fs_interface.o"],
+	[scr_folder+"/built_in/fs_builtin.c",scr_folder+"/built_in/fs_builtin.c -o "+obj_folder+"/fs_builtin.o"],
 [scr_folder+"/modules/sqlite_interface.c",scr_folder+"/modules/sqlite_interface.c -o "+obj_folder+"/sqlite_interface.o"]
 ];
 for i in range(0,len(sources),1):

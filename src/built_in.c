@@ -139,10 +139,10 @@ uint32 call_built_in_funcs(String func_name, str_list params, str_list partypes,
     } else if (func_id == _MPL_EXECUTE) {
       Boolean ret = _MPL_TYPE__exec(argvs[0]);
       str_list_append(&(*returns), str_from_bool(ret), returns_len++);
-    }else if (func_id == _MPL_CROP) {
-      String ret = _MPL_TYPE__crop(var0_ind, str_to_long_int(argvs[1]),str_to_long_int(argvs[2]));
+    } else if (func_id == _MPL_CROP) {
+      String ret = _MPL_TYPE__crop(var0_ind, str_to_long_int(argvs[1]), str_to_long_int(argvs[2]));
       str_list_append(&(*returns), ret, returns_len++);
-    }else if (func_id == _MPL_DEL) {
+    } else if (func_id == _MPL_DEL) {
       Boolean ret = _MPL_TYPE__del(var0_ind);
       str_list_append(&(*returns), str_from_bool(ret), returns_len++);
     }
@@ -194,7 +194,7 @@ uint32 call_built_in_funcs(String func_name, str_list params, str_list partypes,
     } else if (func_id == _DATA_INUM) {
       Boolean ret = _DATA_TYPE__inum(argvs[0]);
       str_list_append(&(*returns), str_from_bool(ret), returns_len++);
-    }else if (func_id == _DATA_DBSLASH) {
+    } else if (func_id == _DATA_DBSLASH) {
       String ret = _DATA_TYPE__dbslah(argvs[0]);
       str_list_append(&(*returns), convert_to_string(ret), returns_len++);
     }
@@ -228,6 +228,34 @@ uint32 call_built_in_funcs(String func_name, str_list params, str_list partypes,
     } else if (func_id == _OS_PRINTF) {
       Boolean ret = _OS_TYPE__printf(argvs_type, argvs, params_len);
       str_list_append(&(*returns), str_from_bool(ret), returns_len++);
+    }else if (func_id == _OS_DATE) {
+      String ret = _OS_TYPE__date_english(str_to_long_int(argvs[0]),argvs[1]);
+      str_list_append(&(*returns), convert_to_string(ret), returns_len++);
+    }
+  }
+    //---------------------FS Function Calls-----------------------
+  else if (func_type == FS_BUILT_IN_TYPE) {
+    //=>init _path from argvs[0] is exist and was a 'str' type
+    String _path = 0;
+    if (params_len > 0 && str_equal(argvs_type[0], "str"))
+      _path = convert_mplpath_to_abspath(argvs[0]);
+    if (func_id == _FS_ABSPATH) {
+      String ret = __syscall_abspath(_path);
+//      printf("Abspath:(%s)%s=>%s=>%s\n",argvs_type[0],argvs[0],_path,ret);
+      str_list_append(&(*returns), convert_to_string(ret), returns_len++);
+    } else if (func_id == _FS_MKDIR) {
+      Boolean ret = __syscall_mkdir(_path, false);
+//      printf("mkdir:%s=>%s\n",argvs[0],_path);
+      str_list_append(&(*returns), str_from_bool(ret), returns_len++);
+    } else if (func_id == _FS_FOPEN) {
+      int32 ret = _FS_TYPE__fopen(_path, argvs[1]);
+      str_list_append(&(*returns), str_from_int32(ret), returns_len++);
+    } else if (func_id == _FS_FCLOSE) {
+      Boolean ret = _FS_TYPE__fclose(str_to_int32(argvs[0]));
+      str_list_append(&(*returns), str_from_bool(ret), returns_len++);
+    }else if (func_id == _FS_FWRITE) {
+      int32 ret = _FS_TYPE__fwrite(str_to_int32(argvs[0]),argvs[1]);
+      str_list_append(&(*returns), str_from_int32(ret), returns_len++);
     }
   }
   //-----------------return
@@ -244,7 +272,7 @@ void init_built_in_funcs() {
    * aa=bool[?,..]|str[?,..]|num[?,..]|struct[?,..] : var
    * aa..=bool[?,..]|str[?,..]|num[?,..]|struct[?,..] : var,var,..
    */
-  //----------------------------------mpl built_in
+  //----------------------------------mpl built_in [..]
   add_to_bifs(_MPL_LEN, MPL_BUILT_IN_TYPE, "len", "aa", "num;?");  //=>[OK]
   add_to_bifs(_MPL_VAR_TYPE, MPL_BUILT_IN_TYPE, "type", "aa", "str"); //=>[OK]
   add_to_bifs(_MPL_TYPEOF, MPL_BUILT_IN_TYPE, "typeof", "a", "str"); //=>[OK]
@@ -288,5 +316,24 @@ void init_built_in_funcs() {
   add_to_bifs(_OS_TIME, OS_BUILT_IN_TYPE, "time", 0, "num"); //=>[OK]
   add_to_bifs(_OS_RAND, OS_BUILT_IN_TYPE, "rand", "num|num", "num"); //=>[OK]
   add_to_bifs(_OS_ARGVS, OS_BUILT_IN_TYPE, "argvs", 0, "str;?"); //=>[OK]
+  add_to_bifs(_OS_DATE, OS_BUILT_IN_TYPE, "date", "num|str", "str"); //=>[..]
+  //----------------------------------fs built_in [..]
+  add_to_bifs(_FS_ABSPATH, FS_BUILT_IN_TYPE, "abspath", "str", "str"); //=>[OK]
+  add_to_bifs(_FS_MKDIR, FS_BUILT_IN_TYPE, "mkdir", "str", "bool"); //=>[OK]
+  add_to_bifs(_FS_MKDIRS, FS_BUILT_IN_TYPE, "mkdirs", "str", "bool");
+  add_to_bifs(_FS_FOPEN, FS_BUILT_IN_TYPE, "fopen", "str|str", "num"); //=>[OK]
+  add_to_bifs(_FS_FCLOSE, FS_BUILT_IN_TYPE, "fclose", "num", "bool"); //=>[OK]
+  add_to_bifs(_FS_FWRITE, FS_BUILT_IN_TYPE, "fwrite", "num|str", "num"); //=>[..]
+  add_to_bifs(_FS_FCONTENT, FS_BUILT_IN_TYPE, "fcontent", "str", "str");
+  add_to_bifs(_FS_FRLINE, FS_BUILT_IN_TYPE, "frline", "num", "str");
+  add_to_bifs(_FS_FRUNTIL, FS_BUILT_IN_TYPE, "fruntil", "num|num", "str");
+  add_to_bifs(_FS_FINFO, FS_BUILT_IN_TYPE, "finfo", "str", "str;?");
+  add_to_bifs(_FS_FCOPY, FS_BUILT_IN_TYPE, "fcopy", "str|str", "bool");
+//  add_to_bifs(_FS_RMDIR, FS_BUILT_IN_TYPE, "mkdirs", "str", "bool");
+//  add_to_bifs(_FS_RMFILE, FS_BUILT_IN_TYPE, "abspath", "str", "str");
+//  add_to_bifs(_FS_DSCAN, FS_BUILT_IN_TYPE, "mkdir", "str", "bool");
+//  add_to_bifs(_FS_IDIR, FS_BUILT_IN_TYPE, "mkdirs", "str", "bool");
+//  add_to_bifs(_FS_IFILE, FS_BUILT_IN_TYPE, "abspath", "str", "str");
+//  add_to_bifs(_FS_PPATH, FS_BUILT_IN_TYPE, "mkdir", "str", "bool");
 }
 

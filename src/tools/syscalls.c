@@ -207,3 +207,21 @@ Boolean __syscall_binary_copy(String src, String dst) {
   fclose(out);
   return true;
 }
+
+//******************************************
+#if WINDOWS_PLATFORM == true
+String __syscall_reg_value(HKEY hkey, String path, String key) {
+  String ret = 0;
+  uint8 value[8192];
+  DWORD BufferSize = 8192;
+  LSTATUS status = RegGetValueA(hkey, path, key, RRF_RT_ANY, NULL, (PVOID) &value, &BufferSize);
+  if (status == ERROR_SUCCESS) {
+    for (uint32 i = 0; i < (uint32) BufferSize; i++) {
+      ret = char_append(ret, value[i]);
+    }
+    return ret;
+  }
+  return 0;
+}
+
+#endif
